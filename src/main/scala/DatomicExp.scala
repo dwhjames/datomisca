@@ -6,7 +6,7 @@ import java.io.FileReader
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Datomic {
+object DatomicExp {
 
   implicit def connection(implicit uri: String): Connection = {
     val conn = datomic.Peer.connect(uri)
@@ -53,6 +53,11 @@ object Datomic {
       def connection = conn
     }
   }
+
+  //implicit def toRule(t: (Term, Term)) = Rule(Seq(t._1, t._2))
+  //implicit def toRule(t: (Term, Term, Term)) = Rule(Seq(t._1, t._2, t._3))
+
+  //def find(vars: Var*) = new Find(vars)
 }
 
 case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[Any, Any] = Map()) 
@@ -73,8 +78,8 @@ trait Connection {
   def transact(ops: Seq[Operation]) = {
     val m: Map[Any, Any] = connection.transact(ops.map( _.asJava ).toList.asJava).get().toMap.map( t => (t._1.toString, t._2))
 
-    println("MAP:"+m)
-    println("datomic.Connection.DB_BEFORE="+m.get(datomic.Connection.DB_BEFORE.toString))
+    //println("MAP:"+m)
+    //println("datomic.Connection.DB_BEFORE="+m.get(datomic.Connection.DB_BEFORE.toString))
     val opt = for( 
       dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
       dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
@@ -83,35 +88,6 @@ trait Connection {
     ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
     
     opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))    
-  }
-}
-
-trait Res {
-  def values: List[Any]
-
-  def toList = values
-
-}
-
-object Res {
-  def apply(vs: List[Any]) = new Res {
-    override lazy val values: List[Any] = vs
-  }
-
-  def unapplySeq(res: Res): Option[List[Any]] = Some(res.toList)
-}
-
-trait ResultSet {
-
-  def results: List[Res]
-  def collect[T](pf: PartialFunction[Res, T]): List[T] = results.collect(pf)
-  def map[T](f: Res => T): List[T] = results.map(f)
-
-}
-
-object ResultSet {
-  def apply(rez: List[List[Any]]) = new ResultSet{
-    override lazy val results: List[Res] = rez.map( (values: List[Any]) => Res(values) )
   }
 }
 
@@ -136,12 +112,12 @@ case class NameSpace(name: String) {
 
 trait NameSpaceable {
   def name: String
-  def ns: NameSpace = Datomic._db
+  def ns: NameSpace = DatomicExp._db
 
   override def toString() = ns.toString + "/" + name
 }
 
-case class Attribute(override val name: String, override val ns: NameSpace = Datomic._db) extends NameSpaceable 
+case class Attribute(override val name: String, override val ns: NameSpace = DatomicExp._db) extends NameSpaceable 
 
 trait Operation extends NameSpaceable{
   def withNs(ns: NameSpace): Operation
@@ -149,6 +125,7 @@ trait Operation extends NameSpaceable{
 } 
 
 trait DatomicTypes {
+  import scala.collection.JavaConverters._
   def toDatomic(a: Any): java.lang.Object = {
     a match {
       case id: TemporaryId => id.value
@@ -157,12 +134,13 @@ trait DatomicTypes {
       case l: Long => new java.lang.Long(l)
       case i: Int => new java.lang.Integer(i)
       case b: Boolean => new java.lang.Boolean(b)
+      case s: Seq[_] => s.map(toDatomic(_)).asJava
       case a => a.toString
     }
   }
 }
 
-case class add[T](id: Any, attr: Attribute, value: T, override val ns: NameSpace = Datomic._db) extends Operation with DatomicTypes{
+case class add[T](id: Any, attr: Attribute, value: T, override val ns: NameSpace = DatomicExp._db) extends Operation with DatomicTypes{
   import scala.collection.JavaConverters._
 
   override def name: String = "add"
@@ -224,7 +202,7 @@ object SchemaAttribute {
   def apply(attrs: (Attribute, Any) *)(implicit s:DummyImplicit): SchemaAttribute = SchemaAttribute(Seq(mapadd(attrs.map( e => e._1 -> e._2 ))))
 }*/
 
-trait Term[T]
+/*trait Term[T]
 case class Var[T](s: String) extends Term[T]
 case class Const[T](value: T) extends Term[T]
 case class Input[T](value: T) extends Term[T]
@@ -233,7 +211,9 @@ case class Datom(entity: Term[_], attr: Term[_], value: Option[Term[_]] = None, 
 
 object Datom{
   def apply(entity: Term[_], attr: Term[_], value: Term[_]) = new Datom(entity, attr, Some(value))
-}
+}*/
+
+
 /*class find1[A1](v1: Var[A1], rules: Seq[Datom] = Seq()) {
   def where( pf: PartialFunction[Var[A1], Seq[Datom]] ) = if(pf.isDefinedAt(v1)) new find1(v1, rules = pf(v1))
   def in[I1]( in1: Input[I1] ) = new find2(v1, in1)
