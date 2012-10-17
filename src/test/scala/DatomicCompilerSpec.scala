@@ -34,8 +34,8 @@ class DatomicCompilerSpec extends Specification {
       println(DatomicSerializers.querySerialize(
       DatomicCompiler.query("""
         [ :find ?e ?n 
-          :where  [ ?e :person/name ?n ] 
-                  [ ?e :person/character :person.character/violent
+          :where  [ ?e :person/name ?n ]
+                  [ ?e :person/character :person.character/violent ]
         ]
       """))
       )

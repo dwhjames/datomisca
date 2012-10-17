@@ -3,6 +3,7 @@ package reactivedatomic
 import scala.reflect.macros.Context
 import language.experimental.macros
 import scala.tools.reflect.Eval
+import scala.reflect.internal.util.{Position, OffsetPosition}
 
 object DatomicCompiler {
 
@@ -63,10 +64,17 @@ object DatomicCompiler {
           case Literal(Constant(s: String)) => 
             //println(DatomicParser.parseQuery2(s).toString)
             //c.Expr[String](c.universe.Literal(c.universe.Constant(DatomicParser.parseQuery2(s).toString)))
-            DatomicParser.parseQuery2(s) match {
-              case Left(msg) =>
-                c.error(c.enclosingPosition.withStart(c.enclosingPosition.line + 5), msg)
-                //(c.universe.reify(DatomicParser.parseQuery(s)): c.Expr[Query]).splice
+            DatomicParser.parseQuerySafe(s) match {
+              case Left(ParseFailure(msg, offsetLine, offsetCol)) =>
+                val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
+
+                val enclosingOffset = 
+                  enclosingPos.source.lineToOffset(enclosingPos.line - 1 + offsetLine - 1 ) + offsetCol - 1
+
+                println("enclosingOffset: %d offsetLine:%d offsetCol:%d".format(enclosingPos.source.lineToOffset(enclosingPos.line), offsetLine, offsetCol))
+                println("line:%d offset:%d".format(enclosingPos.line, enclosingOffset))
+                val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
+                c.error(offsetPos.asInstanceOf[c.Position], msg)
                 c.Expr[Query](null)
                 //c.universe.reify(msg)
               case Right(q) => c.Expr[Query]( inception(q) )

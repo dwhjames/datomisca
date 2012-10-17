@@ -128,7 +128,7 @@ class DatomicQuerySpec extends Specification {
           println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
       }
 
-      q3[(DLong, DString, DInt)]( 
+      /*q3[(DLong, DString, DInt)]( 
       """
         [ :find ?e ?name ?age
           :where  [ ?e :person/name ?name ] 
@@ -144,7 +144,7 @@ class DatomicQuerySpec extends Specification {
         }
       ).recover{ 
         case e => println(e.getMessage) 
-      }
+      }*/
 
       success
     }

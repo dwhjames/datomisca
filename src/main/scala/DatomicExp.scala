@@ -6,6 +6,82 @@ import java.io.FileReader
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.util.{Try, Success, Failure}
+
+
+object DatomicDataExp {
+
+  trait DatomicDataListConverter[T] {
+    def convert(d: List[DatomicData]): Try[T]
+  }
+
+  trait DatomicDataConverter[T] {
+    def convert(d: DatomicData): Try[T]
+  }
+
+  def as[T](list: List[DatomicData])(implicit dc: DatomicDataListConverter[T]): Try[T] = dc.convert(list)
+  def as[T](d: DatomicData)(implicit dc: DatomicDataConverter[T]): Try[T] = dc.convert(d)
+
+  implicit object toDString extends DatomicDataConverter[DString] {
+    def convert(d: DatomicData): Try[DString] = d match {
+      case d: DString => Success(d)
+      case _ => Failure(new RuntimeException("expected DString found %s".format(d)))
+    }
+  }
+
+  implicit object toDLong extends DatomicDataConverter[DLong] {
+    def convert(d: DatomicData): Try[DLong] = d match {
+      case l: DLong => Success(l)
+      case _ => Failure(new RuntimeException("expected DLong found %s".format(d)))
+    }
+  }
+
+  implicit object toDInt extends DatomicDataConverter[DInt] {
+    def convert(d: DatomicData): Try[DInt] = d match {
+      case l: DInt => Success(l)
+      case _ => Failure(new RuntimeException("expected DInt found %s".format(d)))
+    }
+  }
+
+  implicit object toDBoolean extends DatomicDataConverter[DBoolean] {
+    def convert(d: DatomicData): Try[DBoolean] = d match {
+      case l: DBoolean => Success(l)
+      case _ => Failure(new RuntimeException("expected DBoolean found %s".format(d)))
+    }
+  }
+
+  implicit object toDFloat extends DatomicDataConverter[DFloat] {
+    def convert(d: DatomicData): Try[DFloat] = d match {
+      case l: DFloat => Success(l)
+      case _ => Failure(new RuntimeException("expected DFloat found %s".format(d)))
+    }
+  }
+
+  implicit object toDDouble extends DatomicDataConverter[DDouble] {
+    def convert(d: DatomicData): Try[DDouble] = d match {
+      case l: DDouble => Success(l)
+      case _ => Failure(new RuntimeException("expected DDouble found %s".format(d)))
+    }
+  }
+
+  implicit def toDatomicTuple2[A, B](implicit ca: DatomicDataConverter[A], cb: DatomicDataConverter[B]) = 
+    new DatomicDataListConverter[(A, B)] {
+      def convert(l: List[DatomicData]) = l match {
+        case List(a, b) => as[A](a).flatMap( a => as[B](b).map( b => (a, b) ) )
+        case _ => Failure(new RuntimeException("expected Tuple2 found %s".format(l)))
+      }
+    }
+
+  implicit def toDatomicTuple3[A, B, C](implicit ca: DatomicDataConverter[A], cb: DatomicDataConverter[B], cc: DatomicDataConverter[C]) = 
+    new DatomicDataListConverter[(A, B, C)] {
+      def convert(l: List[DatomicData]) = l match {
+        case List(a, b, c) => as[A](a).flatMap( a => as[B](b).flatMap( b => as[C](c).map( c => (a, b, c) ) ) )
+        case _ => Failure(new RuntimeException("expected Tuple3 found %s".format(l)))
+      }
+    }
+}
+
+
 object DatomicExp {
 
   implicit def connection(implicit uri: String): Connection = {
@@ -58,6 +134,26 @@ object DatomicExp {
   //implicit def toRule(t: (Term, Term, Term)) = Rule(Seq(t._1, t._2, t._3))
 
   //def find(vars: Var*) = new Find(vars)
+
+  import DatomicDataExp._
+  def q3[T](s: String)(implicit db: datomic.Database, conv: DatomicDataListConverter[T]): Try[List[T]] = {
+    import scala.collection.JavaConversions._
+
+    val qast = DatomicParser.parseQuery(s)
+    val qser = DatomicSerializers.querySerialize(qast)
+
+    val results: List[List[Any]] = datomic.Peer.q(qser, db).toList.map(_.toList)
+    
+    val loft: List[Try[T]] = results.map { fields => 
+      DatomicDataExp.as[T](fields.map { field => DatomicData.toDatomicData(field) }) 
+    }
+    
+    loft.foldLeft(Success(Nil): Try[List[T]]){ (acc, e) => e match {
+      case Success(t) => acc.map( (a: List[T]) => a :+ t )
+      case Failure(f) => Failure(f)
+    } }
+
+  }
 }
 
 case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[Any, Any] = Map()) 

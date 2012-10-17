@@ -54,25 +54,6 @@ object Datomic {
 
   }
 
-  def q3[T](s: String)(implicit db: datomic.Database, conv: DatomicDataListConverter[T]): Try[List[T]] = {
-    import scala.collection.JavaConversions._
-
-    val qast = DatomicParser.parseQuery(s)
-    val qser = DatomicSerializers.querySerialize(qast)
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, db).toList.map(_.toList)
-    
-    val loft: List[Try[T]] = results.map { fields => 
-      DatomicData.as[T](fields.map { field => DatomicData.toDatomicData(field) }) 
-    }
-    
-    loft.foldLeft(Success(Nil): Try[List[T]]){ (acc, e) => e match {
-      case Success(t) => acc.map( (a: List[T]) => a :+ t )
-      case Failure(f) => Failure(f)
-    } }
-
-  }
-
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
 
   def connect(uri: String): Connection = {

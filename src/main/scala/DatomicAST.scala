@@ -1,11 +1,11 @@
 package reactivedatomic
 
 import scala.util.{Try, Success, Failure}
-
+import scala.util.parsing.input.Positional
 
 /* DATOMIC TYPES */
 sealed trait DatomicData
-case class DString(value: String) extends DatomicData
+case class DString(value: String) extends DatomicData 
 case class DBoolean(value: Boolean) extends DatomicData
 case class DInt(value: Int) extends DatomicData
 case class DLong(value: Long) extends DatomicData
@@ -16,6 +16,26 @@ case class DInstant(value: java.util.Date) extends DatomicData
 case class DUuid(value: java.util.UUID) extends DatomicData
 case class DUri(value: java.net.URI) extends DatomicData
 case class DRef(value: Keyword) extends DatomicData
+
+object DatomicData {
+
+  def toDatomicData(v: Any): DatomicData = v match {
+    case s: String => DString(s)
+    case b: Boolean => DBoolean(b)
+    case i: Int => DInt(i)
+    case l: Long => DLong(l)
+    case f: Float => DFloat(f)
+    case d: Double => DDouble(d)
+    case bd: BigDecimal => DBigDec(bd)
+    case d: java.util.Date => DInstant(d)
+    case u: java.util.UUID => DUuid(u)
+    case u: java.net.URI => DUri(u)
+    // REF???
+    case _ => throw new RuntimeException("Unknown Datomic Value")
+  }
+
+}
+
 
 /* DATOMIC TERMS */
 sealed trait Term
@@ -35,18 +55,18 @@ case object ImplicitDS extends DataSource {
 }
 
 /* DATOMIC RULES */
-case class Rule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty)
-case class Where(rules: Seq[Rule])
+case class Rule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Positional
+case class Where(rules: Seq[Rule]) extends Positional
 
 /* DATOMIC INPUTS */
-case class In(inputs: Seq[Input])
+case class In(inputs: Seq[Input]) extends Positional
 
 sealed trait Input
 case class InDataSource(ds: DataSource) extends Input
 case class InVariable(variable: Var) extends Input
 
 /* DATOMIC OUTPUTS */
-case class Find(outputs: Seq[Output])
+case class Find(outputs: Seq[Output]) extends Positional
 
 sealed trait Output
 case class OutVariable(variable: Var) extends Output
@@ -54,98 +74,18 @@ case class OutVariable(variable: Var) extends Output
 /* DATOMIC QUERY */
 case class Query(find: Find, in: Option[In] = None, where: Where)
 
-case class Dummy(s: String)
-
 object Query {
   def apply(find: Find, where: Where) = new Query(find, None, where)
   def apply(find: Find, in: In, where: Where) = new Query(find, Some(in), where)
 }
 
-trait DatomicDataListConverter[T] {
-  def convert(d: List[DatomicData]): Try[T]
-}
+sealed trait Args
 
-trait DatomicDataConverter[T] {
-  def convert(d: DatomicData): Try[T]
-}
+case class Arg2(_1: DatomicData, _2: DatomicData) extends Args
+case class Arg3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args
 
-object DatomicData {
-  def as[T](list: List[DatomicData])(implicit dc: DatomicDataListConverter[T]): Try[T] = dc.convert(list)
-  def as[T](d: DatomicData)(implicit dc: DatomicDataConverter[T]): Try[T] = dc.convert(d)
+case class TypedQuery[In <: Args, Out <: Args](query: Query)
 
-  def toDatomicData(v: Any): DatomicData = v match {
-    case s: String => DString(s)
-    case b: Boolean => DBoolean(b)
-    case i: Int => DInt(i)
-    case l: Long => DLong(l)
-    case f: Float => DFloat(f)
-    case d: Double => DDouble(d)
-    case bd: BigDecimal => DBigDec(bd)
-    case d: java.util.Date => DInstant(d)
-    case u: java.util.UUID => DUuid(u)
-    case u: java.net.URI => DUri(u)
-    // REF???
-    case _ => throw new RuntimeException("Unknown Datomic Value")
-  }
-
-  implicit object toDString extends DatomicDataConverter[DString] {
-    def convert(d: DatomicData): Try[DString] = d match {
-      case d: DString => Success(d)
-      case _ => Failure(new RuntimeException("expected DString found %s".format(d)))
-    }
-  }
-
-  implicit object toDLong extends DatomicDataConverter[DLong] {
-    def convert(d: DatomicData): Try[DLong] = d match {
-      case l: DLong => Success(l)
-      case _ => Failure(new RuntimeException("expected DLong found %s".format(d)))
-    }
-  }
-
-  implicit object toDInt extends DatomicDataConverter[DInt] {
-    def convert(d: DatomicData): Try[DInt] = d match {
-      case l: DInt => Success(l)
-      case _ => Failure(new RuntimeException("expected DInt found %s".format(d)))
-    }
-  }
-
-  implicit object toDBoolean extends DatomicDataConverter[DBoolean] {
-    def convert(d: DatomicData): Try[DBoolean] = d match {
-      case l: DBoolean => Success(l)
-      case _ => Failure(new RuntimeException("expected DBoolean found %s".format(d)))
-    }
-  }
-
-  implicit object toDFloat extends DatomicDataConverter[DFloat] {
-    def convert(d: DatomicData): Try[DFloat] = d match {
-      case l: DFloat => Success(l)
-      case _ => Failure(new RuntimeException("expected DFloat found %s".format(d)))
-    }
-  }
-
-  implicit object toDDouble extends DatomicDataConverter[DDouble] {
-    def convert(d: DatomicData): Try[DDouble] = d match {
-      case l: DDouble => Success(l)
-      case _ => Failure(new RuntimeException("expected DDouble found %s".format(d)))
-    }
-  }
-
-  implicit def toDatomicTuple2[A, B](implicit ca: DatomicDataConverter[A], cb: DatomicDataConverter[B]) = 
-    new DatomicDataListConverter[(A, B)] {
-      def convert(l: List[DatomicData]) = l match {
-        case List(a, b) => as[A](a).flatMap( a => as[B](b).map( b => (a, b) ) )
-        case _ => Failure(new RuntimeException("expected Tuple2 found %s".format(l)))
-      }
-    }
-
-  implicit def toDatomicTuple3[A, B, C](implicit ca: DatomicDataConverter[A], cb: DatomicDataConverter[B], cc: DatomicDataConverter[C]) = 
-    new DatomicDataListConverter[(A, B, C)] {
-      def convert(l: List[DatomicData]) = l match {
-        case List(a, b, c) => as[A](a).flatMap( a => as[B](b).flatMap( b => as[C](c).map( c => (a, b, c) ) ) )
-        case _ => Failure(new RuntimeException("expected Tuple3 found %s".format(l)))
-      }
-    }
-}
 
 object DatomicSerializers extends DatomicSerializers
 
