@@ -1,5 +1,8 @@
 package reactivedatomic
 
+import scala.util.{Try, Success, Failure}
+
+
 /* DATOMIC TYPES */
 sealed trait DatomicData
 case class DString(value: String) extends DatomicData
@@ -51,13 +54,102 @@ case class OutVariable(variable: Var) extends Output
 /* DATOMIC QUERY */
 case class Query(find: Find, in: Option[In] = None, where: Where)
 
+case class Dummy(s: String)
+
 object Query {
   def apply(find: Find, where: Where) = new Query(find, None, where)
   def apply(find: Find, in: In, where: Where) = new Query(find, Some(in), where)
 }
 
+trait DatomicDataListConverter[T] {
+  def convert(d: List[DatomicData]): Try[T]
+}
 
-object DatomicSerializers {
+trait DatomicDataConverter[T] {
+  def convert(d: DatomicData): Try[T]
+}
+
+object DatomicData {
+  def as[T](list: List[DatomicData])(implicit dc: DatomicDataListConverter[T]): Try[T] = dc.convert(list)
+  def as[T](d: DatomicData)(implicit dc: DatomicDataConverter[T]): Try[T] = dc.convert(d)
+
+  def toDatomicData(v: Any): DatomicData = v match {
+    case s: String => DString(s)
+    case b: Boolean => DBoolean(b)
+    case i: Int => DInt(i)
+    case l: Long => DLong(l)
+    case f: Float => DFloat(f)
+    case d: Double => DDouble(d)
+    case bd: BigDecimal => DBigDec(bd)
+    case d: java.util.Date => DInstant(d)
+    case u: java.util.UUID => DUuid(u)
+    case u: java.net.URI => DUri(u)
+    // REF???
+    case _ => throw new RuntimeException("Unknown Datomic Value")
+  }
+
+  implicit object toDString extends DatomicDataConverter[DString] {
+    def convert(d: DatomicData): Try[DString] = d match {
+      case d: DString => Success(d)
+      case _ => Failure(new RuntimeException("expected DString found %s".format(d)))
+    }
+  }
+
+  implicit object toDLong extends DatomicDataConverter[DLong] {
+    def convert(d: DatomicData): Try[DLong] = d match {
+      case l: DLong => Success(l)
+      case _ => Failure(new RuntimeException("expected DLong found %s".format(d)))
+    }
+  }
+
+  implicit object toDInt extends DatomicDataConverter[DInt] {
+    def convert(d: DatomicData): Try[DInt] = d match {
+      case l: DInt => Success(l)
+      case _ => Failure(new RuntimeException("expected DInt found %s".format(d)))
+    }
+  }
+
+  implicit object toDBoolean extends DatomicDataConverter[DBoolean] {
+    def convert(d: DatomicData): Try[DBoolean] = d match {
+      case l: DBoolean => Success(l)
+      case _ => Failure(new RuntimeException("expected DBoolean found %s".format(d)))
+    }
+  }
+
+  implicit object toDFloat extends DatomicDataConverter[DFloat] {
+    def convert(d: DatomicData): Try[DFloat] = d match {
+      case l: DFloat => Success(l)
+      case _ => Failure(new RuntimeException("expected DFloat found %s".format(d)))
+    }
+  }
+
+  implicit object toDDouble extends DatomicDataConverter[DDouble] {
+    def convert(d: DatomicData): Try[DDouble] = d match {
+      case l: DDouble => Success(l)
+      case _ => Failure(new RuntimeException("expected DDouble found %s".format(d)))
+    }
+  }
+
+  implicit def toDatomicTuple2[A, B](implicit ca: DatomicDataConverter[A], cb: DatomicDataConverter[B]) = 
+    new DatomicDataListConverter[(A, B)] {
+      def convert(l: List[DatomicData]) = l match {
+        case List(a, b) => as[A](a).flatMap( a => as[B](b).map( b => (a, b) ) )
+        case _ => Failure(new RuntimeException("expected Tuple2 found %s".format(l)))
+      }
+    }
+
+  implicit def toDatomicTuple3[A, B, C](implicit ca: DatomicDataConverter[A], cb: DatomicDataConverter[B], cc: DatomicDataConverter[C]) = 
+    new DatomicDataListConverter[(A, B, C)] {
+      def convert(l: List[DatomicData]) = l match {
+        case List(a, b, c) => as[A](a).flatMap( a => as[B](b).flatMap( b => as[C](c).map( c => (a, b, c) ) ) )
+        case _ => Failure(new RuntimeException("expected Tuple3 found %s".format(l)))
+      }
+    }
+}
+
+object DatomicSerializers extends DatomicSerializers
+
+trait DatomicSerializers {
   def datomicDataSerialize: DatomicData => String = (d: DatomicData) => d match {
     case DString(v) => "\""+ v + "\""
     case DInt(v) => v.toString
@@ -71,6 +163,7 @@ object DatomicSerializers {
     case DUri(v) => v.toString
     case DBoolean(v) => v.toString
   }
+
 
   def termSerialize: Term => String = (v: Term) => v match {
     case Var(v) => "?" + v

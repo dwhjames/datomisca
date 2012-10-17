@@ -29,5 +29,6 @@ libraryDependencies ++= Seq(
   "org.specs2" % "specs2_2.10.0-M7" % "1.12.1.1" % "test",
   "junit" % "junit" % "4.8" % "test",
   "org.slf4j" % "slf4j-api" % "1.6.4",
-  "com.h2database" % "h2" % "1.3.165" 
+  "com.h2database" % "h2" % "1.3.165",
+  "org.scala-lang" % "scala-compiler" % "2.10.0-M7"
 )

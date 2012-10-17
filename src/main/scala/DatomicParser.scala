@@ -80,4 +80,9 @@ object DatomicParser extends JavaTokenParsers {
     case Success(result, _) => result
     case failure : NoSuccess => scala.sys.error(failure.msg)
   }
+
+  def parseQuery2(input: String): Either[String, Query] = parseAll(query, input) match {
+    case Success(result, _) => Right(result)
+    case failure : NoSuccess => Left(failure.msg)
+  }
 }

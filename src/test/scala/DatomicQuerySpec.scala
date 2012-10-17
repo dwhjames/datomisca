@@ -45,6 +45,14 @@ object Boostrap {
       ),
       _db/add( 
         _db/'id                 -> tempid( _db.part/'db ),
+        _db/'ident              -> _person/'age,
+        _db/'valueType          -> _db.typ/'long,
+        _db/'cardinality        -> _db.cardinality/'one,
+        _db/'doc                -> "\"Age of character\"", 
+        _db.install/'_attribute -> _db.part/'db
+      ),
+      _db/add( 
+        _db/'id                 -> tempid( _db.part/'db ),
         _db/'ident              -> _person/'character,
         _db/'valueType          -> _db.typ/'ref,
         _db/'cardinality        -> _db.cardinality/'many,
@@ -68,11 +76,13 @@ object Boostrap {
           _db/add(
             _db/'id -> tempid( _db.part/'user ),
             _person/'name -> "toto",
+            _person/'age -> 23,
             _person/'character -> Seq( _person.character/'stupid, _person.character/'weak)
           ),
           _db/add(
             _db/'id -> tempid( _db.part/'user ),
             _person/'name -> "tutu",
+            _person/'age -> 45,
             _person/'character -> Seq( _person.character/'clever, _person.character/'violent)
           )
         )
@@ -90,7 +100,8 @@ object Boostrap {
 class DatomicQuerySpec extends Specification {
   "Datomic" should {
     "query simple" in {
-      import reactivedatomic.Datomic._
+      import Datomic._
+      import DatomicData._
 
       implicit val uri = "datomic:mem://datomicqueryspec"
       Boostrap(uri)
@@ -103,7 +114,36 @@ class DatomicQuerySpec extends Specification {
       """).collect {
         case Res(e: Long, n: String) => 
           val entity = database.entity(e)
-          println("name:"+n+ " - e:" + entity.get(":person/character"))
+          println("Q1 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+      }
+
+      q2("""
+        [ :find ?e ?n 
+          :where  [ ?e :person/name ?n ] 
+                  [ ?e :person/character :person.character/violent ]
+        ]
+      """).collect {
+        case List(e: DLong, n: DString) => 
+          val entity = database.entity(e.value)
+          println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+      }
+
+      q3[(DLong, DString, DInt)]( 
+      """
+        [ :find ?e ?name ?age
+          :where  [ ?e :person/name ?name ] 
+                  [ ?e :person/age ?age ] 
+                  [ ?e :person/character ?char ]
+        ]
+      """
+      ).map( list => 
+        list.map {
+          case (e: DLong, n: DString, a: DInt) => 
+            val entity = database.entity(e.value)
+            println("Q3 entity: e:%s name:%s age:%s chars:%s".format(e, n, a, entity.get(":person/character")))
+        }
+      ).recover{ 
+        case e => println(e.getMessage) 
       }
 
       success

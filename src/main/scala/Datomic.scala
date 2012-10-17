@@ -6,6 +6,8 @@ import java.io.FileReader
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.util.{Try, Success, Failure}
+
 object Datomic {
 
   implicit def connection(implicit uri: String): Connection = {
@@ -17,6 +19,13 @@ object Datomic {
   }
 
   implicit def database(implicit conn: Connection) = conn.database
+
+  /*implicit def tuple2Converter = new DatomicResultConverter[Tuple2] {
+    def convert(l: List[Any]) = l match {
+      case Nil => None
+      case a1 :: a2 :: tail => Some(Tuple2(a1, a2))
+    }
+  }*/
 
   def q(s: String)(implicit db: datomic.Database): ResultSet = {
     import scala.collection.JavaConversions._
@@ -30,6 +39,39 @@ object Datomic {
   }
 
   def query(s: String)(implicit db: datomic.Database): ResultSet = q(s)
+
+  def q2(s: String)(implicit db: datomic.Database): List[List[DatomicData]] = {
+    import scala.collection.JavaConversions._
+
+    val qast = DatomicParser.parseQuery(s)
+    val qser = DatomicSerializers.querySerialize(qast)
+
+    val results: List[List[Any]] = datomic.Peer.q(qser, db).toList.map(_.toList)
+    
+    results.map { fields =>
+      fields.map { field => DatomicData.toDatomicData(field) }
+    }
+
+  }
+
+  def q3[T](s: String)(implicit db: datomic.Database, conv: DatomicDataListConverter[T]): Try[List[T]] = {
+    import scala.collection.JavaConversions._
+
+    val qast = DatomicParser.parseQuery(s)
+    val qser = DatomicSerializers.querySerialize(qast)
+
+    val results: List[List[Any]] = datomic.Peer.q(qser, db).toList.map(_.toList)
+    
+    val loft: List[Try[T]] = results.map { fields => 
+      DatomicData.as[T](fields.map { field => DatomicData.toDatomicData(field) }) 
+    }
+    
+    loft.foldLeft(Success(Nil): Try[List[T]]){ (acc, e) => e match {
+      case Success(t) => acc.map( (a: List[T]) => a :+ t )
+      case Failure(f) => Failure(f)
+    } }
+
+  }
 
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
 
@@ -58,6 +100,7 @@ object Res {
   def unapplySeq(res: Res): Option[List[Any]] = Some(res.toList)
 }
 
+
 trait ResultSet {
 
   def results: List[Res]
@@ -71,3 +114,4 @@ object ResultSet {
     override lazy val results: List[Res] = rez.map( (values: List[Any]) => Res(values) )
   }
 }
+
