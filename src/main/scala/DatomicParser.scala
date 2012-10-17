@@ -3,7 +3,7 @@ package reactivedatomic
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.input.Positional
 
-case class ParseFailure(msg: String, offsetLine: Int, offsetCol: Int)
+case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
 
 object DatomicParser extends JavaTokenParsers {
 
@@ -86,8 +86,8 @@ object DatomicParser extends JavaTokenParsers {
     case failure : NoSuccess => scala.sys.error(failure.msg)
   }
 
-  def parseQuerySafe(input: String): Either[ParseFailure, Query] = parseAll(query, input) match {
+  def parseQuerySafe(input: String): Either[PositionFailure, Query] = parseAll(query, input) match {
     case Success(result, _) => Right(result)
-    case c @ Failure(msg, input) => Left(ParseFailure(msg, input.pos.line, input.pos.column))
+    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 }

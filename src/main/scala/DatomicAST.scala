@@ -72,20 +72,31 @@ sealed trait Output
 case class OutVariable(variable: Var) extends Output
 
 /* DATOMIC QUERY */
-case class Query(find: Find, in: Option[In] = None, where: Where)
+trait Query {
+  def find: Find
+  def in: Option[In] = None
+  def where: Where
+}
 
 object Query {
-  def apply(find: Find, where: Where) = new Query(find, None, where)
-  def apply(find: Find, in: In, where: Where) = new Query(find, Some(in), where)
+  def apply(find: Find, where: Where): Query = PureQuery(find, None, where)
+  def apply(find: Find, in: In, where: Where): Query = PureQuery(find, Some(in), where)
+  def apply(find: Find, in: Option[In], where: Where): Query = PureQuery(find, in, where)
+  def apply[In <: Args, Out <: Args](q: PureQuery): Query = TypedQuery[In, Out](q)
 }
+
+case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query
 
 sealed trait Args
 
-case class Arg2(_1: DatomicData, _2: DatomicData) extends Args
-case class Arg3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args
+case class Args2(_1: DatomicData, _2: DatomicData) extends Args
+case class Args3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args
 
-case class TypedQuery[In <: Args, Out <: Args](query: Query)
-
+case class TypedQuery[In <: Args, Out <: Args](query: Query) extends Query {
+  override def find = query.find
+  override def in = query.in
+  override def where = query.where
+}
 
 object DatomicSerializers extends DatomicSerializers
 
