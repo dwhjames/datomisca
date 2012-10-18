@@ -32,9 +32,9 @@ class DatomicCompilerSpec extends Specification {
       println("TOTO")
 
       println(DatomicSerializers.querySerialize(
-      DatomicCompiler.query[Args2, Args3]("""
+      DatomicCompiler.query[Args2, Args2]("""
         [ :find ?e ?n 
-          :where  [ ?e :person/name ?n ]
+          :where  [ ?e :person/name ?n
                   [ ?e :person/character :person.character/violent ]
         ]
       """))

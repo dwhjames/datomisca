@@ -111,23 +111,42 @@ object DatomicCompiler {
       //println(implicitly[c.AbsTypeTag[T]].tpe <:< implicitly[c.TypeTag[Boolean]].tpe)
       //println(c.universe.TypeTag.unapply(implicitly[c.AbsTypeTag[T]].tpe))
 
-      def verifyTyped[T](typeTag: c.AbsTypeTag[T], query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
-        val tpe = typeTag.tpe
+      def verifyInputs(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
+        val tpe = implicitly[c.AbsTypeTag[A]].tpe
+        val sz = query.find.outputs.size
+        lazy val argPos = c.macroApplication.children(0).children(1).pos
 
-        if(tpe <:< implicitly[c.TypeTag[Args2]].tpe && query.find.outputs.size != 2) {
-          val argPos = c.macroApplication.children(0).children(2).pos
-          Left(PositionFailure("Expected 2 ouput variables in the query", 1, argPos.column))
+        query.in.map{ in => 
+          if(
+            (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) 
+            || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
+          )
+            Left(PositionFailure("Expected %d OUTPUT variables in the query".format(sz), 1, argPos.column))
+          else Right(TypedQuery[A,B](query))
+        } 
+        .getOrElse(Right(TypedQuery[A,B](query)))
+        
+      }
+
+      def verifyOutputs(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
+        val tpe = implicitly[c.AbsTypeTag[B]].tpe
+        val sz = query.find.outputs.size
+        val argPos = c.macroApplication.children(0).children(2).pos
+
+        if(tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) {
+          Left(PositionFailure("Expected %d OUTPUT variables in the query".format(sz), 1, argPos.column))
         }
-        else if(tpe <:< implicitly[c.TypeTag[Args3]].tpe && query.find.outputs.size != 3) {
+        else if(tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3) {
           val argPos = c.macroApplication.children(0).children(2).pos
-          Left(PositionFailure("Expected 3 ouput variables in the query", 1, argPos.column))
+          Left(PositionFailure("Expected %d OUTPUT variables in the query".format(sz), 1, argPos.column))
         }
         else Right(TypedQuery[A,B](query))
       }
 
       def verifyTypes(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
-        verifyTyped[A](implicitly[c.AbsTypeTag[A]], query).right
-          .flatMap( _ => verifyTyped[B](implicitly[c.AbsTypeTag[B]], query) )
+        verifyInputs(query).right.flatMap( _ => 
+          verifyOutputs(query) 
+        )
       }
 
       import c.universe._
