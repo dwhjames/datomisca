@@ -29,16 +29,42 @@ class DatomicCompilerSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      println("TOTO")
+      implicit val uri = "datomic:mem://datomicqueryspec"
+      DatomicBootstrap(uri)
 
-      println(DatomicSerializers.querySerialize(
-      DatomicCompiler.query[Args2, Args2]("""
+      //println(DatomicSerializers.querySerialize(
+      val query = DatomicCompiler.query[Args0, Args2]("""
         [ :find ?e ?n 
-          :where  [ ?e :person/name ?n
+          :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
-      """))
-      )
+      """)
+
+      query(Args0()).map{ l => l.collect {
+        case Args2(e: DLong, n: DString) => 
+          val entity = database.entity(e)
+          println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+        case x => println(x)
+      }}.recover{ case e => println("Exception: %s".format(e.getMessage)) }
+
+
+      val query2 = DatomicCompiler.query[Args2, Args3]("""
+        [ :find ?e ?name ?age
+          :in $ ?age
+          :where  [ ?e :person/name ?name ] 
+                  [ ?e :person/age ?age ]
+                  [ ?e :person/character :person.character/violent ]
+        ]
+      """)
+
+      val qf = query2().execute(database, DInt(45)).map( _.collect {
+        case (e: DLong, n: DString, a: DInt) => 
+          val entity = database.entity(e)
+          println("Q3 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+        case x => println(x)
+      }).recover{ case e => println(e.getMessage) }
+
+      //)
 
       success
     }

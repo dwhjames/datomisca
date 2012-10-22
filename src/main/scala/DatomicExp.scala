@@ -156,38 +156,6 @@ object DatomicExp {
   }
 }
 
-case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[Any, Any] = Map()) 
-
-trait Connection {
-  import scala.collection.JavaConverters._
-  import scala.collection.JavaConversions._
-
-  def connection: datomic.Connection
-
-  def database: datomic.Database = connection.db()
-
-
-  def createSchema(schema: Schema): Future[TxResult] = {
-    transact(schema.ops)
-  }
-
-  def transact(ops: Seq[Operation]) = {
-    val m: Map[Any, Any] = connection.transact(ops.map( _.asJava ).toList.asJava).get().toMap.map( t => (t._1.toString, t._2))
-
-    //println("MAP:"+m)
-    //println("datomic.Connection.DB_BEFORE="+m.get(datomic.Connection.DB_BEFORE.toString))
-    val opt = for( 
-      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
-      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
-      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.db.Datum]]];
-      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Any, Any]]]
-    ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
-    
-    opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))    
-  }
-}
-
-
 case class TemporaryId(partition: String, idNumber: Option[Long] = None) {
   lazy val value: datomic.db.DbId = (idNumber match {
     case Some(id) => datomic.Peer.tempid(partition, id)

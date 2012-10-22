@@ -30,9 +30,11 @@ object DatomicCompiler {
 
       def incept(t: Term): c.Tree = t match {
         case Var(name) => Apply( Ident(newTermName("Var")), List(Literal(Constant(name))) )
-        case Keyword(name, ns) => Apply( Ident(newTermName("Var")), List(Literal(Constant(ns + "/" + name))) )
+        case Keyword(name, ns) => Apply( Ident(newTermName("Keyword")), List(Literal(Constant(ns + "/" + name))) )
         case Empty => reify("_").tree
         case Const(d: DatomicData) => Apply( Ident(newTermName("Const")), List(incept(d)) )
+        case ImplicitDS => Ident(newTermName("ImplicitDS"))
+        case ExternalDS(n) => Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(n))) ) 
       }
 
       def incept(r: Rule): c.Tree = 
@@ -44,6 +46,16 @@ object DatomicCompiler {
 
       def incept(w: Where): c.Tree = 
         Apply( Ident(newTermName("Where")), List( Apply(Ident(newTermName("Seq")), w.rules.map(incept(_)).toList )) )
+
+
+      def incept(i: Input): c.Tree = i match {
+        case InDataSource(ds) => Apply(Ident(newTermName("InDataSource")), List(incept(ds)))
+        case InVariable(v) => Apply(Ident(newTermName("InVariable")), List(incept(v)))
+      }
+
+      def incept(in: In): c.Tree = 
+        Apply( Ident(newTermName("In")), List( Apply(Ident(newTermName("Seq")), in.inputs.map(incept(_)).toList )) )
+
       
       def incept(f: Find): c.Tree = 
         Apply( Ident(newTermName("Find")), List( Apply(Ident(newTermName("Seq")), f.outputs.map(incept(_)).toList )) )  
@@ -51,10 +63,9 @@ object DatomicCompiler {
       def incept(q: Query): c.universe.Tree = {
         Apply(
           Ident(newTermName("Query")), 
-          List(
-            incept(q.find),
-            incept(q.where)
-          )
+          List(incept(q.find)) ++ 
+          q.in.map( in => List(incept(in)) ).getOrElse(List()) ++ 
+          List(incept(q.where))
         )
       }
 
@@ -113,7 +124,7 @@ object DatomicCompiler {
 
       def verifyInputs(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
         val tpe = implicitly[c.AbsTypeTag[A]].tpe
-        val sz = query.find.outputs.size
+        val sz = query.in.map( _.inputs.size ).getOrElse(0)
         lazy val argPos = c.macroApplication.children(0).children(1).pos
 
         query.in.map{ in => 
@@ -121,7 +132,7 @@ object DatomicCompiler {
             (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) 
             || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
           )
-            Left(PositionFailure("Expected %d OUTPUT variables in the query".format(sz), 1, argPos.column))
+            Left(PositionFailure("Query Error in \":in\" : Expected %d INPUT variables".format(sz), 1, argPos.column))
           else Right(TypedQuery[A,B](query))
         } 
         .getOrElse(Right(TypedQuery[A,B](query)))
@@ -133,13 +144,11 @@ object DatomicCompiler {
         val sz = query.find.outputs.size
         val argPos = c.macroApplication.children(0).children(2).pos
 
-        if(tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) {
-          Left(PositionFailure("Expected %d OUTPUT variables in the query".format(sz), 1, argPos.column))
-        }
-        else if(tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3) {
-          val argPos = c.macroApplication.children(0).children(2).pos
-          Left(PositionFailure("Expected %d OUTPUT variables in the query".format(sz), 1, argPos.column))
-        }
+        if(
+          (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2)
+          || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
+        )
+          Left(PositionFailure("Query Error in \":find\" : Expected %d OUTPUT variables".format(sz), 1, argPos.column))
         else Right(TypedQuery[A,B](query))
       }
 
