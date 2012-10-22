@@ -20,9 +20,6 @@ case class DDatabase(value: datomic.Database) extends DatomicData {
   def entity(e: DLong) = value.entity(e.value)
 }
 
-case class DFunction(name: String)
-
-
 object DatomicData {
 
   def toDatomicData(v: Any): DatomicData = v match {
@@ -80,16 +77,26 @@ case object ImplicitDS extends DataSource {
 }
 
 /* DATOMIC RULES */
-sealed trait Rule
-case class PredicateRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Rule with Positional
+sealed trait Rule extends Positional
 
+/* DATOMIC DATA RULES */
+case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Rule
+
+/* DATOMIC EXPRESSION RULES */
 sealed trait Binding
 case class ScalarBinding(name: Var) extends Binding
 case class TupleBinding(names: Seq[Var]) extends Binding
 case class CollectionBinding(name: Var) extends Binding
 case class RelationBinding(names: Seq[Var]) extends Binding
 
-case class FunctionRule(function: DFunction, args: Seq[Term], binding: Option[Binding] = None) extends Rule with Positional
+case class DFunction(name: String)
+case class DPredicate(name: String)
+
+case class ExpressionRule(expr: Expression) extends Rule
+
+sealed trait Expression
+case class PredicateExpression(predicate: DPredicate, args: Seq[Term]) extends Expression
+case class FunctionExpression(function: DFunction, args: Seq[Term], binding: Binding) extends Expression
 
 case class Where(rules: Seq[Rule]) extends Positional
 
@@ -265,6 +272,7 @@ trait DatomicSerializers {
   }
 
   def datomicFunctionSerialize: DFunction => String = (d: DFunction) => d.name
+  def datomicPredicateSerialize: DPredicate => String = (d: DPredicate) => d.name
 
   def termSerialize: Term => String = (v: Term) => v match {
     case Var(v) => "?" + v
@@ -281,22 +289,34 @@ trait DatomicSerializers {
     case RelationBinding(names) => "[[ " + names.map( termSerialize(_)).mkString(" ") + " ]]"
   }
 
-  def predicateRuleSerialize: PredicateRule => String = (r: PredicateRule) => 
+  def dataRuleSerialize: DataRule => String = (r: DataRule) => 
     (if(r.ds == ImplicitDS) "" else (termSerialize(r.ds) + " ") ) + 
     termSerialize(r.entity) + " " + 
     termSerialize(r.attr) + " " + 
     termSerialize(r.value)
 
-  def functionRuleSerialize: FunctionRule => String = (r: FunctionRule) =>
+
+  def predicateExpressionSerialize: PredicateExpression => String = (r: PredicateExpression) =>
+    "(" +
+      datomicPredicateSerialize(r.predicate) + " " +
+      r.args.map( termSerialize(_) ).mkString(" ") +
+    ")"
+
+  def functionExpressionSerialize: FunctionExpression => String = (r: FunctionExpression) =>
     "(" +
       datomicFunctionSerialize(r.function) + " " +
       r.args.map( termSerialize(_) ).mkString(" ") +
-    ")" + 
-      r.binding.map( " " + bindingSerialize(_) ).getOrElse("")
+    ") " + 
+      bindingSerialize(r.binding)
+
+  def expressionSerialize: Expression => String = (r: Expression) => r match {
+    case p: PredicateExpression => predicateExpressionSerialize(p)
+    case f: FunctionExpression => functionExpressionSerialize(f)
+  }
 
   def ruleSerialize: Rule => String = (r: Rule) => "[ " + (r match {
-    case p: PredicateRule => predicateRuleSerialize(p)
-    case f: FunctionRule => functionRuleSerialize(f)
+    case p: DataRule => dataRuleSerialize(p)
+    case ExpressionRule(expr) => expressionSerialize(expr)
   }) + " ]"
 
   def whereSerialize: Where => String = (w: Where) => 

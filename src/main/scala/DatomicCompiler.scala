@@ -38,6 +38,7 @@ object DatomicCompiler {
       }
 
       def incept(df: DFunction) = Apply( Ident(newTermName("DFunction")), List(Literal(Constant(df.name))) )
+      def incept(df: DPredicate) = Apply( Ident(newTermName("DPredicate")), List(Literal(Constant(df.name))) )
 
       def incept(b: Binding): c.Tree = b match {
         case ScalarBinding(name) => Apply( Ident(newTermName("ScalarBinding")), List(incept(name)) )
@@ -64,9 +65,29 @@ object DatomicCompiler {
           )
       }
 
+      def incept(e: Expression): c.Tree = e match {
+        case PredicateExpression(df, args) => 
+          Apply( 
+            Ident(newTermName("PredicateExpression")), 
+            List(
+              incept(df),
+              Apply(Ident(newTermName("Seq")), args.map(incept(_)).toList)
+            )
+          )
+        case FunctionExpression(df, args, binding) =>
+          Apply( 
+            Ident(newTermName("FunctionExpression")), 
+            List(
+              incept(df),
+              Apply(Ident(newTermName("Seq")), args.map(incept(_)).toList),
+              incept(binding)
+            )
+          )
+      }
+
       def incept(r: Rule): c.Tree = r match {
-        case PredicateRule(ds, entity, attr, value) =>
-          Apply( Ident(newTermName("PredicateRule")), 
+        case DataRule(ds, entity, attr, value) =>
+          Apply( Ident(newTermName("DataRule")), 
             List(
               (if(ds == ImplicitDS) Ident(newTermName("ImplicitDS")) else Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(ds.name)))) ), 
               incept(entity), 
@@ -74,18 +95,12 @@ object DatomicCompiler {
               incept(value)
             ) 
           )
-        case f @ FunctionRule(df, args, binding) =>
+        case f: ExpressionRule => 
           Apply( 
-            Ident(newTermName("FunctionRule")), 
-            List(
-              incept(df),
-              Apply(Ident(newTermName("Seq")), args.map(incept(_)).toList),
-              binding match {
-                case None => Ident(newTermName("None"))
-                case Some(b) => incept(b) 
-              }
-            )
+            Ident(newTermName("ExpressionRule")), 
+            List(incept(f.expr))
           )
+          
       }
 
       def incept(o: Output): c.Tree = o match {

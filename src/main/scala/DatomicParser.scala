@@ -39,20 +39,22 @@ object DatomicParser extends JavaTokenParsers {
   def const: Parser[Const] = ( datomicBoolean | datomicString | datomicFloat | datomicLong ) ^^ { Const(_) }
   def term: Parser[Term] = empty | keyword | variable | const
 
-  // RULES
-  def predicateRuleTerms: Parser[(Term, Term, Term)] = ( term ~ term ~ term | term ~ term | term ) ^^ {
+  // DATA RULES
+  def dataRuleTerms: Parser[(Term, Term, Term)] = ( term ~ term ~ term | term ~ term | term ) ^^ {
     case (t1: Term) ~ (t2: Term) ~ (t3: Term) => (t1, t2, t3)
     case (t1: Term) ~ (t2: Term) => (t1, t2, Empty)
     case (t1: Term) => (t1, Empty, Empty)
   }
 
-  def predicateRule: Parser[PredicateRule] = opt(datasource) ~ predicateRuleTerms ^^ { 
-    case None ~ terms => PredicateRule(ImplicitDS, terms._1, terms._2, terms._3)
-    case Some(ds) ~ terms => PredicateRule(ds, terms._1, terms._2, terms._3)
+  def dataRule: Parser[DataRule] = opt(datasource) ~ dataRuleTerms ^^ { 
+    case None ~ terms => DataRule(ImplicitDS, terms._1, terms._2, terms._3)
+    case Some(ds) ~ terms => DataRule(ds, terms._1, terms._2, terms._3)
   }
 
-
+  // EXPRESSION RULES
   def dfunction: Parser[DFunction] = (operator | functionLiteral) ^^ { DFunction(_) }
+  def dpredicate: Parser[DPredicate] = (operator | functionLiteral) ^^ { DPredicate(_) }
+
   def scalarBinding: Parser[ScalarBinding] = variable ^^ { ScalarBinding(_) }
   def tupleBinding: Parser[TupleBinding] = "[" ~> rep(variable) <~ "]" ^^ { TupleBinding(_) }
   def collectionBinding: Parser[CollectionBinding] = "[" ~> variable <~ "..." ~ "]" ^^ { CollectionBinding(_) }
@@ -60,13 +62,21 @@ object DatomicParser extends JavaTokenParsers {
 
   def binding = tupleBinding | scalarBinding | relationBinding | collectionBinding
 
-  def functionAloneRule: Parser[DFunction ~ Seq[Term]] = "(" ~> dfunction ~ rep(term) <~ ")"
+  def functionAloneExpression: Parser[DFunction ~ Seq[Term]] = "(" ~> dfunction ~ rep(term) <~ ")"
 
-  def functionRule: Parser[FunctionRule] = functionAloneRule ~ opt(binding) ^^ {
-    case ((df: DFunction) ~ (args: Seq[Term])) ~ (binding: Option[Binding]) => FunctionRule(df, args, binding)
+  def functionExpression: Parser[FunctionExpression] = functionAloneExpression ~ binding ^^ {
+    case ((df: DFunction) ~ (args: Seq[Term])) ~ (binding: Binding) => FunctionExpression(df, args, binding)
   }
 
-  def rule: Parser[Rule] = positioned("[" ~> (predicateRule | functionRule) <~ "]")
+  def predicateExpression: Parser[PredicateExpression] = "(" ~> dpredicate ~ rep(term) <~ ")" ^^ {
+    case (df: DPredicate) ~ (args: Seq[_]) => PredicateExpression(df, args)
+  }
+
+  def expression: Parser[Expression] = functionExpression | predicateExpression
+  def expressionRule: Parser[ExpressionRule] = expression ^^ { ExpressionRule(_) }
+
+  // RULES
+  def rule: Parser[Rule] = positioned("[" ~> (dataRule | expressionRule) <~ "]")
 
   // WHERE
   def where: Parser[Where] = positioned(":where" ~> rep(rule) ^^ { Where(_) })
