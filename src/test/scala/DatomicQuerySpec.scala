@@ -56,6 +56,17 @@ class DatomicQuerySpec extends Specification {
           println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
       }
 
+      q2("""
+        [ :find ?e ?name
+          :where  [ ?e :person/name ?name ] 
+                  [ ?e :person/age ?age ] 
+                  [ (< ?age 30) ]
+        ]
+      """).collect {
+        case List(e: DLong, name: DString) => 
+          name must beEqualTo(DString("toto"))
+      }
+
       /*q3[(DLong, DString, DInt)]( 
       """
         [ :find ?e ?name ?age

@@ -28,28 +28,51 @@ import DatomicSerializers._
 @RunWith(classOf[JUnitRunner])
 class DatomicParserSpec extends Specification {
   "Datomic" should {
-    "parse rules" in {
+    "parse predicate rules" in {
       DatomicParser.parseRule(""" 
         [ ?n :ns1.ns2/arg ?e ]
-      """) must beEqualTo(Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ))
+      """) must beEqualTo(PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ))
 
       DatomicParser.parseRule(""" 
         [ ?n :ns1.ns2/arg "toto" ]
-      """) must beEqualTo(Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Const(DString("toto")) ))
+      """) must beEqualTo(PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Const(DString("toto")) ))
 
       DatomicParser.parseRule(""" 
         [ ?n :ns1.ns2/arg 1234 ]
-      """) must beEqualTo(Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Const(DLong(1234)) ))
+      """) must beEqualTo(PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Const(DLong(1234)) ))
 
       DatomicParser.parseRule(""" 
         [ ?n :ns1.ns2/arg 1234.234 ]
-      """) must beEqualTo(Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Const(DFloat(1234.234F)) ))
+      """) must beEqualTo(PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Const(DFloat(1234.234F)) ))
 
       DatomicParser.parseRule(""" 
         [ $data ?n :ns1.ns2/arg true ]
-      """) must beEqualTo(Rule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Const(DBoolean(true)) ))
+      """) must beEqualTo(PredicateRule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Const(DBoolean(true)) ))
 
       success
+    }
+
+    "parse function rules" in {
+      DatomicParser.parseRule(""" 
+        [ (< ?a 30) ]
+      """) must beEqualTo(FunctionRule(DFunction("<"), Seq(Var("a"), Const(DLong(30))) ))
+
+      DatomicParser.parseRule(""" 
+        [(* ?a 12) ?months]
+      """) must beEqualTo(FunctionRule(DFunction("*"), Seq(Var("a"), Const(DLong(12))), Some(ScalarBinding(Var("months"))) ))
+
+      DatomicParser.parseRule(""" 
+        [(my-func ?a "toto") [ ?b ?c ]]
+      """) must beEqualTo(FunctionRule(DFunction("my-func"), Seq(Var("a"), Const(DString("toto"))), Some(TupleBinding(Seq(Var("b"), Var("c")))) ))
+
+      DatomicParser.parseRule(""" 
+        [(my-func ?a "toto") [ ?b ... ]]
+      """) must beEqualTo(FunctionRule(DFunction("my-func"), Seq(Var("a"), Const(DString("toto"))), Some(CollectionBinding(Var("b"))) ))
+
+      DatomicParser.parseRule(""" 
+        [(my-func ?a "toto") [[ ?b ?c ]] ]
+      """) must beEqualTo(FunctionRule(DFunction("my-func"), Seq(Var("a"), Const(DString("toto"))), Some(RelationBinding(Seq(Var("b"), Var("c")))) ))
+
     }
 
     "parse where" in {
@@ -57,8 +80,8 @@ class DatomicParserSpec extends Specification {
         :where [ ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 "toto" ]
       """) must beEqualTo(
         Where(Seq(
-          Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
-          Rule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Const(DString("toto")) )
+          PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+          PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Const(DString("toto")) )
         ))
       )
     }
@@ -79,8 +102,8 @@ class DatomicParserSpec extends Specification {
         Query(
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
           Where(Seq(
-            Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
-            Rule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Const(DString("toto")) )
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Const(DString("toto")) )
           ))
         )
       )
@@ -96,8 +119,8 @@ class DatomicParserSpec extends Specification {
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
           In(Seq(InDataSource(ImplicitDS), InVariable(Var("f")))),
           Where(Seq(
-            Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
-            Rule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") )
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") )
           ))
         )
       )
@@ -113,27 +136,67 @@ class DatomicParserSpec extends Specification {
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
           In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))),
           Where(Seq(
-            Rule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
-            Rule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") )
+            PredicateRule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") )
           ))
         )
       )
     }
 
-    "serialize rule" in {
+    "parse query with in & DS & func" in {
+      DatomicParser.parseQuery(""" 
+        [ :find ?n ?e
+        :in $data ?f
+        :where [ $data ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 ?f ] [(* ?a 12) ?months] ]
+      """) must beEqualTo(
+        Query(
+          Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
+          In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))),
+          Where(Seq(
+            PredicateRule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") ),
+            FunctionRule(DFunction("*"), Seq(Var("a"), Const(DLong(12))), Some(ScalarBinding(Var("months"))) )
+          ))
+        )
+      )
+    }
+
+    "serialize predicate rule" in {
       ruleSerialize(
-        Rule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") )
+        PredicateRule(ImplicitDS, Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") )
       ) must beEqualTo("""[ ?n :ns1.ns2/arg ?e ]""")
       ruleSerialize(
-        Rule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Const(DString("toto")) )
+        PredicateRule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Const(DString("toto")) )
       ) must beEqualTo("""[ $data ?n :ns1.ns2/arg "toto" ]""")
+    }
+
+    "serialize function rule" in {
+      ruleSerialize(
+        FunctionRule(DFunction("<"), Seq(Var("a"), Const(DLong(30))) )
+      ) must beEqualTo("""[ (< ?a 30) ]""")
+
+      ruleSerialize(
+        FunctionRule(DFunction("*"), Seq(Var("a"), Const(DLong(12))), Some(ScalarBinding(Var("months"))) )
+      ) must beEqualTo("""[ (* ?a 12) ?months ]""")
+
+      ruleSerialize(
+        FunctionRule(DFunction("my-func"), Seq(Var("a"), Const(DString("toto"))), Some(TupleBinding(Seq(Var("b"), Var("c")))) )
+      ) must beEqualTo("""[ (my-func ?a "toto") [ ?b ?c ] ]""")
+
+      ruleSerialize(
+        FunctionRule(DFunction("my-func"), Seq(Var("a"), Const(DString("toto"))), Some(CollectionBinding(Var("b"))) )
+      ) must beEqualTo("""[ (my-func ?a "toto") [ ?b ... ] ]""")
+
+      ruleSerialize(
+        FunctionRule(DFunction("my-func"), Seq(Var("a"), Const(DString("toto"))), Some(RelationBinding(Seq(Var("b"), Var("c")))) )
+      ) must beEqualTo("""[ (my-func ?a "toto") [[ ?b ?c ]] ]""")
     }
 
     "serialize :where" in {
       whereSerialize(
         Where(Seq(
-          Rule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
-          Rule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Const(DInt(1234)) )
+          PredicateRule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+          PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Const(DInt(1234)) )
         ))
       ) must beEqualTo(""" 
         :where [ $data ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 1234 ]
@@ -162,8 +225,8 @@ class DatomicParserSpec extends Specification {
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
           In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))),
           Where(Seq(
-            Rule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
-            Rule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") )
+            PredicateRule(ExternalDS("data"), Var("n"), Keyword( "arg", "ns1.ns2"), Var("e") ),
+            PredicateRule(ImplicitDS, Var("n"), Keyword( "arg2", "ns"), Var("f") )
           ))
         )
       ) must beEqualTo(""" 

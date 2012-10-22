@@ -14,12 +14,12 @@ object DatomicCompiler {
     new {
 
       def incept(d: DatomicData): c.Tree = d match {
-        case DString(v) => Literal(Constant("\""+ v + "\""))
-        case DInt(v) => Literal(Constant(v))
-        case DLong(v) => Literal(Constant(v))
-        case DFloat(v) => Literal(Constant(v))
-        case DDouble(v) => Literal(Constant(v))
-        case DBoolean(v) => Literal(Constant(v))
+        case DString(v) => Apply(Ident(newTermName("DString")), List(Literal(Constant("\""+ v + "\""))))
+        case DInt(v) => Apply(Ident(newTermName("DInt")), List(Literal(Constant(v))))
+        case DLong(v) => Apply(Ident(newTermName("DLong")), List(Literal(Constant(v))))
+        case DFloat(v) => Apply(Ident(newTermName("DFloat")), List(Literal(Constant(v))))
+        case DDouble(v) => Apply(Ident(newTermName("DDouble")), List(Literal(Constant(v))))
+        case DBoolean(v) => Apply(Ident(newTermName("DBoolean")), List(Literal(Constant(v))))
         //case DRef(v) => termSerialize(v)
         //case DBigDec(v) => v.toString
         //case DInstant(v) => v.toString
@@ -37,8 +37,56 @@ object DatomicCompiler {
         case ExternalDS(n) => Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(n))) ) 
       }
 
-      def incept(r: Rule): c.Tree = 
-        Apply( Ident(newTermName("Rule")), List(Ident(newTermName("ImplicitDS")), incept(r.entity), incept(r.attr), incept(r.value)) )
+      def incept(df: DFunction) = Apply( Ident(newTermName("DFunction")), List(Literal(Constant(df.name))) )
+
+      def incept(b: Binding): c.Tree = b match {
+        case ScalarBinding(name) => Apply( Ident(newTermName("ScalarBinding")), List(incept(name)) )
+        case TupleBinding(names) => 
+          Apply( 
+            Ident(newTermName("TupleBinding")), 
+            List(
+              Apply(
+                Ident(newTermName("Seq")),
+                names.map(incept(_)).toList
+              )
+            )
+          )
+        case CollectionBinding(name) => Apply( Ident(newTermName("CollectionBinding")), List(incept(name)) )
+        case RelationBinding(names) => 
+          Apply( 
+            Ident(newTermName("RelationBinding")), 
+            List(
+              Apply(
+                Ident(newTermName("Seq")),
+                names.map(incept(_)).toList
+              )
+            )
+          )
+      }
+
+      def incept(r: Rule): c.Tree = r match {
+        case PredicateRule(ds, entity, attr, value) =>
+          Apply( Ident(newTermName("PredicateRule")), 
+            List(
+              (if(ds == ImplicitDS) Ident(newTermName("ImplicitDS")) else Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(ds.name)))) ), 
+              incept(entity), 
+              incept(attr), 
+              incept(value)
+            ) 
+          )
+        case f @ FunctionRule(df, args, binding) =>
+          Apply( 
+            Ident(newTermName("FunctionRule")), 
+            List(
+              incept(df),
+              Apply(Ident(newTermName("Seq")), args.map(incept(_)).toList),
+              binding match {
+                case None => Ident(newTermName("None"))
+                case Some(b) => incept(b) 
+              }
+            )
+          )
+      }
 
       def incept(o: Output): c.Tree = o match {
         case OutVariable(v) => Apply(Ident(newTermName("OutVariable")), List(incept(v)))
@@ -174,7 +222,6 @@ object DatomicCompiler {
                 enclosingPos.source.lineToOffset(enclosingPos.line - 1 + offsetLine - 1 ) + offsetCol - 1
 
               val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
-
               c.abort(offsetPos.asInstanceOf[c.Position], msg)
 
             case Right(tq) => 

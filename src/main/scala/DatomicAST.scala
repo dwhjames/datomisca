@@ -20,6 +20,9 @@ case class DDatabase(value: datomic.Database) extends DatomicData {
   def entity(e: DLong) = value.entity(e.value)
 }
 
+case class DFunction(name: String)
+
+
 object DatomicData {
 
   def toDatomicData(v: Any): DatomicData = v match {
@@ -77,7 +80,17 @@ case object ImplicitDS extends DataSource {
 }
 
 /* DATOMIC RULES */
-case class Rule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Positional
+sealed trait Rule
+case class PredicateRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Rule with Positional
+
+sealed trait Binding
+case class ScalarBinding(name: Var) extends Binding
+case class TupleBinding(names: Seq[Var]) extends Binding
+case class CollectionBinding(name: Var) extends Binding
+case class RelationBinding(names: Seq[Var]) extends Binding
+
+case class FunctionRule(function: DFunction, args: Seq[Term], binding: Option[Binding] = None) extends Rule with Positional
+
 case class Where(rules: Seq[Rule]) extends Positional
 
 /* DATOMIC INPUTS */
@@ -104,7 +117,7 @@ object Query {
   def apply(find: Find, where: Where): Query = PureQuery(find, None, where)
   def apply(find: Find, in: In, where: Where): Query = PureQuery(find, Some(in), where)
   def apply(find: Find, in: Option[In], where: Where): Query = PureQuery(find, in, where)
-  def apply[In <: Args, Out <: Args](q: PureQuery): Query = TypedQuery[In, Out](q)
+  //def apply[In <: Args, Out <: Args](q: PureQuery): Query = TypedQuery[In, Out](q)
 }
 
 case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query
@@ -200,11 +213,6 @@ case class TypedQuery[In <: Args, Out <: Args](query: Query) extends Query {
 
   def apply(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = directQuery(in)
 
-  def apply[T]()(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[Out], ott: ArgsToTuple[Out, T], 
-             tf: ToFunction[In, Try[List[T]]]
-  ) = asFunction[T]
-
   def directQuery(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
@@ -227,7 +235,7 @@ case class TypedQuery[In <: Args, Out <: Args](query: Query) extends Query {
     } }
   }
 
-  def asFunction[T](
+  def prepare[T](
     implicit db: DDatabase, outConv: DatomicDataToArgs[Out], ott: ArgsToTuple[Out, T], 
              tf: ToFunction[In, Try[List[T]]]
   ) = new DatomicExecutor {
@@ -256,6 +264,7 @@ trait DatomicSerializers {
     case DBoolean(v) => v.toString
   }
 
+  def datomicFunctionSerialize: DFunction => String = (d: DFunction) => d.name
 
   def termSerialize: Term => String = (v: Term) => v match {
     case Var(v) => "?" + v
@@ -265,13 +274,30 @@ trait DatomicSerializers {
     case Empty => "_"
   }
 
-  def ruleSerialize: Rule => String = (r: Rule) => 
-    "[ " + 
+  def bindingSerialize: Binding => String = (v: Binding) => v match {
+    case ScalarBinding(name) => termSerialize(name)
+    case TupleBinding(names) => "[ " + names.map( termSerialize(_) ).mkString(" ") + " ]"
+    case CollectionBinding(name) => "[ " + termSerialize(name) + " ... ]" 
+    case RelationBinding(names) => "[[ " + names.map( termSerialize(_)).mkString(" ") + " ]]"
+  }
+
+  def predicateRuleSerialize: PredicateRule => String = (r: PredicateRule) => 
     (if(r.ds == ImplicitDS) "" else (termSerialize(r.ds) + " ") ) + 
     termSerialize(r.entity) + " " + 
     termSerialize(r.attr) + " " + 
-    termSerialize(r.value) + 
-    " ]"
+    termSerialize(r.value)
+
+  def functionRuleSerialize: FunctionRule => String = (r: FunctionRule) =>
+    "(" +
+      datomicFunctionSerialize(r.function) + " " +
+      r.args.map( termSerialize(_) ).mkString(" ") +
+    ")" + 
+      r.binding.map( " " + bindingSerialize(_) ).getOrElse("")
+
+  def ruleSerialize: Rule => String = (r: Rule) => "[ " + (r match {
+    case p: PredicateRule => predicateRuleSerialize(p)
+    case f: FunctionRule => functionRuleSerialize(f)
+  }) + " ]"
 
   def whereSerialize: Where => String = (w: Where) => 
     w.rules.map( ruleSerialize(_) ).mkString(":where ", " ", "")

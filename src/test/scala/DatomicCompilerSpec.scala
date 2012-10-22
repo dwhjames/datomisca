@@ -57,14 +57,30 @@ class DatomicCompilerSpec extends Specification {
         ]
       """)
 
-      val qf = query2().execute(database, DInt(45)).map( _.collect {
+      val qf = query2.prepare.execute(database, DInt(45)).map( _.collect {
         case (e: DLong, n: DString, a: DInt) => 
           val entity = database.entity(e)
-          println("Q3 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+          println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
         case x => println(x)
       }).recover{ case e => println(e.getMessage) }
 
       //)
+
+      val query3 = DatomicCompiler.query[Args2, Args3]("""
+        [ :find ?e ?name ?age
+          :in $ ?age
+          :where  [ ?e :person/name ?name ] 
+                  [ ?e :person/age ?a ]
+                  [ (< ?a ?age) ]
+        ]
+      """)
+
+      query3.prepare.execute(database, DLong(30)).map( _.map {
+        case (entity: DLong, name: DString, age: DLong) => 
+          println(s"""Q3 entity: $entity - name: $name - age: $age""")
+          name must beEqualTo(DString("toto"))
+        case x => println("Not Expected: "+x)
+      }).recover{ case e => println(e.getMessage) }
 
       success
     }
