@@ -6,8 +6,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object DatomicBootstrap {
   def apply(theUri: String) = {
-    import reactivedatomic.DatomicExp._
-    import reactivedatomic.NameSpace
+    import reactivedatomic.exp.DatomicExp._
+    import reactivedatomic.exp._
 
     implicit val uri = theUri //"datomic:mem://datomicspec2"
 

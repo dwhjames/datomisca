@@ -33,7 +33,7 @@ object DatomicParser extends JavaTokenParsers {
   def empty: Parser[Term] = "_" ^^ { _ => Empty }
   def keyword: Parser[Keyword] = ":" ~> opt(literal <~ "/") ~ ident ^^ { 
     case None ~ n => Keyword(n) 
-    case Some(ns) ~ n => Keyword(n, ns) 
+    case Some(ns) ~ n => Keyword(n, Some(Namespace(ns)))
   }
   def variable: Parser[Var] = "?" ~> ident ^^ { (n: String) => Var(n) }
   def const: Parser[Const] = ( datomicBoolean | datomicString | datomicFloat | datomicLong ) ^^ { Const(_) }

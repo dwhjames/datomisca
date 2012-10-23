@@ -3,128 +3,94 @@ package reactivedatomic
 import scala.util.{Try, Success, Failure}
 import scala.util.parsing.input.Positional
 
-/* DATOMIC TYPES */
-sealed trait DatomicData
-case class DString(value: String) extends DatomicData 
-case class DBoolean(value: Boolean) extends DatomicData
-case class DInt(value: Int) extends DatomicData
-case class DLong(value: Long) extends DatomicData
-case class DFloat(value: Float) extends DatomicData
-case class DDouble(value: Double) extends DatomicData
-case class DBigDec(value: BigDecimal) extends DatomicData
-case class DInstant(value: java.util.Date) extends DatomicData
-case class DUuid(value: java.util.UUID) extends DatomicData
-case class DUri(value: java.net.URI) extends DatomicData
-case class DRef(value: Keyword) extends DatomicData
-case class DDatabase(value: datomic.Database) extends DatomicData {
-  def entity(e: DLong) = value.entity(e.value)
-}
-
-object DatomicData {
-
-  def toDatomicData(v: Any): DatomicData = v match {
-    case s: String => DString(s)
-    case b: Boolean => DBoolean(b)
-    case i: Int => DInt(i)
-    case l: Long => DLong(l)
-    case f: Float => DFloat(f)
-    case d: Double => DDouble(d)
-    case bd: BigDecimal => DBigDec(bd)
-    case d: java.util.Date => DInstant(d)
-    case u: java.util.UUID => DUuid(u)
-    case u: java.net.URI => DUri(u)
-    // REF???
-    case _ => throw new RuntimeException("Unknown Datomic Value")
-  }
-
-  import scala.collection.JavaConverters._
-  def toDatomicNative(d: DatomicData): java.lang.Object = {
-    d match {
-      case DString(s) => s
-      case DBoolean(b) => new java.lang.Boolean(b)
-      case DInt(i) => new java.lang.Integer(i)
-      case DLong(l) => new java.lang.Long(l)
-      case DFloat(f) => new java.lang.Float(f)
-      case DDouble(d) => new java.lang.Double(d)
-      case DDatabase(db) => db
-      //case DBigDec(bd) => new java.lang.BigDecimal(bd)
-      //case d: java.util.Date => DInstant(d)
-      //case u: java.util.UUID => DUuid(u)
-      //case u: java.net.URI => DUri(u)
-      // REF???
-      case _ => throw new RuntimeException("Can't convert Datomic Data to Native")
-    }
-  }
-
-}
-
-
-/* DATOMIC TERMS */
-sealed trait Term
-
-case class Var(name: String) extends Term
-
-case class Keyword(name: String, ns: String = "") extends Term
-case class Const(value: DatomicData) extends Term
-case object Empty extends Term
-
-trait DataSource extends Term {
-  def name: String
-}
-case class ExternalDS(override val name: String) extends DataSource
-case object ImplicitDS extends DataSource {
-  def name = ""
-}
 
 /* DATOMIC RULES */
 sealed trait Rule extends Positional
 
 /* DATOMIC DATA RULES */
-case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Rule
+case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Rule {
+  override def toString = s"""[${ if(ds == ImplicitDS) "" else (" "+ds) } $entity $attr $value ]"""
+}
 
 /* DATOMIC EXPRESSION RULES */
 sealed trait Binding
-case class ScalarBinding(name: Var) extends Binding
-case class TupleBinding(names: Seq[Var]) extends Binding
-case class CollectionBinding(name: Var) extends Binding
-case class RelationBinding(names: Seq[Var]) extends Binding
+case class ScalarBinding(name: Var) extends Binding {
+  override def toString = name.toString
+}
 
-case class DFunction(name: String)
-case class DPredicate(name: String)
+case class TupleBinding(names: Seq[Var]) extends Binding {
+  override def toString = "[ " + names.map( _.toString ).mkString(" ") + " ]"
+}
 
-case class ExpressionRule(expr: Expression) extends Rule
+case class CollectionBinding(name: Var) extends Binding {
+  override def toString = "[ " + name.toString + " ... ]" 
+}
+
+case class RelationBinding(names: Seq[Var]) extends Binding {
+  override def toString = "[[ " + names.map( _.toString ).mkString(" ") + " ]]"
+}
+
+case class DFunction(name: String) {
+  override def toString = name.toString
+}
+case class DPredicate(name: String) {
+  override def toString = name.toString
+}
+
+case class ExpressionRule(expr: Expression) extends Rule {
+  override def toString = s"""[ $expr ]"""
+}
 
 sealed trait Expression
-case class PredicateExpression(predicate: DPredicate, args: Seq[Term]) extends Expression
-case class FunctionExpression(function: DFunction, args: Seq[Term], binding: Binding) extends Expression
+case class PredicateExpression(predicate: DPredicate, args: Seq[Term]) extends Expression {
+  override def toString = s"""($predicate ${args.map( _.toString ).mkString(" ")})"""
+}
+case class FunctionExpression(function: DFunction, args: Seq[Term], binding: Binding) extends Expression {
+  override def toString = s"""($function ${args.map( _.toString ).mkString(" ")}) $binding"""
+}
 
-case class Where(rules: Seq[Rule]) extends Positional
+/* WHERE */
+case class Where(rules: Seq[Rule]) extends Positional {
+  override def toString = rules.map( _.toString ).mkString(":where ", " ", "")
+}
 
-/* DATOMIC INPUTS */
-case class In(inputs: Seq[Input]) extends Positional
+/* IN */
+case class In(inputs: Seq[Input]) extends Positional {
+  override def toString = inputs.map( _.toString ).mkString(":in ", " ", "")
+}
 
 sealed trait Input
-case class InDataSource(ds: DataSource) extends Input
-case class InVariable(variable: Var) extends Input
+case class InDataSource(ds: DataSource) extends Input {
+  override def toString = ds.toString
+}
+case class InVariable(variable: Var) extends Input {
+  override def toString = variable.toString
+}
 
-/* DATOMIC OUTPUTS */
-case class Find(outputs: Seq[Output]) extends Positional
+/* DATOMIC FIND */
+case class Find(outputs: Seq[Output]) extends Positional {
+  override def toString = outputs.map( _.toString ).mkString(":find ", " ", "")
+}
 
 sealed trait Output
-case class OutVariable(variable: Var) extends Output
+case class OutVariable(variable: Var) extends Output {
+  override def toString = variable.toString
+}
 
 /* DATOMIC QUERY */
 trait Query {
   def find: Find
   def in: Option[In] = None
   def where: Where
+
+  override def toString = s"""[ $find ${in.map( _.toString + " " ).getOrElse("")}$where ]"""
 }
 
 object Query {
   def apply(find: Find, where: Where): Query = PureQuery(find, None, where)
   def apply(find: Find, in: In, where: Where): Query = PureQuery(find, Some(in), where)
   def apply(find: Find, in: Option[In], where: Where): Query = PureQuery(find, in, where)
-  //def apply[In <: Args, Out <: Args](q: PureQuery): Query = TypedQuery[In, Out](q)
+  def apply[In <: Args, Out <: Args](q: PureQuery): Query = TypedQuery[In, Out](q)
 }
 
 case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query
@@ -223,7 +189,7 @@ case class TypedQuery[In <: Args, Out <: Args](query: Query) extends Query {
   def directQuery(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
-    val qser = DatomicSerializers.querySerialize(query)
+    val qser = query.toString
     val args = {
       val args = in.toSeq
       if(args.isEmpty) Seq(DatomicData.toDatomicNative(db): Object)
@@ -257,7 +223,7 @@ case class TypedQuery[In <: Args, Out <: Args](query: Query) extends Query {
 object DatomicSerializers extends DatomicSerializers
 
 trait DatomicSerializers {
-  def datomicDataSerialize: DatomicData => String = (d: DatomicData) => d match {
+  /*def datomicDataSerialize: DatomicData => String = (d: DatomicData) => d match {
     case DString(v) => "\""+ v + "\""
     case DInt(v) => v.toString
     case DLong(v) => v.toString
@@ -269,79 +235,80 @@ trait DatomicSerializers {
     case DUuid(v) => v.toString
     case DUri(v) => v.toString
     case DBoolean(v) => v.toString
-  }
+  }*/
 
-  def datomicFunctionSerialize: DFunction => String = (d: DFunction) => d.name
-  def datomicPredicateSerialize: DPredicate => String = (d: DPredicate) => d.name
+  //def datomicFunctionSerialize: DFunction => String = (d: DFunction) => d.name
+  //def datomicPredicateSerialize: DPredicate => String = (d: DPredicate) => d.name
 
-  def termSerialize: Term => String = (v: Term) => v match {
+  /*def termSerialize: Term => String = (v: Term) => v match {
     case Var(v) => "?" + v
     case Keyword(kw, ns) => ":" + ( if(ns!="") {ns + "/"} else "" ) + kw
     case Const(c) => datomicDataSerialize(c)
     case ds: DataSource => "$" + ds.name
     case Empty => "_"
-  }
+  }*/
 
-  def bindingSerialize: Binding => String = (v: Binding) => v match {
+  /*def bindingSerialize: Binding => String = (v: Binding) => v match {
     case ScalarBinding(name) => termSerialize(name)
     case TupleBinding(names) => "[ " + names.map( termSerialize(_) ).mkString(" ") + " ]"
     case CollectionBinding(name) => "[ " + termSerialize(name) + " ... ]" 
     case RelationBinding(names) => "[[ " + names.map( termSerialize(_)).mkString(" ") + " ]]"
-  }
+  }*/
 
-  def dataRuleSerialize: DataRule => String = (r: DataRule) => 
-    (if(r.ds == ImplicitDS) "" else (termSerialize(r.ds) + " ") ) + 
-    termSerialize(r.entity) + " " + 
-    termSerialize(r.attr) + " " + 
-    termSerialize(r.value)
+  /*def dataRuleSerialize: DataRule => String = (r: DataRule) => 
+    (if(r.ds == ImplicitDS) "" else (r.ds.toString + " ") ) + 
+    r.entity.toString + " " + 
+    r.attr.toString + " " + 
+    r.value.toString*/
 
 
-  def predicateExpressionSerialize: PredicateExpression => String = (r: PredicateExpression) =>
+  /*def predicateExpressionSerialize: PredicateExpression => String = (r: PredicateExpression) =>
     "(" +
       datomicPredicateSerialize(r.predicate) + " " +
       r.args.map( termSerialize(_) ).mkString(" ") +
-    ")"
+    ")"*/
 
-  def functionExpressionSerialize: FunctionExpression => String = (r: FunctionExpression) =>
+  /*def functionExpressionSerialize: FunctionExpression => String = (r: FunctionExpression) =>
     "(" +
       datomicFunctionSerialize(r.function) + " " +
       r.args.map( termSerialize(_) ).mkString(" ") +
     ") " + 
       bindingSerialize(r.binding)
+  */
 
-  def expressionSerialize: Expression => String = (r: Expression) => r match {
+  /*def expressionSerialize: Expression => String = (r: Expression) => r match {
     case p: PredicateExpression => predicateExpressionSerialize(p)
     case f: FunctionExpression => functionExpressionSerialize(f)
-  }
+  }*/
 
-  def ruleSerialize: Rule => String = (r: Rule) => "[ " + (r match {
+  /*def ruleSerialize: Rule => String = (r: Rule) => "[ " + (r match {
     case p: DataRule => dataRuleSerialize(p)
     case ExpressionRule(expr) => expressionSerialize(expr)
-  }) + " ]"
+  }) + " ]"*/
 
-  def whereSerialize: Where => String = (w: Where) => 
-    w.rules.map( ruleSerialize(_) ).mkString(":where ", " ", "")
+  /*def whereSerialize: Where => String = (w: Where) => 
+    w.rules.map( ruleSerialize(_) ).mkString(":where ", " ", "")*/
 
-  def outputSerialize: Output => String = (o: Output) => o match {
+  /*def outputSerialize: Output => String = (o: Output) => o match {
     case OutVariable(v) => termSerialize(v)
-  }
+  }*/
 
-  def findSerialize: Find => String = (f: Find) =>
-    f.outputs.map( outputSerialize(_) ).mkString(":find ", " ", "")
+  /*def findSerialize: Find => String = (f: Find) =>
+    f.outputs.map( outputSerialize(_) ).mkString(":find ", " ", "")*/
 
-  def inputSerialize: Input => String = (i: Input) => i match {
+  /*def inputSerialize: Input => String = (i: Input) => i match {
     case InVariable(v) => termSerialize(v)
     case InDataSource(ds) => termSerialize(ds)
-  }
+  }*/
 
-  def inSerialize: In => String = (i: In) =>
-    i.inputs.map( inputSerialize(_) ).mkString(":in ", " ", "")
+  /*def inSerialize: In => String = (i: In) =>
+    i.inputs.map( inputSerialize(_) ).mkString(":in ", " ", "")*/
 
-  def querySerialize: Query => String = (q: Query) =>
+  /*def querySerialize: Query => String = (q: Query) =>
     "[ " + 
       findSerialize(q.find) + " " + 
       q.in.map( inSerialize(_) + " " ).getOrElse("") + 
       whereSerialize(q.where) + 
-    " ]"
+    " ]"*/
 
 }

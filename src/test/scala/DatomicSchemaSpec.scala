@@ -25,7 +25,8 @@ class DatomicSchemaSpec extends Specification {
   "Datomic" should {
     "simple schema" in {
       import reactivedatomic._
-      import reactivedatomic.DatomicExp._
+      import reactivedatomic.exp.DatomicExp._
+      import reactivedatomic.exp._
       import scala.concurrent.ExecutionContext.Implicits.global
 
       implicit val uri = "datomic:mem://datomicspec2"

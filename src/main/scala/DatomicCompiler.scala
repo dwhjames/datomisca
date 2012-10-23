@@ -28,13 +28,31 @@ object DatomicCompiler {
         
       }
 
+      def incept(ds: DataSource): c.Tree = ds match {
+        case ImplicitDS => Ident(newTermName("ImplicitDS"))
+        case ExternalDS(n) => Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(n))) )         
+      }
+
       def incept(t: Term): c.Tree = t match {
         case Var(name) => Apply( Ident(newTermName("Var")), List(Literal(Constant(name))) )
-        case Keyword(name, ns) => Apply( Ident(newTermName("Keyword")), List(Literal(Constant(ns + "/" + name))) )
+        case Keyword(name, None) => Apply( 
+          Ident(newTermName("Keyword")), 
+          List(
+            Literal(Constant(name))
+          )
+        )
+        case Keyword(name, Some(Namespace(ns))) => Apply( 
+          Ident(newTermName("Keyword")), 
+          List(
+            Literal(Constant(name)), 
+            Apply(Ident(newTermName("Some")), List(
+              Apply(Ident(newTermName("Namespace")), List(Literal(Constant(ns)))) 
+            ))
+          )
+        )
         case Empty => reify("_").tree
         case Const(d: DatomicData) => Apply( Ident(newTermName("Const")), List(incept(d)) )
-        case ImplicitDS => Ident(newTermName("ImplicitDS"))
-        case ExternalDS(n) => Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(n))) ) 
+        case ds: DataSource => incept(ds)
       }
 
       def incept(df: DFunction) = Apply( Ident(newTermName("DFunction")), List(Literal(Constant(df.name))) )
@@ -179,13 +197,13 @@ object DatomicCompiler {
   }
 
 
-  def query[A <: Args, B <: Args](q: String) = macro queryImpl[A, B]
+  def query[A <: Args, B <: Args](q: String) = macro typedQueryImpl[A, B]
 
-  def queryImpl[A <: Args : c.AbsTypeTag, B <: Args : c.AbsTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
+  def typedQueryImpl[A <: Args : c.AbsTypeTag, B <: Args : c.AbsTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
       //println(implicitly[c.AbsTypeTag[T]].tpe <:< implicitly[c.TypeTag[Boolean]].tpe)
       //println(c.universe.TypeTag.unapply(implicitly[c.AbsTypeTag[T]].tpe))
 
-      def verifyInputs(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
+      def verifyInputs(query: Query): Option[PositionFailure] = {
         val tpe = implicitly[c.AbsTypeTag[A]].tpe
         val sz = query.in.map( _.inputs.size ).getOrElse(0)
         lazy val argPos = c.macroApplication.children(0).children(1).pos
@@ -195,14 +213,14 @@ object DatomicCompiler {
             (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) 
             || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
           )
-            Left(PositionFailure("Query Error in \":in\" : Expected %d INPUT variables".format(sz), 1, argPos.column))
-          else Right(TypedQuery[A,B](query))
+            Some(PositionFailure("Query Error in \":in\" : Expected %d INPUT variables".format(sz), 1, argPos.column))
+          else None
         } 
-        .getOrElse(Right(TypedQuery[A,B](query)))
+        .getOrElse(None)
         
       }
 
-      def verifyOutputs(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
+      def verifyOutputs(query: Query): Option[PositionFailure] = {
         val tpe = implicitly[c.AbsTypeTag[B]].tpe
         val sz = query.find.outputs.size
         val argPos = c.macroApplication.children(0).children(2).pos
@@ -211,12 +229,12 @@ object DatomicCompiler {
           (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2)
           || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
         )
-          Left(PositionFailure("Query Error in \":find\" : Expected %d OUTPUT variables".format(sz), 1, argPos.column))
-        else Right(TypedQuery[A,B](query))
+          Some(PositionFailure("Query Error in \":find\" : Expected %d OUTPUT variables".format(sz), 1, argPos.column))
+        else None
       }
 
-      def verifyTypes(query: Query): Either[PositionFailure, TypedQuery[A, B]] = {
-        verifyInputs(query).right.flatMap( _ => 
+      def verifyTypes(query: Query): Option[PositionFailure] = {
+        verifyInputs(query).flatMap( _ => 
           verifyOutputs(query) 
         )
       }
@@ -227,9 +245,10 @@ object DatomicCompiler {
 
       q.tree match {
         case Literal(Constant(s: String)) => 
-          //println(DatomicParser.parseQuery2(s).toString)
-          //c.Expr[String](c.universe.Literal(c.universe.Constant(DatomicParser.parseQuery2(s).toString)))
-          DatomicParser.parseQuerySafe(s).right.flatMap( (t: Query) => verifyTypes(t) ) match {
+          DatomicParser.parseQuerySafe(s).right.flatMap{ (t: Query) => verifyTypes(t) match {
+            case Some(p: PositionFailure) => Left(p)
+            case None => Right(t)
+          } } match {
             case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
               val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
 
@@ -239,8 +258,7 @@ object DatomicCompiler {
               val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
               c.abort(offsetPos.asInstanceOf[c.Position], msg)
 
-            case Right(tq) => 
-              c.Expr[TypedQuery[A, B]]( inc.incept(tq) )
+            case Right(t) => c.Expr[TypedQuery[A, B]]( inc.incept(TypedQuery[A, B](t)) )
           }
 
         case _ => c.abort(c.enclosingPosition, "Only accepts String")

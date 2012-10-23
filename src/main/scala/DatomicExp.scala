@@ -1,5 +1,7 @@
 package reactivedatomic
 
+package exp
+
 import java.io.Reader
 import java.io.FileReader
 
@@ -140,7 +142,7 @@ object DatomicExp {
     import scala.collection.JavaConversions._
 
     val qast = DatomicParser.parseQuery(s)
-    val qser = DatomicSerializers.querySerialize(qast)
+    val qser = qast.toString
 
     val results: List[List[Any]] = datomic.Peer.q(qser, db).toList.map(_.toList)
     

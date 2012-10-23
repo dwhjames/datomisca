@@ -21,19 +21,11 @@ object Datomic extends ArgsImplicits{
   implicit def database(implicit conn: Connection) = DDatabase(conn.database)
 
 
-
-  /*implicit def tuple2Converter = new DatomicResultConverter[Tuple2] {
-    def convert(l: List[Any]) = l match {
-      case Nil => None
-      case a1 :: a2 :: tail => Some(Tuple2(a1, a2))
-    }
-  }*/
-
   def q(s: String)(implicit db: DDatabase): ResultSet = {
     import scala.collection.JavaConversions._
 
     val qast = DatomicParser.parseQuery(s)
-    val qser = DatomicSerializers.querySerialize(qast)
+    val qser = qast.toString
 
     ResultSet(
       datomic.Peer.q(qser, db.value).toList.map(_.toList)
@@ -46,7 +38,7 @@ object Datomic extends ArgsImplicits{
     import scala.collection.JavaConversions._
 
     val qast = DatomicParser.parseQuery(s)
-    val qser = DatomicSerializers.querySerialize(qast)
+    val qser = qast.toString
 
     val results: List[List[Any]] = datomic.Peer.q(qser, db.value).toList.map(_.toList)
     
@@ -69,7 +61,6 @@ object Datomic extends ArgsImplicits{
 }
 
 
-
 case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[Any, Any] = Map()) 
 
 trait Connection {
@@ -80,11 +71,11 @@ trait Connection {
 
   def database: datomic.Database = connection.db()
 
-  def createSchema(schema: Schema): Future[TxResult] = {
+  def createSchema(schema: exp.Schema): Future[TxResult] = {
     transact(schema.ops)
   }
 
-  def transact(ops: Seq[Operation]) = {
+  def transact(ops: Seq[exp.Operation]) = {
     val m: Map[Any, Any] = connection.transact(ops.map( _.asJava ).toList.asJava).get().toMap.map( t => (t._1.toString, t._2))
 
     //println("MAP:"+m)

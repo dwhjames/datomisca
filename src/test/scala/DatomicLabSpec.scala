@@ -35,7 +35,8 @@ class DatomicLabSpec extends Specification {
       //println("1:" + Thread.currentThread.getContextClassLoader.asInstanceOf[java.net.URLClassLoader].getURLs.exists(_.getFile.contains("datomic")))
       //println("2:" + Thread.currentThread.getContextClassLoader.getParent.asInstanceOf[{val parentA: java.net.URLClassLoader}].parentA.getURLs.exists(_.getFile.contains("datomic")))
       import reactivedatomic._
-      import reactivedatomic.DatomicExp._
+      import reactivedatomic.exp._
+      import reactivedatomic.exp.DatomicExp._
       import scala.concurrent.ExecutionContext.Implicits.global
 
       implicit val uri = "datomic:mem://seattle"

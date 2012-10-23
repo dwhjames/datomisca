@@ -32,15 +32,14 @@ class DatomicCompilerSpec extends Specification {
       implicit val uri = "datomic:mem://datomicqueryspec"
       DatomicBootstrap(uri)
 
-      //println(DatomicSerializers.querySerialize(
-      val query = DatomicCompiler.query[Args0, Args2]("""
+      val q = DatomicCompiler.query[Args0, Args2]("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
       """)
 
-      query(Args0()).map{ l => l.collect {
+      q(Args0()).map{ l => l.collect {
         case Args2(e: DLong, n: DString) => 
           val entity = database.entity(e)
           println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
@@ -48,7 +47,7 @@ class DatomicCompilerSpec extends Specification {
       }}.recover{ case e => println("Exception: %s".format(e.getMessage)) }
 
 
-      val query2 = DatomicCompiler.query[Args2, Args3]("""
+      /*val query2 = DatomicCompiler.query[Args2, Args3]("""
         [ :find ?e ?name ?age
           :in $ ?age
           :where  [ ?e :person/name ?name ] 
@@ -66,22 +65,20 @@ class DatomicCompilerSpec extends Specification {
 
       //)
 
-      val query3 = DatomicCompiler.query[Args2, Args3]("""
+      DatomicCompiler.query[Args2, Args3]("""
         [ :find ?e ?name ?age
           :in $ ?age
           :where  [ ?e :person/name ?name ] 
                   [ ?e :person/age ?a ]
                   [ (< ?a ?age) ]
         ]
-      """)
-
-      query3.prepare.execute(database, DLong(30)).map( _.map {
+      """).prepare.execute(database, DLong(30)).map( _.map {
         case (entity: DLong, name: DString, age: DLong) => 
           println(s"""Q3 entity: $entity - name: $name - age: $age""")
           name must beEqualTo(DString("toto"))
         case x => println("Not Expected: "+x)
       }).recover{ case e => println(e.getMessage) }
-
+*/
       success
     }
   }
