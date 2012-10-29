@@ -43,9 +43,9 @@ class DatomicSchemaSpec extends Specification {
       val dumb = AddIdent(Keyword(person.character, "dumb"))
 
       val schema = Schema(
-        Field( Keyword(Namespace("person"), "name"), SchemaType.string, Cardinality.one).withDoc("Person's name"),
-        Field( Keyword(Namespace("person"), "age"), SchemaType.long, Cardinality.one).withDoc("Person's age"),
-        Field( Keyword(Namespace("person"), "character"), SchemaType.ref, Cardinality.many).withDoc("Person's characterS"),
+        Attribute( Keyword(Namespace("person"), "name"), SchemaType.string, Cardinality.one).withDoc("Person's name"),
+        Attribute( Keyword(Namespace("person"), "age"), SchemaType.long, Cardinality.one).withDoc("Person's age"),
+        Attribute( Keyword(Namespace("person"), "character"), SchemaType.ref, Cardinality.many).withDoc("Person's characterS"),
         violent,
         weak,
         clever,

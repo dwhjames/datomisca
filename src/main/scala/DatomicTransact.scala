@@ -127,7 +127,7 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-case class Field(
+case class Attribute(
   ident: Keyword,
   valueType: SchemaType,
   cardinality: Cardinality,
@@ -141,8 +141,8 @@ case class Field(
   // using partiton :db.part/db
   override lazy val id = DId(Partition.DB)
 
-  def withDoc(str: String): Field = copy( doc = Some(str) )
-  def withUnique(u: Unique): Field = copy( unique = Some(u) )
+  def withDoc(str: String): Attribute = copy( doc = Some(str) )
+  def withUnique(u: Unique): Attribute = copy( unique = Some(u) )
   def withIndex(b: Boolean) = copy( index = Some(b) )
   def withFulltext(b: Boolean) = copy( fulltext = Some(b) )
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
@@ -150,22 +150,22 @@ case class Field(
 
   lazy val toAddEntity: AddEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
-      Field.id -> id,
-      Field.ident -> DRef(ident),
-      Field.valueType -> DRef(valueType.keyword),
-      Field.cardinality -> DRef(cardinality.keyword)
+      Attribute.id -> id,
+      Attribute.ident -> DRef(ident),
+      Attribute.valueType -> DRef(valueType.keyword),
+      Attribute.cardinality -> DRef(cardinality.keyword)
     ))
-    if(doc.isDefined) mb += Field.doc -> DString(doc.get)
-    if(unique.isDefined) mb += Field.unique -> DRef(unique.get.keyword)
-    if(index.isDefined) mb += Field.index -> DBoolean(index.get)
-    if(fulltext.isDefined) mb += Field.fulltext -> DBoolean(fulltext.get)
-    if(isComponent.isDefined) mb += Field.isComponent -> DBoolean(isComponent.get)
-    if(noHistory.isDefined) mb += Field.noHistory -> DBoolean(noHistory.get)
+    if(doc.isDefined) mb += Attribute.doc -> DString(doc.get)
+    if(unique.isDefined) mb += Attribute.unique -> DRef(unique.get.keyword)
+    if(index.isDefined) mb += Attribute.index -> DBoolean(index.get)
+    if(fulltext.isDefined) mb += Attribute.fulltext -> DBoolean(fulltext.get)
+    if(isComponent.isDefined) mb += Attribute.isComponent -> DBoolean(isComponent.get)
+    if(noHistory.isDefined) mb += Attribute.noHistory -> DBoolean(noHistory.get)
     
     // installing attribute
     // _db.install/'_attribute -> _db.part/'db
 
-    mb += Field.installAttr -> DRef(Partition.DB.keyword)
+    mb += Attribute.installAttr -> DRef(Partition.DB.keyword)
 
     AddEntity(
       mb.result(),
@@ -177,21 +177,21 @@ case class Field(
 
   override def toString = s"""
 { 
-  ${Field.id} $id
-  ${Field.ident} ${DRef(ident)}
-  ${Field.valueType} ${DRef(valueType.keyword)}
-  ${Field.cardinality} ${DRef(cardinality.keyword)}""" +
-  ( if(doc.isDefined) { "\n  " + Field.doc + " " + DString(doc.get) } else { "" } ) +
-  ( if(unique.isDefined) { "\n  " + Field.unique + " " + DRef(unique.get.keyword) } else { "" } ) +
-  ( if(index.isDefined) { "\n  " + Field.index + " " + DBoolean(index.get) } else { "" }) +
-  ( if(fulltext.isDefined) { "\n  " + Field.fulltext + " " + DBoolean(fulltext.get) } else { "" }) +
-  ( if(isComponent.isDefined) { "\n  " + Field.isComponent + " " + DBoolean(isComponent.get) } else { "" }) +
-  ( if(noHistory.isDefined) { "\n  " + Field.noHistory + " " + DBoolean(noHistory.get) } else { "" }) +
-  "\n  " + Field.installAttr + " " + DRef(Partition.DB.keyword) + 
+  ${Attribute.id} $id
+  ${Attribute.ident} ${DRef(ident)}
+  ${Attribute.valueType} ${DRef(valueType.keyword)}
+  ${Attribute.cardinality} ${DRef(cardinality.keyword)}""" +
+  ( if(doc.isDefined) { "\n  " + Attribute.doc + " " + DString(doc.get) } else { "" } ) +
+  ( if(unique.isDefined) { "\n  " + Attribute.unique + " " + DRef(unique.get.keyword) } else { "" } ) +
+  ( if(index.isDefined) { "\n  " + Attribute.index + " " + DBoolean(index.get) } else { "" }) +
+  ( if(fulltext.isDefined) { "\n  " + Attribute.fulltext + " " + DBoolean(fulltext.get) } else { "" }) +
+  ( if(isComponent.isDefined) { "\n  " + Attribute.isComponent + " " + DBoolean(isComponent.get) } else { "" }) +
+  ( if(noHistory.isDefined) { "\n  " + Attribute.noHistory + " " + DBoolean(noHistory.get) } else { "" }) +
+  "\n  " + Attribute.installAttr + " " + DRef(Partition.DB.keyword) + 
   "\n}"
 }
 
-object Field {
+object Attribute {
   val id = Keyword(Namespace.DB, "id")
   val ident = Keyword(Namespace.DB, "ident")
   val valueType = Keyword(Namespace.DB, "valueType")

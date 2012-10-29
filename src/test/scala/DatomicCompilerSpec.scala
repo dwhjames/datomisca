@@ -72,7 +72,8 @@ class DatomicCompilerSpec extends Specification {
                   [ ?e :person/age ?a ]
                   [ (< ?a ?age) ]
         ]
-      """).prepare().execute(database, DLong(30)).map( _.map {
+      """).prepare()
+          .execute(database, DLong(30)).map( _.map {
         case (entity: DLong, name: DString, age: DLong) => 
           println(s"""Q3 entity: $entity - name: $name - age: $age""")
           name must beEqualTo(DString("toto"))

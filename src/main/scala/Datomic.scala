@@ -25,18 +25,6 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
 
   implicit def database(implicit conn: Connection) = DDatabase(conn.database)
 
-
-  /*def q(s: String)(implicit db: DDatabase): ResultSet = {
-    import scala.collection.JavaConversions._
-
-    val qast = DatomicParser.parseQuery(s)
-    val qser = qast.toString
-
-    ResultSet(
-      datomic.Peer.q(qser, db.value).toList.map(_.toList)
-    )
-  }*/
-
   def pureQuery(q: String): PureQuery = macro pureQueryImpl
 
   def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[PureQuery] = {
@@ -66,9 +54,6 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
   def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro typedQueryImpl[A, B]
 
   def typedQueryImpl[A <: Args : c.AbsTypeTag, B <: Args : c.AbsTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
-      //println(implicitly[c.AbsTypeTag[T]].tpe <:< implicitly[c.TypeTag[Boolean]].tpe)
-      //println(c.universe.TypeTag.unapply(implicitly[c.AbsTypeTag[T]].tpe))
-
       def verifyInputs(query: Query): Option[PositionFailure] = {
         val tpe = implicitly[c.AbsTypeTag[A]].tpe
         val sz = query.in.map( _.inputs.size ).getOrElse(0)
@@ -132,21 +117,6 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       }
       
     }
-
-  //def query(s: String)(implicit db: DDatabase): ResultSet = q(s)
-
-  /*def pureQuery(s: String)(implicit db: DDatabase): List[List[DatomicData]] = {
-    import scala.collection.JavaConversions._
-
-    val qast = DatomicParser.parseQuery(s)
-    val qser = qast.toString
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, db.value).toList.map(_.toList)
-    
-    results.map { fields =>
-      fields.map { field => DatomicData.toDatomicData(field) }
-    }
-  }*/
 
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
 
