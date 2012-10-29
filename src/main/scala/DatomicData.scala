@@ -15,64 +15,109 @@ object Namespace {
   } 
 }
 
-trait Namespaceable {
+trait Nativeable {
+  def toNative: java.lang.Object
+}
+
+trait Namespaceable extends Nativeable {
   def name: String
   def ns: Option[Namespace] = None
 
-  override def toString = ns.toString + "/" + name
+  override def toString = ":" + ( if(ns.isDefined) {ns.get + "/"} else "" ) + name
+
+  def toNative: java.lang.Object = clojure.lang.Keyword.intern(( if(ns.isDefined) {ns.get + "/"} else "" ) + name )
 }
 
 /* DATOMIC TYPES */
-sealed trait DatomicData
+sealed trait DatomicData extends Nativeable
 
 case class DString(value: String) extends DatomicData {
   override def toString = "\""+ value + "\""
+  def toNative: java.lang.Object = value: java.lang.String 
 }
 
 case class DBoolean(value: Boolean) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value: java.lang.Boolean
 }
 
 case class DInt(value: Int) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value: java.lang.Integer
 }
 
 case class DLong(value: Long) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value: java.lang.Long
 }
 
 case class DFloat(value: Float) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value: java.lang.Float
 }
 
 case class DDouble(value: Double) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value: java.lang.Double
 }
 
 case class DBigDec(value: BigDecimal) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value
 }
 
 case class DInstant(value: java.util.Date) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value
 }
 
 case class DUuid(value: java.util.UUID) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value
 }
 
 case class DUri(value: java.net.URI) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value
 }
 
 case class DRef(value: Keyword) extends DatomicData {
   override def toString = value.toString
+  def toNative: java.lang.Object = value.toNative
 }
 
 case class DDatabase(value: datomic.Database) extends DatomicData {
   def entity(e: DLong) = value.entity(e.value)
 
+  def entid(e: DLong): DId = DId(value.entid(e.value).asInstanceOf[datomic.db.DbId])
+
   override def toString = value.toString
+  def toNative: java.lang.Object = value
+}
+
+case class DId(value: datomic.db.DbId) extends DatomicData {
+  def toNative: java.lang.Object = value
+
+  override def toString = value.toString
+}
+
+object DId {
+  def apply(partition: Partition = Partition.USER) = new DId(datomic.Peer.tempid(partition.toString).asInstanceOf[datomic.db.DbId])
+  def apply(partition: Partition, id: Long) = new DId(datomic.Peer.tempid(partition.toString, id).asInstanceOf[datomic.db.DbId])
+
+  def from(dl: DLong)(implicit dd: DDatabase) = dd.entid(dl)
+}
+
+case class DSeq(elements: Seq[DatomicData]) extends DatomicData {
+  def toNative: java.lang.Object = {
+    import scala.collection.JavaConverters._
+    ( elements.map( _.toNative ) ).asJava
+  }
+}
+
+object DSeq {
+  def apply(dd: DatomicData) = new DSeq(Seq(dd))
+  def apply(dd: DatomicData, dds: DatomicData *) = new DSeq(Seq(dd) ++ dds)
 }
 
 object DatomicData {
@@ -121,8 +166,11 @@ case class Var(name: String) extends Term {
   override def toString = "?" + name
 }
 
-case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable {
-  override def toString = ":" + ( if(ns.isDefined) {ns.get + "/"} else "" ) + name
+case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable
+
+object Keyword {
+  def apply(name: String, ns: Namespace) = new Keyword(name, Some(ns))
+  def apply(ns: Namespace, name: String) = new Keyword(name, Some(ns))
 }
 
 case class Const(value: DatomicData) extends Term {

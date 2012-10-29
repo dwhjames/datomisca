@@ -93,8 +93,8 @@ object DatomicParser extends JavaTokenParsers {
   def find: Parser[Find] = positioned(":find" ~> rep(output) ^^ { Find(_) })
 
   // QUERY
-  def query: Parser[Query] = "[" ~> find ~ opt(in) ~ where <~ "]" ^^ { 
-    case find ~ in ~ where => Query(find, in, where) 
+  def query: Parser[PureQuery] = "[" ~> find ~ opt(in) ~ where <~ "]" ^^ { 
+    case find ~ in ~ where => PureQuery(find, in, where) 
   }
 
   def parseRule(input: String): Rule = parseAll(rule, input) match {
@@ -112,12 +112,12 @@ object DatomicParser extends JavaTokenParsers {
     case failure : NoSuccess => scala.sys.error(failure.msg)
   }
 
-  def parseQuery(input: String): Query = parseAll(query, input) match {
+  def parseQuery(input: String): PureQuery = parseAll(query, input) match {
     case Success(result, _) => result
     case failure : NoSuccess => scala.sys.error(failure.msg)
   }
 
-  def parseQuerySafe(input: String): Either[PositionFailure, Query] = parseAll(query, input) match {
+  def parseQuerySafe(input: String): Either[PositionFailure, PureQuery] = parseAll(query, input) match {
     case Success(result, _) => Right(result)
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }

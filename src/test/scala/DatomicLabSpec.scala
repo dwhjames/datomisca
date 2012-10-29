@@ -34,7 +34,6 @@ class DatomicLabSpec extends Specification {
 
       //println("1:" + Thread.currentThread.getContextClassLoader.asInstanceOf[java.net.URLClassLoader].getURLs.exists(_.getFile.contains("datomic")))
       //println("2:" + Thread.currentThread.getContextClassLoader.getParent.asInstanceOf[{val parentA: java.net.URLClassLoader}].parentA.getURLs.exists(_.getFile.contains("datomic")))
-      import reactivedatomic._
       import reactivedatomic.exp._
       import reactivedatomic.exp.DatomicExp._
       import scala.concurrent.ExecutionContext.Implicits.global
@@ -201,7 +200,7 @@ class DatomicLabSpec extends Specification {
 
       //DummyDatomic.fakeSchema(uri
 
-      conn.createSchema(schema).map( r => println("Res:"+r) )
+      conn.createSchemaOld(schema).map( r => println("Res:"+r) )
 
       val data_rdr = new FileReader("samples/seattle/seattle-data0.dtm")
       val data_tx: java.util.List[Object] = datomic.Util.readAll(data_rdr).get(0).asInstanceOf[java.util.List[Object]]

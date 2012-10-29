@@ -5,7 +5,7 @@ import language.experimental.macros
 import scala.tools.reflect.Eval
 import scala.reflect.internal.util.{Position, OffsetPosition}
 
-object DatomicCompiler {
+trait DatomicCompiler {
 
 
   def inception(c: Context) = {
@@ -14,7 +14,7 @@ object DatomicCompiler {
     new {
 
       def incept(d: DatomicData): c.Tree = d match {
-        case DString(v) => Apply(Ident(newTermName("DString")), List(Literal(Constant("\""+ v + "\""))))
+        case DString(v) => Apply(Ident(newTermName("DString")), List(Literal(Constant(v))))
         case DInt(v) => Apply(Ident(newTermName("DInt")), List(Literal(Constant(v))))
         case DLong(v) => Apply(Ident(newTermName("DLong")), List(Literal(Constant(v))))
         case DFloat(v) => Apply(Ident(newTermName("DFloat")), List(Literal(Constant(v))))
@@ -141,11 +141,11 @@ object DatomicCompiler {
       def incept(f: Find): c.Tree = 
         Apply( Ident(newTermName("Find")), List( Apply(Ident(newTermName("Seq")), f.outputs.map(incept(_)).toList )) )  
 
-      def incept(q: Query): c.universe.Tree = {
+      def incept(q: PureQuery): c.universe.Tree = {
         Apply(
-          Ident(newTermName("Query")), 
+          Ident(newTermName("PureQuery")), 
           List(incept(q.find)) ++ 
-          q.in.map( in => List(incept(in)) ).getOrElse(List()) ++ 
+          q.in.map{ in => List(Apply(Ident(newTermName("Some")), List(incept(in)))) }.getOrElse(List(Ident(newTermName("None")))) ++ 
           List(incept(q.where))
         )
       }
@@ -161,111 +161,5 @@ object DatomicCompiler {
     }
   } 
 
-  def pureQuery(q: String) = macro pureQueryImpl
-
-  def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[Query] = {
-    //println(implicitly[c.AbsTypeTag[T]].tpe <:< implicitly[c.TypeTag[Boolean]].tpe)
-    //println(c.universe.TypeTag.unapply(implicitly[c.AbsTypeTag[T]].tpe))
-      import c.universe._
-
-      val inc = inception(c)
-
-      q.tree match {
-        case Literal(Constant(s: String)) => 
-          //println(DatomicParser.parseQuery2(s).toString)
-          //c.Expr[String](c.universe.Literal(c.universe.Constant(DatomicParser.parseQuery2(s).toString)))
-          DatomicParser.parseQuerySafe(s) match {
-            case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-              val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
-
-              val enclosingOffset = 
-                enclosingPos.source.lineToOffset(enclosingPos.line - 1 + offsetLine - 1 ) + offsetCol - 1
-
-//                println("enclosingOffset: %d offsetLine:%d offsetCol:%d".format(enclosingPos.source.lineToOffset(enclosingPos.line), offsetLine, offsetCol))
-//                println("line:%d offset:%d".format(enclosingPos.line, enclosingOffset))
-              val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
-              c.abort(offsetPos.asInstanceOf[c.Position], msg)
-            case Right(q) => c.Expr[Query]( inc.incept(q) )
-          }
-
-        case _ => c.abort(c.enclosingPosition, "Only accepts String")
-        // c.universe.reify("") //c.universe.reify(DatomicParser.parseQuery("")): c.Expr[Query]
-      //case c.universe.Literal(c.universe.Constant("false")) => c.universe.reify(false)
-      //case _ => { c.error(c.enclosingPosition,"not a boolean");c.universe.reify(true)}
-      }
-    
-  }
-
-
-  def query[A <: Args, B <: Args](q: String) = macro typedQueryImpl[A, B]
-
-  def typedQueryImpl[A <: Args : c.AbsTypeTag, B <: Args : c.AbsTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
-      //println(implicitly[c.AbsTypeTag[T]].tpe <:< implicitly[c.TypeTag[Boolean]].tpe)
-      //println(c.universe.TypeTag.unapply(implicitly[c.AbsTypeTag[T]].tpe))
-
-      def verifyInputs(query: Query): Option[PositionFailure] = {
-        val tpe = implicitly[c.AbsTypeTag[A]].tpe
-        val sz = query.in.map( _.inputs.size ).getOrElse(0)
-        lazy val argPos = c.macroApplication.children(0).children(1).pos
-
-        query.in.map{ in => 
-          if(
-            (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) 
-            || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
-          )
-            Some(PositionFailure("Query Error in \":in\" : Expected %d INPUT variables".format(sz), 1, argPos.column))
-          else None
-        } 
-        .getOrElse(None)
-        
-      }
-
-      def verifyOutputs(query: Query): Option[PositionFailure] = {
-        val tpe = implicitly[c.AbsTypeTag[B]].tpe
-        val sz = query.find.outputs.size
-        val argPos = c.macroApplication.children(0).children(2).pos
-
-        if(
-          (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2)
-          || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
-        )
-          Some(PositionFailure("Query Error in \":find\" : Expected %d OUTPUT variables".format(sz), 1, argPos.column))
-        else None
-      }
-
-      def verifyTypes(query: Query): Option[PositionFailure] = {
-        verifyInputs(query).flatMap( _ => 
-          verifyOutputs(query) 
-        )
-      }
-
-      import c.universe._
-
-      val inc = inception(c)
-
-      q.tree match {
-        case Literal(Constant(s: String)) => 
-          DatomicParser.parseQuerySafe(s).right.flatMap{ (t: Query) => verifyTypes(t) match {
-            case Some(p: PositionFailure) => Left(p)
-            case None => Right(t)
-          } } match {
-            case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-              val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
-
-              val enclosingOffset = 
-                enclosingPos.source.lineToOffset(enclosingPos.line - 1 + offsetLine - 1 ) + offsetCol - 1
-
-              val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
-              c.abort(offsetPos.asInstanceOf[c.Position], msg)
-
-            case Right(t) => c.Expr[TypedQuery[A, B]]( inc.incept(TypedQuery[A, B](t)) )
-          }
-
-        case _ => c.abort(c.enclosingPosition, "Only accepts String")
-        // c.universe.reify("") //c.universe.reify(DatomicParser.parseQuery("")): c.Expr[Query]
-      //case c.universe.Literal(c.universe.Constant("false")) => c.universe.reify(false)
-      //case _ => { c.error(c.enclosingPosition,"not a boolean");c.universe.reify(true)}
-      }
-      
-    }
+  
 }

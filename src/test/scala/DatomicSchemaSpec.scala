@@ -3,7 +3,6 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import datomic.Entity
 import datomic.Connection
 import datomic.Database
 import datomic.Peer
@@ -19,81 +18,89 @@ import scala.concurrent._
 import scala.concurrent.util._
 import java.util.concurrent.TimeUnit._
 
+import reactivedatomic._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])
 class DatomicSchemaSpec extends Specification {
   "Datomic" should {
-    "simple schema" in {
-      import reactivedatomic._
-      import reactivedatomic.exp.DatomicExp._
-      import reactivedatomic.exp._
-      import scala.concurrent.ExecutionContext.Implicits.global
+    "create simple schema and provision data" in {
+      import Datomic._
+      import DatomicData._
 
-      implicit val uri = "datomic:mem://datomicspec2"
+      implicit val uri = "datomic:mem://datomicschemaspec"
 
-      val _person = new NameSpace("person") {
-        val character = new NameSpace("person.character")
+      //DatomicBootstrap(uri)
+      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+
+      val person = new Namespace("person") {
+        val character = Namespace("person.character")
       }
 
-      val schema = Schema (
-        // PERSON
-        _db/add( 
-          _db/'id                 -> tempid( _db.part/'db ),
-          _db/'ident              -> _person/'name,
-          _db/'valueType          -> _db.typ/'string,
-          _db/'cardinality        -> _db.cardinality/'one,
-          _db/'doc                -> "\"A unique person name\"", 
-          _db.install/'_attribute -> _db.part/'db
-        ),
-        _db/add( 
-          _db/'id                 -> tempid( _db.part/'db ),
-          _db/'ident              -> _person/'character,
-          _db/'valueType          -> _db.typ/'ref,
-          _db/'cardinality        -> _db.cardinality/'many,
-          _db/'doc                -> "\"Traits of character\"", 
-          _db.install/'_attribute -> _db.part/'db
-        ),
-        _db/add( tempid( _db.part/'user ), _db/'ident, _person.character/'stupid ),
-        _db/add( tempid( _db.part/'user ), _db/'ident, _person.character/'clever ),
-        _db/add( tempid( _db.part/'user ), _db/'ident, _person.character/'dumb ),
-        _db/add( tempid( _db.part/'user ), _db/'ident, _person.character/'violent ),
-        _db/add( tempid( _db.part/'user ), _db/'ident, _person.character/'weak )
-      ) 
+      val violent = AddIdent(Keyword(person.character, "violent"))
+      val weak = AddIdent(Keyword(person.character, "weak"))
+      val clever = AddIdent(Keyword(person.character, "clever"))
+      val dumb = AddIdent(Keyword(person.character, "dumb"))
 
-      println("created DB: "+createDatabase(uri))
-      val conn = connect(uri)
-      conn.createSchema(schema).map( r => println("Res:"+r) )
-
-      val data = Seq(
-        _db/add(
-          _db/'id -> tempid( _db.part/'user ),
-          _person/'name -> "toto",
-          _person/'character -> Seq( _person.character/'stupid, _person.character/'weak)
-        ),
-        _db/add(
-          _db/'id -> tempid( _db.part/'user ),
-          _person/'name -> "tutu",
-          _person/'character -> Seq( _person.character/'clever, _person.character/'violent)
-        )
-      )
-      
-      Await.result(
-        conn.transact(data).map( tx => println("res:"+tx) ), 
-        Duration(30, SECONDS) 
+      val schema = Schema(
+        Field( Keyword(Namespace("person"), "name"), SchemaType.string, Cardinality.one).withDoc("Person's name"),
+        Field( Keyword(Namespace("person"), "age"), SchemaType.long, Cardinality.one).withDoc("Person's age"),
+        Field( Keyword(Namespace("person"), "character"), SchemaType.ref, Cardinality.many).withDoc("Person's characterS"),
+        violent,
+        weak,
+        clever,
+        dumb
       )
 
-      query("[ :find ?e ?n :where [ ?e :person/name ?n ] [ ?e :person/character :person.character/violent ]]").collect {
-        case Res(e: Long, n: String) => 
-          val entity = database.entity(e)
-          println("name:"+n+ " - e:" + entity.get(":person/character"))
+      connection.provisionSchema(schema).map{ tx => 
+        println("Provisioned schema... TX:%s".format(tx))
+
+        connection.transact(
+          AddEntity(DId(Partition.USER))(
+            Keyword(person, "name") -> DString("toto"),
+            Keyword(person, "age") -> DLong(30L),
+            Keyword(person, "character") -> DSeq(weak.ident, dumb.ident)
+          ),
+          AddEntity(DId(Partition.USER))(
+            Keyword(person, "name") -> DString("tutu"),
+            Keyword(person, "age") -> DLong(54L),
+            Keyword(person, "character") -> DSeq(violent.ident, clever.ident)
+          ),
+          AddEntity(DId(Partition.USER))(
+            Keyword(person, "name") -> DString("tata"),
+            Keyword(person, "age") -> DLong(23L),
+            Keyword(person, "character") -> DSeq(weak.ident, clever.ident)
+          )
+        ).map{ tx => 
+          println("Provisioned data... TX:%s".format(tx))
+        }.recover{
+          case e => println(e.getMessage)
+        }
+
+        pureQuery("""
+          [ :find ?e
+            :where [ ?e :person/name "toto" ] 
+          ]
+        """).prepare().execute().map {
+          case List(totoId: DLong) => 
+            connection.transact(
+              RetractEntity(totoId)
+            ).map{ tx => 
+              println("Retracted data... TX:%s".format(tx))
+
+              pureQuery("""
+                [ :find ?e
+                  :where  [ ?e :person/name "toto" ] 
+                ]
+              """).prepare().execute().isEmpty must beTrue
+            }.recover{
+              case e => println(e.getMessage)
+            }
+        }
+      }.recover{
+        case e => println(e.getMessage)
       }
 
-      /*val q = Datomic.find(Var("e"), Var("n")) where(
-        ( Var("e"), Keyword(":person/name"), Var("n") ),
-        ( Var("e"), Keyword(":person/character"), Keyword(":person.character/violent") )
-      )
-
-      println("query:"+q)*/
       success
     }
   }

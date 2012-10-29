@@ -11,6 +11,38 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Try, Success, Failure}
 
 
+
+trait Res {
+  def values: List[Any]
+
+  def toList = values
+
+}
+
+object Res {
+  def apply(vs: List[Any]) = new Res {
+    override lazy val values: List[Any] = vs
+  }
+
+  def unapplySeq(res: Res): Option[List[Any]] = Some(res.toList)
+}
+
+
+trait ResultSet {
+
+  def results: List[Res]
+  def collect[T](pf: PartialFunction[Res, T]): List[T] = results.collect(pf)
+  def map[T](f: Res => T): List[T] = results.map(f)
+
+}
+
+object ResultSet {
+  def apply(rez: List[List[Any]]) = new ResultSet{
+    override lazy val results: List[Res] = rez.map( (values: List[Any]) => Res(values) )
+  }
+}
+
+
 object DatomicDataExp {
 
   trait DatomicDataListConverter[T] {

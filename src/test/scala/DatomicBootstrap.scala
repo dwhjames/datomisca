@@ -51,7 +51,7 @@ object DatomicBootstrap {
     println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
     val conn = connect(uri)
     Await.result(
-      conn.createSchema(schema).flatMap{ r => 
+      conn.createSchemaOld(schema)/*.flatMap{ r => 
         println("created Schema...") 
 
         val data = Seq(
@@ -72,7 +72,7 @@ object DatomicBootstrap {
         conn.transact(data).map{ tx => 
           println("Provisioned data...")
         }
-      }, 
+      }*/, 
       Duration(30, SECONDS) 
     )
   }

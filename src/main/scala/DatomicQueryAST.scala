@@ -87,13 +87,70 @@ trait Query {
 }
 
 object Query {
-  def apply(find: Find, where: Where): Query = PureQuery(find, None, where)
-  def apply(find: Find, in: In, where: Where): Query = PureQuery(find, Some(in), where)
-  def apply(find: Find, in: Option[In], where: Where): Query = PureQuery(find, in, where)
-  def apply[In <: Args, Out <: Args](q: PureQuery): Query = TypedQuery[In, Out](q)
+  def apply(find: Find, where: Where): PureQuery = PureQuery(find, None, where)
+  def apply(find: Find, in: In, where: Where): PureQuery = PureQuery(find, Some(in), where)
+  def apply(find: Find, in: Option[In], where: Where): PureQuery = PureQuery(find, in, where)
+  def apply[In <: Args, Out <: Args](q: PureQuery): TypedQuery[In, Out] = TypedQuery[In, Out](q)
 }
 
-case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query
+case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query {
+  self =>
+  def prepare()(implicit db: DDatabase)= new DatomicExecutor {
+    type F[_] = Function0[List[List[DatomicData]]]
+    def execute = () => {
+      import scala.collection.JavaConversions._
+
+      val qser = self.toString
+
+      val results: List[List[Any]] = datomic.Peer.q(qser, db.value).toList.map(_.toList)
+      
+      results.map { fields =>
+        fields.map { field => DatomicData.toDatomicData(field) }
+      }    
+    }
+  }
+}
+
+case class TypedQuery[In <: Args, Out <: Args](query: PureQuery) extends Query {
+  override def find = query.find
+  override def in = query.in
+  override def where = query.where
+
+  def apply(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = directQuery(in)
+
+  def directQuery(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = {
+    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
+    val qser = query.toString
+    val args = {
+      val args = in.toSeq
+      if(args.isEmpty) Seq(DatomicData.toDatomicNative(db): Object)
+      else args
+    }
+
+    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
+    
+    val listOfTry = results.map { fields =>
+      outConv.toArgs(fields.map { field => DatomicData.toDatomicData(field) })
+    }
+
+    listOfTry.foldLeft(Success(Nil): Try[List[Out]]){ (acc, e) => e match {
+      case Success(t) => acc.map( (a: List[Out]) => a :+ t )
+      case Failure(f) => Failure(f)
+    } }
+  }
+
+  def prepare[T]()(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[Out], ott: ArgsToTuple[Out, T], 
+             tf: ToFunction[In, Try[List[T]]]
+  ) = new DatomicExecutor {
+    type F[_] = tf.F[Try[List[T]]]
+    def execute = tf.convert(
+      (directQuery _).andThen((t: Try[List[Out]]) => t.map( _.map( out => ott.convert(out)) ))
+    )
+  }
+
+}
 
 sealed trait Args {
   def toSeq: Seq[Object]
@@ -179,46 +236,6 @@ trait ArgsImplicits {
 
 }
 
-case class TypedQuery[In <: Args, Out <: Args](query: Query) extends Query {
-  override def find = query.find
-  override def in = query.in
-  override def where = query.where
-
-  def apply(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = directQuery(in)
-
-  def directQuery(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = {
-    import scala.collection.JavaConversions._
-    import scala.collection.JavaConverters._
-    val qser = query.toString
-    val args = {
-      val args = in.toSeq
-      if(args.isEmpty) Seq(DatomicData.toDatomicNative(db): Object)
-      else args
-    }
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-    
-    val listOfTry = results.map { fields =>
-      outConv.toArgs(fields.map { field => DatomicData.toDatomicData(field) })
-    }
-
-    listOfTry.foldLeft(Success(Nil): Try[List[Out]]){ (acc, e) => e match {
-      case Success(t) => acc.map( (a: List[Out]) => a :+ t )
-      case Failure(f) => Failure(f)
-    } }
-  }
-
-  def prepare[T](
-    implicit db: DDatabase, outConv: DatomicDataToArgs[Out], ott: ArgsToTuple[Out, T], 
-             tf: ToFunction[In, Try[List[T]]]
-  ) = new DatomicExecutor {
-    type F[_] = tf.F[Try[List[T]]]
-    def execute = tf.convert(
-      (directQuery _).andThen((t: Try[List[Out]]) => t.map( _.map( out => ott.convert(out)) ))
-    )
-  }
-
-}
 
 object DatomicSerializers extends DatomicSerializers
 
