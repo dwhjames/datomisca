@@ -154,16 +154,11 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
   def addEntity(props: (Keyword, DWrapper)*) = 
     AddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
 
+  def addEntity(ops: String) = macro addEntityImpl
+
   def dseq(dw: DWrapper*) = DSeq(dw.map(t => t.asInstanceOf[DWrapperImpl].value))
 
   def toDatomic[T : DWrites](t: T): DatomicData = implicitly[DWrites[T]].write(t)
-
-  /*implicit class KeywordInterpolation(val sc: StringContext) extends AnyVal {
-    def KW(args: Any*): Keyword = {
-      if(args.length > 0 || sc.parts.length > 1) sys.error("Keyword interpolation can't contact variables")
-      else DatomicParser.parseKeyword(sc.parts(0))
-    }
-  }*/ 
 
   def KW(q: String): Keyword = macro KWImpl
 
@@ -191,9 +186,34 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
     
   }
 
-  def transac(ops: String): Future[TxResult] = macro transacImpl
 
-  def transacImpl(c: Context)(ops: c.Expr[String]): c.Expr[Future[TxResult]] = {
+  def addEntityImpl(c: Context)(ops: c.Expr[String]): c.Expr[AddEntity] = {
+    import c.universe._
+
+    val inc = inception(c)
+
+    ops.tree match {
+      case Literal(Constant(s: String)) => 
+        DatomicParser.parseAddEntityParsingSafe(s) match {
+          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+            val treePos = ops.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
+
+            val offsetPos = new OffsetPosition(
+              treePos.source, 
+              computeOffset(treePos, offsetLine, offsetCol)
+            )
+            c.abort(offsetPos.asInstanceOf[c.Position], msg)
+          case Right(ae) => 
+            c.Expr[AddEntity]( inc.incept(ae) )
+        }
+
+      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+    }
+  }
+
+  def transact(ops: String): Future[TxResult] = macro transactImpl
+
+  def transactImpl(c: Context)(ops: c.Expr[String]): c.Expr[Future[TxResult]] = {
     import c.universe._
 
     val inc = inception(c)

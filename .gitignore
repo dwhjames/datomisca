@@ -17,3 +17,5 @@ project/plugins/project/
 .classpath
 .project
 
+.DS_Store
+

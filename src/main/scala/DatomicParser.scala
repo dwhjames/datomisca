@@ -1,11 +1,15 @@
 package reactivedatomic
 
 import scala.util.parsing.combinator.JavaTokenParsers
-import scala.util.parsing.input.Positional
+import scala.util.parsing.combinator.RegexParsers
+import scala.util.parsing.input.{Positional, Reader}
+import scala.util.parsing.combinator.lexical.StdLexical
+import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
 case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
 
 object DatomicParser extends JavaTokenParsers {
+  import scala.annotation.tailrec
 
   val literal = """[a-zA-Z]([a-zA-Z0-9.]|_[a-zA-Z0-9.])*""".r
 
@@ -103,14 +107,14 @@ object DatomicParser extends JavaTokenParsers {
     case find ~ in ~ where => PureQuery(find, in, where) 
   }
 
-  def scalaExpr: Parser[ScalaExpr] = (("${" ~> stringContent <~ "}") | ("$" ~> literal )) ^^ { ScalaExpr(_) }
+  def scalaExpr: Parser[ScalaExpr] = "$" ~> ( brackets | literal ) ^^ { ScalaExpr(_) }
   
   def eitherScalaExprOrDatomicData = (scalaExpr | datomicData) ^^ {
     case dd: DatomicData => Right(dd)
     case se: ScalaExpr => Left(se)
   }
 
-  def dSeqParsing: Parser[DSeqParsing] = "[" ~> rep(eitherScalaExprOrDatomicData) <~ "]" ^^ { DSeqParsing(_) }
+  def dSeqParsing: Parser[DSeqParsing] = "[" ~> rep(eitherScalaExprOrDatomicData) <~ "]" ^^ { DSeqParsing(_) } 
 
   def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSeqParsing
 
@@ -120,6 +124,48 @@ object DatomicParser extends JavaTokenParsers {
   }
 
   def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attribute) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
+
+  def eof = """\Z""".r
+
+  def any = {
+    Parser(in => if (in.atEnd) {
+      Failure("end of file", in)
+    } else {
+      Success(in.first, in.rest)
+    })
+  }
+
+  def brackets: Parser[String] = {
+    ensureMatchedChars("{", "}")(several((brackets | not("}") ~> any))) ^^ {
+      case charList => charList.mkString
+    }
+  }
+
+  def ensureMatchedChars[T](open: String, close: String)(p: Parser[T]): Parser[T] = Parser { in =>
+    val pWithBrackets = open ~> p <~ ( close | eof ~ err("EOF"))
+    pWithBrackets(in) match {
+      case s @ Success(_, _) => s
+      case f @ Failure(_, _) => f
+      case Error("EOF", _) => Error("Unmatched bracket", in)
+      case e: Error => e
+    }
+  }
+
+  def several[T](p: => Parser[T]): Parser[List[T]] = Parser { in =>
+    import scala.collection.mutable.ListBuffer
+    val elems = new ListBuffer[T]
+    def continue(in: Input): ParseResult[List[T]] = {
+      val p0 = p // avoid repeatedly re-evaluating by-name parser
+      @tailrec
+      def applyp(in0: Input): ParseResult[List[T]] = p0(in0) match {
+        case Success(x, rest) => elems += x; applyp(rest)
+        case Failure(_, _) => Success(elems.toList, in0)
+        case err: Error => err
+      }
+      applyp(in)
+    }
+    continue(in)
+  }
 
   def parseKeyword(input: String): Keyword = parseAll(posKeyword, input) match {
     case Success(result, _) => result
@@ -161,3 +207,4 @@ object DatomicParser extends JavaTokenParsers {
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 }
+

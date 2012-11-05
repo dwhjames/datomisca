@@ -66,8 +66,21 @@ class DatomicSyntaxSugarSpec extends Specification {
         )
       )
 
-      Datomic.transac("""{
+      Datomic.addEntity("""{
         :db/id $id
+        :person/name "toto"
+        :person/age 30
+        :person/character [ $weak $dumb ]
+      }""") must beEqualTo(
+        AddEntity(id)(
+          Keyword(person, "name") -> DString("toto"),
+          Keyword(person, "age") -> DLong(30L),
+          Keyword(person, "character") -> DSeq(weak.ident, dumb.ident)
+        )
+      )
+
+      Datomic.transact("""{
+        :db/id ${DId(Partition.USER)}
         :person/name "toto"
         :person/age 30
         :person/character [ $weak $dumb ]
