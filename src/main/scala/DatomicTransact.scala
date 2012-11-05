@@ -71,6 +71,8 @@ case class RetractEntity(entId: DLong) extends DataFunction {
     l.foreach( e => javal.add(e.asInstanceOf[Object]) )
     javal
   } 
+
+  //override def toString = toNative.toString
 }
 
 case class AddEntity(props: Map[Keyword, DatomicData]) extends Operation with Identified {
@@ -90,6 +92,9 @@ case class AddIdent(override val ident: DRef, partition: Partition = Partition.U
   override lazy val id = DId(partition)
 
   def toNative = Add( Fact(id, Keyword("ident", Namespace.DB), ident) ).toNative
+
+  override def toString = toNative.toString
+
 }
 
 object AddIdent {

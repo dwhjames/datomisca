@@ -4,7 +4,6 @@ import java.io.Reader
 import java.io.FileReader
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.util.{Try, Success, Failure}
 import language.experimental.macros
@@ -12,6 +11,9 @@ import scala.reflect.macros.Context
 import language.experimental.macros
 import scala.tools.reflect.Eval
 import scala.reflect.internal.util.{Position, OffsetPosition}
+import scala.concurrent.ExecutionContext
+import java.util.concurrent.Executor
+
 
 object Datomic extends ArgsImplicits with DatomicCompiler{
 
@@ -277,11 +279,11 @@ trait Connection {
 
   def database: datomic.Database = connection.db()
 
-  def provisionSchema(schema: Schema): Future[TxResult] = {
+  def provisionSchema(schema: Schema)(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
     transact(schema.ops)
   }
 
-  def createSchemaOld(schema: exp.Schema): Future[TxResult] = {
+  def createSchemaOld(schema: exp.Schema)(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
     import scala.collection.JavaConverters._
     import scala.collection.JavaConversions._
 
@@ -301,27 +303,31 @@ trait Connection {
     opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))    
   }
 
-  def transact(ops: Seq[Operation]): Future[TxResult] = {
+  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
     import scala.collection.JavaConverters._
     import scala.collection.JavaConversions._
 
     val datomicOps = ops.map( _.toNative ).toList.asJava
+    println("datomicOps:"+datomicOps)
 
-    val javaFut = connection.transact(datomicOps)
-
-    val m: Map[Any, Any] = javaFut.get().toMap.map( t => (t._1.toString, t._2) )
-
-    val opt = for( 
-      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
-      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
-      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.db.Datum]]];
-      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[datomic.db.DbId, Any]]]
-    ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
+    val future = Utils.bridgeDatomicFuture(connection.transactAsync(datomicOps))
     
-    opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))    
+    future.flatMap{ javaMap: java.util.Map[_, _] =>
+      val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
+
+      val opt = for( 
+        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
+        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
+        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.db.Datum]]];
+        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[datomic.db.DbId, Any]]]
+      ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
+    
+      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))
+    }
   }
 
-  def transact(op: Operation): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *): Future[TxResult] = transact(Seq(op) ++ ops)
+  def transact(op: Operation)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)
 }
+
 
