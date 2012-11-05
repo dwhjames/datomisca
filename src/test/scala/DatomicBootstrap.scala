@@ -1,7 +1,8 @@
 import reactivedatomic._
 import scala.concurrent._
 import scala.concurrent.util._
-import java.util.concurrent.TimeUnit._
+import scala.concurrent.duration._
+import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object DatomicBootstrap {

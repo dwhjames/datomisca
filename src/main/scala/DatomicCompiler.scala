@@ -6,10 +6,23 @@ import scala.tools.reflect.Eval
 import scala.reflect.internal.util.{Position, OffsetPosition}
 
 trait DatomicCompiler {
+  def computeOffset(
+    pos: scala.reflect.internal.util.Position, 
+    offsetLine: Int, offsetCol: Int): Int = {
+    val source = pos.source
+    val computedOffset = source.lineToOffset(pos.line - 1 + offsetLine - 1 )
+    val isMultiLine = source.beginsWith(pos.offset.get, "\"\"\"")
 
+    val computedCol = 
+      if(offsetLine > 1 && isMultiLine) (offsetCol - 1) 
+      else if(isMultiLine) (offsetCol - 1 + pos.column - 1 + 3)
+      else (offsetCol - 1 + pos.column - 1 + 1)
+
+    computedOffset + computedCol
+  }
 
   def inception(c: Context) = {
-    import c.universe.{Literal, Constant, Apply, Ident, reify, newTermName, Expr, Tree, Position}
+    import c.universe._
 
     new {
 
@@ -157,6 +170,63 @@ trait DatomicCompiler {
             incept(q.query)
           )
         )
+      }
+
+      def incept(se: ScalaExpr): c.universe.Tree = {
+        val compiled = c.parse(se.expr)
+
+        //val tpe = compiled.tpe
+        //if(implicitly[c.TypeTag[Referenceable]].tpe <:< implicitly[c.TypeTag[Referenceable]].tpe) println("TOTO")
+        // manage case where this is not a DatomicData
+        /*c.universe.reify(compiled) match {
+          case id : Ident => 
+            println("TYPE:"+id.tpe)
+            if(id.tpe <:< typeOf[Referenceable]) println("YO")
+            Apply(Ident(newTermName("DString")), List(Select(id, "toString")))
+          case t => println("TTTTT:"+t); compiled
+        }*/
+        Apply(Select(Ident(newTermName("Datomic")), "toDWrapper"), List(compiled))
+        //compiled
+      }
+
+      def incept(seq: DSeqParsing): c.universe.Tree = {
+        Apply(
+          Select(Ident(newTermName("Datomic")), "dseq"),
+          seq.elts.map{ 
+            case Left(se: ScalaExpr) => incept(se)
+            case Right(dd: DatomicData) => incept(dd)
+          }.toList
+        )
+        /*Apply(
+          Ident(newTermName("DSeq")), 
+          seq.elts.map{ 
+            case Left(se: ScalaExpr) => incept(se)
+            case Right(dd: DatomicData) => incept(dd)
+          }.toList
+        )*/
+      }
+
+      def incept(a: AddEntityParsing): c.universe.Tree = {
+        Apply(
+          Select(Ident(newTermName("Datomic")), "addEntity"),
+          a.props.map{ case (k, v) => 
+            Apply(Ident(newTermName("Tuple2")), List( incept(k), v match {
+              case Left(se: ScalaExpr) => incept(se)
+              case Left(se: DSeqParsing) => incept(se)
+              case Right(dd: DatomicData) => incept(dd)
+            } ))
+          }.toList
+        )
+        /*Apply(
+          Ident(newTermName("AddEntity")),
+          List( Apply(Ident(newTermName("Map")), a.props.map{ case (k, v) => 
+            Apply(Ident(newTermName("Tuple2")), List( incept(k), v match {
+              case Left(se: ScalaExpr) => incept(se)
+              case Left(se: DSeqParsing) => incept(se)
+              case Right(dd: DatomicData) => incept(dd)
+            } ))
+          }.toList) )
+        )*/
       }
     }
   } 

@@ -73,7 +73,7 @@ class DatomicTransacSpec extends Specification {
         println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
       }
 
-      println("FIELD:"+Field( 
+      println("Attribute:"+Attribute( 
         Keyword(Namespace("person"), "name"),
         SchemaType.string,
         Cardinality.one

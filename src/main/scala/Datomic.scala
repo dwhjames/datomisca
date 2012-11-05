@@ -53,9 +53,9 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
 
   def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro typedQueryImpl[A, B]
 
-  def typedQueryImpl[A <: Args : c.AbsTypeTag, B <: Args : c.AbsTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
+  def typedQueryImpl[A <: Args : c.WeakTypeTag, B <: Args : c.WeakTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
       def verifyInputs(query: Query): Option[PositionFailure] = {
-        val tpe = implicitly[c.AbsTypeTag[A]].tpe
+        val tpe = implicitly[c.WeakTypeTag[A]].tpe
         val sz = query.in.map( _.inputs.size ).getOrElse(0)
         lazy val argPos = c.macroApplication.children(0).children(1).pos
 
@@ -72,7 +72,7 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       }
 
       def verifyOutputs(query: Query): Option[PositionFailure] = {
-        val tpe = implicitly[c.AbsTypeTag[B]].tpe
+        val tpe = implicitly[c.WeakTypeTag[B]].tpe
         val sz = query.find.outputs.size
         val argPos = c.macroApplication.children(0).children(2).pos
 
@@ -101,16 +101,23 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
             case None => Right(t)
           } } match {
             case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-              val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
+              /*val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
 
               val enclosingOffset = 
                 enclosingPos.source.lineToOffset(enclosingPos.line - 1 + offsetLine - 1 ) + offsetCol - 1
 
-              val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
+              val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)*/
+              val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
+              println("treePos:"+treePos)
+              val offsetPos = new OffsetPosition(
+                treePos.source, 
+                computeOffset(treePos, offsetLine, offsetCol)
+              )
+
+              println("offsetPos:"+offsetPos)
               c.abort(offsetPos.asInstanceOf[c.Position], msg)
 
-            case Right(t) => c.Expr[TypedQuery[A, B]]( inc.incept(TypedQuery[A, B](t))
-             )
+            case Right(t) => c.Expr[TypedQuery[A, B]]( inc.incept(TypedQuery[A, B](t)) )
           }
 
         case _ => c.abort(c.enclosingPosition, "Only accepts String")
@@ -128,7 +135,118 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
     }
   }
 
+  implicit val DStringWrites = DWrites[String]( (s: String) => DString(s) )
+  implicit val DIntWrites = DWrites[Int]( (i: Int) => DInt(i) )
+  implicit val DLongWrites = DWrites[Long]( (l: Long) => DLong(l) )
+  implicit val DBooleanWrites = DWrites[Boolean]( (b: Boolean) => DBoolean(b) )
+  implicit val DFloatWrites = DWrites[Float]( (b: Float) => DFloat(b) )
+  implicit val DDoubleWrites = DWrites[Double]( (b: Double) => DDouble(b) )
+  implicit val DReferenceable = DWrites[Referenceable]( (ref: Referenceable) => ref.ident )
+  implicit val DDatomicData = DWrites[DatomicData]( (dd: DatomicData) => dd )
+  implicit def DSeqWrites[T : DWrites] = DWrites[Traversable[T]]( (l: Traversable[T]) => DSeq(l.map(toDatomic(_)).toSeq) )
+
+  // implicit converters
+  implicit def toDWrapper[T : DWrites](t: T): DWrapper = DWrapperImpl(toDatomic(t))
+
+  def addEntity(id: DId)(props: (Keyword, DWrapper)*) = 
+    AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
+
+  def addEntity(props: (Keyword, DWrapper)*) = 
+    AddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
+
+  def dseq(dw: DWrapper*) = DSeq(dw.map(t => t.asInstanceOf[DWrapperImpl].value))
+
+  def toDatomic[T : DWrites](t: T): DatomicData = implicitly[DWrites[T]].write(t)
+
+  /*implicit class KeywordInterpolation(val sc: StringContext) extends AnyVal {
+    def KW(args: Any*): Keyword = {
+      if(args.length > 0 || sc.parts.length > 1) sys.error("Keyword interpolation can't contact variables")
+      else DatomicParser.parseKeyword(sc.parts(0))
+    }
+  }*/ 
+
+  def KW(q: String): Keyword = macro KWImpl
+
+  def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
+    import c.universe._
+
+    val inc = inception(c)
+
+    q.tree match {
+      case Literal(Constant(s: String)) => 
+        DatomicParser.parseKeywordSafe(s) match {
+          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
+
+            val offsetPos = new OffsetPosition(
+              treePos.source, 
+              computeOffset(treePos, offsetLine, offsetCol)
+            )
+            c.abort(offsetPos.asInstanceOf[c.Position], msg)
+          case Right(kw) => c.Expr[Keyword]( inc.incept(kw) )
+        }
+
+      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+    }
+    
+  }
+
+  def transac(ops: String): Future[TxResult] = macro transacImpl
+
+  def transacImpl(c: Context)(ops: c.Expr[String]): c.Expr[Future[TxResult]] = {
+    import c.universe._
+
+    val inc = inception(c)
+
+    ops.tree match {
+      case Literal(Constant(s: String)) => 
+        DatomicParser.parseAddEntityParsingSafe(s) match {
+          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+            val treePos = ops.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
+
+            val offsetPos = new OffsetPosition(
+              treePos.source, 
+              computeOffset(treePos, offsetLine, offsetCol)
+            )
+            c.abort(offsetPos.asInstanceOf[c.Position], msg)
+          case Right(ae) => 
+            c.Expr[Future[TxResult]](Apply(
+              Select(Ident(newTermName("connection")), "transact"),
+              List(
+                inc.incept(ae)
+              )
+            ))
+            //c.Expr[AddEntity]( inc.incept(ae) )
+        }
+
+      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+    }
+  }
+
+  /*implicit class EntityHelper(val sc: StringContext) extends AnyVal {
+    def entity(args: Any*): String = {
+      sc.s(args.map(a => a match {
+        case ref: Referenceable => ref.ident.toString
+        case id: Identified => id.id.toString
+        case dd: DatomicData => dd.toString
+      }): _*)
+    }
+  }*/
 }
+
+trait DWrites[-T] {
+  def write(t: T): DatomicData
+}
+
+object DWrites{
+  def apply[T](f: T => DatomicData) = new DWrites[T] {
+    def write(t: T) = f(t)
+  }
+}
+
+trait DWrapper extends NotNull
+private[reactivedatomic] case class DWrapperImpl(value: DatomicData) extends DWrapper
+
 
 
 case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[datomic.db.DbId, Any] = Map()) 

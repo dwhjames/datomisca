@@ -1,7 +1,11 @@
 package reactivedatomic
 
+import scala.util.parsing.input.Positional
+
 case class Namespace(name: String) {
   override def toString = name
+
+  def /(name: String) = Keyword(name, Some(this))
 }
 
 object Namespace {
@@ -89,23 +93,29 @@ case class DRef(value: Keyword) extends DatomicData {
 case class DDatabase(value: datomic.Database) extends DatomicData {
   def entity(e: DLong) = value.entity(e.value)
 
-  def entid(e: DLong): DId = DId(value.entid(e.value).asInstanceOf[datomic.db.DbId])
+  //def entid(e: DLong): DId = DId(value.entid(e.value).asInstanceOf[datomic.db.DbId])
 
   override def toString = value.toString
   def toNative: java.lang.Object = value
 }
 
-case class DId(value: datomic.db.DbId) extends DatomicData {
-  def toNative: java.lang.Object = value
+//case class DId(value: datomic.db.DbId) extends DatomicData {
+case class DId(partition: Partition, id: Option[Long] = None) extends DatomicData {
+  //def toNative: java.lang.Object = value
+  override lazy val toNative: java.lang.Object = id match {
+    case None => datomic.Peer.tempid(partition.toString)
+    case Some(id) => datomic.Peer.tempid(partition.toString, id)
+  }
 
-  override def toString = value.toString
+  override def toString = toNative.toString
 }
 
 object DId {
-  def apply(partition: Partition = Partition.USER) = new DId(datomic.Peer.tempid(partition.toString).asInstanceOf[datomic.db.DbId])
-  def apply(partition: Partition, id: Long) = new DId(datomic.Peer.tempid(partition.toString, id).asInstanceOf[datomic.db.DbId])
+  def apply(partition: Partition, id: Long) = new DId(partition, Some(id))
+  //def apply(partition: Partition = Partition.USER) = new DId(datomic.Peer.tempid(partition.toString).asInstanceOf[datomic.db.DbId])
+  //def apply(partition: Partition, id: Long) = new DId(datomic.Peer.tempid(partition.toString, id).asInstanceOf[datomic.db.DbId])
 
-  def from(dl: DLong)(implicit dd: DDatabase) = dd.entid(dl)
+  //def from(dl: DLong)(implicit dd: DDatabase) = dd.entid(dl)
 }
 
 case class DSeq(elements: Seq[DatomicData]) extends DatomicData {
@@ -166,7 +176,7 @@ case class Var(name: String) extends Term {
   override def toString = "?" + name
 }
 
-case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable
+case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable with Positional
 
 object Keyword {
   def apply(name: String, ns: Namespace) = new Keyword(name, Some(ns))

@@ -32,14 +32,12 @@ class DatomicCompilerSpec extends Specification {
       implicit val uri = "datomic:mem://datomicqueryspec"
       DatomicBootstrap(uri)
 
-      val q = query[Args0, Args2]("""
+      query[Args0, Args2]("""
         [ :find ?e ?n 
-          :where  [ ?e :person/name ?n ] 
+          :where  [ ?e :person/name ?n ]
                   [ ?e :person/character :person.character/violent ]
         ]
-      """)
-
-      q(Args0()).map{ l => l.collect {
+      """)(Args0()).map{ l => l.collect {
         case Args2(e: DLong, n: DString) => 
           val entity = database.entity(e)
           println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))

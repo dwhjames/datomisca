@@ -6,7 +6,7 @@ version := "0.1-SNAPSHOT"
 
 publishMavenStyle := true
 
-scalaVersion := "2.10.0-M7"
+scalaVersion := "2.10.0-RC1"
 
 fork in test := true
 
@@ -26,9 +26,9 @@ libraryDependencies ++= Seq(
   "org.apache.tomcat" % "tomcat-jdbc" % "7.0.27", 
   "postgresql" % "postgresql" % "9.1-901.jdbc4", 
   "org.codehaus.janino" % "commons-compiler-jdk" % "2.6.1",
-  "org.specs2" % "specs2_2.10.0-M7" % "1.12.1.1" % "test",
+  "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
   "junit" % "junit" % "4.8" % "test",
   "org.slf4j" % "slf4j-api" % "1.6.4",
   "com.h2database" % "h2" % "1.3.165",
-  "org.scala-lang" % "scala-compiler" % "2.10.0-M7"
+  "org.scala-lang" % "scala-compiler" % "2.10.0-RC1"
 )

@@ -24,6 +24,9 @@ object DatomicParser extends JavaTokenParsers {
   //def datomicDouble: Parser[DDouble] = floatingPointNumber ^^ { (s: String) => DDouble(s.toDouble) }
   def datomicBoolean: Parser[DBoolean] = ("true" | "false") ^^ {  (s: String) => DBoolean(s.toBoolean) }
 
+  //def dseq: Parser[DSeq] = "[" ~> rep(datomicData) <~ "]" ^^ { DSeq(_) }
+
+  def datomicData: Parser[DatomicData] = datomicBoolean | datomicString | datomicFloat | datomicLong
 
   // TERMS
   def datasource: Parser[DataSource] = "$" ~> opt(literal) ^^ {
@@ -35,8 +38,11 @@ object DatomicParser extends JavaTokenParsers {
     case None ~ n => Keyword(n) 
     case Some(ns) ~ n => Keyword(n, Some(Namespace(ns)))
   }
+
+  def posKeyword: Parser[Keyword] = positioned(keyword)
+
   def variable: Parser[Var] = "?" ~> ident ^^ { (n: String) => Var(n) }
-  def const: Parser[Const] = ( datomicBoolean | datomicString | datomicFloat | datomicLong ) ^^ { Const(_) }
+  def const: Parser[Const] = datomicData ^^ { Const(_) }
   def term: Parser[Term] = empty | keyword | variable | const
 
   // DATA RULES
@@ -97,6 +103,34 @@ object DatomicParser extends JavaTokenParsers {
     case find ~ in ~ where => PureQuery(find, in, where) 
   }
 
+  def scalaExpr: Parser[ScalaExpr] = (("${" ~> stringContent <~ "}") | ("$" ~> literal )) ^^ { ScalaExpr(_) }
+  
+  def eitherScalaExprOrDatomicData = (scalaExpr | datomicData) ^^ {
+    case dd: DatomicData => Right(dd)
+    case se: ScalaExpr => Left(se)
+  }
+
+  def dSeqParsing: Parser[DSeqParsing] = "[" ~> rep(eitherScalaExprOrDatomicData) <~ "]" ^^ { DSeqParsing(_) }
+
+  def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSeqParsing
+
+  def attribute: Parser[(Keyword, Either[ParsingExpr, DatomicData])] = keyword ~ (parsingExpr | datomicData) ^^ {
+    case kw ~ (dd: DatomicData) => kw -> Right(dd)
+    case kw ~ (se: ParsingExpr) => kw -> Left(se)
+  }
+
+  def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attribute) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
+
+  def parseKeyword(input: String): Keyword = parseAll(posKeyword, input) match {
+    case Success(result, _) => result
+    case failure : NoSuccess => scala.sys.error(failure.msg)
+  }
+
+  def parseKeywordSafe(input: String): Either[PositionFailure, Keyword] = parseAll(posKeyword, input) match {
+    case Success(result, _) => Right(result)
+    case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+  }
+
   def parseRule(input: String): Rule = parseAll(rule, input) match {
     case Success(result, _) => result
     case failure : NoSuccess => scala.sys.error(failure.msg)
@@ -118,6 +152,11 @@ object DatomicParser extends JavaTokenParsers {
   }
 
   def parseQuerySafe(input: String): Either[PositionFailure, PureQuery] = parseAll(query, input) match {
+    case Success(result, _) => Right(result)
+    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+  }
+
+  def parseAddEntityParsingSafe(input: String): Either[PositionFailure, AddEntityParsing] = parseAll(addEntityParsing, input) match {
     case Success(result, _) => Right(result)
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
