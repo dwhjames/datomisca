@@ -60,16 +60,15 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
         val tpe = implicitly[c.WeakTypeTag[A]].tpe
         val sz = query.in.map( _.inputs.size ).getOrElse(0)
         lazy val argPos = c.macroApplication.children(0).children(1).pos
-
-        query.in.map{ in => 
+        query.in.flatMap{ in => 
           if(
             (tpe <:< implicitly[c.TypeTag[Args2]].tpe && sz != 2) 
             || (tpe <:< implicitly[c.TypeTag[Args3]].tpe && sz != 3)
-          )
+          ) {
             Some(PositionFailure("Query Error in \":in\" : Expected %d INPUT variables".format(sz), 1, argPos.column))
+          }
           else None
-        } 
-        .getOrElse(None)
+        }
         
       }
 
@@ -87,9 +86,10 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       }
 
       def verifyTypes(query: Query): Option[PositionFailure] = {
-        verifyInputs(query).flatMap( _ => 
-          verifyOutputs(query) 
-        )
+        verifyInputs(query) match {
+          case Some(p) => Some(p)
+          case None => verifyOutputs(query) 
+        }
       }
 
       import c.universe._
@@ -99,7 +99,7 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       q.tree match {
         case Literal(Constant(s: String)) => 
           DatomicParser.parseQuerySafe(s).right.flatMap{ (t: PureQuery) => verifyTypes(t) match {
-            case Some(p: PositionFailure) => Left(p)
+            case Some(p: PositionFailure) => println("TOTO"); Left(p)
             case None => Right(t)
           } } match {
             case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
@@ -126,7 +126,6 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       }
       
     }
-
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
 
   def connect(uri: String): Connection = {
@@ -254,6 +253,7 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       }): _*)
     }
   }*/
+
 }
 
 trait DWrites[-T] {
@@ -268,7 +268,6 @@ object DWrites{
 
 trait DWrapper extends NotNull
 private[reactivedatomic] case class DWrapperImpl(value: DatomicData) extends DWrapper
-
 
 
 case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[datomic.db.DbId, Any] = Map()) 
@@ -329,5 +328,4 @@ trait Connection {
   def transact(op: Operation)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
   def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)
 }
-
 

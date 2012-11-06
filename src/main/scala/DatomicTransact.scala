@@ -104,29 +104,92 @@ object AddIdent {
 
 case class Transaction(operations: Seq[Operation]) 
 
-
-case class SchemaType(keyword: Keyword)
-
-object SchemaType {
-  val string = SchemaType(Keyword(Namespace.DB.TYPE, "string"))
-  val boolean = SchemaType(Keyword(Namespace.DB.TYPE, "boolean"))
-  val long = SchemaType(Keyword(Namespace.DB.TYPE, "long"))
-  val bigint = SchemaType(Keyword(Namespace.DB.TYPE, "bigint"))
-  val float = SchemaType(Keyword(Namespace.DB.TYPE, "float"))
-  val double = SchemaType(Keyword(Namespace.DB.TYPE, "double"))
-  val bigdec = SchemaType(Keyword(Namespace.DB.TYPE, "bigdec"))
-  val ref = SchemaType(Keyword(Namespace.DB.TYPE, "ref"))
-  val instant = SchemaType(Keyword(Namespace.DB.TYPE, "instant"))
-  val uuid = SchemaType(Keyword(Namespace.DB.TYPE, "uuid"))
-  val uri = SchemaType(Keyword(Namespace.DB.TYPE, "uri"))
-  val bytes = SchemaType(Keyword(Namespace.DB.TYPE, "bytes"))
+trait SchemaType[DD <: DatomicData] {
+  def keyword: Keyword
 }
 
-case class Cardinality(keyword: Keyword)
+case object SchemaTypeString extends SchemaType[DString] {
+  def keyword = Keyword(Namespace.DB.TYPE, "string")
+}
+
+case object SchemaTypeBoolean extends SchemaType[DBoolean] {
+  def keyword = Keyword(Namespace.DB.TYPE, "boolean")
+}
+
+case object SchemaTypeLong extends SchemaType[DInt] {
+  def keyword = Keyword(Namespace.DB.TYPE, "long")
+}
+
+case object SchemaTypeBigInt extends SchemaType[DLong] {
+  def keyword = Keyword(Namespace.DB.TYPE, "bigint")
+}
+
+case object SchemaTypeFloat extends SchemaType[DFloat] {
+  def keyword = Keyword(Namespace.DB.TYPE, "float")
+}
+
+case object SchemaTypeDouble extends SchemaType[DDouble] {
+  def keyword = Keyword(Namespace.DB.TYPE, "double")
+}
+
+case object SchemaTypeBigDec extends SchemaType[DBigDec] {
+  def keyword = Keyword(Namespace.DB.TYPE, "bigdec")
+}
+
+case object SchemaTypeRef extends SchemaType[DRef] {
+  def keyword = Keyword(Namespace.DB.TYPE, "ref")
+}
+
+case object SchemaTypeInstant extends SchemaType[DInstant] {
+  def keyword = Keyword(Namespace.DB.TYPE, "instant")
+}
+
+case object SchemaTypeUuid extends SchemaType[DUuid] {
+  def keyword = Keyword(Namespace.DB.TYPE, "uuid")
+}
+
+case object SchemaTypeUri extends SchemaType[DUri] {
+  def keyword = Keyword(Namespace.DB.TYPE, "uri")
+}
+
+case object SchemaTypeBytes extends SchemaType[DBytes] {
+  def keyword = Keyword(Namespace.DB.TYPE, "bytes")
+}
+
+//case class SchemaType(keyword: Keyword)
+
+object SchemaType {
+  val string = SchemaTypeString //SchemaType(Keyword(Namespace.DB.TYPE, "string"))
+  val boolean = SchemaTypeBoolean //SchemaType(Keyword(Namespace.DB.TYPE, "boolean"))
+  val long = SchemaTypeLong //SchemaType(Keyword(Namespace.DB.TYPE, "long"))
+  val bigint = SchemaTypeBigInt //SchemaType(Keyword(Namespace.DB.TYPE, "bigint"))
+  val float = SchemaTypeFloat //SchemaType(Keyword(Namespace.DB.TYPE, "float"))
+  val double = SchemaTypeDouble //SchemaType(Keyword(Namespace.DB.TYPE, "double"))
+  val bigdec = SchemaTypeBigDec //SchemaType(Keyword(Namespace.DB.TYPE, "bigdec"))
+  val ref = SchemaTypeRef //SchemaType(Keyword(Namespace.DB.TYPE, "ref"))
+  val instant = SchemaTypeInstant //SchemaType(Keyword(Namespace.DB.TYPE, "instant"))
+  val uuid = SchemaTypeUuid //SchemaType(Keyword(Namespace.DB.TYPE, "uuid"))
+  val uri = SchemaTypeUri //SchemaType(Keyword(Namespace.DB.TYPE, "uri"))
+  val bytes = SchemaTypeBytes //SchemaType(Keyword(Namespace.DB.TYPE, "bytes"))
+}
+
+trait Cardinality {
+  def keyword: Keyword
+}
+
+case object CardinalityOne extends Cardinality {
+  def keyword = Keyword(Namespace.DB.CARDINALITY, "one")
+}
+
+case object CardinalityMany extends Cardinality {
+  def keyword = Keyword(Namespace.DB.CARDINALITY, "many")
+}
+
+//case class Cardinality(keyword: Keyword)
 
 object Cardinality {
-  val one = Cardinality(Keyword(Namespace.DB.CARDINALITY, "one"))
-  val many = Cardinality(Keyword(Namespace.DB.CARDINALITY, "many"))
+  val one = CardinalityOne //Cardinality(Keyword(Namespace.DB.CARDINALITY, "one"))
+  val many = CardinalityMany //Cardinality(Keyword(Namespace.DB.CARDINALITY, "many"))
 }
 
 case class Unique(keyword: Keyword)
@@ -136,10 +199,10 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-case class Attribute(
+case class Attribute[DD <: DatomicData, Card <: Cardinality](
   ident: Keyword,
-  valueType: SchemaType,
-  cardinality: Cardinality,
+  valueType: SchemaType[DD],
+  cardinality: Card,
   doc: Option[String] = None,
   unique: Option[Unique] = None,
   index: Option[Boolean] = None,
@@ -150,8 +213,8 @@ case class Attribute(
   // using partiton :db.part/db
   override lazy val id = DId(Partition.DB)
 
-  def withDoc(str: String): Attribute = copy( doc = Some(str) )
-  def withUnique(u: Unique): Attribute = copy( unique = Some(u) )
+  def withDoc(str: String) = copy( doc = Some(str) )
+  def withUnique(u: Unique) = copy( unique = Some(u) )
   def withIndex(b: Boolean) = copy( index = Some(b) )
   def withFulltext(b: Boolean) = copy( fulltext = Some(b) )
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )

@@ -34,3 +34,24 @@ object Utils {
   }
 
 }
+
+/**
+ * Combination operator
+ */
+case class ~[A,B](_1:A, _2:B)
+
+/**
+ * Combinator base trait
+ */
+trait Combinator[M[_]] {
+  def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B]
+}
+
+class CombinatorOps[A, M[_]](ma: M[A])(implicit combi: Combinator[M]) {
+  def ~[B](mb: M[B]): M[A ~ B] = combi(ma, mb)
+  def and[B](mb: M[B]): M[A ~ B] = ~(ma, mb)
+}
+
+trait CombinatorImplicits {
+  implicit def CombinatorOpsWrapper[A, M[_]](ma: M[A])(implicit combi: Combinator[M]) = new CombinatorOps(ma)(combi)
+}

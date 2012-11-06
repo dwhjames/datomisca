@@ -85,6 +85,11 @@ case class DUri(value: java.net.URI) extends DatomicData {
   def toNative: java.lang.Object = value
 }
 
+case class DBytes(value: Array[Byte]) extends DatomicData {
+  override def toString = value.toString
+  def toNative: java.lang.Object = value: java.lang.Object
+}
+
 case class DRef(value: Keyword) extends DatomicData {
   override def toString = value.toString
   def toNative: java.lang.Object = value.toNative
