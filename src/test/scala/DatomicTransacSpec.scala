@@ -47,7 +47,7 @@ class DatomicTransacSpec extends Specification {
       val person1 = AddEntity( DId(Partition.USER) )(
         Keyword(Namespace("person"), "name") -> DString("bob"),
         Keyword(Namespace("person"), "age") -> DLong(30L),
-        Keyword(Namespace("person"), "character") -> DSeq( violent.ident, weak.ident )
+        Keyword(Namespace("person"), "character") -> DSet( violent.ident, weak.ident )
       )
 
       connection.transact(Seq(
@@ -66,7 +66,7 @@ class DatomicTransacSpec extends Specification {
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
-      """).prepare().execute().map {
+      """).all().execute().map {
         case List(e: DLong, n: DString) => 
         println("PART"+datomic.Peer.part(e.value).getClass)
         val entity = database.entity(e)

@@ -33,12 +33,33 @@ object Utils {
     p.future
   }
 
+  import scala.collection.generic.CanBuildFrom
+  import scala.collection.TraversableLike
+
+  def sequence[A, M[_]](l: M[Try[A]])
+    (implicit toTraversableLike: M[Try[A]] => TraversableLike[Try[A], M[Try[A]]], 
+    cbf: CanBuildFrom[M[_], A, M[A]]): Try[M[A]] = {
+    l.foldLeft(Success(cbf()): Try[scala.collection.mutable.Builder[A, M[A]]]){ (acc, e) => e match {
+      case Failure(e) => Failure(e)
+      case Success(s) => acc.map{ acc => acc += s }
+    }}.map(_.result)
+  }
 }
 
 /**
  * Combination operator
  */
 case class ~[A,B](_1:A, _2:B)
+
+trait Variant[M[_]]
+
+trait Functor[M[_]] extends Variant[M] {
+  def fmap[A, B](ma: M[A], f: A => B): M[B]
+}
+
+trait ContraFunctor[M[_]] extends Variant[M] {
+  def contramap[A, B](ma: M[A], f: B => A): M[B]
+}
 
 /**
  * Combinator base trait
@@ -48,10 +69,64 @@ trait Combinator[M[_]] {
 }
 
 class CombinatorOps[A, M[_]](ma: M[A])(implicit combi: Combinator[M]) {
-  def ~[B](mb: M[B]): M[A ~ B] = combi(ma, mb)
-  def and[B](mb: M[B]): M[A ~ B] = ~(ma, mb)
+  def ~[B](mb: M[B]) = {
+    val builder = new Builder(combi)
+    new builder.Builder2(ma, mb)
+  }
+  def and[B](mb: M[B]) = this.~(mb)
 }
 
+
+class Builder[M[_]](combi: Combinator[M]) {
+  class Builder2[A1, A2](m1: M[A1], m2: M[A2]) {
+    def ~[A3](m3: M[A3]) = Builder3(combi(m1, m2), m3)
+    def and[A3](m3: M[A3]) = this.~(m3)
+
+    def apply[B](f: (A1, A2) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2, B]( combi(m1, m2), { case a1 ~ a2 => f(a1, a2) } )
+
+    def apply[B](f: B => (A1, A2))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2) => new ~(a1, a2) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2) => (a1, a2) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2) => (a._1, a._2) }(f)
+    }
+  }
+
+  case class Builder3[A1, A2, A3](m1: M[A1 ~ A2], m2: M[A3]) {
+    def ~[A4](m3: M[A4]) = Builder4(combi(m1, m2), m3)
+    def and[A4](m3: M[A4]) = this.~(m3)
+
+    def apply[B](f: (A1, A2, A3) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 => f(a1, a2, a3) } )
+
+    def apply[B](f: B => (A1, A2, A3))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3) => new ~(new ~(a1, a2), a3) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3) => (a1, a2, a3) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3) => (a._1, a._2, a._3) }(f)
+    }
+  }
+
+  case class Builder4[A1, A2, A3, A4](m1: M[A1 ~ A2 ~ A3], m2: M[A4])
+
+}
+
+trait Monad[M[_]] {
+  def unit[A](a: A): M[A]
+  def bind[A, B](ma: M[A], f: A => M[B]): M[B]
+}
+
+object CombinatorImplicits extends CombinatorImplicits
+
 trait CombinatorImplicits {
+  def unlift[A, B](f: A => Option[B]): A => B = Function.unlift(f)
+
   implicit def CombinatorOpsWrapper[A, M[_]](ma: M[A])(implicit combi: Combinator[M]) = new CombinatorOps(ma)(combi)
+
+  implicit def CombinatorWrapper[M[_]](implicit monad: Monad[M]) = new Combinator[M] {
+    def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B] = monad.bind(ma, (a: A) => monad.bind(mb, (b: B) => monad.unit(new ~(a, b)) ))
+  }
 }

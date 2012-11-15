@@ -75,17 +75,36 @@ case class RetractEntity(entId: DLong) extends DataFunction {
   //override def toString = toNative.toString
 }
 
-case class AddEntity(props: Map[Keyword, DatomicData]) extends Operation with Identified {
-  def id = props(Keyword("id", Namespace.DB)).asInstanceOf[DId]
+trait PartialAddEntity {
+  def props: Map[Keyword, DatomicData]
+
+  def ++(other: PartialAddEntity) = PartialAddEntity( props ++ other.props )
+}
+
+object PartialAddEntity {
+  def apply(theProps: Map[Keyword, DatomicData]) = new PartialAddEntity {
+    def props = theProps
+  }
+
+  def empty: PartialAddEntity = apply(Map())
+}
+
+case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) 
+extends PartialAddEntity with Operation with Identified {
+  override def props = partialProps + (Keyword("id", Namespace.DB) -> id)
+
   def toNative: java.lang.Object = {
     import scala.collection.JavaConverters._
     ( props.map( t => (t._1.toNative, t._2.toNative) ) + (Keyword("id", Namespace.DB).toNative -> id.toNative) ).asJava
   }
+
+  override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
 object AddEntity {
-  def apply(id: DId, props: Map[Keyword, DatomicData]): AddEntity = new AddEntity(props + (Keyword("id", Namespace.DB) -> id) )
-  def apply(id: DId)(props: (Keyword, DatomicData)*): AddEntity = new AddEntity(props.toMap + (Keyword("id", Namespace.DB) -> id) )
+  //def apply(id: DId, props: Map[Keyword, DatomicData]): AddEntity = new AddEntity(props + (Keyword("id", Namespace.DB) -> id) )
+  def apply(id: DId)(props: (Keyword, DatomicData)*): AddEntity = new AddEntity(id, props.toMap)
+  def apply(id: DId, partial: PartialAddEntity) = new AddEntity(id, partial.props)
 }
 
 case class AddIdent(override val ident: DRef, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {
@@ -274,20 +293,10 @@ object Attribute {
   val installAttr = Keyword(Namespace.DB.INSTALL, "_attribute")
 }
 
-case class Schema(ops: Seq[Operation]) {
-  def :+(op: Operation) = Schema(ops :+ op)
-  def ++(other: Schema) = Schema(ops ++ other.ops)
-}
-
-object Schema {
-  def apply(op: Operation) = new Schema(Seq(op))
-  def apply(op: Operation, ops: Operation*) = new Schema(Seq(op) ++ ops)
-  def :+(op: Operation) = Schema(Seq(op))
-  def ++(ops: Seq[Operation]) = Schema(ops)
-}
-
 trait ParsingExpr
 case class ScalaExpr(expr: String) extends ParsingExpr
-case class DSeqParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
+case class DSetParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
 
 case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]])
+
+

@@ -114,9 +114,9 @@ object DatomicParser extends JavaTokenParsers {
     case se: ScalaExpr => Left(se)
   }
 
-  def dSeqParsing: Parser[DSeqParsing] = "[" ~> rep(eitherScalaExprOrDatomicData) <~ "]" ^^ { DSeqParsing(_) } 
+  def dSetParsing: Parser[DSetParsing] = "[" ~> rep(eitherScalaExprOrDatomicData) <~ "]" ^^ { DSetParsing(_) } 
 
-  def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSeqParsing
+  def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSetParsing
 
   def attribute: Parser[(Keyword, Either[ParsingExpr, DatomicData])] = keyword ~ (parsingExpr | datomicData) ^^ {
     case kw ~ (dd: DatomicData) => kw -> Right(dd)

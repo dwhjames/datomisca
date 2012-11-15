@@ -15,14 +15,12 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executor
 
 
-object Datomic extends ArgsImplicits with DatomicCompiler{
+object Datomic extends ArgsImplicits with DatomicCompiler with DatomicDataImplicits {
 
   implicit def connection(implicit uri: String): Connection = {
     val conn = datomic.Peer.connect(uri)
 
-    new Connection {
-      def connection = conn
-    }
+    Connection(conn)
   }
 
   implicit def database(implicit conn: Connection) = DDatabase(conn.database)
@@ -99,7 +97,7 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       q.tree match {
         case Literal(Constant(s: String)) => 
           DatomicParser.parseQuerySafe(s).right.flatMap{ (t: PureQuery) => verifyTypes(t) match {
-            case Some(p: PositionFailure) => println("TOTO"); Left(p)
+            case Some(p: PositionFailure) => Left(p)
             case None => Right(t)
           } } match {
             case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
@@ -127,6 +125,7 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
       
     }
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
+  def deleteDatabase(uri: String): Boolean = datomic.Peer.deleteDatabase(uri)
 
   def connect(uri: String): Connection = {
     val conn = datomic.Peer.connect(uri)
@@ -136,30 +135,20 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
     }
   }
 
-  implicit val DStringWrites = DWrites[String]( (s: String) => DString(s) )
-  implicit val DIntWrites = DWrites[Int]( (i: Int) => DInt(i) )
-  implicit val DLongWrites = DWrites[Long]( (l: Long) => DLong(l) )
-  implicit val DBooleanWrites = DWrites[Boolean]( (b: Boolean) => DBoolean(b) )
-  implicit val DFloatWrites = DWrites[Float]( (b: Float) => DFloat(b) )
-  implicit val DDoubleWrites = DWrites[Double]( (b: Double) => DDouble(b) )
-  implicit val DReferenceable = DWrites[Referenceable]( (ref: Referenceable) => ref.ident )
-  implicit val DDatomicData = DWrites[DatomicData]( (dd: DatomicData) => dd )
-  implicit def DSeqWrites[T : DWrites] = DWrites[Traversable[T]]( (l: Traversable[T]) => DSeq(l.map(toDatomic(_)).toSeq) )
-
   // implicit converters
-  implicit def toDWrapper[T : DWrites](t: T): DWrapper = DWrapperImpl(toDatomic(t))
+  implicit def toDWrapper[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DWrapper = DWrapperImpl(toDatomic(t)(ddw))
 
   def addEntity(id: DId)(props: (Keyword, DWrapper)*) = 
     AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
 
-  def addEntity(props: (Keyword, DWrapper)*) = 
-    AddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
+  def partialAddEntity(props: (Keyword, DWrapper)*) = 
+    PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
 
   def addEntity(ops: String) = macro addEntityImpl
 
-  def dseq(dw: DWrapper*) = DSeq(dw.map(t => t.asInstanceOf[DWrapperImpl].value))
+  def dset(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].value}.toSet)
 
-  def toDatomic[T : DWrites](t: T): DatomicData = implicitly[DWrites[T]].write(t)
+  def toDatomic[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DatomicData = ddw.write(t)
 
   def KW(q: String): Keyword = macro KWImpl
 
@@ -212,7 +201,11 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
     }
   }
 
-  def transact(ops: String): Future[TxResult] = macro transactImpl
+  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = connection.transact(ops)
+  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)
+
+  /*def transact(ops: String): Future[TxResult] = macro transactImpl
 
   def transactImpl(c: Context)(ops: c.Expr[String]): c.Expr[Future[TxResult]] = {
     import c.universe._
@@ -242,90 +235,9 @@ object Datomic extends ArgsImplicits with DatomicCompiler{
 
       case _ => c.abort(c.enclosingPosition, "Only accepts String")
     }
-  }
-
-  /*implicit class EntityHelper(val sc: StringContext) extends AnyVal {
-    def entity(args: Any*): String = {
-      sc.s(args.map(a => a match {
-        case ref: Referenceable => ref.ident.toString
-        case id: Identified => id.id.toString
-        case dd: DatomicData => dd.toString
-      }): _*)
-    }
   }*/
 
+
 }
 
-trait DWrites[-T] {
-  def write(t: T): DatomicData
-}
-
-object DWrites{
-  def apply[T](f: T => DatomicData) = new DWrites[T] {
-    def write(t: T) = f(t)
-  }
-}
-
-trait DWrapper extends NotNull
-private[reactivedatomic] case class DWrapperImpl(value: DatomicData) extends DWrapper
-
-
-case class TxResult(dbBefore: datomic.db.Db, dbAfter: datomic.db.Db, txData: Seq[datomic.db.Datum] = Seq(), tempids: Map[datomic.db.DbId, Any] = Map()) 
-
-trait Connection {
-
-  def connection: datomic.Connection
-
-  def database: datomic.Database = connection.db()
-
-  def provisionSchema(schema: Schema)(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
-    transact(schema.ops)
-  }
-
-  def createSchemaOld(schema: exp.Schema)(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
-    import scala.collection.JavaConverters._
-    import scala.collection.JavaConversions._
-
-    val datomicOps = schema.ops.map( _.asJava ).toList.asJava
-
-    val m: Map[Any, Any] = connection.transact(datomicOps).get().toMap.map( t => (t._1.toString, t._2) )
-
-    //println("MAP:"+m)
-    //println("datomic.Connection.DB_BEFORE="+m.get(datomic.Connection.DB_BEFORE.toString))
-    val opt = for( 
-      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
-      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
-      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.db.Datum]]];
-      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[datomic.db.DbId, Any]]]
-    ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
-    
-    opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))    
-  }
-
-  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
-    import scala.collection.JavaConverters._
-    import scala.collection.JavaConversions._
-
-    val datomicOps = ops.map( _.toNative ).toList.asJava
-    println("datomicOps:"+datomicOps)
-
-    val future = Utils.bridgeDatomicFuture(connection.transactAsync(datomicOps))
-    
-    future.flatMap{ javaMap: java.util.Map[_, _] =>
-      val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
-
-      val opt = for( 
-        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
-        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
-        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.db.Datum]]];
-        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[datomic.db.DbId, Any]]]
-      ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
-    
-      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))
-    }
-  }
-
-  def transact(op: Operation)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)
-}
 

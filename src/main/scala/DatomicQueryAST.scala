@@ -95,7 +95,7 @@ object Query {
 
 case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query {
   self =>
-  def prepare()(implicit db: DDatabase)= new DatomicExecutor {
+  def all()(implicit db: DDatabase)= new DatomicExecutor {
     type F[_] = Function0[List[List[DatomicData]]]
     def execute = () => {
       import scala.collection.JavaConversions._
@@ -111,20 +111,20 @@ case class PureQuery(override val find: Find, override val in: Option[In] = None
   }
 }
 
-case class TypedQuery[In <: Args, Out <: Args](query: PureQuery) extends Query {
+case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends Query {
   override def find = query.find
   override def in = query.in
   override def where = query.where
 
-  def apply(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = directQuery(in)
+  def apply(in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): Try[List[OutArgs]] = directQuery(in)
 
-  def directQuery(in: In)(implicit db: DDatabase, outConv: DatomicDataToArgs[Out]): Try[List[Out]] = {
+  def directQuery(in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): Try[List[OutArgs]] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
     val qser = query.toString
     val args = {
       val args = in.toSeq
-      if(args.isEmpty) Seq(DatomicData.toDatomicNative(db): Object)
+      if(args.isEmpty) Seq(DatomicData.toDatomicNative(db): java.lang.Object)
       else args
     }
 
@@ -134,19 +134,29 @@ case class TypedQuery[In <: Args, Out <: Args](query: PureQuery) extends Query {
       outConv.toArgs(fields.map { field => DatomicData.toDatomicData(field) })
     }
 
-    listOfTry.foldLeft(Success(Nil): Try[List[Out]]){ (acc, e) => e match {
-      case Success(t) => acc.map( (a: List[Out]) => a :+ t )
+    listOfTry.foldLeft(Success(Nil): Try[List[OutArgs]]){ (acc, e) => e match {
+      case Success(t) => acc.map( (a: List[OutArgs]) => a :+ t )
       case Failure(f) => Failure(f)
     } }
   }
 
-  def prepare[T]()(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[Out], ott: ArgsToTuple[Out, T], 
-             tf: ToFunction[In, Try[List[T]]]
+  def all[T]()(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], 
+             tf: ToFunction[InArgs, Try[List[T]]]
   ) = new DatomicExecutor {
     type F[_] = tf.F[Try[List[T]]]
     def execute = tf.convert(
-      (directQuery _).andThen((t: Try[List[Out]]) => t.map( _.map( out => ott.convert(out)) ))
+      (directQuery _).andThen((t: Try[List[OutArgs]]) => t.map( _.map( out => ott.convert(out)) ))
+    )
+  }
+
+  def one[T]()(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], 
+             tf: ToFunction[InArgs, Try[T]]
+  ) = new DatomicExecutor {
+    type F[_] = tf.F[Try[T]]
+    def execute = tf.convert(
+      (directQuery _).andThen((t: Try[List[OutArgs]]) => t.map( t => ott.convert(t.head) ))
     )
   }
 
@@ -159,6 +169,11 @@ sealed trait Args {
 case class Args0() extends Args {
   override def toSeq: Seq[Object] = Seq()
 }
+
+case class Args1(_1: DatomicData) extends Args {
+  override def toSeq: Seq[Object] = Seq(DatomicData.toDatomicNative(_1))
+}
+
 case class Args2(_1: DatomicData, _2: DatomicData) extends Args {
   override def toSeq: Seq[Object] = Seq(DatomicData.toDatomicNative(_1), DatomicData.toDatomicNative(_2))
 }
@@ -202,6 +217,11 @@ trait ArgsImplicits {
     def convert(f: (Args0 => Out)): F[Out] = () => f(Args0())
   }
 
+  implicit def toF1[Out] = new ToFunction[Args1, Out] {
+    type F[Out] = Function1[DatomicData, Out]
+    def convert(f: (Args1 => Out)): F[Out] = (d1: DatomicData) => f(Args1(d1))
+  }
+
   implicit def toF2[Out] = new ToFunction[Args2, Out] {
     type F[Out] = Function2[DatomicData, DatomicData, Out]
     def convert(f: (Args2 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData) => f(Args2(d1, d2)) 
@@ -211,6 +231,14 @@ trait ArgsImplicits {
     type F[Out] = Function3[DatomicData, DatomicData, DatomicData, Out]
     def convert(f: (Args3 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData, d3: DatomicData) => f(Args3(d1, d2, d3))
   }
+
+  implicit object DatomicDataToArgs1 extends DatomicDataToArgs[Args1] {
+    def toArgs(l: Seq[DatomicData]): Try[Args1] = l match {
+      case List(_1) => Success(Args1(_1))
+      case _ => Failure(new RuntimeException("Could convert Seq to Args1"))
+    }
+  }
+
 
   implicit object DatomicDataToArgs2 extends DatomicDataToArgs[Args2] {
     def toArgs(l: Seq[DatomicData]): Try[Args2] = l match {
@@ -226,6 +254,10 @@ trait ArgsImplicits {
     }
   }
 
+  implicit def Args1ToTuple = new ArgsToTuple[Args1, DatomicData] {
+    def convert(from: Args1) = from._1
+  }
+
   implicit def Args2ToTuple = new ArgsToTuple[Args2, (DatomicData, DatomicData)] {
     def convert(from: Args2) = (from._1, from._2)
   }
@@ -236,96 +268,3 @@ trait ArgsImplicits {
 
 }
 
-
-object DatomicSerializers extends DatomicSerializers
-
-trait DatomicSerializers {
-  /*def datomicDataSerialize: DatomicData => String = (d: DatomicData) => d match {
-    case DString(v) => "\""+ v + "\""
-    case DInt(v) => v.toString
-    case DLong(v) => v.toString
-    case DFloat(v) => v.toString
-    case DDouble(v) => v.toString
-    case DRef(v) => termSerialize(v)
-    case DBigDec(v) => v.toString
-    case DInstant(v) => v.toString
-    case DUuid(v) => v.toString
-    case DUri(v) => v.toString
-    case DBoolean(v) => v.toString
-  }*/
-
-  //def datomicFunctionSerialize: DFunction => String = (d: DFunction) => d.name
-  //def datomicPredicateSerialize: DPredicate => String = (d: DPredicate) => d.name
-
-  /*def termSerialize: Term => String = (v: Term) => v match {
-    case Var(v) => "?" + v
-    case Keyword(kw, ns) => ":" + ( if(ns!="") {ns + "/"} else "" ) + kw
-    case Const(c) => datomicDataSerialize(c)
-    case ds: DataSource => "$" + ds.name
-    case Empty => "_"
-  }*/
-
-  /*def bindingSerialize: Binding => String = (v: Binding) => v match {
-    case ScalarBinding(name) => termSerialize(name)
-    case TupleBinding(names) => "[ " + names.map( termSerialize(_) ).mkString(" ") + " ]"
-    case CollectionBinding(name) => "[ " + termSerialize(name) + " ... ]" 
-    case RelationBinding(names) => "[[ " + names.map( termSerialize(_)).mkString(" ") + " ]]"
-  }*/
-
-  /*def dataRuleSerialize: DataRule => String = (r: DataRule) => 
-    (if(r.ds == ImplicitDS) "" else (r.ds.toString + " ") ) + 
-    r.entity.toString + " " + 
-    r.attr.toString + " " + 
-    r.value.toString*/
-
-
-  /*def predicateExpressionSerialize: PredicateExpression => String = (r: PredicateExpression) =>
-    "(" +
-      datomicPredicateSerialize(r.predicate) + " " +
-      r.args.map( termSerialize(_) ).mkString(" ") +
-    ")"*/
-
-  /*def functionExpressionSerialize: FunctionExpression => String = (r: FunctionExpression) =>
-    "(" +
-      datomicFunctionSerialize(r.function) + " " +
-      r.args.map( termSerialize(_) ).mkString(" ") +
-    ") " + 
-      bindingSerialize(r.binding)
-  */
-
-  /*def expressionSerialize: Expression => String = (r: Expression) => r match {
-    case p: PredicateExpression => predicateExpressionSerialize(p)
-    case f: FunctionExpression => functionExpressionSerialize(f)
-  }*/
-
-  /*def ruleSerialize: Rule => String = (r: Rule) => "[ " + (r match {
-    case p: DataRule => dataRuleSerialize(p)
-    case ExpressionRule(expr) => expressionSerialize(expr)
-  }) + " ]"*/
-
-  /*def whereSerialize: Where => String = (w: Where) => 
-    w.rules.map( ruleSerialize(_) ).mkString(":where ", " ", "")*/
-
-  /*def outputSerialize: Output => String = (o: Output) => o match {
-    case OutVariable(v) => termSerialize(v)
-  }*/
-
-  /*def findSerialize: Find => String = (f: Find) =>
-    f.outputs.map( outputSerialize(_) ).mkString(":find ", " ", "")*/
-
-  /*def inputSerialize: Input => String = (i: Input) => i match {
-    case InVariable(v) => termSerialize(v)
-    case InDataSource(ds) => termSerialize(ds)
-  }*/
-
-  /*def inSerialize: In => String = (i: In) =>
-    i.inputs.map( inputSerialize(_) ).mkString(":in ", " ", "")*/
-
-  /*def querySerialize: Query => String = (q: Query) =>
-    "[ " + 
-      findSerialize(q.find) + " " + 
-      q.in.map( inSerialize(_) + " " ).getOrElse("") + 
-      whereSerialize(q.where) + 
-    " ]"*/
-
-}

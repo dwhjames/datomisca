@@ -50,7 +50,7 @@ class DatomicSyntaxSugarSpec extends Specification {
         AddEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
-          Keyword(person, "character") -> DSeq(weak.ident, dumb.ident)
+          Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
         )
       )
 
@@ -62,7 +62,7 @@ class DatomicSyntaxSugarSpec extends Specification {
         AddEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
-          Keyword(person, "character") -> DSeq(weak.ident, dumb.ident)
+          Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
         )
       )
 
@@ -75,16 +75,18 @@ class DatomicSyntaxSugarSpec extends Specification {
         AddEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
-          Keyword(person, "character") -> DSeq(weak.ident, dumb.ident)
+          Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
         )
       )
 
-      Datomic.transact("""{
-        :db/id ${DId(Partition.USER)}
-        :person/name "toto"
-        :person/age 30
-        :person/character [ $weak $dumb ]
-      }""").map{ tx =>
+      Datomic.transact(
+        Datomic.addEntity("""{
+          :db/id ${DId(Partition.USER)}
+          :person/name "toto"
+          :person/age 30
+          :person/character [ $weak $dumb ]
+        }""")
+      ).map{ tx =>
         println("Provisioned data... TX:%s".format(tx))
       }.recover{
         case e => println(e.getMessage)

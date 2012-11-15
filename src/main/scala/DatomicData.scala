@@ -90,9 +90,20 @@ case class DBytes(value: Array[Byte]) extends DatomicData {
   def toNative: java.lang.Object = value: java.lang.Object
 }
 
-case class DRef(value: Keyword) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value.toNative
+case class DRef(value: Either[Keyword, DId]) extends DatomicData {
+  override def toString = value match {
+    case Left(kw) => kw.toString
+    case Right(id) => id.toString
+  }
+  def toNative: java.lang.Object = value match {
+    case Left(kw) => kw.toNative
+    case Right(id) => id.toNative
+  }
+}
+
+object DRef {
+  def apply(kw: Keyword) = new DRef(Left(kw))
+  def apply(id: DId) = new DRef(Right(id))
 }
 
 case class DDatabase(value: datomic.Database) extends DatomicData {
@@ -104,35 +115,94 @@ case class DDatabase(value: datomic.Database) extends DatomicData {
   def toNative: java.lang.Object = value
 }
 
-//case class DId(value: datomic.db.DbId) extends DatomicData {
-case class DId(partition: Partition, id: Option[Long] = None) extends DatomicData {
+trait DId extends DatomicData
+
+case class FinalId(value: Long) extends DId {
   //def toNative: java.lang.Object = value
-  override lazy val toNative: java.lang.Object = id match {
-    case None => datomic.Peer.tempid(partition.toString)
-    case Some(id) => datomic.Peer.tempid(partition.toString, id)
-  }
+  override lazy val toNative: java.lang.Object = value: java.lang.Long
+
+  override def toString = toNative.toString
+}
+
+case class TempId(partition: Partition, id: Option[Long] = None, dbId: java.lang.Object) extends DId {
+  //def toNative: java.lang.Object = value
+  override lazy val toNative: java.lang.Object = dbId
 
   override def toString = toNative.toString
 }
 
 object DId {
-  def apply(partition: Partition, id: Long) = new DId(partition, Some(id))
+  def tempid(partition: Partition, id: Option[Long] = None) = id match {
+    case None => datomic.Peer.tempid(partition.toString)
+    case Some(id) => datomic.Peer.tempid(partition.toString, id)
+  }
+
+  def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
+  def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
+  def apply(id: Long) = new FinalId(id)
+  def apply(id: DLong) = new FinalId(id.value)
   //def apply(partition: Partition = Partition.USER) = new DId(datomic.Peer.tempid(partition.toString).asInstanceOf[datomic.db.DbId])
   //def apply(partition: Partition, id: Long) = new DId(datomic.Peer.tempid(partition.toString, id).asInstanceOf[datomic.db.DbId])
 
   //def from(dl: DLong)(implicit dd: DDatabase) = dd.entid(dl)
 }
 
-case class DSeq(elements: Seq[DatomicData]) extends DatomicData {
+/** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
+case class DSet(elements: Set[DatomicData]) extends DatomicData {
   def toNative: java.lang.Object = {
     import scala.collection.JavaConverters._
-    ( elements.map( _.toNative ) ).asJava
+    ( elements.map( _.toNative ) ).toList.asJava
+  }
+
+  override def toString = elements.mkString("[", ", ", "]")
+}
+
+object DSet {
+  def apply(dd: DatomicData) = new DSet(Set(dd))
+  def apply(dd: DatomicData, dds: DatomicData *) = new DSet(Set(dd) ++ dds)
+}
+
+trait DDReader[-DD <: DatomicData, +A] {
+  def read(dd: DD): A
+}
+
+object DDReader{
+  def apply[DD <: DatomicData, A](f: DD => A) = new DDReader[DD, A]{
+    def read(dd: DD): A = f(dd)
   }
 }
 
-object DSeq {
-  def apply(dd: DatomicData) = new DSeq(Seq(dd))
-  def apply(dd: DatomicData, dds: DatomicData *) = new DSeq(Seq(dd) ++ dds)
+trait DDWriter[+DD <: DatomicData, -A] {
+  def write(a: A): DD
+}
+
+object DDWriter{
+  def apply[DD <: DatomicData, A](f: A => DD) = new DDWriter[DD, A] {
+    def write(a: A) = f(a)
+  }
+}
+
+trait DWrapper extends NotNull
+private[reactivedatomic] case class DWrapperImpl(value: DatomicData) extends DWrapper
+
+
+trait DatomicDataImplicits {
+  implicit val DString2String = DDReader{ s: DString => s.value }
+  implicit val DLong2Long = DDReader{ s: DLong => s.value }
+  implicit val DInt2Int = DDReader{ s: DInt => s.value }
+
+  implicit val DStringWrites = DDWriter[DString, String]( (s: String) => DString(s) )
+  implicit val DIntWrites = DDWriter[DInt, Int]( (i: Int) => DInt(i) )
+  implicit val DLongWrites = DDWriter[DLong, Long]( (l: Long) => DLong(l) )
+  implicit val DBooleanWrites = DDWriter[DBoolean, Boolean]( (b: Boolean) => DBoolean(b) )
+  implicit val DFloatWrites = DDWriter[DFloat, Float]( (b: Float) => DFloat(b) )
+  implicit val DDoubleWrites = DDWriter[DDouble, Double]( (b: Double) => DDouble(b) )
+  implicit val DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ident )
+  implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
+  implicit def DRefWrites = DDWriter[DRef, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
+  implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) = 
+    DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
+
 }
 
 object DatomicData {
@@ -149,7 +219,7 @@ object DatomicData {
     case u: java.util.UUID => DUuid(u)
     case u: java.net.URI => DUri(u)
     // REF???
-    case _ => throw new RuntimeException("Unknown Datomic Value")
+    case v => throw new RuntimeException("Unknown Datomic Value "+v.getClass)
   }
 
   import scala.collection.JavaConverters._
@@ -157,7 +227,7 @@ object DatomicData {
     d match {
       case DString(s) => s
       case DBoolean(b) => new java.lang.Boolean(b)
-      case DInt(i) => new java.lang.Integer(i)
+      case DInt(i) => new java.lang.Long(i)
       case DLong(l) => new java.lang.Long(l)
       case DFloat(f) => new java.lang.Float(f)
       case DDouble(d) => new java.lang.Double(d)
@@ -167,7 +237,7 @@ object DatomicData {
       //case u: java.util.UUID => DUuid(u)
       //case u: java.net.URI => DUri(u)
       // REF???
-      case _ => throw new RuntimeException("Can't convert Datomic Data to Native")
+      case v => throw new RuntimeException("Can't convert Datomic Data "+ v.toString + " to Native")
     }
   }
 

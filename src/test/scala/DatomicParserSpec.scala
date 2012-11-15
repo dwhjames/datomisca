@@ -23,8 +23,6 @@ import reactivedatomic._
 import reactivedatomic.Datomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import DatomicSerializers._
-
 @RunWith(classOf[JUnitRunner])
 class DatomicParserSpec extends Specification {
   "Datomic" should {

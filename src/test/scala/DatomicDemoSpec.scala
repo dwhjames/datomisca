@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 @RunWith(classOf[JUnitRunner])
-class DatomicSchemaSpec extends Specification {
+class DatomicDemoSpec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
       import Datomic._
@@ -74,7 +74,7 @@ class DatomicSchemaSpec extends Specification {
           AddEntity(DId(Partition.USER))(
             person / "name" -> DString("toto"),
             person / "age" -> DLong(30L),
-            person / "character" -> DSeq(weak.ident, dumb.ident)
+            person / "character" -> DSet(weak.ident, dumb.ident)
           ),
           addEntity(DId(Partition.USER))(
             KW(":person/name") -> "tata",

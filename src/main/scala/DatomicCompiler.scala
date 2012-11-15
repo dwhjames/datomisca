@@ -174,7 +174,6 @@ trait DatomicCompiler {
 
       def incept(se: ScalaExpr): c.universe.Tree = {
         val compiled = c.parse(se.expr)
-
         //val tpe = compiled.tpe
         //if(implicitly[c.TypeTag[Referenceable]].tpe <:< implicitly[c.TypeTag[Referenceable]].tpe) println("TOTO")
         // manage case where this is not a DatomicData
@@ -189,44 +188,43 @@ trait DatomicCompiler {
         //compiled
       }
 
-      def incept(seq: DSeqParsing): c.universe.Tree = {
+      def incept(seq: DSetParsing): c.universe.Tree = {
         Apply(
-          Select(Ident(newTermName("Datomic")), "dseq"),
+          Select(Ident(newTermName("Datomic")), "dset"),
           seq.elts.map{ 
             case Left(se: ScalaExpr) => incept(se)
             case Right(dd: DatomicData) => incept(dd)
           }.toList
         )
-        /*Apply(
-          Ident(newTermName("DSeq")), 
-          seq.elts.map{ 
-            case Left(se: ScalaExpr) => incept(se)
-            case Right(dd: DatomicData) => incept(dd)
-          }.toList
-        )*/
       }
 
       def incept(a: AddEntityParsing): c.universe.Tree = {
-        Apply(
-          Select(Ident(newTermName("Datomic")), "addEntity"),
-          a.props.map{ case (k, v) => 
-            Apply(Ident(newTermName("Tuple2")), List( incept(k), v match {
-              case Left(se: ScalaExpr) => incept(se)
-              case Left(se: DSeqParsing) => incept(se)
-              case Right(dd: DatomicData) => incept(dd)
-            } ))
-          }.toList
-        )
-        /*Apply(
-          Ident(newTermName("AddEntity")),
-          List( Apply(Ident(newTermName("Map")), a.props.map{ case (k, v) => 
-            Apply(Ident(newTermName("Tuple2")), List( incept(k), v match {
-              case Left(se: ScalaExpr) => incept(se)
-              case Left(se: DSeqParsing) => incept(se)
-              case Right(dd: DatomicData) => incept(dd)
-            } ))
-          }.toList) )
-        )*/
+        def inceptId(v: Either[ParsingExpr, DatomicData]): c.universe.Tree = v match {
+          case Left(se: ScalaExpr) => 
+            c.parse(se.expr)
+          case _ => c.abort(c.enclosingPosition, ":db/id can only be a DId")
+        }
+
+        def localIncept(v: Either[ParsingExpr, DatomicData]): c.universe.Tree = v match {
+          case Left(se: ScalaExpr) => incept(se)
+          case Left(se: DSetParsing) => incept(se)
+          case Right(dd: DatomicData) => incept(dd)
+        }
+
+        if(!a.props.contains(Keyword("id", Namespace.DB)))
+          c.abort(c.enclosingPosition, "An AddEntity requires one :db/id field")
+        else {
+          val tree = Apply(
+            Apply(
+              Select(Ident(newTermName("Datomic")), "addEntity"),
+              List(inceptId(a.props(Keyword("id", Namespace.DB))))
+            ),
+            ( a.props - Keyword("id", Namespace.DB) ).map{ case (k, v) => 
+              Apply(Ident(newTermName("Tuple2")), List( incept(k), localIncept(v) ))
+            }.toList
+          )
+          tree
+        }
       }
     }
   } 

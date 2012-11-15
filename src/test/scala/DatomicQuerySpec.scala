@@ -39,7 +39,7 @@ class DatomicQuerySpec extends Specification {
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
-      """).prepare().execute().collect {
+      """).all().execute().collect {
         case List(e: DLong, n: DString) => 
           val entity = database.entity(e)
           println("Q1 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))

@@ -8,9 +8,11 @@ publishMavenStyle := true
 
 scalaVersion := "2.10.0-RC1"
 
-fork in test := true
+//fork in test := true
 
-javaOptions in test += "-Xmx8ghfghfdsfghG"
+parallelExecution in Test := false
+
+//javaOptions in test += "-Xmx8ghfghfdsfghG"
 
 resolvers += "JBoss" at "https://repository.jboss.org/nexus/content/groups/public"
 
