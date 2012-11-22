@@ -31,7 +31,7 @@ class DatomicDemoSpec extends Specification {
       import DatomicData._
       import scala.concurrent.ExecutionContext.Implicits.global
 
-      implicit val uri = "datomic:mem://datomicschemaspec"
+      val uri = "datomic:mem://datomicschemaspec"
 
       //DatomicBootstrap(uri)
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
@@ -58,19 +58,21 @@ class DatomicDemoSpec extends Specification {
         dumb
       )
 
+      implicit val conn = Datomic.connect(uri)
+
       /* reactive flow :
        *  - schema creation, 
        *  - provisioning of data
        *  - query 
        */
-      val fut = connection.transact(schema).flatMap{ tx => 
+      val fut = conn.transact(schema).flatMap{ tx => 
         println("Provisioned schema... TX:%s".format(tx))
 
         /* AddEntity different syntaxes from most programmatic to macrocompiled using inline variables 
          * POTENTIAL DEMO :
          *  - remove a ] from addEntity to show compiling error
          */
-        connection.transact(
+        conn.transact(
           AddEntity(DId(Partition.USER))(
             person / "name" -> DString("toto"),
             person / "age" -> DLong(30L),

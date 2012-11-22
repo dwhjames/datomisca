@@ -28,7 +28,7 @@ class DatomicSchemaSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      implicit val uri = "datomic:mem://datomicschemaspec"
+      val uri = "datomic:mem://datomicschemaspec"
 
       //DatomicBootstrap(uri)
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
@@ -52,10 +52,12 @@ class DatomicSchemaSpec extends Specification {
         dumb
       )
 
-      connection.transact(schema).map{ tx => 
+      implicit val conn = Datomic.connect(uri)
+
+      transact(schema).map{ tx => 
         println("Provisioned schema... TX:%s".format(tx))
 
-        connection.transact(
+        transact(
           AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
@@ -83,7 +85,7 @@ class DatomicSchemaSpec extends Specification {
           ]
         """).all().execute().map {
           case List(totoId: DLong) => 
-            connection.transact(
+            transact(
               RetractEntity(totoId)
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))

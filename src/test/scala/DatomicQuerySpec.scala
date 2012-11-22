@@ -17,6 +17,8 @@ import java.io.FileReader
 
 import scala.concurrent._
 import scala.concurrent.util._
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
@@ -31,8 +33,14 @@ class DatomicQuerySpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      implicit val uri = "datomic:mem://datomicqueryspec"
-      DatomicBootstrap(uri)
+      val uri = "datomic:mem://datomicqueryspec"
+
+      Await.result(
+        DatomicBootstrap(uri),
+        Duration("3 seconds")
+      )
+
+      implicit val conn = Datomic.connect(uri)
 
       pureQuery("""
         [ :find ?e ?n 

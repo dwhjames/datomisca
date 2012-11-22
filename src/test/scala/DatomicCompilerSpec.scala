@@ -31,8 +31,8 @@ class DatomicCompilerSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      implicit val uri = "datomic:mem://datomicqueryspec"
-    Await.result(
+      val uri = "datomic:mem://datomicqueryspec"
+      Await.result(
       DatomicBootstrap(uri).map { tx =>
         /*query[Args0, Args2]("""
           [ :find ?e ?n 
@@ -49,6 +49,8 @@ class DatomicCompilerSpec extends Specification {
           case e => failure(e.getMessage) 
         }*/
 
+        implicit val conn = Datomic.connect(uri)
+  
         val query2 = query[Args2, Args2]("""
           [ :find ?e ?name
             :in $ ?age

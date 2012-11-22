@@ -17,6 +17,7 @@ import java.io.FileReader
 import scala.concurrent._
 import scala.concurrent.util._
 import java.util.concurrent.TimeUnit._
+import scala.concurrent.duration.Duration
 
 import reactivedatomic._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,9 +29,12 @@ class DatomicTransacSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      implicit val uri = "datomic:mem://datomicqueryspec"
+      val uri = "datomic:mem://datomicqueryspec"
 
-      DatomicBootstrap(uri)
+      Await.result(
+        DatomicBootstrap(uri),
+        Duration("3 seconds")
+      )
 
       val person = new Namespace("person") {
         val character = Namespace("person.character")
@@ -50,7 +54,9 @@ class DatomicTransacSpec extends Specification {
         Keyword(Namespace("person"), "character") -> DSet( violent.ident, weak.ident )
       )
 
-      connection.transact(Seq(
+      implicit val conn = Datomic.connect(uri)
+
+      transact(Seq(
         violent,
         weak,
         person1

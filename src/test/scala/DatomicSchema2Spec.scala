@@ -29,12 +29,14 @@ class DatomicSchema2Spec extends Specification {
     "create simple schema and provision data" in {
       import Datomic._
       import DatomicData._
-
-      implicit val uri = "datomic:mem://datomicschemaspec"
       import scala.concurrent.ExecutionContext.Implicits.global
+
+      val uri = "datomic:mem://datomicschemaspec"
 
       //DatomicBootstrap(uri)
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+
+      implicit val conn = Datomic.connect(uri)
 
       val person = new Namespace("person") {
         val character = Namespace("person.character")
@@ -55,11 +57,11 @@ class DatomicSchema2Spec extends Specification {
         dumb
       )
 
-      Await.result(connection.transact(schema).flatMap{ tx => 
+      Await.result(transact(schema).flatMap{ tx => 
         println("Provisioned schema... TX:%s".format(tx))
 
         val id = DId(Partition.USER)
-        connection.transact(
+        transact(
           AddEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
@@ -85,7 +87,7 @@ class DatomicSchema2Spec extends Specification {
           //.map {
           //  case List(totoId: DLong) => 
           println("TOTO:"+totoId)
-          connection.transact(
+          transact(
             RetractEntity(totoId)
           ).flatMap{ tx => 
             println("Retracted data... TX:%s".format(tx))
@@ -105,7 +107,7 @@ class DatomicSchema2Spec extends Specification {
             //.map {
             //  case List(totoId: DLong) => 
             println("TUTU:"+tutuId)
-            connection.transact(
+            transact(
               RetractEntity(tutuId)
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))

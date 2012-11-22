@@ -17,6 +17,8 @@ import java.io.FileReader
 import scala.concurrent._
 import scala.concurrent.util._
 import java.util.concurrent.TimeUnit._
+import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
 import reactivedatomic._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -28,9 +30,13 @@ class DatomicSyntaxSugarSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      implicit val uri = "datomic:mem://datomicschemaspec"
+      val uri = "datomic:mem://datomicschemaspec"
 
-      DatomicBootstrap(uri)
+      Await.result(
+        DatomicBootstrap(uri),
+        Duration("3 seconds")
+      )
+      
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
 
       val person = new Namespace("person") {
@@ -41,6 +47,8 @@ class DatomicSyntaxSugarSpec extends Specification {
       val dumb = AddIdent(Keyword(person.character, "dumb"))
 
       val id = DId(Partition.USER)
+
+      implicit val conn = Datomic.connect(uri)
 
       Datomic.addEntity(id)(
         person / "name" -> "toto",

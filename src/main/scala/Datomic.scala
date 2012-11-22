@@ -15,9 +15,19 @@ import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executor
 
 
-object Datomic extends ArgsImplicits with DatomicCompiler with DatomicDataImplicits {
-
-  implicit def connection(implicit uri: String): Connection = {
+trait DatomicPeer {
+  /** Builds a Connection from URI
+   * In order to benefit from Datomic facilities based on implicit Connection,
+   * you should put a connection in an implicit val in your scope. Else, you 
+   * can also use provide Connection explicitly.
+   *
+   * @param uri The URI of Datomic DB
+   * @return Connection
+   * {{{
+   * implicit val conn = Datomic.connection("datomic:mem://mem")
+   * }}}
+   */
+  def connect(uri: String): Connection = {
     val conn = datomic.Peer.connect(uri)
 
     Connection(conn)
@@ -25,7 +35,38 @@ object Datomic extends ArgsImplicits with DatomicCompiler with DatomicDataImplic
 
   implicit def database(implicit conn: Connection) = DDatabase(conn.database)
 
+  def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
+  def deleteDatabase(uri: String): Boolean = datomic.Peer.deleteDatabase(uri)
+  def renameDatabase(uri: String, newName: String): Boolean = datomic.Peer.renameDatabase(uri, newName)
+}
+
+trait DatomicTransactor {
+  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = connection.transact(ops)
+  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)  
+}
+
+trait DatomicFacilities {
+  // implicit converters
+  implicit def toDWrapper[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DWrapper = DWrapperImpl(toDatomic(t)(ddw))
+
+  def addEntity(id: DId)(props: (Keyword, DWrapper)*) = 
+    AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
+
+  def partialAddEntity(props: (Keyword, DWrapper)*) = 
+    PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
+
+  def dset(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].value}.toSet)
+
+  def toDatomic[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DatomicData = ddw.write(t)
+
+}
+
+object Datomic extends DatomicPeer with DatomicTransactor with DatomicFacilities with DatomicCompiler with DatomicDataImplicits with ArgsImplicits {
+
   def pureQuery(q: String): PureQuery = macro pureQueryImpl
+
+  def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro typedQueryImpl[A, B]
 
   def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[PureQuery] = {
       import c.universe._
@@ -50,8 +91,6 @@ object Datomic extends ArgsImplicits with DatomicCompiler with DatomicDataImplic
       }
     
   }
-
-  def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro typedQueryImpl[A, B]
 
   def typedQueryImpl[A <: Args : c.WeakTypeTag, B <: Args : c.WeakTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
       def verifyInputs(query: Query): Option[PositionFailure] = {
@@ -124,31 +163,9 @@ object Datomic extends ArgsImplicits with DatomicCompiler with DatomicDataImplic
       }
       
     }
-  def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
-  def deleteDatabase(uri: String): Boolean = datomic.Peer.deleteDatabase(uri)
 
-  def connect(uri: String): Connection = {
-    val conn = datomic.Peer.connect(uri)
-
-    new Connection {
-      def connection = conn
-    }
-  }
-
-  // implicit converters
-  implicit def toDWrapper[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DWrapper = DWrapperImpl(toDatomic(t)(ddw))
-
-  def addEntity(id: DId)(props: (Keyword, DWrapper)*) = 
-    AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
-
-  def partialAddEntity(props: (Keyword, DWrapper)*) = 
-    PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
 
   def addEntity(ops: String) = macro addEntityImpl
-
-  def dset(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].value}.toSet)
-
-  def toDatomic[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DatomicData = ddw.write(t)
 
   def KW(q: String): Keyword = macro KWImpl
 
@@ -200,10 +217,6 @@ object Datomic extends ArgsImplicits with DatomicCompiler with DatomicDataImplic
       case _ => c.abort(c.enclosingPosition, "Only accepts String")
     }
   }
-
-  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = connection.transact(ops)
-  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)
 
   /*def transact(ops: String): Future[TxResult] = macro transactImpl
 

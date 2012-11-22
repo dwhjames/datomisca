@@ -10,8 +10,6 @@ object DatomicBootstrap {
     import reactivedatomic.Datomic._
     import reactivedatomic._
 
-    implicit val uri = theUri //"datomic:mem://datomicspec2"
-
     val person = new Namespace("person") {
       val character = Namespace("person.character")
     }
@@ -32,7 +30,8 @@ object DatomicBootstrap {
       stupid
     )
 
-    println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+    println("created DB with uri %s: %s".format(theUri, createDatabase(theUri)))
+    implicit val conn = Datomic.connect(theUri) //"datomic:mem://datomicspec2"
 
     transact(schema).flatMap{ tx =>
       transact(

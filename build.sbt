@@ -6,7 +6,7 @@ version := "0.1-SNAPSHOT"
 
 publishMavenStyle := true
 
-scalaVersion := "2.10.0-RC1"
+scalaVersion := "2.10.0-RC2"
 
 //fork in test := true
 
@@ -32,5 +32,6 @@ libraryDependencies ++= Seq(
   "junit" % "junit" % "4.8" % "test",
   "org.slf4j" % "slf4j-api" % "1.6.4",
   "com.h2database" % "h2" % "1.3.165",
-  "org.scala-lang" % "scala-compiler" % "2.10.0-RC1"
+  "org.fressian" % "fressian" % "0.6.3",
+  "org.scala-lang" % "scala-compiler" % "2.10.0-RC2" 
 )

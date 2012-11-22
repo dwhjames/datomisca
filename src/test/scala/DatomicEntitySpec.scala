@@ -31,7 +31,8 @@ import EntityImplicits._
 class DatomicEntitySpec extends Specification {
   "Datomic" should {
     "create entity" in {
-      implicit val uri = "datomic:mem://datomicschemaspec"
+      
+      val uri = "datomic:mem://datomicschemaspec"
 
       import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -51,6 +52,7 @@ class DatomicEntitySpec extends Specification {
 
       //DatomicBootstrap(uri)
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      implicit val conn = Datomic.connect(uri)
 
       val person = new Namespace("person") {
         val character = Namespace("person.character")
