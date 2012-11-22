@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 import scala.util.{Try, Success, Failure}
 
 object Utils {
-  def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext with Executor): Future[T] = {
+  def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext): Future[T] = {
     val p = Promise[T]
 
     listenF.addListener(
@@ -27,7 +27,9 @@ object Utils {
           )
         }
       },
-      ex
+      new java.util.concurrent.Executor {
+        def execute(arg0: Runnable): Unit = ex.execute(arg0)
+      }
     )
 
     p.future

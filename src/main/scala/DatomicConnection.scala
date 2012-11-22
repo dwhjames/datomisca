@@ -1,7 +1,6 @@
 package reactivedatomic
 
 import scala.concurrent.ExecutionContext
-import java.util.concurrent.Executor
 import scala.concurrent.Future
 
 
@@ -41,7 +40,7 @@ trait Connection {
 
   def database: datomic.Database = connection.db()
 
-  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext with Executor): Future[TxResult] = {
+  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxResult] = {
     import scala.collection.JavaConverters._
     import scala.collection.JavaConversions._
 
@@ -63,8 +62,8 @@ trait Connection {
     }
   }
 
-  def transact(op: Operation)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)
+  def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxResult] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxResult] = transact(Seq(op) ++ ops)
 }
 
 object Connection {

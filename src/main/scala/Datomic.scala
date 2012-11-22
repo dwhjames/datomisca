@@ -12,8 +12,6 @@ import language.experimental.macros
 import scala.tools.reflect.Eval
 import scala.reflect.internal.util.{Position, OffsetPosition}
 import scala.concurrent.ExecutionContext
-import java.util.concurrent.Executor
-
 
 trait DatomicPeer {
   /** Builds a Connection from URI
@@ -41,9 +39,9 @@ trait DatomicPeer {
 }
 
 trait DatomicTransactor {
-  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = connection.transact(ops)
-  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext with Executor): Future[TxResult] = transact(Seq(op) ++ ops)  
+  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext): Future[TxResult] = connection.transact(ops)
+  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext): Future[TxResult] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxResult] = transact(Seq(op) ++ ops)  
 }
 
 trait DatomicFacilities {
