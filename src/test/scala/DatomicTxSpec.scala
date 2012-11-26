@@ -35,8 +35,6 @@ class DatomicTxSpec extends Specification {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val uri = "datomic:mem://datomictxspec"
-  implicit val conn = Datomic.connect(uri)
-  
   case class Person(name: String, age: Int)
   case class Dog(name: String, age: Int)
   case class PersonFriend(name: String, age: Int)
@@ -75,6 +73,8 @@ class DatomicTxSpec extends Specification {
   def startDB = {
     println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))
 
+    implicit val conn = Datomic.connect(uri)  
+    
     Await.result(
       transact(PersonSchema.schema ++ DogSchema.schema),
       Duration("2 seconds")
@@ -90,6 +90,7 @@ class DatomicTxSpec extends Specification {
 
   "Datomic Entity Mappings" should {
     "1 - map simple entity" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val personReader = (
         PersonSchema.name.read[String] and 
@@ -156,6 +157,7 @@ class DatomicTxSpec extends Specification {
     }
 
     "2 - resolve id of an inserted entity" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val personReader = (
         PersonSchema.name.read[String] and 
@@ -221,6 +223,7 @@ class DatomicTxSpec extends Specification {
     }
 
     "3 - convert a simple case class to AddEntity" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val personDogWriter = (
         PersonSchema.name.write[String] and 
@@ -239,6 +242,7 @@ class DatomicTxSpec extends Specification {
     }
 
     "4 - manage case class writing with references" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
@@ -299,6 +303,7 @@ class DatomicTxSpec extends Specification {
 
 
     "5 - manage case class writing with optional field" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val personLikeReader = (
         PersonSchema.name.read[String] and 
@@ -356,6 +361,7 @@ class DatomicTxSpec extends Specification {
 
 
     "6 - manage case class writing with list field" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val personLikesReader = (
         PersonSchema.name.read[String] and 
@@ -402,6 +408,7 @@ class DatomicTxSpec extends Specification {
     }
 
     "7 - manage case class writing with optional references" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
@@ -472,6 +479,7 @@ class DatomicTxSpec extends Specification {
 
 
     "8 - manage case class writing with list references" in {
+      implicit val conn = Datomic.connect(uri)  
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 

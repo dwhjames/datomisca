@@ -21,7 +21,7 @@ object ApplicationBuild extends Build {
     "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
   )
 
-  val datomicCredentials = Credentials(Path.userHome / ".sbt" / ".credentials")
+//  val datomicCredentials = Credentials(Path.userHome / ".sbt" / ".credentials")
 
   val datomicRepo = Seq(
     "Bitbucket.org HTTP" at "https://bitbucket.org/mandubian/datomic-mvn/raw/master/releases/"
@@ -33,10 +33,12 @@ object ApplicationBuild extends Build {
       //logLevel := Level.Debug,
       //ivyLoggingLevel := UpdateLogging.Full,
       resolvers ++= typesafeRepo ++ datomicRepo,
-      credentials += datomicCredentials,
+      //credentials += datomicCredentials,
       libraryDependencies ++= Seq(
         "com.datomic" % "datomic-free" % "0.8.3619",
-        "org.scala-lang" % "scala-compiler" % "2.10.0-RC2"
+        "org.scala-lang" % "scala-compiler" % "2.10.0-RC2",
+        "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
+        "junit" % "junit" % "4.8" % "test"
         /*"org.clojure" % "clojure" % "1.4.0", 
           "org.clojure" % "data.json" % "0.1.2", 
           "net.java.dev.jets3t" % "jets3t" % "0.8.1", 
@@ -48,8 +50,6 @@ object ApplicationBuild extends Build {
           "org.apache.tomcat" % "tomcat-jdbc" % "7.0.27", 
           "postgresql" % "postgresql" % "9.1-901.jdbc4", 
           "org.codehaus.janino" % "commons-compiler-jdk" % "2.6.1",
-          "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
-          "junit" % "junit" % "4.8" % "test",
           "org.slf4j" % "slf4j-api" % "1.6.4",
           "com.h2database" % "h2" % "1.3.165",
           "org.fressian" % "fressian" % "0.6.3",
