@@ -60,16 +60,24 @@ trait DatomicFacilities {
 
 }
 
-object Datomic extends DatomicPeer with DatomicTransactor with DatomicFacilities with DatomicCompiler with DatomicDataImplicits with ArgsImplicits {
+object Datomic extends DatomicPeer with DatomicTransactor with DatomicFacilities with DatomicDataImplicits with ArgsImplicits {
 
-  def pureQuery(q: String): PureQuery = macro DatomicQueryMacroImpl.pureQueryImpl
+  def pureQuery(q: String): PureQuery = macro DatomicQueryMacro.pureQueryImpl
 
-  def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacroImpl.typedQueryImpl[A, B]
+  def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
 
-  def addEntity(ops: String) = macro DatomicQueryMacroImpl.addEntityImpl
+  def KW(q: String): Keyword = macro DatomicQueryMacro.KWImpl
 
-  def KW(q: String): Keyword = macro DatomicQueryMacroImpl.KWImpl
+  def addEntity(q: String): AddEntity = macro DatomicMacroOps.addEntityImpl
 
+  def ops(q: String): Seq[Operation] = macro DatomicMacroOps.opsImpl
+
+  def parseOps(q: String): Try[Seq[Operation]] = DatomicParser.parseOpSafe(q) match {
+    case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+      Failure(new RuntimeException(s"Couldn't parse operations[msg:$msg, line:$offsetLine, col:$offsetCol]"))
+    case Right(ops) => 
+      Success(ops)
+  }
 }
 
 

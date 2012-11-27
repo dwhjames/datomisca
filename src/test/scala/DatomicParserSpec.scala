@@ -159,6 +159,20 @@ class DatomicParserSpec extends Specification {
       )
     }
 
+    "parse query with rule with 2 params only" in {
+      DatomicParser.parseQuery(""" 
+        [:find ?c :where [?c :community/name]]
+      """) must beEqualTo(
+        Query(
+          Find(Seq(OutVariable(Var("c")))),
+          Where(Seq(
+            DataRule(ImplicitDS, Var("c"), Keyword( "name", Some(Namespace("community"))), Empty )
+          ))
+        )
+      )
+      
+    }
+
     "serialize predicate rule" in {
       
       DataRule(ImplicitDS, Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") )

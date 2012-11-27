@@ -10,7 +10,6 @@ object Ref {
   def apply[T](theId: DId)(t: T) = new Ref[T](t, theId)
 }
 
-
 trait EntityReader[A] {
   self => 
   def read(e: datomic.Entity): Try[A]

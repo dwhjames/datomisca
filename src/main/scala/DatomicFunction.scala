@@ -27,7 +27,7 @@ trait DataFunction extends Operation {
 }
 
 case class Add(fact: Fact) extends DataFunction with Identified {
-  override val func = Keyword("add", Some(Namespace.DB))
+  override val func = Add.kw
   override val id = fact.id
 
   def toNative: java.lang.Object = {
@@ -40,12 +40,13 @@ case class Add(fact: Fact) extends DataFunction with Identified {
 }
 
 object Add {
+  val kw = Keyword("add", Some(Namespace.DB))
   def apply( id: DId, attr: Keyword, value: DatomicData) = new Add(Fact(id, attr, value))
 }
 
 
 case class Retract(fact: Fact) extends DataFunction with Identified {
-  override val func = Keyword("retract", Some(Namespace.DB))
+  override val func = Retract.kw
   override val id = fact.id
 
   def toNative: java.lang.Object = {
@@ -58,11 +59,12 @@ case class Retract(fact: Fact) extends DataFunction with Identified {
 }
 
 object Retract {
+  val kw = Keyword("retract", Some(Namespace.DB))
   def apply( id: DId, attr: Keyword, value: DatomicData) = new Retract(Fact(id, attr, value))
 }
 
 case class RetractEntity(entId: DLong) extends DataFunction {
-  override val func = Keyword("retractEntity", Some(Namespace.DB.FN))
+  override val func = RetractEntity.kw
 
   def toNative: java.lang.Object = {
     val l = List[java.lang.Object]( func.toNative, entId.toNative)
@@ -73,6 +75,10 @@ case class RetractEntity(entId: DLong) extends DataFunction {
   } 
 
   //override def toString = toNative.toString
+}
+
+object RetractEntity {
+  val kw = Keyword("retractEntity", Some(Namespace.DB.FN))
 }
 
 trait PartialAddEntity {
@@ -293,10 +299,18 @@ object Attribute {
   val installAttr = Keyword(Namespace.DB.INSTALL, "_attribute")
 }
 
-trait ParsingExpr
+/* technical structures used by parsing */
+sealed trait ParsingExpr
 case class ScalaExpr(expr: String) extends ParsingExpr
 case class DSetParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
 
-case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]])
+case class DIdParsing(partition: Partition, id: Option[Long] = None)
+
+sealed trait OpParsing
+case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
+case class FactParsing(id: Either[ParsingExpr, DIdParsing], attr: Keyword, value: Either[ParsingExpr, DatomicData])
+case class AddParsing(fact: FactParsing) extends OpParsing
+case class RetractParsing(fact: FactParsing) extends OpParsing
+case class RetractEntityParsing(entid: Either[ParsingExpr, DLong]) extends OpParsing
 
 

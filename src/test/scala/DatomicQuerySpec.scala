@@ -2,6 +2,7 @@ import org.specs2.mutable._
 
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
+import org.specs2.specification.{Step, Fragments}
 
 import datomic.Entity
 import datomic.Connection
@@ -25,20 +26,35 @@ import reactivedatomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 
+import Datomic._
+import DatomicData._
+
 
 @RunWith(classOf[JUnitRunner])
 class DatomicQuerySpec extends Specification {
+  sequential 
+  val uri = "datomic:mem://datomicqueryspec"
+  
+  def startDB = {
+    println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))
+
+    implicit val conn = Datomic.connect(uri)  
+    
+    Await.result(
+      DatomicBootstrap(uri),
+      Duration("3 seconds")
+    )
+  } 
+
+  def stopDB = {
+    deleteDatabase(uri)
+    println("Deleted DB")
+  }
+
+  override def map(fs: => Fragments) = Step(startDB) ^ fs ^ Step(stopDB)
+
   "Datomic" should {
-    "query simple" in {
-      import Datomic._
-      import DatomicData._
-
-      val uri = "datomic:mem://datomicqueryspec"
-
-      Await.result(
-        DatomicBootstrap(uri),
-        Duration("3 seconds")
-      )
+    "1 - pure query" in {
 
       implicit val conn = Datomic.connect(uri)
 
@@ -50,9 +66,24 @@ class DatomicQuerySpec extends Specification {
       """).all().execute().collect {
         case List(e: DLong, n: DString) => 
           val entity = database.entity(e)
-          println("Q1 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+          println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
       }
       
+      success
+    }
+
+    "2 - typed query with rule with 2 params only" in {
+
+      implicit val conn = Datomic.connect(uri)
+
+      Datomic.query[Args0, Args1](""" 
+        [:find ?e :where [?e :person/name]]
+      """).all().execute().map { _.map{
+        case (e: DLong) => 
+          val entity = database.entity(e)
+          println("2 - entity: "+ e + " name:"+ entity.get(":person/name") + " - e:" + entity.get(":person/character"))
+      }}
+
       success
     }
   }

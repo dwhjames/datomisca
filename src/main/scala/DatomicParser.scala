@@ -8,14 +8,21 @@ import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
 case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
 
+
 object DatomicParser extends JavaTokenParsers {
   import scala.annotation.tailrec
 
-  val literal = """[a-zA-Z]([a-zA-Z0-9.]|_[a-zA-Z0-9.])*""".r
+  // skips clojure comments
+  protected override val whiteSpace = """(;;.*|,*\s)+""".r
 
+  val literal = """[a-zA-Z]([a-zA-Z0-9.]|_[a-zA-Z0-9.])*""".r
   val stringContent = """([^"\p{Cntrl}\\]|\\[\\/bfnrt]|\\u[a-fA-F0-9]{4})*""".r
   
+  val keywordIdent = """[a-zA-Z_]([a-zA-Z0-9.]|(-|_)[a-zA-Z0-9.])*""".r
+
   val noDecimal: Parser[String] = """-?\d+""".r
+
+  val negNoDecimal: Parser[String] = """-\d+""".r
 
   val decimalMandatory: Parser[String] = """(\d+\.\d*)""".r
 
@@ -28,9 +35,20 @@ object DatomicParser extends JavaTokenParsers {
   //def datomicDouble: Parser[DDouble] = floatingPointNumber ^^ { (s: String) => DDouble(s.toDouble) }
   def datomicBoolean: Parser[DBoolean] = ("true" | "false") ^^ {  (s: String) => DBoolean(s.toBoolean) }
 
-  //def dseq: Parser[DSeq] = "[" ~> rep(datomicData) <~ "]" ^^ { DSeq(_) }
+  def did: Parser[DId] = "#db/id" ~> "[" ~> (partition ~ opt(negNoDecimal)) <~ "]" ^^ { 
+    case part ~ Some(negid) => DId(part, negid.toLong) 
+    case part ~ None => DId(part) 
+  }
 
-  def datomicData: Parser[DatomicData] = datomicBoolean | datomicString | datomicFloat | datomicLong
+  def partition: Parser[Partition] = keyword ^? { case kw @ Keyword(name, Some(Namespace.DB.PART)) => Partition(kw) }
+  def dref: Parser[DRef] = (keyword | did) ^? {
+    case kw: Keyword => DRef(Left(kw))
+    case did: DId => DRef(Right(did))
+  }
+
+  def dset: Parser[DSet] = "[" ~> rep(datomicData) <~ "]" ^^ { l => DSet(l.toSet) }
+
+  def datomicData: Parser[DatomicData] = dset | did | dref | datomicBoolean | datomicString | datomicFloat | datomicLong
 
   // TERMS
   def datasource: Parser[DataSource] = "$" ~> opt(literal) ^^ {
@@ -38,7 +56,7 @@ object DatomicParser extends JavaTokenParsers {
     case Some(s) => ExternalDS(s)
   }
   def empty: Parser[Term] = "_" ^^ { _ => Empty }
-  def keyword: Parser[Keyword] = ":" ~> opt(literal <~ "/") ~ ident ^^ { 
+  def keyword: Parser[Keyword] = ":" ~> opt(literal <~ "/") ~ keywordIdent ^^ { 
     case None ~ n => Keyword(n) 
     case Some(ns) ~ n => Keyword(n, Some(Namespace(ns)))
   }
@@ -118,12 +136,58 @@ object DatomicParser extends JavaTokenParsers {
 
   def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSetParsing
 
-  def attribute: Parser[(Keyword, Either[ParsingExpr, DatomicData])] = keyword ~ (parsingExpr | datomicData) ^^ {
+  def attribute: Parser[(Keyword, DatomicData)] = keyword ~ datomicData ^^ {
+    case kw ~ (dd: DatomicData) => kw -> dd
+  }
+  def attributeParsing: Parser[(Keyword, Either[ParsingExpr, DatomicData])] = keyword ~ (parsingExpr | datomicData) ^^ {
     case kw ~ (dd: DatomicData) => kw -> Right(dd)
     case kw ~ (se: ParsingExpr) => kw -> Left(se)
   }
 
-  def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attribute) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
+
+  def didParsing: Parser[DIdParsing] = "#db/id" ~> "[" ~> (partition ~ opt(negNoDecimal)) <~ "]" ^^ { 
+    case part ~ negid => DIdParsing(part, negid.map(_.toLong)) 
+  }
+
+  def drefRestrictedKeyword: Parser[DRef] = keyword ^^ {
+    case kw: Keyword => DRef(Left(kw))
+  }
+
+  def fact: Parser[Fact] = did ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
+    case id ~ kw ~ dd => Fact(id, kw, dd)
+  }
+
+  def factParsing: Parser[FactParsing] = (parsingExpr | didParsing) ~ keyword ~ (parsingExpr | drefRestrictedKeyword | datomicData) ^^ {
+    case (dd: DIdParsing) ~ kw ~ value => (Right(dd), kw, value)
+    case (se: ParsingExpr) ~ kw ~ value => (Left(se), kw, value)
+  } ^^ {
+    case (id, kw, (dd: DatomicData)) => FactParsing(id, kw, Right(dd))
+    case (id, kw, (se: ParsingExpr)) => FactParsing(id, kw, Left(se))
+  }
+
+  def addKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("add", Some(Namespace.DB)) => kw } 
+  def retractKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("retract", Some(Namespace.DB)) => kw } 
+  def retractEntityKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("retractEntity", Some(Namespace.DB)) => kw } 
+
+  def add: Parser[Add] = "[" ~> addKeyword ~> fact <~ "]" ^^ { fact => Add(fact) }
+  def addParsing: Parser[AddParsing] = "[" ~> addKeyword ~> factParsing <~ "]" ^^ { fact => AddParsing(fact) }
+
+  def retract: Parser[Retract] = "[" ~> retractKeyword ~> fact <~ "]" ^^ { fact => Retract(fact) }
+  def retractParsing: Parser[RetractParsing] = "[" ~> retractKeyword ~> factParsing <~ "]" ^^ { fact => RetractParsing(fact) }
+
+  def retractEntity: Parser[RetractEntity] = "[" ~> retractEntityKeyword ~> datomicLong <~ "]" ^^ { 
+    case entid: DLong => RetractEntity(entid) 
+  }
+  def retractEntityParsing: Parser[RetractEntityParsing] = "[" ~> retractEntityKeyword ~> (parsingExpr | datomicLong) <~ "]" ^^ { 
+    case entid: DLong => RetractEntityParsing(Right(entid)) 
+    case se: ParsingExpr => RetractEntityParsing(Left(se)) 
+  }
+
+  def addEntity: Parser[AddEntity] = "{" ~> ensureHasIdKeyword(rep(attribute)) <~ "}"
+  def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
+
+  def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addEntityParsing) <~ "]"
+  def ops: Parser[Seq[Operation]] = "[" ~> rep(add | retract | retractEntity | addEntity) <~ "]"
 
   def eof = """\Z""".r
 
@@ -145,6 +209,22 @@ object DatomicParser extends JavaTokenParsers {
     val pWithBrackets = open ~> p <~ ( close | eof ~ err("EOF"))
     pWithBrackets(in) match {
       case s @ Success(_, _) => s
+      case f @ Failure(_, _) => f
+      case Error("EOF", _) => Error("Unmatched bracket", in)
+      case e: Error => e
+    }
+  }
+
+  def ensureHasIdKeyword[T](p: Parser[Seq[(Keyword, DatomicData)]]): Parser[AddEntity] = Parser { in =>
+    p(in) match {
+      case Success(t, n) => 
+        val attrs = t.toMap
+        val idkw = Keyword("id", Namespace.DB)
+        attrs.get(idkw) match {
+          case Some(id: DId) => Success(AddEntity(id, attrs - idkw), n)
+          case Some(_) => Error("AddEntity requires at least one DId field", in)
+          case None => Error("AddEntity requires at least one DId field", in)
+        }
       case f @ Failure(_, _) => f
       case Error("EOF", _) => Error("Unmatched bracket", in)
       case e: Error => e
@@ -203,6 +283,16 @@ object DatomicParser extends JavaTokenParsers {
   }
 
   def parseAddEntityParsingSafe(input: String): Either[PositionFailure, AddEntityParsing] = parseAll(addEntityParsing, input) match {
+    case Success(result, _) => Right(result)
+    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+  }
+
+  def parseOpParsingSafe(input: String): Either[PositionFailure, Seq[OpParsing]] = parseAll(opsParsing, input) match {
+    case Success(result, _) => Right(result)
+    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+  }
+
+  def parseOpSafe(input: String): Either[PositionFailure, Seq[Operation]] = parseAll(ops, input) match {
     case Success(result, _) => Right(result)
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
