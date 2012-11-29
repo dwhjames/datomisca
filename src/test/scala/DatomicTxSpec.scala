@@ -172,6 +172,7 @@ class DatomicTxSpec extends Specification {
         person / "name" -> "toto",
         person / "age" -> 30
       )
+
       val fut = transact(
         toto
       ).flatMap{ tx => 

@@ -34,7 +34,8 @@ import DatomicData._
 class DatomicQuerySpec extends Specification {
   sequential 
   val uri = "datomic:mem://datomicqueryspec"
-  
+  val person = Namespace("person")
+
   def startDB = {
     println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))
 
@@ -58,6 +59,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
+
       pureQuery("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
@@ -66,7 +68,7 @@ class DatomicQuerySpec extends Specification {
       """).all().execute().collect {
         case List(e: DLong, n: DString) => 
           val entity = database.entity(e)
-          println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+          println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
       }
       
       success
@@ -81,7 +83,26 @@ class DatomicQuerySpec extends Specification {
       """).all().execute().map { _.map{
         case (e: DLong) => 
           val entity = database.entity(e)
-          println("2 - entity: "+ e + " name:"+ entity.get(":person/name") + " - e:" + entity.get(":person/character"))
+          println("2 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
+      }}
+
+      success
+    }
+
+    "3 - typed query with rule with params variable length" in {
+
+      implicit val conn = Datomic.connect(uri)
+
+      Datomic.query[Args2, Args1](""" 
+        [
+         :find ?e
+         :in $ [?names ...] 
+         :where [?e :person/name ?names]
+        ]
+      """).all().execute(database, DSet(DString("toto"), DString("tata"))).map{ _.map{
+        case (e: DLong) => 
+          val entity = database.entity(e)
+          println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
       }}
 
       success

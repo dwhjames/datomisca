@@ -111,7 +111,7 @@ class DatomicDemoSpec extends Specification {
                 case (id: DLong, name: DString, age: DLong) => 
                   // can get entity there
                   val entity = database.entity(id)
-                  println(s"""entity: $id - name $name - characters ${entity.get(":person/character")}""")
+                  println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
                   name -> age
                 case e => throw new RuntimeException("unexpected result")
               })

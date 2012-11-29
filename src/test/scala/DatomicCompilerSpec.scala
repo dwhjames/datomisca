@@ -50,6 +50,8 @@ class DatomicCompilerSpec extends Specification {
         }*/
 
         implicit val conn = Datomic.connect(uri)
+
+        val person = Namespace("person")
   
         val query2 = query[Args2, Args2]("""
           [ :find ?e ?name
@@ -60,11 +62,11 @@ class DatomicCompilerSpec extends Specification {
           ]
         """)
 
-        val qf = query2.all().execute(database, DInt(45)).map{
+        val qf = query2.all().execute(database, DLong(45)).map{
           _.collect {
             case (e: DLong, n: DString) => 
               val entity = database.entity(e)
-              println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
+              println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
           }
         }.recover{ 
           case e => failure(e.getMessage) 

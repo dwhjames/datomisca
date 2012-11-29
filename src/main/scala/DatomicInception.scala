@@ -35,7 +35,6 @@ trait DatomicInception {
 
       def incept(d: DatomicData): c.Tree = d match {
         case DString(v) => Apply(Ident(newTermName("DString")), List(Literal(Constant(v))))
-        case DInt(v) => Apply(Ident(newTermName("DInt")), List(Literal(Constant(v))))
         case DLong(v) => Apply(Ident(newTermName("DLong")), List(Literal(Constant(v))))
         case DFloat(v) => Apply(Ident(newTermName("DFloat")), List(Literal(Constant(v))))
         case DDouble(v) => Apply(Ident(newTermName("DDouble")), List(Literal(Constant(v))))
@@ -44,6 +43,8 @@ trait DatomicInception {
           case Left(kw) => incept(kw)
           case Right(id) => incept(id)
         }))
+        case DBigInt(v) => Apply(Ident(newTermName("DBigInt")), List(Literal(Constant(v))))
+        case DBigDec(v) => Apply(Ident(newTermName("DBigDec")), List(Literal(Constant(v))))
         //case DBigDec(v) => v.toString
         //case DInstant(v) => v.toString
         //case DUuid(v) => v.toString

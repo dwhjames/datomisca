@@ -8,6 +8,19 @@ import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
 case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
 
+/** technical structures used by parsing */
+sealed trait ParsingExpr
+case class ScalaExpr(expr: String) extends ParsingExpr
+case class DSetParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
+
+case class DIdParsing(partition: Partition, id: Option[Long] = None)
+
+sealed trait OpParsing
+case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
+case class FactParsing(id: Either[ParsingExpr, DIdParsing], attr: Keyword, value: Either[ParsingExpr, DatomicData])
+case class AddParsing(fact: FactParsing) extends OpParsing
+case class RetractParsing(fact: FactParsing) extends OpParsing
+case class RetractEntityParsing(entid: Either[ParsingExpr, DLong]) extends OpParsing
 
 object DatomicParser extends JavaTokenParsers {
   import scala.annotation.tailrec
@@ -111,7 +124,7 @@ object DatomicParser extends JavaTokenParsers {
 
   // IN
   def inDatasource: Parser[InDataSource] = datasource ^^ { InDataSource(_) }
-  def inVariable: Parser[InVariable] = variable ^^ { InVariable(_) }
+  def inVariable: Parser[InVariable] = binding ^^ { InVariable(_) }
   def input: Parser[reactivedatomic.Input] = inDatasource | inVariable
   def in: Parser[In] = positioned(":in" ~> rep(input) ^^ { In(_) })
 

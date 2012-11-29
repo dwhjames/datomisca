@@ -24,7 +24,8 @@ object ApplicationBuild extends Build {
 //  val datomicCredentials = Credentials(Path.userHome / ".sbt" / ".credentials")
 
   val datomicRepo = Seq(
-    "Bitbucket.org HTTP" at "https://bitbucket.org/mandubian/datomic-mvn/raw/master/releases/"
+    //"Bitbucket.org HTTP" at "https://bitbucket.org/mandubian/datomic-mvn/raw/master/releases/"
+    "clojars" at "https://clojars.org/repo"
   )
 
   lazy val datomic = Project(
@@ -35,7 +36,7 @@ object ApplicationBuild extends Build {
       resolvers ++= typesafeRepo ++ datomicRepo,
       //credentials += datomicCredentials,
       libraryDependencies ++= Seq(
-        "com.datomic" % "datomic-free" % "0.8.3619",
+        "com.datomic" % "datomic-free" % "0.8.3627",
         "org.scala-lang" % "scala-compiler" % "2.10.0-RC2",
         "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
         "junit" % "junit" % "4.8" % "test"

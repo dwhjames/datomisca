@@ -115,7 +115,7 @@ class DatomicParserSpec extends Specification {
       """) must beEqualTo(
         Query(
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
-          In(Seq(InDataSource(ImplicitDS), InVariable(Var("f")))),
+          In(Seq(InDataSource(ImplicitDS), InVariable(ScalarBinding(Var("f"))))),
           Where(Seq(
             DataRule(ImplicitDS, Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
             DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("f") )
@@ -132,7 +132,7 @@ class DatomicParserSpec extends Specification {
       """) must beEqualTo(
         Query(
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
-          In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))),
+          In(Seq(InDataSource(ExternalDS("data")), InVariable(ScalarBinding(Var("f"))))),
           Where(Seq(
             DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
             DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("f") )
@@ -149,7 +149,7 @@ class DatomicParserSpec extends Specification {
       """) must beEqualTo(
         Query(
           Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
-          In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))),
+          In(Seq(InDataSource(ExternalDS("data")), InVariable(ScalarBinding(Var("f"))))),
           Where(Seq(
             DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
             DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("f") ),
@@ -201,7 +201,7 @@ class DatomicParserSpec extends Specification {
     "serialize :where" in {
       Where(Seq(
           DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
-          DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Const(DInt(1234)) )
+          DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Const(DLong(1234)) )
       )).toString must beEqualTo(""" 
         :where [ $data ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 1234 ]
       """.trim)
@@ -214,7 +214,7 @@ class DatomicParserSpec extends Specification {
     }
 
     "serialize :in" in {
-      In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))).toString must beEqualTo(""" 
+      In(Seq(InDataSource(ExternalDS("data")), InVariable(ScalarBinding(Var("f"))))).toString must beEqualTo(""" 
         :in $data ?f
       """.trim)
     }
@@ -222,7 +222,7 @@ class DatomicParserSpec extends Specification {
     "serialize full query" in {
       Query(
         Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
-        In(Seq(InDataSource(ExternalDS("data")), InVariable(Var("f")))),
+        In(Seq(InDataSource(ExternalDS("data")), InVariable(ScalarBinding(Var("f"))))),
         Where(Seq(
           DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
           DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("f") )

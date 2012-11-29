@@ -33,6 +33,7 @@ case class RelationBinding(names: Seq[Var]) extends Binding {
 case class DFunction(name: String) {
   override def toString = name.toString
 }
+
 case class DPredicate(name: String) {
   override def toString = name.toString
 }
@@ -63,8 +64,8 @@ sealed trait Input
 case class InDataSource(ds: DataSource) extends Input {
   override def toString = ds.toString
 }
-case class InVariable(variable: Var) extends Input {
-  override def toString = variable.toString
+case class InVariable(binding: Binding) extends Input {
+  override def toString = binding.toString
 }
 
 /* DATOMIC FIND */
@@ -124,7 +125,7 @@ case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends
     val qser = query.toString
     val args = {
       val args = in.toSeq
-      if(args.isEmpty) Seq(DatomicData.toDatomicNative(db): java.lang.Object)
+      if(args.isEmpty) Seq(db.toNative)
       else args
     }
 
@@ -171,14 +172,14 @@ case class Args0() extends Args {
 }
 
 case class Args1(_1: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(DatomicData.toDatomicNative(_1))
+  override def toSeq: Seq[Object] = Seq(_1.toNative)
 }
 
 case class Args2(_1: DatomicData, _2: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(DatomicData.toDatomicNative(_1), DatomicData.toDatomicNative(_2))
+  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative)
 }
 case class Args3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(DatomicData.toDatomicNative(_1), DatomicData.toDatomicNative(_2), DatomicData.toDatomicNative(_3))
+  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative)
 }
 
 /**
