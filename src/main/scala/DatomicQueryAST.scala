@@ -85,44 +85,13 @@ trait Query {
   def where: Where
 
   override def toString = s"""[ $find ${in.map( _.toString + " " ).getOrElse("")}$where ]"""
-}
 
-object Query {
-  def apply(find: Find, where: Where): PureQuery = PureQuery(find, None, where)
-  def apply(find: Find, in: In, where: Where): PureQuery = PureQuery(find, Some(in), where)
-  def apply(find: Find, in: Option[In], where: Where): PureQuery = PureQuery(find, in, where)
-  def apply[In <: Args, Out <: Args](q: PureQuery): TypedQuery[In, Out] = TypedQuery[In, Out](q)
-}
+  def apply[InArgs <: Args, OutArgs <: Args](in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = directQuery(in)
 
-case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query {
-  self =>
-  def all()(implicit db: DDatabase)= new DatomicExecutor {
-    type F[_] = Function0[List[List[DatomicData]]]
-    def execute = () => {
-      import scala.collection.JavaConversions._
-
-      val qser = self.toString
-
-      val results: List[List[Any]] = datomic.Peer.q(qser, db.value).toList.map(_.toList)
-      
-      results.map { fields =>
-        fields.map { field => DatomicData.toDatomicData(field) }
-      }    
-    }
-  }
-}
-
-case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends Query {
-  override def find = query.find
-  override def in = query.in
-  override def where = query.where
-
-  def apply(in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): Try[List[OutArgs]] = directQuery(in)
-
-  def directQuery(in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): Try[List[OutArgs]] = {
+  private[reactivedatomic] def directQuery[InArgs <: Args, OutArgs <: Args](in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
-    val qser = query.toString
+    val qser = this.toString
     val args = {
       val args = in.toSeq
       if(args.isEmpty) Seq(db.toNative)
@@ -135,32 +104,74 @@ case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends
       outConv.toArgs(fields.map { field => DatomicData.toDatomicData(field) })
     }
 
-    listOfTry.foldLeft(Success(Nil): Try[List[OutArgs]]){ (acc, e) => e match {
-      case Success(t) => acc.map( (a: List[OutArgs]) => a :+ t )
-      case Failure(f) => Failure(f)
-    } }
+    listOfTry.foldLeft(Nil: List[OutArgs]){ (acc, e) => acc :+ e }
   }
 
-  def all[T]()(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], 
-             tf: ToFunction[InArgs, Try[List[T]]]
-  ) = new DatomicExecutor {
-    type F[_] = tf.F[Try[List[T]]]
-    def execute = tf.convert(
-      (directQuery _).andThen((t: Try[List[OutArgs]]) => t.map( _.map( out => ott.convert(out)) ))
-    )
-  }
+}
 
-  def one[T]()(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], 
-             tf: ToFunction[InArgs, Try[T]]
-  ) = new DatomicExecutor {
-    type F[_] = tf.F[Try[T]]
-    def execute = tf.convert(
-      (directQuery _).andThen((t: Try[List[OutArgs]]) => t.map( t => ott.convert(t.head) ))
-    )
-  }
+object Query {
+  def apply(find: Find, where: Where): PureQuery = PureQuery(find, None, where)
+  def apply(find: Find, in: In, where: Where): PureQuery = PureQuery(find, Some(in), where)
+  def apply(find: Find, in: Option[In], where: Where): PureQuery = PureQuery(find, in, where)
+  def apply[In <: Args, Out <: Args](q: PureQuery): TypedQuery[In, Out] = TypedQuery[In, Out](q)
+}
 
+case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query {
+  self =>
+
+  private[reactivedatomic] def prepare[InArgs <: Args](in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
+    import scala.collection.JavaConversions._
+
+    val qser = self.toString
+    val args = {
+      val args = in.toSeq
+      if(args.isEmpty) Seq(db.toNative)
+      else args
+    }
+
+    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
+    
+    results.map { fields =>
+      fields.map { field => DatomicData.toDatomicData(field) }
+    }    
+  }
+  
+}
+
+case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends Query {
+  override def find = query.find
+  override def in = query.in
+  override def where = query.where
+
+  private[reactivedatomic] def prepare[T]()(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], tf: ToFunction[InArgs, List[T]]) = {
+    new DatomicExecutor {
+      type F[_] = tf.F[List[T]]
+      def execute = tf.convert(
+        ((in: InArgs) => directQuery(in)).andThen((t: List[OutArgs]) => t.map( out => ott.convert(out)) )
+      )
+    }
+  }
+}
+
+trait DatomicQuery {
+  def query[InArgs <: Args](q: PureQuery, in: InArgs = Args0())(implicit db: DDatabase) = 
+    q.prepare(in)
+
+  def query[OutArgs <: Args, T](q: TypedQuery[Args0, OutArgs])(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
+
+  def query[OutArgs <: Args, T](q: TypedQuery[Args1, OutArgs], d1: DatomicData)(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF1[List[T]]).execute(d1)
+
+  def query[OutArgs <: Args, T](q: TypedQuery[Args2, OutArgs], d1: DatomicData, d2: DatomicData)(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF2[List[T]]).execute(d1, d2)
+
+  def query[OutArgs <: Args, T](q: TypedQuery[Args3, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData)(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF3[List[T]]).execute(d1, d2, d3)
 }
 
 sealed trait Args {
@@ -183,7 +194,7 @@ case class Args3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args
 }
 
 /**
- * Converts a function In => T into another function 
+ * Converts a function In => Out into another function 
  * that returns Out but takes other input parameters 
  * built from In
  */
@@ -203,13 +214,15 @@ trait ArgsToTuple[A <: Args, T] {
  * Converts a Seq[DatomicData] into an Args with potential error (exception)
  */
 trait DatomicDataToArgs[T <: Args] {
-  def toArgs(l: Seq[DatomicData]): Try[T]
+  def toArgs(l: Seq[DatomicData]): T
 }
 
 trait DatomicExecutor {
   type F[_]
   def execute: F[_]
 }
+
+object ArgsImplicits extends ArgsImplicits
 
 trait ArgsImplicits {
 
@@ -234,24 +247,24 @@ trait ArgsImplicits {
   }
 
   implicit object DatomicDataToArgs1 extends DatomicDataToArgs[Args1] {
-    def toArgs(l: Seq[DatomicData]): Try[Args1] = l match {
-      case List(_1) => Success(Args1(_1))
-      case _ => Failure(new RuntimeException("Could convert Seq to Args1"))
+    def toArgs(l: Seq[DatomicData]): Args1 = l match {
+      case List(_1) => Args1(_1)
+      case _ => throw new RuntimeException("Could convert Seq to Args1")
     }
   }
 
 
   implicit object DatomicDataToArgs2 extends DatomicDataToArgs[Args2] {
-    def toArgs(l: Seq[DatomicData]): Try[Args2] = l match {
-      case List(_1, _2) => Success(Args2(_1, _2))
-      case _ => Failure(new RuntimeException("Could convert Seq to Args2"))
+    def toArgs(l: Seq[DatomicData]): Args2 = l match {
+      case List(_1, _2) => Args2(_1, _2)
+      case _ => throw new RuntimeException("Could convert Seq to Args2")
     }
   }
 
   implicit def DatomicDataToArgs3 = new DatomicDataToArgs[Args3] {
-    def toArgs(l: Seq[DatomicData]): Try[Args3] = l match {
-      case List(_1, _2, _3) => Success(Args3(_1, _2, _3))
-      case _ => Failure(new RuntimeException("Could convert Seq to Args3"))
+    def toArgs(l: Seq[DatomicData]): Args3 = l match {
+      case List(_1, _2, _3) => Args3(_1, _2, _3)
+      case _ => throw new RuntimeException("Could convert Seq to Args3")
     }
   }
 

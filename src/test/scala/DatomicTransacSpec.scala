@@ -67,12 +67,12 @@ class DatomicTransacSpec extends Specification {
       }
 
       //println("DID:"+DId(Partition.USER).value.getClass)
-      pureQuery("""
+      query(pureQuery("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
-      """).all().execute().map {
+      """)).map {
         case List(e: DLong, n: DString) => 
         println("PART"+datomic.Peer.part(e.value).getClass)
         val entity = database.entity(e)

@@ -60,12 +60,12 @@ class DatomicQuerySpec extends Specification {
       implicit val conn = Datomic.connect(uri)
 
 
-      pureQuery("""
+      query(pureQuery("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
-      """).all().execute().collect {
+      """)).collect {
         case List(e: DLong, n: DString) => 
           val entity = database.entity(e)
           println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
@@ -78,13 +78,14 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.query[Args0, Args1](""" 
+      val q = typedQuery[Args0, Args1](""" 
         [:find ?e :where [?e :person/name]]
-      """).all().execute().map { _.map{
+      """)
+      query(q).map{
         case (e: DLong) => 
           val entity = database.entity(e)
           println("2 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
-      }}
+      }
 
       success
     }
@@ -93,17 +94,37 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.query[Args2, Args1](""" 
+      query(typedQuery[Args2, Args1](""" 
         [
          :find ?e
          :in $ [?names ...] 
          :where [?e :person/name ?names]
         ]
-      """).all().execute(database, DSet(DString("toto"), DString("tata"))).map{ _.map{
+      """), database, DSet(DString("toto"), DString("tata"))).map{
         case (e: DLong) => 
           val entity = database.entity(e)
           println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
-      }}
+      }
+
+      success
+    }
+
+    "4 - typed query with rule with params variable length" in {
+
+      implicit val conn = Datomic.connect(uri)
+
+      val q = Datomic.typedQuery[Args2, Args1](""" 
+        [
+         :find ?e
+         :in $ ?name
+         :where [?e :person/name ?name]
+        ]
+      """)
+      Datomic.query(q, database, DString("toto")).map{
+        case (e: DLong) => 
+          val entity = database.entity(e)
+          println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
+      }
 
       success
     }

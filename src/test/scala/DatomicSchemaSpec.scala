@@ -79,22 +79,22 @@ class DatomicSchemaSpec extends Specification {
           case e => println(e.getMessage)
         }
 
-        pureQuery("""
+        query(pureQuery("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-        """).all().execute().map {
+        """)).map {
           case List(totoId: DLong) => 
             transact(
               RetractEntity(totoId)
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              pureQuery("""
+              query(pureQuery("""
                 [ :find ?e
                   :where  [ ?e :person/name "toto" ] 
                 ]
-              """).all().execute().isEmpty must beTrue
+              """)).isEmpty must beTrue
             }.recover{
               case e => println(e.getMessage)
             }

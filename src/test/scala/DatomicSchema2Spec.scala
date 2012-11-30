@@ -22,6 +22,7 @@ import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
+import reactivedatomic.Datomic._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicSchema2Spec extends Specification {
@@ -79,11 +80,11 @@ class DatomicSchema2Spec extends Specification {
           )
         ).flatMap{ tx => 
           println("Provisioned data... TX:%s".format(tx))
-          val totoId = pureQuery("""
+          val totoId = query(pureQuery("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-          """).all().execute()(0)(0).asInstanceOf[DLong]
+          """)).head.head.asInstanceOf[DLong]
           //.map {
           //  case List(totoId: DLong) => 
           println("TOTO:"+totoId)
@@ -92,18 +93,18 @@ class DatomicSchema2Spec extends Specification {
           ).flatMap{ tx => 
             println("Retracted data... TX:%s".format(tx))
 
-            pureQuery("""
+            query(pureQuery("""
               [ :find ?e
                 :where  [ ?e :person/name "toto" ] 
               ]
-            """).all().execute().isEmpty must beTrue
+            """)).isEmpty must beTrue
 
             println("Provisioned data... TX:%s".format(tx))
-            val tutuId = pureQuery("""
+            val tutuId = query(pureQuery("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
-            """).all().execute()(0)(0).asInstanceOf[DLong]
+            """)).head.head.asInstanceOf[DLong]
             //.map {
             //  case List(totoId: DLong) => 
             println("TUTU:"+tutuId)
@@ -112,11 +113,11 @@ class DatomicSchema2Spec extends Specification {
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              pureQuery("""
+              query(pureQuery("""
                 [ :find ?e
                   :where  [ ?e :person/name "tutu" ] 
                 ]
-              """).all().execute().isEmpty must beTrue
+              """)).isEmpty must beTrue
             }
             //}
                   

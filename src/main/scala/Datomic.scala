@@ -63,11 +63,17 @@ trait DatomicFacilities {
 
 }
 
-object Datomic extends DatomicPeer with DatomicTransactor with DatomicFacilities with DatomicDataImplicits with ArgsImplicits {
+object Datomic 
+  extends DatomicPeer 
+  with DatomicTransactor 
+  with DatomicFacilities 
+  with DatomicDataImplicits 
+  with ArgsImplicits 
+  with DatomicQuery {
 
   def pureQuery(q: String): PureQuery = macro DatomicQueryMacro.pureQueryImpl
 
-  def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
+  def typedQuery[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
 
   def KW(q: String): Keyword = macro DatomicQueryMacro.KWImpl
 

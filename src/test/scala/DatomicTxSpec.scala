@@ -124,25 +124,20 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("Provisioned more data... TX:%s".format(tx))
 
-            query[Args0, Args1]("""
+            query(typedQuery[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
               ]              
-            """).all().execute().map{ 
-              case List() => failure("no result")
-              case l => Utils.sequence(
-                  l.map{
-                  case e: DLong =>
-                    fromEntity[Person](database.entity(e)).map{
-                      case p @ Person(name, age) => 
-                        println(s"Found person with name $name and age $age")
-                        p
-                    }
-                  case _ => failure("error")
-                  }
-                ).map( l => l must beEqualTo(List(Person("tutu", 54), Person("tata", 23))) ).get 
-            }.get
+            """)).map{
+              case e: DLong =>
+                fromEntity[Person](database.entity(e)).map{
+                  case p @ Person(name, age) => 
+                    println(s"Found person with name $name and age $age")
+                    p
+                }.get
+              case _ => failure("error")
+            } must beEqualTo(List(Person("tutu", 54), Person("tata", 23)))  
           }
         }.getOrElse(failure("toto Id not found"))
       }.recover{
@@ -194,22 +189,20 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("2 Provisioned more data... TX:%s".format(tx))
 
-            query[Args0, Args1]("""
+            query(typedQuery[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
               ]
-            """).all().execute().map{ 
-              case List() => failure("no result")
-              case l => l.map{
-                  case e: DLong =>
-                    fromEntity(database.entity(e)).map {
-                      case Person(name, age) => println(s"2 Found person with name $name and age $age")
-                    }
-                  case _ => failure("error")
+            """)).map{
+              case e: DLong =>
+                fromEntity(database.entity(e)).map {
+                  case Person(name, age) => println(s"2 Found person with name $name and age $age")
                 }
-                success
-            }.get
+              case _ => failure("error")
+            }
+
+            success
           }
         }.getOrElse(failure("toto Id not found"))
       }.recover{

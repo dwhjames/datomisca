@@ -86,11 +86,11 @@ class DatomicEntitySpec extends Specification {
           ).map{ tx => 
             println("Provisioned data... TX:%s".format(tx))
 
-            query[Args0, Args1]("""
+            query(typedQuery[Args0, Args1]("""
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
-            """).one().execute().map{
+            """)).head match {
               case e: DLong =>
                 val entity = database.entity(e)
                 println(
@@ -104,12 +104,8 @@ class DatomicEntitySpec extends Specification {
                     success
                 }.get
               case _ => failure("error")
-            }/*.recover{
-              case e => failure(e.getMessage)
-            }*/.get
-          }/*.recover{
-            case e => failure(e.getMessage)
-          }*/
+            }
+          }
         },
         Duration("2 seconds")
       )

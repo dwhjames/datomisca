@@ -89,7 +89,7 @@ class DatomicDemoSpec extends Specification {
             :person/age 35
             :person/character [ $weak $dumb ]
           }""")
-        ).flatMap{ tx => 
+        ).map{ tx => 
           println("Provisioned data... TX:%s".format(tx))
 
           /* Query demo 
@@ -98,7 +98,7 @@ class DatomicDemoSpec extends Specification {
            *  - change Input Args2 to Args3 to show compiling error (beginning of query)
            *  - erase ?a to show compiling error in query (beginning of query)
            */
-          query[Args2, Args3]("""
+          query(typedQuery[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -106,16 +106,14 @@ class DatomicDemoSpec extends Specification {
                       [ ?e :person/age ?a ]
                       [ (< ?a ?age) ]
             ]
-          """).all().execute(database, DLong(40)).map( results =>
-              Future.successful(results.map {
-                case (id: DLong, name: DString, age: DLong) => 
-                  // can get entity there
-                  val entity = database.entity(id)
-                  println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
-                  name -> age
-                case e => throw new RuntimeException("unexpected result")
-              })
-            ).recover{ case e => Future.failed(e) }.get
+          """), database, DLong(40)).map{
+            case (id: DLong, name: DString, age: DLong) => 
+              // can get entity there
+              val entity = database.entity(id)
+              println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
+              name -> age
+            case e => throw new RuntimeException("unexpected result")
+          }
         }
       }.recover{
         case e => failure(e.getMessage)

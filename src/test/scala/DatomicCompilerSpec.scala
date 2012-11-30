@@ -53,7 +53,7 @@ class DatomicCompilerSpec extends Specification {
 
         val person = Namespace("person")
   
-        val query2 = query[Args2, Args2]("""
+        val q = typedQuery[Args2, Args2]("""
           [ :find ?e ?name
             :in $ ?age
             :where  [ ?e :person/name ?name ] 
@@ -62,34 +62,28 @@ class DatomicCompilerSpec extends Specification {
           ]
         """)
 
-        val qf = query2.all().execute(database, DLong(45)).map{
-          _.collect {
-            case (e: DLong, n: DString) => 
-              val entity = database.entity(e)
-              println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
-          }
-        }.recover{ 
-          case e => failure(e.getMessage) 
+        val qf = query(q, database, DLong(45)).collect {
+          case (e: DLong, n: DString) => 
+            val entity = database.entity(e)
+            println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
         }
-        /*
-        query[Args2, Args3]("""
-          [ :find ?e ?name ?age
-            :in $ ?age
-            :where  [ ?e :person/name ?name ] 
-                    [ ?e :person/age ?a ]
-                    [ (< ?a ?age) ]
-          ]
-        """).all()
-            .execute(database, DLong(30)).map{ 
-              _.map {
-                case (entity: DLong, name: DString, age: DLong) => 
-                  println(s"""Q3 entity: $entity - name: $name - age: $age""")
-                  name must beEqualTo(DString("toto"))
-                case _ => failure("unexpected types")
-              }
-            }.recover{ 
-              case e => failure(e.getMessage) 
-            }*/
+        
+        query(
+          typedQuery[Args2, Args3]("""
+            [ :find ?e ?name ?age
+              :in $ ?age
+              :where  [ ?e :person/name ?name ] 
+                      [ ?e :person/age ?a ]
+                      [ (< ?a ?age) ]
+            ]
+          """
+        ), database, DLong(30)).map{
+          case (entity: DLong, name: DString, age: DLong) => 
+            println(s"""Q3 entity: $entity - name: $name - age: $age""")
+            name must beEqualTo(DString("toto"))
+          case _ => failure("unexpected types")
+        }
+
         success
       },
       Duration("3 seconds")
