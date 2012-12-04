@@ -125,7 +125,7 @@ trait EntityReaderImplicits {
         EntityReader[Set[Ref[A]]]{ e: DEntity => 
           try {
             e.as[DSet](attr.ident).flatMap{ value =>
-              val l = value.elements.map{ 
+              val l = value.toSet.map{ 
                 case subent: DEntity => 
                   subent.as[DLong](Keyword("id", Namespace.DB)).flatMap{ id => 
                     er.read(subent).map{ a: A => Ref(DId(id))(a) }
@@ -179,7 +179,7 @@ trait EntityReaderImplicits {
         EntityReader[Set[Dest]]{ e: DEntity => 
           try {
             e.as[DSet](attr.ident).map{ value =>
-              value.elements.map{ e => 
+              value.toSet.map{ e => 
                 ddr.read(e.asInstanceOf[DD])
               }
             }

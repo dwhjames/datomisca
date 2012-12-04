@@ -39,7 +39,7 @@ object DatomicParser extends JavaTokenParsers {
 
   val decimalMandatory: Parser[String] = """(\d+\.\d*)""".r
 
-  val functionLiteral = """[a-zA-Z]([a-zA-Z0-9.]|(-|_)[a-zA-Z0-9.])*""".r
+  val functionLiteral = """[a-zA-Z.]([a-zA-Z0-9.]|(-|_)[a-zA-Z0-9.])*""".r
   val operator: Parser[String] = "+" | "-" | "*" | "/" | "==" | "<" | ">" | "<=" | ">="
 
   def datomicString: Parser[DString] = "\"" ~> stringContent <~ "\"" ^^ { DString(_) }
@@ -61,6 +61,13 @@ object DatomicParser extends JavaTokenParsers {
 
   def dset: Parser[DSet] = "[" ~> rep(datomicData) <~ "]" ^^ { l => DSet(l.toSet) }
 
+  def druletmp: Parser[(String, Seq[Var])] = "[" ~> functionLiteral ~ rep(variable) <~ "]" ^^ { 
+    case name ~ vars => ( name, vars ) }
+  def drulealias: Parser[DRuleAlias] = "[" ~> druletmp ~ rep(rule) <~ "]" ^^ {
+    case ( name, outputs ) ~ (rules: Seq[_]) => DRuleAlias(name, outputs, rules)
+  }
+  def drulealiases: Parser[DRuleAliases] = "[" ~> rep(drulealias) <~ "]" ^^ { DRuleAliases(_) }
+
   def datomicData: Parser[DatomicData] = dset | did | dref | datomicBoolean | datomicString | datomicFloat | datomicLong
 
   // TERMS
@@ -78,28 +85,30 @@ object DatomicParser extends JavaTokenParsers {
 
   def variable: Parser[Var] = "?" ~> ident ^^ { (n: String) => Var(n) }
   def const: Parser[Const] = datomicData ^^ { Const(_) }
-  def term: Parser[Term] = empty | keyword | variable | const
+  def term: Parser[Term] = empty | keyword | variable | const | datasource
 
   // DATA RULES
-  def dataRuleTerms: Parser[(Term, Term, Term)] = ( term ~ term ~ term | term ~ term | term ) ^^ {
-    case (t1: Term) ~ (t2: Term) ~ (t3: Term) => (t1, t2, t3)
-    case (t1: Term) ~ (t2: Term) => (t1, t2, Empty)
-    case (t1: Term) => (t1, Empty, Empty)
+  def dataRuleTerms: Parser[(Term, Term, Term, Term, Term)] = ( term ~ term ~ term ~ term ~ term | term ~ term ~ term ~ term | term ~ term ~ term | term ~ term | term ) ^^ {
+    case (t1: Term) ~ (t2: Term) ~ (t3: Term) ~ (t4: Term) ~ (t5: Term) => (t1, t2, t3, t4, t5)
+    case (t1: Term) ~ (t2: Term) ~ (t3: Term) ~ (t4: Term) => (t1, t2, t3, t4, Empty)
+    case (t1: Term) ~ (t2: Term) ~ (t3: Term) => (t1, t2, t3, Empty, Empty)
+    case (t1: Term) ~ (t2: Term) => (t1, t2, Empty, Empty, Empty)
+    case (t1: Term) => (t1, Empty, Empty, Empty, Empty)
   }
 
   def dataRule: Parser[DataRule] = opt(datasource) ~ dataRuleTerms ^^ { 
-    case None ~ terms => DataRule(ImplicitDS, terms._1, terms._2, terms._3)
-    case Some(ds) ~ terms => DataRule(ds, terms._1, terms._2, terms._3)
+    case None ~ terms => DataRule(ImplicitDS, terms._1, terms._2, terms._3, terms._4, terms._5)
+    case Some(ds) ~ terms => DataRule(ds, terms._1, terms._2, terms._3, terms._4, terms._5)
   }
 
   // EXPRESSION RULES
   def dfunction: Parser[DFunction] = (operator | functionLiteral) ^^ { DFunction(_) }
   def dpredicate: Parser[DPredicate] = (operator | functionLiteral) ^^ { DPredicate(_) }
 
-  def scalarBinding: Parser[ScalarBinding] = variable ^^ { ScalarBinding(_) }
-  def tupleBinding: Parser[TupleBinding] = "[" ~> rep(variable) <~ "]" ^^ { TupleBinding(_) }
-  def collectionBinding: Parser[CollectionBinding] = "[" ~> variable <~ "..." ~ "]" ^^ { CollectionBinding(_) }
-  def relationBinding: Parser[RelationBinding] = "[[" ~> rep(variable) <~ "]]" ^^ { RelationBinding(_) }
+  def scalarBinding: Parser[ScalarBinding] = (variable | empty) ^^ { ScalarBinding(_) }
+  def tupleBinding: Parser[TupleBinding] = "[" ~> rep(variable | empty) <~ "]" ^^ { TupleBinding(_) }
+  def collectionBinding: Parser[CollectionBinding] = "[" ~> (variable | empty) <~ "..." ~ "]" ^^ { CollectionBinding(_) }
+  def relationBinding: Parser[RelationBinding] = "[[" ~> rep(variable | empty) <~ "]]" ^^ { RelationBinding(_) }
 
   def binding = tupleBinding | scalarBinding | relationBinding | collectionBinding
 
@@ -116,8 +125,11 @@ object DatomicParser extends JavaTokenParsers {
   def expression: Parser[Expression] = functionExpression | predicateExpression
   def expressionRule: Parser[ExpressionRule] = expression ^^ { ExpressionRule(_) }
 
+  def ruleAliasCall: Parser[RuleAliasCall] = "(" ~> functionLiteral ~ rep(term) <~ ")" ^^ {
+    case (name: String) ~ (args: Seq[Term]) => RuleAliasCall(name, args)
+  }
   // RULES
-  def rule: Parser[Rule] = positioned("[" ~> (dataRule | expressionRule) <~ "]")
+  def rule: Parser[Rule] = positioned(("[" ~> (dataRule | expressionRule) <~ "]") | ruleAliasCall)
 
   // WHERE
   def where: Parser[Where] = positioned(":where" ~> rep(rule) ^^ { Where(_) })
@@ -125,7 +137,8 @@ object DatomicParser extends JavaTokenParsers {
   // IN
   def inDatasource: Parser[InDataSource] = datasource ^^ { InDataSource(_) }
   def inVariable: Parser[InVariable] = binding ^^ { InVariable(_) }
-  def input: Parser[reactivedatomic.Input] = inDatasource | inVariable
+  def inRuleAlias: Parser[InRuleAlias.type] = "%" ^^ { _ => InRuleAlias }
+  def input: Parser[reactivedatomic.Input] = inRuleAlias | inDatasource | inVariable
   def in: Parser[In] = positioned(":in" ~> rep(input) ^^ { In(_) })
 
   // FIND
@@ -306,6 +319,11 @@ object DatomicParser extends JavaTokenParsers {
   }
 
   def parseOpSafe(input: String): Either[PositionFailure, Seq[Operation]] = parseAll(ops, input) match {
+    case Success(result, _) => Right(result)
+    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+  }
+
+   def parseDRuleAliasesSafe(input: String): Either[PositionFailure, DRuleAliases] = parseAll(drulealiases, input) match {
     case Success(result, _) => Right(result)
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }

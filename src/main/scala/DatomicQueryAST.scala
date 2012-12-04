@@ -8,25 +8,32 @@ import scala.util.parsing.input.Positional
 sealed trait Rule extends Positional
 
 /* DATOMIC DATA RULES */
-case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty) extends Rule {
-  override def toString = s"""[${ if(ds == ImplicitDS) "" else (" "+ds) } $entity $attr $value ]"""
+case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty, tx: Term = Empty, added: Term = Empty) extends Rule {
+  override def toString = """[%s%s %s %s%s%s]""".format(
+    if(ds == ImplicitDS) "" else ds+" ",
+    entity,
+    attr,
+    value,
+    if(tx == Empty) "" else (" "+tx),
+    if(added == Empty) "" else (" "+added)
+  )
 }
 
 /* DATOMIC EXPRESSION RULES */
 sealed trait Binding
-case class ScalarBinding(name: Var) extends Binding {
+case class ScalarBinding(name: Term) extends Binding {
   override def toString = name.toString
 }
 
-case class TupleBinding(names: Seq[Var]) extends Binding {
+case class TupleBinding(names: Seq[Term]) extends Binding {
   override def toString = "[ " + names.map( _.toString ).mkString(" ") + " ]"
 }
 
-case class CollectionBinding(name: Var) extends Binding {
+case class CollectionBinding(name: Term) extends Binding {
   override def toString = "[ " + name.toString + " ... ]" 
 }
 
-case class RelationBinding(names: Seq[Var]) extends Binding {
+case class RelationBinding(names: Seq[Term]) extends Binding {
   override def toString = "[[ " + names.map( _.toString ).mkString(" ") + " ]]"
 }
 
@@ -50,6 +57,11 @@ case class FunctionExpression(function: DFunction, args: Seq[Term], binding: Bin
   override def toString = s"""($function ${args.map( _.toString ).mkString(" ")}) $binding"""
 }
 
+/* RULE ALIAS */
+case class RuleAliasCall(name: String, args: Seq[Term]) extends Rule {
+  override def toString = """( %s %s )""".format(name, args.map( _.toString ).mkString("", " ", ""))
+}
+
 /* WHERE */
 case class Where(rules: Seq[Rule]) extends Positional {
   override def toString = rules.map( _.toString ).mkString(":where ", " ", "")
@@ -66,6 +78,9 @@ case class InDataSource(ds: DataSource) extends Input {
 }
 case class InVariable(binding: Binding) extends Input {
   override def toString = binding.toString
+}
+case object InRuleAlias extends Input {
+  override def toString = "%"
 }
 
 /* DATOMIC FIND */
@@ -92,11 +107,14 @@ trait Query {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
     val qser = this.toString
+    println("in:"+in)
     val args = {
       val args = in.toSeq
       if(args.isEmpty) Seq(db.toNative)
       else args
     }
+
+    println("QSER:"+qser+ " - args:"+args)
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
@@ -129,6 +147,7 @@ case class PureQuery(override val find: Find, override val in: Option[In] = None
       else args
     }
 
+    println("QSER:"+qser+ " - args:"+args)
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
     results.map { fields =>
@@ -172,6 +191,10 @@ trait DatomicQuery {
   def query[OutArgs <: Args, T](q: TypedQuery[Args3, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData)(
     implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
   ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF3[List[T]]).execute(d1, d2, d3)
+
+  def query[OutArgs <: Args, T](q: TypedQuery[Args4, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData)(
+    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF4[List[T]]).execute(d1, d2, d3, d4)
 }
 
 sealed trait Args {
@@ -189,8 +212,13 @@ case class Args1(_1: DatomicData) extends Args {
 case class Args2(_1: DatomicData, _2: DatomicData) extends Args {
   override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative)
 }
+
 case class Args3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args {
   override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative)
+}
+
+case class Args4(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData) extends Args {
+  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative)
 }
 
 /**
@@ -246,6 +274,11 @@ trait ArgsImplicits {
     def convert(f: (Args3 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData, d3: DatomicData) => f(Args3(d1, d2, d3))
   }
 
+  implicit def toF4[Out] = new ToFunction[Args4, Out] {
+    type F[Out] = Function4[DatomicData, DatomicData, DatomicData, DatomicData, Out]
+    def convert(f: (Args4 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData) => f(Args4(d1, d2, d3, d4))
+  }
+
   implicit object DatomicDataToArgs1 extends DatomicDataToArgs[Args1] {
     def toArgs(l: Seq[DatomicData]): Args1 = l match {
       case List(_1) => Args1(_1)
@@ -268,6 +301,13 @@ trait ArgsImplicits {
     }
   }
 
+  implicit def DatomicDataToArgs4 = new DatomicDataToArgs[Args4] {
+    def toArgs(l: Seq[DatomicData]): Args4 = l match {
+      case List(_1, _2, _3, _4) => Args4(_1, _2, _3, _4)
+      case _ => throw new RuntimeException("Could convert Seq to Args4")
+    }
+  }
+
   implicit def Args1ToTuple = new ArgsToTuple[Args1, DatomicData] {
     def convert(from: Args1) = from._1
   }
@@ -278,6 +318,10 @@ trait ArgsImplicits {
 
   implicit def Args3ToTuple = new ArgsToTuple[Args3, (DatomicData, DatomicData, DatomicData)] {
     def convert(from: Args3) = (from._1, from._2, from._3)
+  }
+
+  implicit def Args4ToTuple = new ArgsToTuple[Args4, (DatomicData, DatomicData, DatomicData, DatomicData)] {
+    def convert(from: Args4) = (from._1, from._2, from._3, from._4)
   }
 
 }

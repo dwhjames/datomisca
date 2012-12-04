@@ -92,17 +92,18 @@ class DatomicEntitySpec extends Specification {
               ]
             """)).head match {
               case e: DLong =>
-                val entity = database.entity(e)
-                println(
-                  "dentity age:" + entity.as[DLong](person / "age") + 
-                  " name:" + entity(person / "name") +
-                  " map:" + entity.toMap
-                )
-                fromEntity(entity)(personReader).map {
-                  case Person(name, age, characters) => 
-                    println(s"Found person with name $name and age $age and characters $characters")
-                    success
-                }.get
+                database.entity(e).map { entity =>
+                  println(
+                    "dentity age:" + entity.as[DLong](person / "age") + 
+                    " name:" + entity(person / "name") +
+                    " map:" + entity.toMap
+                  )
+                  fromEntity(entity)(personReader).map {
+                    case Person(name, age, characters) => 
+                      println(s"Found person with name $name and age $age and characters $characters")
+                      success
+                  }.get
+                }.getOrElse(failure("could't find entity"))
               case _ => failure("error")
             }
           }

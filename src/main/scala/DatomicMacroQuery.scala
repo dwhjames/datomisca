@@ -125,5 +125,28 @@ object DatomicQueryMacro extends DatomicInception {
     
   }
 
+  def rulesImpl(c: Context)(q: c.Expr[String]) : c.Expr[DRuleAliases] = {
+    import c.universe._
+
+    val inc = inception(c)
+
+    q.tree match {
+      case Literal(Constant(s: String)) => 
+        DatomicParser.parseDRuleAliasesSafe(s) match {
+          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
+
+            val offsetPos = new OffsetPosition(
+              treePos.source, 
+              computeOffset(treePos, offsetLine, offsetCol)
+            )
+            c.abort(offsetPos.asInstanceOf[c.Position], msg)
+          case Right(kw) => c.Expr[DRuleAliases]( inc.incept(kw) )
+        }
+
+      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+    }
+    
+  }
 
 }

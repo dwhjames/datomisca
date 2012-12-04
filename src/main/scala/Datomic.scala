@@ -31,7 +31,7 @@ trait DatomicPeer {
     Connection(conn)
   }
 
-  implicit def database(implicit conn: Connection) = DDatabase(conn.database)
+  implicit def database(implicit conn: Connection) = conn.database
 
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
   def deleteDatabase(uri: String): Boolean = datomic.Peer.deleteDatabase(uri)
@@ -39,14 +39,25 @@ trait DatomicPeer {
 }
 
 trait DatomicTransactor {
-  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext): Future[TxResult] = connection.transact(ops)
-  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxResult] = transact(Seq(op) ++ ops)  
+  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
+  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)  
+
+  def withData(ops: Seq[Operation])(implicit connection: Connection): TxReport = connection.database.withData(ops)
 }
 
 trait DatomicFacilities {
   // implicit converters to simplify conversion from Scala Types to Datomic Types
   implicit def toDWrapper[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DWrapper = DWrapperImpl(toDatomic(t)(ddw))
+
+  def add(id: DId)(prop: (Keyword, DWrapper)) = Add(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
+  def add(id: DLong)(prop: (Keyword, DWrapper)) = Add(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
+  def add(id: Long)(prop: (Keyword, DWrapper)) = Add(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
+
+  def retract(id: DId)(prop: (Keyword, DWrapper)) = Retract(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
+
+  def retractEntity(id: DLong) = RetractEntity(id)
+  def retractEntity(id: FinalId) = RetractEntity(DLong(id.value))
 
   def addEntity(id: DId)(props: (Keyword, DWrapper)*) = 
     AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
@@ -74,6 +85,8 @@ object Datomic
   def pureQuery(q: String): PureQuery = macro DatomicQueryMacro.pureQueryImpl
 
   def typedQuery[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
+
+  def rules(q: String): DRuleAliases = macro DatomicQueryMacro.rulesImpl
 
   def KW(q: String): Keyword = macro DatomicQueryMacro.KWImpl
 

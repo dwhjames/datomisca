@@ -129,13 +129,15 @@ trait DatomicInception {
       }
 
       def incept(r: Rule): c.Tree = r match {
-        case DataRule(ds, entity, attr, value) =>
+        case DataRule(ds, entity, attr, value, tx, added) =>
           Apply( Ident(newTermName("DataRule")), 
             List(
               (if(ds == ImplicitDS) Ident(newTermName("ImplicitDS")) else Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(ds.name)))) ), 
               incept(entity), 
               incept(attr), 
-              incept(value)
+              incept(value), 
+              incept(tx), 
+              incept(added)
             ) 
           )
         case f: ExpressionRule => 
@@ -143,7 +145,15 @@ trait DatomicInception {
             Ident(newTermName("ExpressionRule")), 
             List(incept(f.expr))
           )
-          
+        
+        case ra: RuleAliasCall =>
+          Apply(
+            Ident(newTermName("RuleAliasCall")), 
+            List(
+              Literal(Constant(ra.name)),
+              Apply(Ident(newTermName("Seq")), ra.args.map(incept(_)).toList )
+            )
+          )
       }
 
       def incept(o: Output): c.Tree = o match {
@@ -157,6 +167,7 @@ trait DatomicInception {
       def incept(i: Input): c.Tree = i match {
         case InDataSource(ds) => Apply(Ident(newTermName("InDataSource")), List(incept(ds)))
         case InVariable(v) => Apply(Ident(newTermName("InVariable")), List(incept(v)))
+        case InRuleAlias => Ident(newTermName("InRuleAlias"))
       }
 
       def incept(in: In): c.Tree = 
@@ -279,6 +290,26 @@ trait DatomicInception {
               case _ => c.abort(c.enclosingPosition, "A Fact only accepts a DLong as 1st param")
             }
           )  
+        )
+      }
+
+      def incept(ra: DRuleAlias): c.universe.Tree = {
+        Apply(
+          Ident(newTermName("DRuleAlias")),
+          List(
+            Literal(Constant(ra.name)),
+            Apply(Ident(newTermName("Seq")), ra.args.map(incept(_)).toList ),
+            Apply(Ident(newTermName("Seq")), ra.rules.map(incept(_)).toList )
+          )  
+        )
+      }
+
+      def incept(ras: DRuleAliases): c.universe.Tree = {
+        Apply(  
+          Ident(newTermName("DRuleAliases")),
+          List(
+            Apply(Ident(newTermName("Seq")), ras.aliases.map(incept(_)).toList )
+          )
         )
       }
 

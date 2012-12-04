@@ -131,10 +131,12 @@ class DatomicTxSpec extends Specification {
               ]              
             """)).map{
               case e: DLong =>
-                fromEntity[Person](database.entity(e)).map{
-                  case p @ Person(name, age) => 
-                    println(s"Found person with name $name and age $age")
-                    p
+                database.entity(e).map{ entity =>
+                  fromEntity[Person](entity).map{
+                    case p @ Person(name, age) => 
+                      println(s"Found person with name $name and age $age")
+                      p
+                  }.get
                 }.get
               case _ => failure("error")
             } must beEqualTo(List(Person("tutu", 54), Person("tata", 23)))  
@@ -196,8 +198,10 @@ class DatomicTxSpec extends Specification {
               ]
             """)).map{
               case e: DLong =>
-                fromEntity(database.entity(e)).map {
-                  case Person(name, age) => println(s"2 Found person with name $name and age $age")
+                database.entity(e).map{ entity =>
+                  fromEntity(entity).map {
+                    case Person(name, age) => println(s"2 Found person with name $name and age $age")
+                  }
                 }
               case _ => failure("error")
             }
@@ -282,9 +286,11 @@ class DatomicTxSpec extends Specification {
         tx.resolve(medorId, totoId) match {
           case (Some(medorId), Some(totoId)) => 
             println(s"4 totoId:$totoId medorId:$medorId")
-            fromEntity[PersonDog](database.entity(totoId)).map {
-              case PersonDog(name, age, dog) => println(s"Found Toto $name $age $dog")
-            }.get
+            database.entity(totoId).map{ entity =>
+              fromEntity[PersonDog](entity).map {
+                case PersonDog(name, age, dog) => println(s"Found Toto $name $age $dog")
+              }.get
+            }.getOrElse(failure("unable to find entity"))
           case _ => failure("unable to resolve ids")
         }
       }      
@@ -334,15 +340,18 @@ class DatomicTxSpec extends Specification {
         tx.resolve(totoId, tutuId) match {
           case (Some(totoId), Some(tutuId)) => 
             println(s"5 - totoId:$totoId tutuId:$tutuId")
-            fromEntity[PersonLike](database.entity(totoId)).map { t => 
-              println(s"5 - retrieved toto:$t")
-              t.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
-            }.get
-
-            fromEntity[PersonLike](database.entity(tutuId)).map { t => 
-              println(s"5 - retrieved tutu:$t")
-              t must beEqualTo(tutu)
-            }.get
+            database.entity(totoId).map{ entity =>
+              fromEntity[PersonLike](entity).map { t => 
+                println(s"5 - retrieved toto:$t")
+                t.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
+              }.get
+            }.getOrElse(failure("unable to find entity"))
+            database.entity(tutuId).map{ entity =>
+              fromEntity[PersonLike](entity).map { t => 
+                println(s"5 - retrieved tutu:$t")
+                t must beEqualTo(tutu)
+              }.get
+            }.getOrElse(failure("unable to find entity"))
           case _ => failure("unable to resolve ids")
         }
       }      
@@ -387,10 +396,12 @@ class DatomicTxSpec extends Specification {
         tx.resolve(totoId) match {
           case Some(totoId) => 
             println(s"6 - totoId:$totoId")
-            fromEntity[PersonLikes](database.entity(totoId)).map { t => 
-              println(s"5 - retrieved toto:$t")
-              t must beEqualTo(PersonLikes("toto", 30, Set("chocolate", "vanilla")))
-            }.get
+            database.entity(totoId).map{ entity =>
+              fromEntity[PersonLikes](entity).map { t => 
+                println(s"5 - retrieved toto:$t")
+                t must beEqualTo(PersonLikes("toto", 30, Set("chocolate", "vanilla")))
+              }.get
+            }.getOrElse(failure("unable to find entity"))
           case _ => failure("unable to resolve id")
         }
       }      
@@ -452,15 +463,19 @@ class DatomicTxSpec extends Specification {
         tx.resolve(medorId, totoId, tutuId) match {
           case (Some(medorId), Some(totoId), Some(tutuId)) => 
             println(s"7 - totoId:$totoId medorId:$medorId")
-            fromEntity[PersonDogOpt](database.entity(totoId)).map { t => 
-              println(s"7 - retrieved toto:$t")
-              t.toString must beEqualTo(PersonDogOpt("toto", 30, Some(Ref(DId(medorId))(medor))).toString)
-            }.get
+            database.entity(totoId).map{ entity =>
+              fromEntity[PersonDogOpt](entity).map { t => 
+                println(s"7 - retrieved toto:$t")
+                t.toString must beEqualTo(PersonDogOpt("toto", 30, Some(Ref(DId(medorId))(medor))).toString)
+              }.get
+              }.getOrElse(failure("unable to find entity"))
 
-            fromEntity[PersonDogOpt](database.entity(tutuId)).map { t => 
-              println(s"7 - retrieved tutu:$t")
-              t must beEqualTo(tutu)
-            }.get
+            database.entity(tutuId).map{ entity => 
+              fromEntity[PersonDogOpt](entity).map { t => 
+                println(s"7 - retrieved tutu:$t")
+                t must beEqualTo(tutu)
+              }.get
+            }.getOrElse(failure("unable to find entity"))
           case _ => failure("unable to resolve ids")
         }
       }      
@@ -524,9 +539,11 @@ class DatomicTxSpec extends Specification {
         
         tx.resolve(medorId, brutusId, totoId) match {
           case (Some(medorId), Some(brutusId), Some(totoId)) => 
-            fromEntity[PersonDogList](database.entity(totoId)).map{ t => 
-              t must beEqualTo(PersonDogList("toto", 30, Set(Ref(DId(medorId))(medor), Ref(DId(brutusId))(brutus))))
-            }.get
+            database.entity(totoId).map{ entity =>
+              fromEntity[PersonDogList](entity).map{ t => 
+                t must beEqualTo(PersonDogList("toto", 30, Set(Ref(DId(medorId))(medor), Ref(DId(brutusId))(brutus))))
+              }.get
+            }.getOrElse(failure("unable to find entity"))
           case _ => failure("unable to resolve ids")
         }
       }      

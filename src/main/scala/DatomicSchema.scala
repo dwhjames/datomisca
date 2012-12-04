@@ -112,7 +112,7 @@ case class Attribute[DD <: DatomicData, Card <: Cardinality](
   def withDoc(str: String) = copy( doc = Some(str) )
   def withUnique(u: Unique) = copy( unique = Some(u) )
   def withIndex(b: Boolean) = copy( index = Some(b) )
-  def withFulltext(b: Boolean) = copy( fulltext = Some(b) )
+  def withFullText(b: Boolean) = copy( fulltext = Some(b) )
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
   def withNoHistory(b: Boolean) = copy( noHistory = Some(b) )
 

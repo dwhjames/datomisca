@@ -4,10 +4,10 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 
-case class TxResult(
-  dbBefore: datomic.db.Db, 
-  dbAfter: datomic.db.Db, 
-  txData: Seq[datomic.db.Datum] = Seq(), 
+case class TxReport(
+  dbBefore: DDatabase, 
+  dbAfter: DDatabase, 
+  txData: Seq[DDatom] = Seq(), 
   tempids: Map[Long with datomic.db.DbId, Long] = Map()
 ) {
   def resolve(id: DId)(implicit db: DDatabase): Option[DLong] = 
@@ -38,9 +38,9 @@ trait Connection {
 
   def connection: datomic.Connection
 
-  def database: datomic.Database = connection.db()
+  def database: DDatabase = DDatabase(connection.db())
 
-  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxResult] = {
+  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
     import scala.collection.JavaConverters._
     import scala.collection.JavaConversions._
 
@@ -51,19 +51,35 @@ trait Connection {
     future.flatMap{ javaMap: java.util.Map[_, _] =>
       val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
 
-      val opt = for( 
-        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]];
-        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]];
-        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.db.Datum]]];
-        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]]
-      ) yield Future(TxResult(dbBefore, dbAfter, txData.toSeq, tempids.toMap))
+      val opt = for{
+        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
+        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
+        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None)
+        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
+      } yield Future(TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap))
     
-      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxResult")))
+      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxReport")))
     }
   }
 
-  def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxResult] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxResult] = transact(Seq(op) ++ ops)
+  def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
+  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
+
+  def txReportQueue: Stream[TxReport] = {
+    import scala.collection.JavaConversions._
+    Utils.queue2Stream[java.util.Map[_, _]](connection.txReportQueue).map{ javaMap =>
+      val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
+
+      val opt = for{
+        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
+        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
+        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None)
+        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
+      } yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap)
+
+      opt.get
+    }
+  }
 }
 
 object Connection {

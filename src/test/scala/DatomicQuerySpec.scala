@@ -109,24 +109,123 @@ class DatomicQuerySpec extends Specification {
       success
     }
 
-    "4 - typed query with rule with params variable length" in {
+    "4 - typed query with rule with list of tuple inputs" in {
 
       implicit val conn = Datomic.connect(uri)
-
-      val q = Datomic.typedQuery[Args2, Args1](""" 
+      val q = Datomic.typedQuery[Args2, Args3](""" 
         [
-         :find ?e
-         :in $ ?name
+         :find ?e ?name ?age
+         :in $ [[?name ?age]]
          :where [?e :person/name ?name]
+                [?e :person/age ?age]
         ]
       """)
-      Datomic.query(q, database, DString("toto")).map{
-        case (e: DLong) => 
-          val entity = database.entity(e)
-          println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
+      Datomic.query(
+        q, database, 
+        DSet(
+          DSet(DString("toto"), DLong(30L)),
+          DSet(DString("tutu"), DLong(54L))
+        )
+      ).map{
+        case (e: DLong, n: DString, a: DLong) => 
+          println("4 - entity: "+ e + " name:"+ n + " - age:" + a)
+        case _ => failure("result not expected")
       }
 
       success
     }
+
+    "5 - typed query with fulltext query" in {
+
+      implicit val conn = Datomic.connect(uri)
+      val q = Datomic.typedQuery[Args0, Args2](""" 
+        [
+         :find ?e ?n
+         :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
+        ]
+      """)
+      Datomic.query(q).map{
+        case (e: DLong, n: DString) => 
+          println("5 - entity: "+ e + " name:"+ n)
+        case _ => failure("result not expected")
+      }
+
+      success
+    }
+
+    "6 - serialize rule alias" in {
+
+      val alias = DRuleAliases(
+        Seq(DRuleAlias(
+          "region", 
+          Seq(Var("c"), Var("r")),
+          Seq(
+            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
+            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
+            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
+            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
+          )
+        ))
+      )
+
+      alias.toNative.trim must beEqualTo(
+        ( "[ [ [region ?c ?r]" +
+          " [?c :community/neighborhood ?n]" +
+          " [?n :neighborhood/district ?d]" +
+          " [?d :district/region ?re]" +
+          " [?re :db/ident ?r] ] ]").trim
+      )
+    }
+
+    "7 - parse rule alias" in {
+      val alias = DRuleAliases(
+        Seq(DRuleAlias(
+          "region", 
+          Seq(Var("c"), Var("r")),
+          Seq(
+            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
+            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
+            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
+            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
+          )
+        ))
+      )
+
+      Datomic.rules("""
+        [ [ [region ?c ?r]
+           [?c :community/neighborhood ?n]
+           [?n :neighborhood/district ?d]
+           [?d :district/region ?re]
+           [?re :db/ident ?r] 
+        ] ]
+      """) must beEqualTo(alias) 
+    }
+
+    "8 - query with rule alias" in {
+      implicit val conn = Datomic.connect(uri)
+      
+      val totoRule = Datomic.rules("""
+        [ [ [toto ?e]
+           [?e :person/name "toto"]
+        ] ]
+      """)
+
+      val q = Datomic.typedQuery[Args2, Args2]("""
+        [
+          :find ?e ?age
+          :in $ %
+          :where [?e :person/age ?age]
+                 (toto ?e)
+        ]
+      """)
+
+      Datomic.query(q, database, totoRule).map {
+        case (e: DLong, age: DLong) => 
+          println(s"e: $e - age: $age")
+          age must beEqualTo(DLong(30L))
+        case _ => failure("unexpected result")
+      }
+    }
+
   }
 }

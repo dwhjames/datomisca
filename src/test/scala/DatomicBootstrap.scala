@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object DatomicBootstrap {
-  def apply(theUri: String): Future[TxResult] = {
+  def apply(theUri: String): Future[TxReport] = {
     import reactivedatomic.Datomic._
     import reactivedatomic._
 
@@ -20,7 +20,7 @@ object DatomicBootstrap {
     val stupid = AddIdent(Keyword(person.character, "stupid"))
 
     val schema = Seq(
-      Attribute( Keyword(Namespace("person"), "name"), SchemaType.string, Cardinality.one).withDoc("Person's name"),
+      Attribute( Keyword(Namespace("person"), "name"), SchemaType.string, Cardinality.one).withDoc("Person's name").withFullText(true),
       Attribute( Keyword(Namespace("person"), "age"), SchemaType.long, Cardinality.one).withDoc("Person's age"),
       Attribute( Keyword(Namespace("person"), "character"), SchemaType.ref, Cardinality.many).withDoc("Person's characterS"),
       violent,

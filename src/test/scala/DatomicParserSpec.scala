@@ -176,9 +176,9 @@ class DatomicParserSpec extends Specification {
     "serialize predicate rule" in {
       
       DataRule(ImplicitDS, Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") )
-        .toString must beEqualTo("""[ ?n :ns1.ns2/arg ?e ]""")
+        .toString must beEqualTo("""[?n :ns1.ns2/arg ?e]""")
       DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Const(DString("toto")) )
-        .toString must beEqualTo("""[ $data ?n :ns1.ns2/arg "toto" ]""")
+        .toString must beEqualTo("""[$data ?n :ns1.ns2/arg "toto"]""")
     }
 
     "serialize function rule" in {
@@ -203,7 +203,7 @@ class DatomicParserSpec extends Specification {
           DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
           DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Const(DLong(1234)) )
       )).toString must beEqualTo(""" 
-        :where [ $data ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 1234 ]
+        :where [$data ?n :ns1.ns2/arg ?e] [?n :ns/arg2 1234]
       """.trim)
     }
 
@@ -228,7 +228,7 @@ class DatomicParserSpec extends Specification {
           DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("f") )
         ))
       ).toString must beEqualTo(""" 
-        [ :find ?n ?e :in $data ?f :where [ $data ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 ?f ] ]
+        [ :find ?n ?e :in $data ?f :where [$data ?n :ns1.ns2/arg ?e] [?n :ns/arg2 ?f] ]
       """.trim)
     }
   }

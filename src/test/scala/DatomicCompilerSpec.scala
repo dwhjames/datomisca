@@ -34,21 +34,7 @@ class DatomicCompilerSpec extends Specification {
       val uri = "datomic:mem://datomicqueryspec"
       Await.result(
       DatomicBootstrap(uri).map { tx =>
-        /*query[Args0, Args2]("""
-          [ :find ?e ?n 
-            :where  [ ?e :person/name ?n ]
-                    [ ?e :person/character :person.character/violent ]
-          ]
-        """)(Args0()).map{ 
-          _.map {
-            case Args2(e: DLong, n: DString) => 
-              val entity = database.entity(e)
-              println("Q1 entity: "+ e + " name:"+n+ " - e:" + entity.get(":person/character"))
-          }
-        }.recover{ 
-          case e => failure(e.getMessage) 
-        }*/
-
+        
         implicit val conn = Datomic.connect(uri)
 
         val person = Namespace("person")
@@ -62,10 +48,11 @@ class DatomicCompilerSpec extends Specification {
           ]
         """)
 
-        val qf = query(q, database, DLong(45)).collect {
+        val qf = query(q, database, DLong(54L)).collect {
           case (e: DLong, n: DString) => 
             val entity = database.entity(e)
             println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
+            n must beEqualTo(DString("tutu"))
         }
         
         query(
@@ -80,7 +67,8 @@ class DatomicCompilerSpec extends Specification {
         ), database, DLong(30)).map{
           case (entity: DLong, name: DString, age: DLong) => 
             println(s"""Q3 entity: $entity - name: $name - age: $age""")
-            name must beEqualTo(DString("toto"))
+            name must beEqualTo(DString("tata"))
+
           case _ => failure("unexpected types")
         }
 

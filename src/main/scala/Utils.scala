@@ -46,6 +46,16 @@ object Utils {
       case Success(s) => acc.map{ acc => acc += s }
     }}.map(_.result)
   }
+
+  def queue2Stream[A](queue: java.util.concurrent.BlockingQueue[A]): Stream[A] = {
+    def toStream: Stream[A] = {
+      val a = queue.take 
+      Stream.cons(a, toStream)
+    }
+
+    toStream
+  }
+
 }
 
 /**

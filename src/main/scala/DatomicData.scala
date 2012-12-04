@@ -114,9 +114,42 @@ object DRef {
 }
 
 class DDatabase(val value: datomic.Database) extends DatomicData {
-  def entity(e: DLong) = DEntity(value.entity(e.value))
+  def entity(e: DLong): Option[DEntity] = Option(value.entity(e.value)).map(DEntity(_))
 
-  //def entid(e: DLong): DId = DId(value.entid(e.value).asInstanceOf[datomic.db.DbId])
+  def underlying = value
+
+  def asOf(date: java.util.Date): DDatabase = DDatabase(value.asOf(date))
+  def asOf(date: DInstant): DDatabase = asOf(date.value)
+
+  def since(date: java.util.Date): DDatabase = DDatabase(value.since(date))
+  def since(date: DInstant): DDatabase = since(date.value)
+
+  def entid(e: Long): DId = DId(value.entid(e).asInstanceOf[Long])
+  def entid(e: DLong): DId = entid(e.value)
+  def entid(kw: Keyword): DId = DId(value.entid(kw.toNative).asInstanceOf[Long])
+
+  def ident(e: Integer): Keyword = Keyword(value.ident(e).asInstanceOf[clojure.lang.Keyword])
+  def ident(kw: Keyword): Keyword = Keyword(value.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
+
+  def withData(ops: Seq[Operation]) = {
+    import scala.collection.JavaConverters._
+    import scala.collection.JavaConversions._
+
+    val datomicOps = ops.map( _.toNative ).toList.asJava
+
+    val javaMap: java.util.Map[_, _] = value.`with`(datomicOps)
+    
+    val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
+
+    val opt = for( 
+      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None);
+      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None);
+      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None);
+      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
+    ) yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(this)).toSeq, tempids.toMap)
+  
+    opt.get
+  }
 
   override def toString = value.toString
   def toNative: java.lang.Object = value
@@ -159,10 +192,14 @@ object DId {
 }
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
-case class DSet(elements: Set[DatomicData]) extends DatomicData {
+class DSet(elements: Set[DatomicData]) extends DatomicData {
   def toNative: java.lang.Object = {
-    import scala.collection.JavaConverters._
-    ( elements.map( _.toNative ) ).toList.asJava
+    java.util.Arrays.asList(elements.map(_.toNative).toSeq: _*) 
+    //new java.util.ArrayList[java.lang.Object]()
+    //elements.foreach( e => l.add(e.toNative) )
+    
+    //import scala.collection.JavaConverters._
+    //( elements.map( _.toNative ) ).toList.asJava
   }
 
   override def toString = elements.mkString("[", ", ", "]")
@@ -171,6 +208,7 @@ case class DSet(elements: Set[DatomicData]) extends DatomicData {
 }
 
 object DSet {
+  def apply(set: Set[DatomicData]) = new DSet(set)
   def apply(dd: DatomicData) = new DSet(Set(dd))
   def apply(dd: DatomicData, dds: DatomicData *) = new DSet(Set(dd) ++ dds)
 }
@@ -227,6 +265,47 @@ object DEntity {
   def apply(ent: datomic.Entity) = new DEntity(ent)
 }
 
+
+case class DRuleAlias(name: String, args: Seq[Var], rules: Seq[Rule]) extends DatomicData {
+  override def toNative = toString
+  override def toString = "[ [%s %s] %s ]".format(
+    name, 
+    args.map(_.toString).mkString("", " ", ""),
+    rules.map(_.toString).mkString("", " ", "")
+  )
+}
+
+case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
+  override def toNative = toString
+  override def toString = "[ %s ]".format(
+    aliases.map(_.toString).mkString("", " ", "")
+  )
+}
+
+trait DDatom extends DatomicData{
+  def id: DLong
+  def attr: Keyword
+  def value: DatomicData
+  def tx: DLong
+  def added: DBoolean
+  def underlying: datomic.Datom
+
+  override def toNative = underlying
+
+  override def toString = "[%s %s %s %s %s]".format(id, attr, value, tx, added)
+}
+
+object DDatom{
+  def apply(d: datomic.Datom)(implicit db: DDatabase) = new DDatom{
+    lazy val id = DLong(d.e.asInstanceOf[Long])
+    lazy val attr = db.ident(d.a.asInstanceOf[java.lang.Integer])
+    lazy val value = DatomicData.toDatomicData(d.v)
+    lazy val tx = DLong(d.tx.asInstanceOf[Long])
+    lazy val added = DBoolean(d.added.asInstanceOf[Boolean])
+    lazy val underlying = d
+  }
+}
+
 trait DDReader[-DD <: DatomicData, +A] {
   def read(dd: DD): A
 }
@@ -254,7 +333,7 @@ private[reactivedatomic] case class DWrapperImpl(value: DatomicData) extends DWr
 trait DatomicDataImplicits {
   implicit val DString2String = DDReader{ s: DString => s.value }
   implicit val DLong2Long = DDReader{ s: DLong => s.value }
-  // is this one reasonable
+  // is this one really reasonable?
   implicit val DLong2Int = DDReader{ s: DLong => s.value.toInt }
 
   implicit val DRef2DRef = DDReader{ s: DRef => s }
