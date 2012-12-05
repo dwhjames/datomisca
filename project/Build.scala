@@ -36,7 +36,7 @@ object ApplicationBuild extends Build {
       resolvers ++= typesafeRepo ++ datomicRepo,
       //credentials += datomicCredentials,
       libraryDependencies ++= Seq(
-        "com.datomic" % "datomic-free" % "0.8.3627" exclude("org.slf4j", "slf4j-nop"),
+        "com.datomic" % "datomic-free" % "0.8.3627" % "provided" exclude("org.slf4j", "slf4j-nop"),
         "org.scala-lang" % "scala-compiler" % "2.10.0-RC2",
         "org.specs2" % "specs2_2.10.0-RC1" % "1.12.2" % "test",
         "junit" % "junit" % "4.8" % "test"
