@@ -35,7 +35,7 @@ case class TxReport(
 }
 
 trait Connection {
-
+  self =>
   def connection: datomic.Connection
 
   def database: DDatabase = DDatabase(connection.db())
@@ -49,7 +49,8 @@ trait Connection {
     val future = Utils.bridgeDatomicFuture(connection.transactAsync(datomicOps))
     
     future.flatMap{ javaMap: java.util.Map[_, _] =>
-      val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
+      Future(Utils.toTxReport(javaMap)(database))
+      /*val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
 
       val opt = for{
         dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
@@ -58,17 +59,20 @@ trait Connection {
         tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
       } yield Future(TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap))
     
-      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxReport")))
+      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxReport")))*/
     }
   }
 
   def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
   def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
-  def txReportQueue: Stream[TxReport] = {
-    import scala.collection.JavaConversions._
-    Utils.queue2Stream[java.util.Map[_, _]](connection.txReportQueue).map{ javaMap =>
-      val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
+  def txReportQueue: TxReportQueue = new TxReportQueue {
+    override implicit val database = self.database
+
+    override val queue = connection.txReportQueue
+  }
+
+    /*  val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
 
       val opt = for{
         dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
@@ -78,8 +82,7 @@ trait Connection {
       } yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap)
 
       opt.get
-    }
-  }
+    }*/
 }
 
 object Connection {

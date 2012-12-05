@@ -47,15 +47,47 @@ object Utils {
     }}.map(_.result)
   }
 
-  def queue2Stream[A](queue: java.util.concurrent.BlockingQueue[A]): Stream[A] = {
-    def toStream: Stream[A] = {
-      val a = queue.take 
-      Stream.cons(a, toStream)
+  /** Converts a java.util.Map[_,_] returns by connection.transact into a TxReport 
+    * It requires an implicit DDatabase because it must resolve the keyword from Datom (from Integer in the map)
+    */
+  def toTxReport(javaMap: java.util.Map[_, _])(implicit database: DDatabase): TxReport = {
+    import scala.collection.JavaConverters._
+    import scala.collection.JavaConversions._
+
+    val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
+
+    val opt = for{
+      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
+      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
+      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None)
+      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
+    } yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap)
+
+    opt.get
+  }
+
+  def queue2Stream[A](queue: java.util.concurrent.BlockingQueue[A]): Stream[Option[A]] = {
+    def toStream: Stream[Option[A]] = {
+      Option(queue.poll()) match {
+        case None => Stream.cons(None, toStream)
+        case Some(a) => Stream.cons(Some(a), toStream)
+      }
     }
 
     toStream
   }
 
+}
+
+trait TxReportQueue {
+  implicit def database: DDatabase
+
+  def queue: java.util.concurrent.BlockingQueue[java.util.Map[_, _]]
+
+  lazy val stream: Stream[Option[TxReport]] = Utils.queue2Stream[java.util.Map[_, _]](queue).map{ 
+    case None => None
+    case Some(javaMap) => Some(Utils.toTxReport(javaMap)(database))
+  }
 }
 
 /**

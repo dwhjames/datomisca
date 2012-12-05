@@ -9,13 +9,13 @@ sealed trait Rule extends Positional
 
 /* DATOMIC DATA RULES */
 case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty, tx: Term = Empty, added: Term = Empty) extends Rule {
-  override def toString = """[%s%s %s %s%s%s]""".format(
+  override def toString = """[%s%s %s %s %s %s]""".format(
     if(ds == ImplicitDS) "" else ds+" ",
     entity,
     attr,
     value,
-    if(tx == Empty) "" else (" "+tx),
-    if(added == Empty) "" else (" "+added)
+    tx,
+    added
   )
 }
 
