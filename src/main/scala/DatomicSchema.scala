@@ -116,7 +116,7 @@ case class Attribute[DD <: DatomicData, Card <: Cardinality](
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
   def withNoHistory(b: Boolean) = copy( noHistory = Some(b) )
 
-  lazy val toAddEntity: AddEntity = {
+  lazy val toAddOps: AddToEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
       Attribute.id -> id,
       Attribute.ident -> DRef(ident),
@@ -133,10 +133,10 @@ case class Attribute[DD <: DatomicData, Card <: Cardinality](
     // installing attribute
     mb += Attribute.installAttr -> DRef(Partition.DB.keyword)
 
-    AddEntity(id, mb.result())
+    AddToEntity(id, mb.result())
   }
   
-  def toNative: java.lang.Object = toAddEntity.toNative
+  def toNative: java.lang.Object = toAddOps.toNative
 
   override def toString = s"""
 { 

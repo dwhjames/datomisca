@@ -29,12 +29,12 @@ object EntityReader{
   }
 }
 
-trait PartialAddEntityWriter[A] {
-  def write(a: A): PartialAddEntity
+trait PartialAddToEntityWriter[A] {
+  def write(a: A): PartialAddToEntity
 }
 
-object PartialAddEntityWriter{
-  def apply[A](f: A => PartialAddEntity) = new PartialAddEntityWriter[A] {
+object PartialAddToEntityWriter{
+  def apply[A](f: A => PartialAddToEntity) = new PartialAddToEntityWriter[A] {
     def write(a: A) = f(a)
   }
 
@@ -48,8 +48,8 @@ trait Attribute2EntityReader[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): EntityReader[Dest]
 }
 
-trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
-  def convert(attr: Attribute[DD, Card]): PartialAddEntityWriter[Dest]
+trait Attribute2PartialAddToEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
+  def convert(attr: Attribute[DD, Card]): PartialAddToEntityWriter[Dest]
 }
 
 class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, Card])
@@ -64,10 +64,10 @@ class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, C
       }
     }
 
-  def write[A](implicit a2ew: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[A] = a2ew.convert(attr)
-  def writeOpt[A](implicit a2ew: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[Option[A]] = 
-    PartialAddEntityWriter[Option[A]] { a => a match {
-      case None => PartialAddEntity.empty
+  def write[A](implicit a2ew: Attribute2PartialAddToEntityWriter[DD, Card, A]): PartialAddToEntityWriter[A] = a2ew.convert(attr)
+  def writeOpt[A](implicit a2ew: Attribute2PartialAddToEntityWriter[DD, Card, A]): PartialAddToEntityWriter[Option[A]] = 
+    PartialAddToEntityWriter[Option[A]] { a => a match {
+      case None => PartialAddToEntity.empty
       case Some(a) => a2ew.convert(attr).write(a)
     } }
 }  
@@ -75,7 +75,7 @@ class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, C
 object EntityImplicits extends EntityReaderImplicits with CombinatorImplicits with EntityWriterImplicits {
   def fromEntity[A](e: DEntity)(implicit er: EntityReader[A]) = er.read(e)
 
-  def toAddEntity[A](id: DId)(a: A)(implicit ew: PartialAddEntityWriter[A]) = AddEntity(id, ew.write(a))
+  def toEntity[A](id: DId)(a: A)(implicit ew: PartialAddToEntityWriter[A]) = AddToEntity(id, ew.write(a))
 }
 
 trait EntityReaderImplicits {
@@ -102,16 +102,6 @@ trait EntityReaderImplicits {
                 er.read(subent).map{ a: A => Ref(DId(id))(a) }
               }
             }
-
-            /*match {
-              case None => Failure(new RuntimeException(attr.ident.toString + " not found"))
-              case Some(value) => 
-                val subent = value.asInstanceOf[DEntity]
-                subent.get[DLong](Keyword("id", Namespace.DB)) match {
-                  case None => Failure(new RuntimeException(attr.ident.toString + ": id not found in ref"))
-                  case Some(id) => er.read(subent).map{ a: A => Ref(DId(id))(a) }
-                }
-            }*/
           }catch{
             case e: Throwable => Failure(e)
           }
@@ -198,34 +188,34 @@ trait EntityWriterImplicits {
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
 
-  implicit object AddEntityWriterCombinator extends Combinator[PartialAddEntityWriter] {
-    def apply[A, B](ma: PartialAddEntityWriter[A], mb: PartialAddEntityWriter[B]): PartialAddEntityWriter[A ~ B] = 
-      new PartialAddEntityWriter[A ~ B] {
-        def write(ab: A ~ B): PartialAddEntity = ab match {
+  implicit object AddToEntityWriterCombinator extends Combinator[PartialAddToEntityWriter] {
+    def apply[A, B](ma: PartialAddToEntityWriter[A], mb: PartialAddToEntityWriter[B]): PartialAddToEntityWriter[A ~ B] = 
+      new PartialAddToEntityWriter[A ~ B] {
+        def write(ab: A ~ B): PartialAddToEntity = ab match {
           case a ~ b => ma.write(a) ++ mb.write(b)
         }
       }
   }
 
-  implicit object PartialAddEntityWriterContraFunctor extends ContraFunctor[PartialAddEntityWriter] {
-    def contramap[A, B](w: PartialAddEntityWriter[A], f: B => A) = PartialAddEntityWriter{ b => w.write(f(b)) }
+  implicit object PartialAddToEntityWriterContraFunctor extends ContraFunctor[PartialAddToEntityWriter] {
+    def contramap[A, B](w: PartialAddToEntityWriter[A], f: B => A) = PartialAddToEntityWriter{ b => w.write(f(b)) }
   }
 
-  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Dest](implicit ddw: DDWriter[DD, Dest]) = 
-    new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Dest] {
-      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Dest] = {
-        PartialAddEntityWriter[Dest]{ d: Dest => 
-          PartialAddEntity( Map( attr.ident -> ddw.write(d) ) )
+  implicit def attr2PartialAddToEntityWriterOne[DD <: DatomicData, Dest](implicit ddw: DDWriter[DD, Dest]) = 
+    new Attribute2PartialAddToEntityWriter[DD, CardinalityOne.type, Dest] {
+      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddToEntityWriter[Dest] = {
+        PartialAddToEntityWriter[Dest]{ d: Dest => 
+          PartialAddToEntity( Map( attr.ident -> ddw.write(d) ) )
         }
       }
     }  
 
 
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Dest](implicit ddw: DDWriter[DSet, Set[Dest]]) = 
-    new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Dest]] {
-      def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Dest]] = {
-        PartialAddEntityWriter[Set[Dest]]{ d: Set[Dest] => 
-          PartialAddEntity( Map( attr.ident -> ddw.write(d) ) )              
+  implicit def attr2PartialAddToEntityWriterMany[DD <: DatomicData, Dest](implicit ddw: DDWriter[DSet, Set[Dest]]) = 
+    new Attribute2PartialAddToEntityWriter[DD, CardinalityMany.type, Set[Dest]] {
+      def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddToEntityWriter[Set[Dest]] = {
+        PartialAddToEntityWriter[Set[Dest]]{ d: Set[Dest] => 
+          PartialAddToEntity( Map( attr.ident -> ddw.write(d) ) )              
         }
       }
     }

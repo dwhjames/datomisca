@@ -100,7 +100,7 @@ class DatomicTxSpec extends Specification {
       val idToto = DId(Partition.USER)
 
       val fut = transact(
-        addEntity(idToto)(
+        addToEntity(idToto)(
           person / "name" -> "toto",
           person / "age" -> 30
         )
@@ -111,12 +111,12 @@ class DatomicTxSpec extends Specification {
 
         tx.resolve(idToto).map { totoId => 
           transact(
-            addEntity( DId(Partition.USER) )(
+            addToEntity( DId(Partition.USER) )(
               person / "name" -> "tutu",
               person / "age" -> 54,
               person / "friend" -> totoId
             ),
-            addEntity( DId(Partition.USER) )(
+            addToEntity( DId(Partition.USER) )(
               person / "name" -> "tata",
               person / "age" -> 23,
               person / "friend" -> totoId
@@ -165,7 +165,7 @@ class DatomicTxSpec extends Specification {
       val idTutu = DId(Partition.USER)
       val idTata = DId(Partition.USER)
 
-      val toto = addEntity(idToto)(
+      val toto = addToEntity(idToto)(
         person / "name" -> "toto",
         person / "age" -> 30
       )
@@ -178,12 +178,12 @@ class DatomicTxSpec extends Specification {
         println("2 Resolved Id for toto: temp(%s) real(%s)".format(idToto.toNative, tx.resolve(idToto)))
         tx.resolve(toto).map{ totoId => 
           transact(
-            addEntity(idTutu)(
+            addToEntity(idTutu)(
               person / "name" -> "tutu",
               person / "age" -> 54,
               person / "friend" -> totoId
             ),
-            addEntity(idTata)(
+            addToEntity(idTata)(
               person / "name" -> "tata",
               person / "age" -> 23,
               person / "friend" -> totoId
@@ -231,12 +231,12 @@ class DatomicTxSpec extends Specification {
       val toto = Person("toto", 30)
       val totoId = DId(Partition.USER)
 
-      val totoAddEntity = addEntity(totoId)(
+      val totoEntity = addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30
       )
 
-      toAddEntity(totoId)(toto) must beEqualTo(totoAddEntity)
+      toEntity(totoId)(toto) must beEqualTo(totoEntity)
     }
 
     "4 - manage case class writing with references" in {
@@ -269,17 +269,17 @@ class DatomicTxSpec extends Specification {
       val toto = PersonDog("toto", 30, Ref(medorId)(medor))
       val totoId = DId(Partition.USER)
 
-      val totoAddEntity = addEntity(totoId)(
+      val totoEntity = addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dog" -> medorId
       )
 
-      toAddEntity(totoId)(toto).toString must beEqualTo(totoAddEntity.toString)
+      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
 
       val fut = transact(
-        toAddEntity(totoId)(toto),
-        toAddEntity(medorId)(medor)
+        toEntity(totoId)(toto),
+        toEntity(medorId)(medor)
       ).map{ tx =>
         println("2 Provisioned more data... TX:%s".format(tx))
         
@@ -323,17 +323,17 @@ class DatomicTxSpec extends Specification {
       val tutu = PersonLike("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
-      val totoAddEntity = addEntity(totoId)(
+      val totoEntity = addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "like" -> "chocolate"
       )
 
-      toAddEntity(totoId)(toto).toString must beEqualTo(totoAddEntity.toString)
+      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
 
       val fut = transact(
-        toAddEntity(totoId)(toto),
-        toAddEntity(tutuId)(tutu)
+        toEntity(totoId)(toto),
+        toEntity(tutuId)(tutu)
       ).map{ tx =>
         println("5 - Provisioned more data... TX:%s".format(tx))
         
@@ -381,15 +381,15 @@ class DatomicTxSpec extends Specification {
       val toto = PersonLikes("toto", 30, Set("chocolate", "vanilla"))
       val totoId = DId(Partition.USER)
 
-      val totoAddEntity = addEntity(totoId)(
+      val totoEntity = addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "likes" -> Set("chocolate", "vanilla")
       )
 
-      toAddEntity(totoId)(toto).toString must beEqualTo(totoAddEntity.toString)
+      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
       val fut = transact(
-        toAddEntity(totoId)(toto)
+        toEntity(totoId)(toto)
       ).map{ tx =>
         println("5 - Provisioned more data... TX:%s".format(tx))
         
@@ -445,18 +445,18 @@ class DatomicTxSpec extends Specification {
       val tutu = PersonDogOpt("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
-      val totoAddEntity = addEntity(totoId)(
+      val totoEntity = addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dog" -> medorId
       )
 
-      toAddEntity(totoId)(toto).toString must beEqualTo(totoAddEntity.toString)
+      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
 
       val fut = transact(
-        toAddEntity(totoId)(toto),
-        toAddEntity(medorId)(medor),
-        toAddEntity(tutuId)(tutu)
+        toEntity(totoId)(toto),
+        toEntity(medorId)(medor),
+        toEntity(tutuId)(tutu)
       ).map{ tx =>
         println("7 - Provisioned more data... TX:%s".format(tx))
         
@@ -521,19 +521,19 @@ class DatomicTxSpec extends Specification {
       val toto = PersonDogList("toto", 30, Set(Ref(medorId)(medor), Ref(brutusId)(brutus)))
       val totoId = DId(Partition.USER)
 
-      val totoAddEntity = addEntity(totoId)(
+      val totoEntity = addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dogs" -> Set(medorId, brutusId)
       )
 
-      toAddEntity(totoId)(toto).toString must beEqualTo(totoAddEntity.toString)
-      println("8 - toto:"+toto+" TOTO ENTITY:"+toAddEntity(totoId)(toto))
+      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      println("8 - toto:"+toto+" TOTO ENTITY:"+toEntity(totoId)(toto))
 
       val fut = transact(
-        toAddEntity(totoId)(toto),
-        toAddEntity(medorId)(medor),
-        toAddEntity(brutusId)(brutus)
+        toEntity(totoId)(toto),
+        toEntity(medorId)(medor),
+        toEntity(brutusId)(brutus)
       ).map{ tx =>
         println("8 - Provisioned more data... TX:%s".format(tx))
         

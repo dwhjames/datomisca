@@ -70,16 +70,16 @@ class DatomicEntitySpec extends Specification {
         transact(PersonSchema.schema ++ Seq(violent, weak, dumb, clever, stupid)).flatMap{ tx =>
           println("TX:"+tx)
           transact(
-            addEntity(DId(Partition.USER))(
+            addToEntity(DId(Partition.USER))(
               person / "name" -> "toto",
               person / "age" -> 30,
               person / "characters" -> Set(violent, weak)
             ),
-            addEntity(DId(Partition.USER))(
+            addToEntity(DId(Partition.USER))(
               person / "name" -> "tutu",
               person / "age" -> 54
             ),
-            addEntity(DId(Partition.USER))(
+            addToEntity(DId(Partition.USER))(
               person / "name" -> "tata",
               person / "age" -> 23
             )

@@ -59,11 +59,11 @@ trait DatomicFacilities {
   def retractEntity(id: DLong) = RetractEntity(id)
   def retractEntity(id: FinalId) = RetractEntity(DLong(id.value))
 
-  def addEntity(id: DId)(props: (Keyword, DWrapper)*) = 
-    AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
+  def addToEntity(id: DId)(props: (Keyword, DWrapper)*) = 
+    AddToEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
 
-  def partialAddEntity(props: (Keyword, DWrapper)*) = 
-    PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
+  def partialAddToEntity(props: (Keyword, DWrapper)*) = 
+    PartialAddToEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
 
   def dset(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].value}.toSet)
 
@@ -90,7 +90,7 @@ object Datomic
 
   def KW(q: String): Keyword = macro DatomicQueryMacro.KWImpl
 
-  def addEntity(q: String): AddEntity = macro DatomicMacroOps.addEntityImpl
+  def addToEntity(q: String): AddToEntity = macro DatomicMacroOps.addToEntityImpl
 
   def ops(q: String): Seq[Operation] = macro DatomicMacroOps.opsImpl
 

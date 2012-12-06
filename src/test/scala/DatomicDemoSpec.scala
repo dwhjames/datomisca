@@ -73,17 +73,17 @@ class DatomicDemoSpec extends Specification {
          *  - remove a ] from addEntity to show compiling error
          */
         conn.transact(
-          AddEntity(DId(Partition.USER))(
+          AddToEntity(DId(Partition.USER))(
             person / "name" -> DString("toto"),
             person / "age" -> DLong(30L),
             person / "character" -> DSet(weak.ident, dumb.ident)
           ),
-          addEntity(DId(Partition.USER))(
+          addToEntity(DId(Partition.USER))(
             KW(":person/name") -> "tata",
             KW(":person/age") -> 54L,
             KW(":person/character") -> Seq(violent, clever)
           ),
-          addEntity("""{
+          addToEntity("""{
             :db/id ${DId(Partition.USER)}
             :person/name "tutu"
             :person/age 35

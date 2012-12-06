@@ -58,17 +58,17 @@ class DatomicSchemaSpec extends Specification {
         println("Provisioned schema... TX:%s".format(tx))
 
         transact(
-          AddEntity(DId(Partition.USER))(
+          AddToEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
           ),
-          AddEntity(DId(Partition.USER))(
+          AddToEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tutu"),
             Keyword(person, "age") -> DLong(54L),
             Keyword(person, "character") -> DSet(violent.ident, clever.ident)
           ),
-          AddEntity(DId(Partition.USER))(
+          AddToEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tata"),
             Keyword(person, "age") -> DLong(23L),
             Keyword(person, "character") -> DSet(weak.ident, clever.ident)

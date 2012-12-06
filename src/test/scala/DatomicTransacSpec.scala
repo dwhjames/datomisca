@@ -48,7 +48,7 @@ class DatomicTransacSpec extends Specification {
       val violent = AddIdent(Keyword(person.character, "violent"))
       val weak = AddIdent(Keyword(person.character, "weak"), Partition.USER)
       
-      val person1 = AddEntity( DId(Partition.USER) )(
+      val person1 = AddToEntity( DId(Partition.USER) )(
         Keyword(Namespace("person"), "name") -> DString("bob"),
         Keyword(Namespace("person"), "age") -> DLong(30L),
         Keyword(Namespace("person"), "character") -> DSet( violent.ident, weak.ident )

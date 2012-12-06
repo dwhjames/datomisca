@@ -16,7 +16,7 @@ case class DSetParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends Pars
 case class DIdParsing(partition: Partition, id: Option[Long] = None)
 
 sealed trait OpParsing
-case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
+case class AddToEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
 case class FactParsing(id: Either[ParsingExpr, DIdParsing], attr: Keyword, value: Either[ParsingExpr, DatomicData])
 case class AddParsing(fact: FactParsing) extends OpParsing
 case class RetractParsing(fact: FactParsing) extends OpParsing
@@ -209,11 +209,11 @@ object DatomicParser extends JavaTokenParsers {
     case se: ParsingExpr => RetractEntityParsing(Left(se)) 
   }
 
-  def addEntity: Parser[AddEntity] = "{" ~> ensureHasIdKeyword(rep(attribute)) <~ "}"
-  def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
+  def addToEntity: Parser[AddToEntity] = "{" ~> ensureHasIdKeyword(rep(attribute)) <~ "}"
+  def addToEntityParsing: Parser[AddToEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddToEntityParsing(t.toMap) }
 
-  def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addEntityParsing) <~ "]"
-  def ops: Parser[Seq[Operation]] = "[" ~> rep(add | retract | retractEntity | addEntity) <~ "]"
+  def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addToEntityParsing) <~ "]"
+  def ops: Parser[Seq[Operation]] = "[" ~> rep(add | retract | retractEntity | addToEntity) <~ "]"
 
   def eof = """\Z""".r
 
@@ -241,15 +241,15 @@ object DatomicParser extends JavaTokenParsers {
     }
   }
 
-  def ensureHasIdKeyword[T](p: Parser[Seq[(Keyword, DatomicData)]]): Parser[AddEntity] = Parser { in =>
+  def ensureHasIdKeyword[T](p: Parser[Seq[(Keyword, DatomicData)]]): Parser[AddToEntity] = Parser { in =>
     p(in) match {
       case Success(t, n) => 
         val attrs = t.toMap
         val idkw = Keyword("id", Namespace.DB)
         attrs.get(idkw) match {
-          case Some(id: DId) => Success(AddEntity(id, attrs - idkw), n)
-          case Some(_) => Error("AddEntity requires at least one DId field", in)
-          case None => Error("AddEntity requires at least one DId field", in)
+          case Some(id: DId) => Success(AddToEntity(id, attrs - idkw), n)
+          case Some(_) => Error("AddToEntity requires at least one DId field", in)
+          case None => Error("AddToEntity requires at least one DId field", in)
         }
       case f @ Failure(_, _) => f
       case Error("EOF", _) => Error("Unmatched bracket", in)
@@ -308,7 +308,7 @@ object DatomicParser extends JavaTokenParsers {
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
-  def parseAddEntityParsingSafe(input: String): Either[PositionFailure, AddEntityParsing] = parseAll(addEntityParsing, input) match {
+  def parseAddToEntityParsingSafe(input: String): Either[PositionFailure, AddToEntityParsing] = parseAll(addToEntityParsing, input) match {
     case Success(result, _) => Right(result)
     case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }

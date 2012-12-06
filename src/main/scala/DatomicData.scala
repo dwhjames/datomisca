@@ -114,7 +114,8 @@ object DRef {
 }
 
 class DDatabase(val value: datomic.Database) extends DatomicData {
-  def entity(e: DLong): Option[DEntity] = Option(value.entity(e.value)).map(DEntity(_))
+  def entity(e: DLong): Option[DEntity] = entity(e.value)
+  def entity(e: Long): Option[DEntity] = Option(value.entity(e)).map(DEntity(_))
 
   def underlying = value
 

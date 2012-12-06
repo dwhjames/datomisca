@@ -81,22 +81,22 @@ object RetractEntity {
   val kw = Keyword("retractEntity", Some(Namespace.DB.FN))
 }
 
-trait PartialAddEntity {
+trait PartialAddToEntity {
   def props: Map[Keyword, DatomicData]
 
-  def ++(other: PartialAddEntity) = PartialAddEntity( props ++ other.props )
+  def ++(other: PartialAddToEntity) = PartialAddToEntity( props ++ other.props )
 }
 
-object PartialAddEntity {
-  def apply(theProps: Map[Keyword, DatomicData]) = new PartialAddEntity {
+object PartialAddToEntity {
+  def apply(theProps: Map[Keyword, DatomicData]) = new PartialAddToEntity {
     def props = theProps
   }
 
-  def empty: PartialAddEntity = apply(Map())
+  def empty: PartialAddToEntity = apply(Map())
 }
 
-case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) 
-extends PartialAddEntity with Operation with Identified {
+case class AddToEntity(id: DId, partialProps: Map[Keyword, DatomicData]) 
+extends PartialAddToEntity with Operation with Identified {
   override def props = partialProps + (Keyword("id", Namespace.DB) -> id)
 
   def toNative: java.lang.Object = {
@@ -107,10 +107,10 @@ extends PartialAddEntity with Operation with Identified {
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
-object AddEntity {
-  //def apply(id: DId, props: Map[Keyword, DatomicData]): AddEntity = new AddEntity(props + (Keyword("id", Namespace.DB) -> id) )
-  def apply(id: DId)(props: (Keyword, DatomicData)*): AddEntity = new AddEntity(id, props.toMap)
-  def apply(id: DId, partial: PartialAddEntity) = new AddEntity(id, partial.props)
+object AddToEntity {
+  //def apply(id: DId, props: Map[Keyword, DatomicData]): AddToEntity = new AddToEntity(props + (Keyword("id", Namespace.DB) -> id) )
+  def apply(id: DId)(props: (Keyword, DatomicData)*): AddToEntity = new AddToEntity(id, props.toMap)
+  def apply(id: DId, partial: PartialAddToEntity) = new AddToEntity(id, partial.props)
 }
 
 case class AddIdent(override val ident: DRef, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {

@@ -124,7 +124,7 @@ class DatomicParserOpsSpec extends Specification {
       )
     }
 
-    "6 - map simple addEntity op" in {
+    "6 - map simple addToEntity op" in {
       implicit val conn = Datomic.connect(uri)  
 
       val person = new Namespace("person") {
@@ -147,7 +147,7 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          AddEntity(id)(
+          AddToEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
@@ -188,7 +188,7 @@ class DatomicParserOpsSpec extends Specification {
           Add(Fact( id, KW(":db/ident"), DRef(KW(":region/n")))),
           Retract(Fact( ops(2).asInstanceOf[Retract].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
           RetractEntity(DLong(1234L)),
-          AddEntity(id)(
+          AddToEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
@@ -235,12 +235,12 @@ class DatomicParserOpsSpec extends Specification {
           Add(Fact( ops(2).asInstanceOf[Add].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
           Retract(Fact( ops(3).asInstanceOf[Retract].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
           RetractEntity(DLong(1234L)),
-          AddEntity(ops(5).asInstanceOf[AddEntity].id)(
+          AddToEntity(ops(5).asInstanceOf[AddToEntity].id)(
             Keyword(person, "name") -> DString("toto, tata"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(DRef(KW(":character/_weak")), DRef(KW(":character/dumb-toto")))
           ),
-          AddEntity(ops(6).asInstanceOf[AddEntity].id)(
+          AddToEntity(ops(6).asInstanceOf[AddToEntity].id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(DRef(KW(":character/_weak")), DRef(KW(":character/dumb-toto")))

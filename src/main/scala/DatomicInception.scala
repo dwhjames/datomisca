@@ -222,13 +222,13 @@ trait DatomicInception {
         case Right(dd: DatomicData) => incept(dd)
       }
 
-      def incept(a: AddEntityParsing): c.universe.Tree = {
+      def incept(a: AddToEntityParsing): c.universe.Tree = {
         if(!a.props.contains(Keyword("id", Namespace.DB)))
-          c.abort(c.enclosingPosition, "An AddEntity requires one :db/id field")
+          c.abort(c.enclosingPosition, "An AddToEntity requires one :db/id field")
         else {
           val tree = Apply(
             Apply(
-              Select(Ident(newTermName("Datomic")), "addEntity"),
+              Select(Ident(newTermName("Datomic")), "addToEntity"),
               List(inceptId(a.props(Keyword("id", Namespace.DB))))
             ),
             ( a.props - Keyword("id", Namespace.DB) ).map{ case (k, v) => 
@@ -320,7 +320,7 @@ trait DatomicInception {
             case add: AddParsing => incept(add)
             case ret: RetractParsing => incept(ret)
             case retEnt: RetractEntityParsing => incept(retEnt)
-            case addEnt: AddEntityParsing => incept(addEnt)
+            case addEnt: AddToEntityParsing => incept(addEnt)
           }.toList
         )       
       }
