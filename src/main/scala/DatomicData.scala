@@ -35,74 +35,118 @@ trait Namespaceable extends Nativeable {
 
 /* DATOMIC TYPES */
 sealed trait DatomicData extends Nativeable {
-  def as[DD <: DatomicData]: Try[DD] = try {
-    Success(this.asInstanceOf[DD])
-  } catch {
-    case e: Throwable => Failure(e)
+  type DD <: DatomicData
+
+  def as[A](implicit reader: DDReader[DatomicData, A]) = reader.read(this)
+
+  def tryAs[A](implicit reader: DDReader[DatomicData, A]): Try[A] = {
+    val t = try {
+      Success(this)
+    } catch {
+      case e: Throwable => Failure(e)
+    }
+
+    t.map( reader.read(_) )
   }
 }
 
-case class DString(value: String) extends DatomicData {
-  override def toString = "\""+ value + "\""
-  def toNative: java.lang.Object = value: java.lang.String 
+case class DString(underlying: String) extends DatomicData {
+  self =>
+  type DD = self.type
+
+  override def toString = "\""+ underlying + "\""
+  def toNative: java.lang.Object = underlying: java.lang.String 
 }
 
-case class DBoolean(value: Boolean) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value: java.lang.Boolean
+case class DBoolean(underlying: Boolean) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying: java.lang.Boolean
 }
 
-case class DLong(value: Long) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value: java.lang.Long
+case class DLong(underlying: Long) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying: java.lang.Long
 }
 
-case class DFloat(value: Float) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value: java.lang.Float
+case class DFloat(underlying: Float) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying: java.lang.Float
 }
 
-case class DDouble(value: Double) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value: java.lang.Double
+case class DDouble(underlying: Double) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying: java.lang.Double
 }
 
-case class DBigInt(value: BigInt) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value.underlying
+case class DBigInt(underlying: BigInt) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying.underlying
 }
 
-case class DBigDec(value: BigDecimal) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value.underlying
+case class DBigDec(underlying: BigDecimal) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying.underlying
 }
 
-case class DInstant(value: java.util.Date) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value
+case class DInstant(underlying: java.util.Date) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying
 }
 
-case class DUuid(value: java.util.UUID) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value
+case class DUuid(underlying: java.util.UUID) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying
 }
 
-case class DUri(value: java.net.URI) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value
+case class DUri(underlying: java.net.URI) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying
 }
 
-case class DBytes(value: Array[Byte]) extends DatomicData {
-  override def toString = value.toString
-  def toNative: java.lang.Object = value: java.lang.Object
+case class DBytes(underlying: Array[Byte]) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying: java.lang.Object
 }
 
-case class DRef(value: Either[Keyword, DId]) extends DatomicData {
-  override def toString = value match {
+case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  override def toString = underlying match {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
   }
-  def toNative: java.lang.Object = value match {
+  def toNative: java.lang.Object = underlying match {
     case Left(kw) => kw.toNative
     case Right(id) => id.toNative
   }
@@ -113,24 +157,27 @@ object DRef {
   def apply(id: DId) = new DRef(Right(id))
 }
 
-class DDatabase(val value: datomic.Database) extends DatomicData {
-  def entity(e: DLong): Option[DEntity] = entity(e.value)
-  def entity(e: Long): Option[DEntity] = Option(value.entity(e)).map(DEntity(_))
+class DDatabase(val underlying: datomic.Database) extends DatomicData {
+  self =>
+  type DD = self.type
+  
+  def entity(e: DLong): Option[DEntity] = entity(e.underlying)
+  def entity(e: Long): Option[DEntity] = 
+    Option(underlying.entity(e)).filterNot{ e: datomic.Entity => e.keySet.isEmpty }.map(DEntity(_))
+  def entity(e: FinalId): Option[DEntity] = entity(e.underlying)
 
-  def underlying = value
+  def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
+  def asOf(date: DInstant): DDatabase = asOf(date.underlying)
 
-  def asOf(date: java.util.Date): DDatabase = DDatabase(value.asOf(date))
-  def asOf(date: DInstant): DDatabase = asOf(date.value)
+  def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
+  def since(date: DInstant): DDatabase = since(date.underlying)
 
-  def since(date: java.util.Date): DDatabase = DDatabase(value.since(date))
-  def since(date: DInstant): DDatabase = since(date.value)
+  def entid(e: Long): DId = DId(underlying.entid(e).asInstanceOf[Long])
+  def entid(e: DLong): DId = entid(e.underlying)
+  def entid(kw: Keyword): DId = DId(underlying.entid(kw.toNative).asInstanceOf[Long])
 
-  def entid(e: Long): DId = DId(value.entid(e).asInstanceOf[Long])
-  def entid(e: DLong): DId = entid(e.value)
-  def entid(kw: Keyword): DId = DId(value.entid(kw.toNative).asInstanceOf[Long])
-
-  def ident(e: Integer): Keyword = Keyword(value.ident(e).asInstanceOf[clojure.lang.Keyword])
-  def ident(kw: Keyword): Keyword = Keyword(value.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
+  def ident(e: Integer): Keyword = Keyword(underlying.ident(e).asInstanceOf[clojure.lang.Keyword])
+  def ident(kw: Keyword): Keyword = Keyword(underlying.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
 
   def withData(ops: Seq[Operation]) = {
     import scala.collection.JavaConverters._
@@ -138,7 +185,7 @@ class DDatabase(val value: datomic.Database) extends DatomicData {
 
     val datomicOps = ops.map( _.toNative ).toList.asJava
 
-    val javaMap: java.util.Map[_, _] = value.`with`(datomicOps)
+    val javaMap: java.util.Map[_, _] = underlying.`with`(datomicOps)
     
     val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
 
@@ -152,25 +199,31 @@ class DDatabase(val value: datomic.Database) extends DatomicData {
     opt.get
   }
 
-  override def toString = value.toString
-  def toNative: java.lang.Object = value
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying
 }
 
 object DDatabase {
-  def apply(value: datomic.Database) = new DDatabase(value)
+  def apply(underlying: datomic.Database) = new DDatabase(underlying)
 } 
 
 trait DId extends DatomicData
 
-case class FinalId(value: Long) extends DId {
-  //def toNative: java.lang.Object = value
-  override lazy val toNative: java.lang.Object = value: java.lang.Long
+case class FinalId(underlying: Long) extends DId {
+  self =>
+  type DD = self.type
+  
+  //def toNative: java.lang.Object = underlying
+  override lazy val toNative: java.lang.Object = underlying: java.lang.Long
 
   override def toString = toNative.toString
 }
 
 case class TempId(partition: Partition, id: Option[Long] = None, dbId: java.lang.Object) extends DId {
-  //def toNative: java.lang.Object = value
+  self =>
+  type DD = self.type
+  
+  //def toNative: java.lang.Object = underlying
   override lazy val toNative: java.lang.Object = dbId
 
   override def toString = toNative.toString
@@ -185,7 +238,7 @@ object DId {
   def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
   def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
   def apply(id: Long) = new FinalId(id)
-  def apply(id: DLong) = new FinalId(id.value)
+  def apply(id: DLong) = new FinalId(id.underlying)
   //def apply(partition: Partition = Partition.USER) = new DId(datomic.Peer.tempid(partition.toString).asInstanceOf[datomic.db.DbId])
   //def apply(partition: Partition, id: Long) = new DId(datomic.Peer.tempid(partition.toString, id).asInstanceOf[datomic.db.DbId])
 
@@ -194,6 +247,9 @@ object DId {
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {
+  self =>
+  type DD = self.type
+  
   def toNative: java.lang.Object = {
     java.util.Arrays.asList(elements.map(_.toNative).toSeq: _*) 
     //new java.util.ArrayList[java.lang.Object]()
@@ -216,36 +272,27 @@ object DSet {
 
 class DEntity(val entity: datomic.Entity) extends DatomicData {
   self =>
+  type DD = self.type
   
   def toNative = entity
 
-  //def apply(key: String): DatomicData = DatomicData.toDatomicData( entity.get(key) ).asInstanceOf[A]
   def apply(kw: Keyword): DatomicData = DatomicData.toDatomicData( entity.get(kw.toNative) )
 
-  /*def get(key: String): Option[Datomic] = try {
-    Some(DatomicData.toDatomicData( entity.get(key) ).asInstanceOf[A])
-  }catch {
-    case e: Throwable => None 
-  }*/
   def get(keyword: Keyword): Option[DatomicData] = try {
     Some(DatomicData.toDatomicData( entity.get(keyword.toNative) ))
   } catch {
     case e: Throwable => None 
   }
 
-  /*def safeGet(key: String): Try[DatomicData] = try {
-    Success( ddr.read(self.apply(key)) )
-  }catch{
-    case e: Throwable => Failure(e)
-  }*/
-
-  def safeGet(keyword: Keyword): Try[DatomicData] = try {
+  def tryGet(keyword: Keyword): Try[DatomicData] = try {
     Success( self.apply(keyword) )
   } catch {
     case e: Throwable => Failure(e)
   }
 
-  def as[DD <: DatomicData](keyword: Keyword): Try[DD] = try {
+  def getAs[DD <: DatomicData](keyword: Keyword): DD = self.apply(keyword).asInstanceOf[DD]
+
+  def tryGetAs[DD <: DatomicData](keyword: Keyword): Try[DD] = try {
     Success( self.apply(keyword).asInstanceOf[DD] )
   } catch {
     case e: Throwable => Failure(e)
@@ -293,7 +340,7 @@ trait DDatom extends DatomicData{
 
   override def toNative = underlying
 
-  override def toString = "[%s %s %s %s %s]".format(id, attr, value, tx, added)
+  override def toString = "[%s %s %s %s %s]".format(id, attr, underlying, tx, added)
 }
 
 object DDatom{
@@ -328,16 +375,47 @@ object DDWriter{
 }
 
 trait DWrapper extends NotNull
-private[reactivedatomic] case class DWrapperImpl(value: DatomicData) extends DWrapper
+private[reactivedatomic] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
 
+object DatomicDataImplicits extends DatomicDataImplicits
 
 trait DatomicDataImplicits {
-  implicit val DString2String = DDReader{ s: DString => s.value }
-  implicit val DLong2Long = DDReader{ s: DLong => s.value }
+  //implicit val DString2String = DDReader{ s: DString => s.underlying }
+
+  implicit val DatomicData2DString: DDReader[DatomicData, DString] = DDReader{ dd: DatomicData => dd match { 
+    case s: DString => s
+    case _ => throw new RuntimeException("expected DString to convert to String")
+  }}
+  implicit val DatomicData2String: DDReader[DatomicData, String] = DDReader{ dd: DatomicData => dd match { 
+    case s: DString => s.underlying 
+    case _ => throw new RuntimeException("expected DString to convert to DString")
+  }}
+
+  //implicit val DLong2Long = DDReader{ s: DLong => s.underlying }
+
+  implicit val DatomicData2Long: DDReader[DatomicData, Long] = DDReader{ dd: DatomicData => dd match { 
+    case s: DLong => s.underlying 
+    case _ => throw new RuntimeException("expected DLong to convert to Long")
+  }}
+  implicit val DatomicData2DLong: DDReader[DatomicData, DLong] = DDReader{ dd: DatomicData => dd match { 
+    case s: DLong => s
+    case _ => throw new RuntimeException("expected DLong to convert to DLong")
+  }}
+
+  implicit val DatomicData2Date: DDReader[DatomicData, java.util.Date] = DDReader{ dd: DatomicData => dd match { 
+    case s: DInstant => s.underlying 
+    case _ => throw new RuntimeException("expected DInstant to convert to Data")
+  }}
+  implicit val DatomicData2DInstant: DDReader[DatomicData, DInstant] = DDReader{ dd: DatomicData => dd match { 
+    case s: DInstant => s
+    case _ => throw new RuntimeException("expected DInstant to convert to DInstant")
+  }}
+
   // is this one really reasonable?
-  implicit val DLong2Int = DDReader{ s: DLong => s.value.toInt }
+  implicit val DLong2Int = DDReader{ s: DLong => s.underlying.toInt }
 
   implicit val DRef2DRef = DDReader{ s: DRef => s }
+  implicit def DD2DD[DD <: DatomicData] = DDReader{ d: DD => d: DD }
 
   implicit val DStringWrites = DDWriter[DString, String]( (s: String) => DString(s) )
   implicit val Long2DLongWrites = DDWriter[DLong, Long]( (l: Long) => DLong(l) )
@@ -379,7 +457,7 @@ object DatomicData {
 
     //DRef(DId(e.get(Keyword("id", Namespace.DB).toNative).asInstanceOf[Long]))
     // REF???
-    case v => throw new RuntimeException("Unknown Datomic Value "+v.getClass)
+    case v => throw new RuntimeException("Unknown Datomic underlying "+v.getClass)
   }
 
   import scala.collection.JavaConverters._
@@ -419,8 +497,8 @@ object Keyword {
   def apply(kw: clojure.lang.Keyword) = new Keyword(kw.getName, Some(Namespace(kw.getNamespace)))
 }
 
-case class Const(value: DatomicData) extends Term {
-  override def toString = value.toString
+case class Const(underlying: DatomicData) extends Term {
+  override def toString = underlying.toString
 }
 
 case object Empty extends Term {

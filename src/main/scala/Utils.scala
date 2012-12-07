@@ -105,6 +105,15 @@ trait ContraFunctor[M[_]] extends Variant[M] {
   def contramap[A, B](ma: M[A], f: B => A): M[B]
 }
 
+class FunctorOps[M[_],A](ma: M[A])(implicit fu: Functor[M]){
+  def fmap[B](f: A => B): M[B] = fu.fmap(ma, f)
+}
+
+class ContraFunctorOps[M[_],A](ma:M[A])(implicit fu:ContraFunctor[M]){
+  def contramap[B](f: B => A): M[B] = fu.contramap(ma, f)
+}
+
+
 /**
  * Combinator base trait
  */
@@ -154,7 +163,39 @@ class Builder[M[_]](combi: Combinator[M]) {
     }
   }
 
-  case class Builder4[A1, A2, A3, A4](m1: M[A1 ~ A2 ~ A3], m2: M[A4])
+  case class Builder4[A1, A2, A3, A4](m1: M[A1 ~ A2 ~ A3], m2: M[A4]) {
+    def ~[A5](m3: M[A5]) = Builder5(combi(m1, m2), m3)
+    def and[A5](m3: M[A5]) = this.~(m3)
+
+    def apply[B](f: (A1, A2, A3, A4) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3~A4, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 ~ a4 => f(a1, a2, a3, a4) } )
+
+    def apply[B](f: B => (A1, A2, A3, A4))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3~A4, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3, a4) => new ~(new ~(new ~(a1, a2), a3), a4) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3, A4)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3, a4: A4) => (a1, a2, a3, a4) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3, A4) => (a._1, a._2, a._3, a._4) }(f)
+    }
+  }
+
+  case class Builder5[A1, A2, A3, A4, A5](m1: M[A1 ~ A2 ~ A3 ~ A4], m2: M[A5]) {
+    def ~[A6](m3: M[A6]) = Builder6(combi(m1, m2), m3)
+    def and[A6](m3: M[A6]) = this.~(m3)
+
+    def apply[B](f: (A1, A2, A3, A4, A5) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3~A4~A5, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 ~ a4 ~ a5 => f(a1, a2, a3, a4, a5) } )
+
+    def apply[B](f: B => (A1, A2, A3, A4, A5))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3~A4~A5, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3, a4, a5) => new ~(new ~(new ~(new ~(a1, a2), a3), a4), a5) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3, A4, A5)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5) => (a1, a2, a3, a4, a5) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3, A4, A5) => (a._1, a._2, a._3, a._4, a._5) }(f)
+    }
+  }
+
+  case class Builder6[A1, A2, A3, A4, A5, A6](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5], m2: M[A6])
 
 }
 
@@ -173,4 +214,8 @@ trait CombinatorImplicits {
   implicit def CombinatorWrapper[M[_]](implicit monad: Monad[M]) = new Combinator[M] {
     def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B] = monad.bind(ma, (a: A) => monad.bind(mb, (b: B) => monad.unit(new ~(a, b)) ))
   }
+
+  implicit def toFunctorOps[M[_], A](ma: M[A])(implicit fu: Functor[M]): FunctorOps[M, A] = new FunctorOps(ma)
+  implicit def toContraFunctorOps[M[_], A](ma: M[A])(implicit fu: ContraFunctor[M]): ContraFunctorOps[M, A] = new ContraFunctorOps(ma)
+
 }

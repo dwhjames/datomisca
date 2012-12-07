@@ -94,7 +94,7 @@ class DatomicEntitySpec extends Specification {
               case e: DLong =>
                 database.entity(e).map { entity =>
                   println(
-                    "dentity age:" + entity.as[DLong](person / "age") + 
+                    "dentity age:" + entity.getAs[DLong](person / "age") + 
                     " name:" + entity(person / "name") +
                     " map:" + entity.toMap
                   )

@@ -74,7 +74,7 @@ class DatomicTransacSpec extends Specification {
         ]
       """)).map {
         case List(e: DLong, n: DString) => 
-        println("PART"+datomic.Peer.part(e.value).getClass)
+        println("PART"+datomic.Peer.part(e.underlying).getClass)
         val entity = database.entity(e)
         println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
       }

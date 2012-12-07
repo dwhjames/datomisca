@@ -50,22 +50,28 @@ trait DatomicFacilities {
   // implicit converters to simplify conversion from Scala Types to Datomic Types
   implicit def toDWrapper[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DWrapper = DWrapperImpl(toDatomic(t)(ddw))
 
-  def add(id: DId)(prop: (Keyword, DWrapper)) = Add(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
-  def add(id: DLong)(prop: (Keyword, DWrapper)) = Add(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
-  def add(id: Long)(prop: (Keyword, DWrapper)) = Add(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
+  def add(id: DId)(prop: (Keyword, DWrapper)) = Add(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def add(id: DLong)(prop: (Keyword, DWrapper)) = Add(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def add(id: Long)(prop: (Keyword, DWrapper)) = Add(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
-  def retract(id: DId)(prop: (Keyword, DWrapper)) = Retract(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].value)
+  def retract(id: DId)(prop: (Keyword, DWrapper)) = Retract(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   def retractEntity(id: DLong) = RetractEntity(id)
-  def retractEntity(id: FinalId) = RetractEntity(DLong(id.value))
+  def retractEntity(id: FinalId) = RetractEntity(DLong(id.underlying))
 
   def addToEntity(id: DId)(props: (Keyword, DWrapper)*) = 
-    AddToEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ): _*)
+    AddToEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
 
   def partialAddToEntity(props: (Keyword, DWrapper)*) = 
-    PartialAddToEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].value) ).toMap)
+    PartialAddToEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)
 
-  def dset(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].value}.toSet)
+  def addPartition(partition: Partition) = 
+    AddToEntity(DId(Partition.DB))(
+      Namespace.DB / "ident" -> DString(partition.toString),
+      Namespace.DB.INSTALL / "_partition" -> DString("db.part/db")
+    )
+
+  def dset(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].underlying}.toSet)
 
   def toDatomic[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DatomicData = ddw.write(t)
   def fromDatomic[T] = new {

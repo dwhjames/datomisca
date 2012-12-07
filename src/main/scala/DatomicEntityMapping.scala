@@ -82,6 +82,8 @@ trait EntityReaderImplicits {
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
 
+  import DatomicDataImplicits._
+
   implicit object EntityReaderMonad extends Monad[EntityReader] {
     def unit[A](a: A) = EntityReader[A]{ (e: DEntity) => Success(a) }
     def bind[A, B](ma: EntityReader[A], f: A => EntityReader[B]) = 
@@ -97,8 +99,8 @@ trait EntityReaderImplicits {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Ref[A]] = {
         EntityReader[Ref[A]]{ e: DEntity => 
           try {
-            e.as[DEntity](attr.ident).flatMap{ subent => 
-              subent.as[DLong](Keyword("id", Namespace.DB)).flatMap{ id =>
+            e.tryGetAs[DEntity](attr.ident).flatMap{ subent => 
+              subent.tryGetAs[DLong](Keyword("id", Namespace.DB)).flatMap{ id =>
                 er.read(subent).map{ a: A => Ref(DId(id))(a) }
               }
             }
@@ -114,10 +116,10 @@ trait EntityReaderImplicits {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Ref[A]]] = {
         EntityReader[Set[Ref[A]]]{ e: DEntity => 
           try {
-            e.as[DSet](attr.ident).flatMap{ value =>
+            e.tryGetAs[DSet](attr.ident).flatMap{ value =>
               val l = value.toSet.map{ 
                 case subent: DEntity => 
-                  subent.as[DLong](Keyword("id", Namespace.DB)).flatMap{ id => 
+                  subent.tryGetAs[DLong](Keyword("id", Namespace.DB)).flatMap{ id => 
                     er.read(subent).map{ a: A => Ref(DId(id))(a) }
                   }
                 case _ => Failure(new RuntimeException("found an object not being a DEntity"))
@@ -125,27 +127,6 @@ trait EntityReaderImplicits {
 
               Utils.sequence(l)
             }
-
-            /* match {
-              case None => Failure(new RuntimeException(attr.ident.toString + " not found"))
-              case Some(value) => 
-                val l = value.elements.map{ 
-                  case subent: DEntity => 
-                    subent.get[DLong](Keyword("id", Namespace.DB)) match {
-                      case None => Failure(new RuntimeException(attr.ident.toString + ": id not found in ref"))
-                      case Some(id) => er.read(subent).map{ a: A => Ref(DId(id))(a) }
-                    }                    
-                  case _ => Failure(new RuntimeException("found an object not being a DEntity"))
-                }
-                /*val l = value.asInstanceOf[java.util.Collection[java.lang.Object]].toSet.map{ e: java.lang.Object =>
-
-                  val subent = e.asInstanceOf[DEntity]
-                  val id = subent.get(Keyword("id", Namespace.DB)).asInstanceOf[Long]
-                  er.read(subent).map{ a: A => Ref(DId(id))(a) }
-                }*/
-
-                Utils.sequence(l)
-            }*/
           }catch{
             case e: Throwable => Failure(e)
           }
@@ -157,7 +138,7 @@ trait EntityReaderImplicits {
     new Attribute2EntityReader[DD, CardinalityOne.type, Dest] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[Dest] = {
         EntityReader[Dest]{ e: DEntity => 
-          e.as[DD](attr.ident).map{ dd => ddr.read(dd) }
+          e.tryGetAs[DD](attr.ident).map{ dd => ddr.read(dd) }
         }
       }
     }  
@@ -168,7 +149,7 @@ trait EntityReaderImplicits {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[Dest]] = {
         EntityReader[Set[Dest]]{ e: DEntity => 
           try {
-            e.as[DSet](attr.ident).map{ value =>
+            e.tryGetAs[DSet](attr.ident).map{ value =>
               value.toSet.map{ e => 
                 ddr.read(e.asInstanceOf[DD])
               }

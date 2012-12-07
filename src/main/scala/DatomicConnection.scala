@@ -11,13 +11,13 @@ case class TxReport(
   tempids: Map[Long with datomic.db.DbId, Long] = Map()
 ) {
   def resolve(id: DId)(implicit db: DDatabase): Option[DLong] = 
-    tempids.get(db.value.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
+    tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
 
   def resolve(identified: Identified)(implicit db: DDatabase): Option[DLong] = resolve(identified.id)
 
   def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[DLong]] = 
     ids.map{ id =>
-      tempids.get(db.value.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
+      tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
     }
 
   def resolve(id1: DId, id2: DId)(implicit db: DDatabase): (Option[DLong], Option[DLong]) = 
