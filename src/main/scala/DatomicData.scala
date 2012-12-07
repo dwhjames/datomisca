@@ -276,26 +276,36 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   
   def toNative = entity
 
-  def apply(kw: Keyword): DatomicData = DatomicData.toDatomicData( entity.get(kw.toNative) )
+  def apply(keyword: Keyword): DatomicData = DatomicData.toDatomicData( entity.get(keyword.toNative) )
 
-  def get(keyword: Keyword): Option[DatomicData] = try {
-    Some(DatomicData.toDatomicData( entity.get(keyword.toNative) ))
-  } catch {
-    case e: Throwable => None 
+  def get(keyword: Keyword): Option[DatomicData] = {
+    if(entity.keySet.isEmpty) None
+
+    Option(entity.get(keyword.toNative)) match {
+      case None => None
+      case Some(value) => Some(DatomicData.toDatomicData(value))
+    }
   }
 
-  def tryGet(keyword: Keyword): Try[DatomicData] = try {
-    Success( self.apply(keyword) )
-  } catch {
-    case e: Throwable => Failure(e)
+  def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T = {
+    reader.read(apply(keyword))
+  } 
+
+  def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] = {
+    get(keyword).map( reader.read(_) )
   }
 
-  def getAs[DD <: DatomicData](keyword: Keyword): DD = self.apply(keyword).asInstanceOf[DD]
+  def tryGet(keyword: Keyword): Try[DatomicData] = {
+    if(entity.keySet.isEmpty) Failure(new RuntimeException("empty entity"))
 
-  def tryGetAs[DD <: DatomicData](keyword: Keyword): Try[DD] = try {
-    Success( self.apply(keyword).asInstanceOf[DD] )
-  } catch {
-    case e: Throwable => Failure(e)
+    Option(entity.get(keyword.toNative)) match {
+      case None => Failure(new RuntimeException(s"keyword $keyword not found in entity"))
+      case Some(value) => Success(DatomicData.toDatomicData(value))
+    }
+  }
+
+  def tryGetAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Try[T] = {
+    tryGet(keyword).map( reader.read(_) )
   }
 
   def toMap: Map[Keyword, DatomicData] = {
@@ -382,13 +392,13 @@ object DatomicDataImplicits extends DatomicDataImplicits
 trait DatomicDataImplicits {
   //implicit val DString2String = DDReader{ s: DString => s.underlying }
 
-  implicit val DatomicData2DString: DDReader[DatomicData, DString] = DDReader{ dd: DatomicData => dd match { 
-    case s: DString => s
-    case _ => throw new RuntimeException("expected DString to convert to String")
-  }}
   implicit val DatomicData2String: DDReader[DatomicData, String] = DDReader{ dd: DatomicData => dd match { 
     case s: DString => s.underlying 
     case _ => throw new RuntimeException("expected DString to convert to DString")
+  }}
+  implicit val DatomicData2DString: DDReader[DatomicData, DString] = DDReader{ dd: DatomicData => dd match { 
+    case s: DString => s
+    case _ => throw new RuntimeException("expected DString to convert to String")
   }}
 
   //implicit val DLong2Long = DDReader{ s: DLong => s.underlying }
@@ -410,6 +420,26 @@ trait DatomicDataImplicits {
     case s: DInstant => s
     case _ => throw new RuntimeException("expected DInstant to convert to DInstant")
   }}
+
+  implicit val DatomicData2DEntity: DDReader[DatomicData, DEntity] = DDReader{ dd: DatomicData => dd match { 
+    case s: DEntity => s
+    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
+  }}
+
+  implicit val DatomicData2DSet: DDReader[DatomicData, DSet] = DDReader{ dd: DatomicData => dd match { 
+    case s: DSet => s
+    case _ => throw new RuntimeException("expected DSet to convert to DSet")
+  }}
+
+  implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] = DDReader{ dd: DatomicData => dd match { 
+    case s: DSet => s.toSet.map( reader.read(_) )
+    case _ => throw new RuntimeException("expected DSet to convert to DSet")
+  }}
+
+  /*implicit def DatomicData2DD[DD <: DatomicData]: DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd match { 
+    case s: DD => s
+    case _ => throw new RuntimeException("couldn't convert")
+  }}*/
 
   // is this one really reasonable?
   implicit val DLong2Int = DDReader{ s: DLong => s.underlying.toInt }

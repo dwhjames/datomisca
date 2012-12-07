@@ -134,11 +134,11 @@ trait EntityReaderImplicits {
       }
     }
 
-  implicit def attr2EntityReaderOne[DD <: DatomicData, Dest](implicit ddr: DDReader[DD, Dest]) = 
+  implicit def attr2EntityReaderOne[DD <: DatomicData, Dest](implicit dd2dd: DDReader[DatomicData, DD], dd2dest: DDReader[DD, Dest]) = 
     new Attribute2EntityReader[DD, CardinalityOne.type, Dest] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[Dest] = {
         EntityReader[Dest]{ e: DEntity => 
-          e.tryGetAs[DD](attr.ident).map{ dd => ddr.read(dd) }
+          e.tryGetAs[DD](attr.ident)(dd2dd).map{ dd => dd2dest.read(dd) }
         }
       }
     }  
