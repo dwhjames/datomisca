@@ -98,13 +98,13 @@ class DatomicDemoSpec extends Specification {
            *  - change Input Args2 to Args3 to show compiling error (beginning of query)
            *  - erase ?a to show compiling error in query (beginning of query)
            */
-          query(typedQuery[Args2, Args3]("""
+          val l1 = query(typedQuery[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
               :where  [ ?e :person/name ?name ] 
                       [ ?e :person/age ?a ]
-                      [ (< ?a ?age) ]
+                      [ (<= ?a ?age) ]
             ]
           """), database, DLong(40)).map{
             case (id: DLong, name: DString, age: DLong) => 
@@ -114,15 +114,57 @@ class DatomicDemoSpec extends Specification {
               name -> age
             case e => throw new RuntimeException("unexpected result")
           }
+
+          val l2 = query(typedQuery[Args2, Args3]("""
+            [ 
+              :find ?e ?name ?a
+              :in $ ?age
+              :where  [ ?e :person/name ?name ] 
+                      [ ?e :person/age ?a ]
+                      [ (not= ?a ?age) ]
+            ]
+          """), database, DLong(35L)).map{
+            case (id: DLong, name: DString, age: DLong) => 
+              // can get entity there
+              val entity = database.entity(id)
+              println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
+              name -> age
+            case e => throw new RuntimeException("unexpected result")
+          }
+
+          val l3 = query(typedQuery[Args2, Args3]("""
+            [ 
+              :find ?e ?name ?a
+              :in $ ?age
+              :where  [ ?e :person/name ?name ] 
+                      [ ?e :person/age ?a ]
+                      [ (== ?a ?age) ]
+            ]
+          """), database, DLong(35L)).map{
+            case (id: DLong, name: DString, age: DLong) => 
+              // can get entity there
+              val entity = database.entity(id)
+              println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
+              name -> age
+            case e => throw new RuntimeException("unexpected result")
+          }
+
+          (l1, l2, l3)
         }
       }.recover{
         case e => failure(e.getMessage)
       }
 
-      Await.result(
+      val (a, b, c) = Await.result(
         fut,
         Duration("30 seconds")
-      ).toSet must beEqualTo(Set(DString("toto") -> DLong(30L), DString("tutu") -> DLong(35L)))
+      ) 
+
+      (a.toSet, b.toSet, c.toSet) must beEqualTo((
+        Set(DString("toto") -> DLong(30L), DString("tutu") -> DLong(35L)),
+        Set(DString("toto") -> DLong(30L), DString("tata") -> DLong(54L)),
+        Set(DString("tutu") -> DLong(35L))
+      ))
     }
   }
 }

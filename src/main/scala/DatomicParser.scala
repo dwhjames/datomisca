@@ -40,7 +40,8 @@ object DatomicParser extends JavaTokenParsers {
   val decimalMandatory: Parser[String] = """(\d+\.\d*)""".r
 
   val functionLiteral = """[a-zA-Z.]([a-zA-Z0-9.]|(-|_)[a-zA-Z0-9.])*""".r
-  val operator: Parser[String] = "+" | "-" | "*" | "/" | "==" | "<" | ">" | "<=" | ">="
+  val operator: Parser[String] = """(\+|-|\*|/|not=|==|=|<=|>=|<|>)""".r
+  //val operator: Parser[String] = "+" | "-" | "*" | "/" | "==" | "<=" | ">=" | "<" | ">"
 
   def datomicString: Parser[DString] = "\"" ~> stringContent <~ "\"" ^^ { DString(_) }
   def datomicLong: Parser[DLong] = noDecimal ^^ { (s: String) => DLong(s.toLong) }
