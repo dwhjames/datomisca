@@ -29,39 +29,41 @@ import EntityImplicits._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicEntitySpec extends Specification {
+  sequential
+
+  val uri = "datomic:mem://datomicschemaspec"
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  case class Person(name: String, age: Long, characters: Set[DRef])
+
+  val person = new Namespace("person") {
+    val character = Namespace("person.character")
+  }      
+
+  val violent = AddIdent(Keyword(person.character, "violent"))
+  val weak = AddIdent(Keyword(person.character, "weak"))
+  val clever = AddIdent(Keyword(person.character, "clever"))
+  val dumb = AddIdent(Keyword(person.character, "dumb"))
+  val stupid = AddIdent(Keyword(person.character, "stupid"))
+
+  object PersonSchema {
+    val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
+    val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
+    val characters =  Attribute( person / "characters", SchemaType.ref, Cardinality.many).withDoc("Person's characterS")
+
+    val schema = Seq(name, age, characters)
+  }
+
+  val personReader = (
+    PersonSchema.name.read[String] and 
+    PersonSchema.age.read[Long] and
+    PersonSchema.characters.read[Set[DRef]]
+  )(Person)
+
   "Datomic" should {
     "create entity" in {
       
-      val uri = "datomic:mem://datomicschemaspec"
-
-      import scala.concurrent.ExecutionContext.Implicits.global
-
-      case class Person(name: String, age: Int, characters: Set[DRef])
-
-      val person = new Namespace("person") {
-        val character = Namespace("person.character")
-      }      
-
-      val violent = AddIdent(Keyword(person.character, "violent"))
-      val weak = AddIdent(Keyword(person.character, "weak"))
-      val clever = AddIdent(Keyword(person.character, "clever"))
-      val dumb = AddIdent(Keyword(person.character, "dumb"))
-      val stupid = AddIdent(Keyword(person.character, "stupid"))
-
-      object PersonSchema {
-        val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
-        val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
-        val characters =  Attribute( person / "characters", SchemaType.ref, Cardinality.many).withDoc("Person's characterS")
-
-        val schema = Seq(name, age, characters)
-      }
-
-      val personReader = (
-        PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int] and
-        PersonSchema.characters.read[Set[DRef]]
-      )(Person)
-
       //DatomicBootstrap(uri)
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
       implicit val conn = Datomic.connect(uri)
@@ -111,6 +113,49 @@ class DatomicEntitySpec extends Specification {
         Duration("2 seconds")
       )
 
+    }
+
+    "get entity fields from attribute" in {
+      import scala.util.{Try, Success, Failure}
+      import DatomicDataImplicits._
+      import EntityImplicits._
+
+      implicit val conn = Datomic.connect(uri)
+
+      Datomic.query(typedQuery[Args0, Args1]("""
+        [ :find ?e 
+          :where [?e :person/name "toto"]
+        ]
+      """)).head match {
+        case e: DLong =>
+          database.entity(e).map { entity =>
+            val nameValue = entity.as(PersonSchema.name)
+            nameValue must beEqualTo("toto")
+
+            
+            val nameValue2 = entity.as[String](person / "name")
+            nameValue2 must beEqualTo("toto")
+            
+            val nameValue3 = entity.as[DString](person / "name")
+            nameValue3.underlying must beEqualTo("toto")
+
+            val ageValue = entity.as(PersonSchema.age)
+            ageValue must beEqualTo(30)
+
+            val ageValue2 = entity.getAs(PersonSchema.age)
+            ageValue2 must beEqualTo(Some(30))
+
+            val ageValue3 = entity.tryGetAs(PersonSchema.age)
+            ageValue3 must beEqualTo(Success(30))
+
+            val ageValue4 = entity.as[Long](person / "age")
+            ageValue4 must beEqualTo(30)
+
+            val characters = entity.as(PersonSchema.characters)
+            println("characters:"+characters)
+          }.getOrElse(failure("could't find entity"))
+        case _ => failure("error")
+      }
     }
   }
 }

@@ -35,8 +35,6 @@ trait Namespaceable extends Nativeable {
 
 /* DATOMIC TYPES */
 sealed trait DatomicData extends Nativeable {
-  type DD <: DatomicData
-
   def as[A](implicit reader: DDReader[DatomicData, A]) = reader.read(this)
 
   def tryAs[A](implicit reader: DDReader[DatomicData, A]): Try[A] = {
@@ -51,97 +49,61 @@ sealed trait DatomicData extends Nativeable {
 }
 
 case class DString(underlying: String) extends DatomicData {
-  self =>
-  type DD = self.type
-
   override def toString = "\""+ underlying + "\""
   def toNative: java.lang.Object = underlying: java.lang.String 
 }
 
 case class DBoolean(underlying: Boolean) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Boolean
 }
 
 case class DLong(underlying: Long) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Long
 }
 
 case class DFloat(underlying: Float) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Float
 }
 
 case class DDouble(underlying: Double) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Double
 }
 
 case class DBigInt(underlying: BigInt) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying.underlying
 }
 
 case class DBigDec(underlying: BigDecimal) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying.underlying
 }
 
 case class DInstant(underlying: java.util.Date) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying
 }
 
 case class DUuid(underlying: java.util.UUID) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying
 }
 
 case class DUri(underlying: java.net.URI) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying
 }
 
 case class DBytes(underlying: Array[Byte]) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Object
 }
 
 case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   override def toString = underlying match {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
@@ -158,9 +120,6 @@ object DRef {
 }
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   def entity(e: DLong): Option[DEntity] = entity(e.underlying)
   def entity(e: Long): Option[DEntity] = 
     Option(underlying.entity(e)).filterNot{ e: datomic.Entity => e.keySet.isEmpty }.map(DEntity(_))
@@ -210,9 +169,6 @@ object DDatabase {
 trait DId extends DatomicData
 
 case class FinalId(underlying: Long) extends DId {
-  self =>
-  type DD = self.type
-  
   //def toNative: java.lang.Object = underlying
   override lazy val toNative: java.lang.Object = underlying: java.lang.Long
 
@@ -220,9 +176,6 @@ case class FinalId(underlying: Long) extends DId {
 }
 
 case class TempId(partition: Partition, id: Option[Long] = None, dbId: java.lang.Object) extends DId {
-  self =>
-  type DD = self.type
-  
   //def toNative: java.lang.Object = underlying
   override lazy val toNative: java.lang.Object = dbId
 
@@ -247,9 +200,6 @@ object DId {
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   def toNative: java.lang.Object = {
     java.util.Arrays.asList(elements.map(_.toNative).toSeq: _*) 
     //new java.util.ArrayList[java.lang.Object]()
@@ -271,9 +221,6 @@ object DSet {
 }
 
 class DEntity(val entity: datomic.Entity) extends DatomicData {
-  self =>
-  type DD = self.type
-  
   def toNative = entity
 
   def apply(keyword: Keyword): DatomicData = DatomicData.toDatomicData( entity.get(keyword.toNative) )
@@ -291,6 +238,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     reader.read(apply(keyword))
   } 
 
+  
   def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] = {
     get(keyword).map( reader.read(_) )
   }
@@ -316,6 +264,24 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
       .foldLeft(Map[Keyword, DatomicData]()){ (acc, key) => 
         acc + (Keyword(key) -> DatomicData.toDatomicData(entity.get(key)))
       }
+  }
+
+  /* extension with attributes */
+  /*def as[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])
+  (implicit dd2dd: DD2DDReader[DD], dd2t: DD2ScalaReader[DD, T]): T = {
+    dd2t.read(dd2dd.read(apply(attr.ident)))
+  }*/
+
+  def as[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): T = {
+    attrC.convert(attr).read(this).get
+  }
+
+  def getAs[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
+    attrC.convert(attr).read(this).toOption
+  }
+
+  def tryGetAs[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
+    attrC.convert(attr).read(this)
   }
 }
 
@@ -364,6 +330,26 @@ object DDatom{
   }
 }
 
+trait DD2ScalaReader[-DD <: DatomicData, A] {
+  def read(dd: DD): A
+}
+
+object DD2ScalaReader{
+  def apply[DD <: DatomicData, A](f: DD => A) = new DD2ScalaReader[DD, A]{
+    def read(dd: DD): A = f(dd)
+  }
+}
+
+trait DD2DDReader[+DD <: DatomicData] {
+  def read(d: DatomicData): DD
+}
+
+object DD2DDReader{
+  def apply[DD <: DatomicData](f: DatomicData => DD) = new DD2DDReader[DD]{
+    def read(d: DatomicData): DD = f(d)
+  }
+}
+
 trait DDReader[-DD <: DatomicData, +A] {
   def read(dd: DD): A
 }
@@ -390,62 +376,82 @@ private[reactivedatomic] case class DWrapperImpl(underlying: DatomicData) extend
 object DatomicDataImplicits extends DatomicDataImplicits
 
 trait DatomicDataImplicits {
-  //implicit val DString2String = DDReader{ s: DString => s.underlying }
+  implicit val DString2String = DD2ScalaReader{ s: DString => s.underlying }
+  implicit val DLong2Long = DD2ScalaReader{ s: DLong => s.underlying }
+  implicit val DInstant2Date = DD2ScalaReader{ s: DInstant => s.underlying }
+
+  implicit val DRef2DRef = DD2ScalaReader{ s: DRef => s }
+  //implicit val DEntity2DEntity = DD2ScalaReader{ s: DEntity => s }
+  //implicit def DD2DD[DD <: DatomicData] = DD2ScalaReader{ d: DD => d: DD }
+
+  implicit def DSet2T[DD <: DatomicData, T]
+    (implicit dd2dd: DD2DDReader[DD], dd2t: DD2ScalaReader[DD, T]): DD2ScalaReader[DSet, Set[T]] = {
+    DD2ScalaReader{ ds: DSet => ds.toSet.map( e => dd2t.read(dd2dd.read(e)) ) }
+  }
+
+  implicit val DatomicData2DString: DD2DDReader[DString] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DString => s
+    case _ => throw new RuntimeException("expected DString to convert to String")
+  }}
+  
+  implicit val DatomicData2DLong: DD2DDReader[DLong] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DLong => s
+    case _ => throw new RuntimeException("expected DLong to convert to DLong")
+  }}
+
+  implicit val DatomicData2DEntity: DD2DDReader[DEntity] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DEntity => s
+    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
+  }}
+
+  implicit val DatomicData2DInstant: DD2DDReader[DInstant] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DInstant => s
+    case _ => throw new RuntimeException("expected DInstant to convert to DInstant")
+  }}
+
+  implicit val DatomicData2DSet: DD2DDReader[DSet] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DSet => s
+    case _ => throw new RuntimeException("expected DSet to convert to DSet")
+  }}
+
+  implicit val DatomicData2DRef: DD2DDReader[DRef] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DRef => s
+    case _ => throw new RuntimeException("expected DRef to convert to DRef")
+  }}
+
+  implicit def Datomicdata2DD[DD <: DatomicData](implicit dd2dd: DD2DDReader[DD]): DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd2dd.read(dd) }
+  /*implicit def genericDDReader[A](implicit dd2t: DD2ScalaReader[DatomicData, A]): DDReader[DatomicData, A] = 
+    DDReader{ dd: DatomicData =>
+      dd2t.read(dd)
+    }*/
+  
+
+  /*implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] = DDReader{ dd: DatomicData => dd match { 
+    case s: DSet => s.toSet.map( reader.read(_) )
+    case _ => throw new RuntimeException("expected DSet to convert to DSet")
+  }}*/
 
   implicit val DatomicData2String: DDReader[DatomicData, String] = DDReader{ dd: DatomicData => dd match { 
     case s: DString => s.underlying 
     case _ => throw new RuntimeException("expected DString to convert to DString")
   }}
-  implicit val DatomicData2DString: DDReader[DatomicData, DString] = DDReader{ dd: DatomicData => dd match { 
-    case s: DString => s
-    case _ => throw new RuntimeException("expected DString to convert to String")
-  }}
 
-  //implicit val DLong2Long = DDReader{ s: DLong => s.underlying }
-
-  implicit val DatomicData2Long: DDReader[DatomicData, Long] = DDReader{ dd: DatomicData => dd match { 
+  implicit def DatomicData2Long: DDReader[DatomicData, Long] = DDReader{ dd: DatomicData => dd match { 
     case s: DLong => s.underlying 
     case _ => throw new RuntimeException("expected DLong to convert to Long")
-  }}
-  implicit val DatomicData2DLong: DDReader[DatomicData, DLong] = DDReader{ dd: DatomicData => dd match { 
-    case s: DLong => s
-    case _ => throw new RuntimeException("expected DLong to convert to DLong")
   }}
 
   implicit val DatomicData2Date: DDReader[DatomicData, java.util.Date] = DDReader{ dd: DatomicData => dd match { 
     case s: DInstant => s.underlying 
     case _ => throw new RuntimeException("expected DInstant to convert to Data")
   }}
-  implicit val DatomicData2DInstant: DDReader[DatomicData, DInstant] = DDReader{ dd: DatomicData => dd match { 
-    case s: DInstant => s
-    case _ => throw new RuntimeException("expected DInstant to convert to DInstant")
-  }}
 
-  implicit val DatomicData2DEntity: DDReader[DatomicData, DEntity] = DDReader{ dd: DatomicData => dd match { 
-    case s: DEntity => s
-    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
-  }}
-
-  implicit val DatomicData2DSet: DDReader[DatomicData, DSet] = DDReader{ dd: DatomicData => dd match { 
-    case s: DSet => s
-    case _ => throw new RuntimeException("expected DSet to convert to DSet")
-  }}
-
-  implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] = DDReader{ dd: DatomicData => dd match { 
-    case s: DSet => s.toSet.map( reader.read(_) )
-    case _ => throw new RuntimeException("expected DSet to convert to DSet")
-  }}
 
   /*implicit def DatomicData2DD[DD <: DatomicData]: DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd match { 
     case s: DD => s
     case _ => throw new RuntimeException("couldn't convert")
   }}*/
 
-  // is this one really reasonable?
-  implicit val DLong2Int = DDReader{ s: DLong => s.underlying.toInt }
-
-  implicit val DRef2DRef = DDReader{ s: DRef => s }
-  implicit def DD2DD[DD <: DatomicData] = DDReader{ d: DD => d: DD }
 
   implicit val DStringWrites = DDWriter[DString, String]( (s: String) => DString(s) )
   implicit val Long2DLongWrites = DDWriter[DLong, Long]( (l: Long) => DLong(l) )

@@ -134,24 +134,24 @@ trait EntityReaderImplicits {
       }
     }
 
-  implicit def attr2EntityReaderOne[DD <: DatomicData, Dest](implicit dd2dd: DDReader[DatomicData, DD], dd2dest: DDReader[DD, Dest]) = 
-    new Attribute2EntityReader[DD, CardinalityOne.type, Dest] {
-      def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[Dest] = {
-        EntityReader[Dest]{ e: DEntity => 
-          e.tryGetAs[DD](attr.ident)(dd2dd).map{ dd => dd2dest.read(dd) }
+  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit dd2dd: DD2DDReader[DD], dd2dest: DD2ScalaReader[DD, A]) = 
+    new Attribute2EntityReader[DD, CardinalityOne.type, A] {
+      def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
+        EntityReader[A]{ e: DEntity => 
+          e.tryGetAs[DD](attr.ident).map{ dd => dd2dest.read(dd) }
         }
       }
     }  
 
 
-  implicit def attr2EntityReaderMany[DD <: DatomicData, Dest](implicit ddr: DDReader[DD, Dest]) = 
-    new Attribute2EntityReader[DD, CardinalityMany.type, Set[Dest]] {
-      def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[Dest]] = {
-        EntityReader[Set[Dest]]{ e: DEntity => 
+  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit dd2dd: DD2DDReader[DD], dd2dest: DD2ScalaReader[DD, A]) = 
+    new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
+      def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
+        EntityReader[Set[A]]{ e: DEntity => 
           try {
             e.tryGetAs[DSet](attr.ident).map{ value =>
               value.toSet.map{ e => 
-                ddr.read(e.asInstanceOf[DD])
+                dd2dest.read(dd2dd.read(e))
               }
             }
           } catch {

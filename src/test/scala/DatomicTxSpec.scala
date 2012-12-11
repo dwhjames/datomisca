@@ -35,15 +35,15 @@ class DatomicTxSpec extends Specification {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val uri = "datomic:mem://datomictxspec"
-  case class Person(name: String, age: Int)
-  case class Dog(name: String, age: Int)
-  case class PersonFriend(name: String, age: Int)
-  case class PersonDog(name: String, age: Int, dog: Ref[Dog])
-  case class PersonDogOpt(name: String, age: Int, dog: Option[Ref[Dog]])
-  case class PersonDogList(name: String, age: Int, dogs: Set[Ref[Dog]])
+  case class Person(name: String, age: Long)
+  case class Dog(name: String, age: Long)
+  case class PersonFriend(name: String, age: Long)
+  case class PersonDog(name: String, age: Long, dog: Ref[Dog])
+  case class PersonDogOpt(name: String, age: Long, dog: Option[Ref[Dog]])
+  case class PersonDogList(name: String, age: Long, dogs: Set[Ref[Dog]])
 
-  case class PersonLike(name: String, age: Int, like: Option[String] = None)
-  case class PersonLikes(name: String, age: Int, likes: Set[String] = Set())
+  case class PersonLike(name: String, age: Long, like: Option[String] = None)
+  case class PersonLikes(name: String, age: Long, likes: Set[String] = Set())
 
   object PersonSchema {
     val name = Attribute( KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
@@ -94,7 +94,7 @@ class DatomicTxSpec extends Specification {
 
       implicit val personReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int]
+        PersonSchema.age.read[Long]
       )(Person)
 
       val idToto = DId(Partition.USER)
@@ -158,7 +158,7 @@ class DatomicTxSpec extends Specification {
 
       implicit val personReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int]
+        PersonSchema.age.read[Long]
       )(Person)
 
       val idToto = DId(Partition.USER)
@@ -225,7 +225,7 @@ class DatomicTxSpec extends Specification {
 
       implicit val personDogWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Int]
+        PersonSchema.age.write[Long]
       )(unlift(Person.unapply))
 
       val toto = Person("toto", 30)
@@ -244,23 +244,23 @@ class DatomicTxSpec extends Specification {
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
-        DogSchema.age.read[Int]
+        DogSchema.age.read[Long]
       )(Dog)
 
       implicit val dogWriter = (
         DogSchema.name.write[String] and 
-        DogSchema.age.write[Int]
+        DogSchema.age.write[Long]
       )(unlift(Dog.unapply))
 
       implicit val personDogReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int] and
+        PersonSchema.age.read[Long] and
         PersonSchema.dog.read[Ref[Dog]]
       )(PersonDog)
 
       implicit val personDogWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Int] and
+        PersonSchema.age.write[Long] and
         PersonSchema.dog.write[Ref[Dog]]
       )(unlift(PersonDog.unapply))
 
@@ -307,13 +307,13 @@ class DatomicTxSpec extends Specification {
 
       implicit val personLikeReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int] and
+        PersonSchema.age.read[Long] and
         PersonSchema.like.readOpt[String]
       )(PersonLike)
 
       implicit val personLikeWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Int] and
+        PersonSchema.age.write[Long] and
         PersonSchema.like.writeOpt[String]
       )(unlift(PersonLike.unapply))
 
@@ -368,13 +368,13 @@ class DatomicTxSpec extends Specification {
 
       implicit val personLikesReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int] and
+        PersonSchema.age.read[Long] and
         PersonSchema.likes.read[Set[String]]
       )(PersonLikes)
 
       implicit val personLikesWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Int] and
+        PersonSchema.age.write[Long] and
         PersonSchema.likes.write[Set[String]]
       )(unlift(PersonLikes.unapply))
 
@@ -417,23 +417,23 @@ class DatomicTxSpec extends Specification {
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
-        DogSchema.age.read[Int]
+        DogSchema.age.read[Long]
       )(Dog)
 
       implicit val dogWriter = (
         DogSchema.name.write[String] and 
-        DogSchema.age.write[Int]
+        DogSchema.age.write[Long]
       )(unlift(Dog.unapply))
 
       implicit val personDogOptReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int] and
+        PersonSchema.age.read[Long] and
         PersonSchema.dog.readOpt[Ref[Dog]]
       )(PersonDogOpt)
 
       implicit val personDogOptWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Int] and
+        PersonSchema.age.write[Long] and
         PersonSchema.dog.writeOpt[Ref[Dog]]
       )(unlift(PersonDogOpt.unapply))
 
@@ -492,23 +492,23 @@ class DatomicTxSpec extends Specification {
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
-        DogSchema.age.read[Int]
+        DogSchema.age.read[Long]
       )(Dog)
 
       implicit val dogWriter = (
         DogSchema.name.write[String] and 
-        DogSchema.age.write[Int]
+        DogSchema.age.write[Long]
       )(unlift(Dog.unapply))
 
       implicit val personDogListReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Int] and
+        PersonSchema.age.read[Long] and
         PersonSchema.dogs.read[Set[Ref[Dog]]]
       )(PersonDogList)
 
       implicit val personDogListWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Int] and
+        PersonSchema.age.write[Long] and
         PersonSchema.dogs.write[Set[Ref[Dog]]]
       )(unlift(PersonDogList.unapply))
 
