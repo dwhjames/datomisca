@@ -402,6 +402,8 @@ trait DatomicDataImplicits {
   implicit val DInstant2Date = DD2ScalaReader{ s: DInstant => s.underlying }
 
   implicit val DRef2DRef = DD2ScalaReader{ s: DRef => s }
+  //implicit val DString2DString = DD2ScalaReader{ s: DString => s }
+  //implicit val DInstant2DInstant = DD2ScalaReader{ s: DInstant => s }
   //implicit val DEntity2DEntity = DD2ScalaReader{ s: DEntity => s }
   //implicit def DD2DD[DD <: DatomicData] = DD2ScalaReader{ d: DD => d: DD }
 
@@ -530,6 +532,7 @@ trait DatomicDataImplicits {
   implicit val DBooleanWrites = DDWriter[DBoolean, Boolean]( (b: Boolean) => DBoolean(b) )
   implicit val DFloatWrites = DDWriter[DFloat, Float]( (b: Float) => DFloat(b) )
   implicit val DDoubleWrites = DDWriter[DDouble, Double]( (b: Double) => DDouble(b) )
+  implicit val DDateWrites = DDWriter[DInstant, java.util.Date]( (d: java.util.Date) => DInstant(d) )
   implicit val DBigIntWrites = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
   implicit val DBigDecWrites = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
   implicit val DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ident )

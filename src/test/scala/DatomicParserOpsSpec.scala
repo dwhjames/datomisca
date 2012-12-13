@@ -248,6 +248,7 @@ class DatomicParserOpsSpec extends Specification {
         ).toString
       )
     }
+
   }
 
 }

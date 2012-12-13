@@ -123,14 +123,14 @@ trait Query {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
     val qser = this.toString
-    println("in:"+in)
+    //println("in:"+in)
     val args = {
       val args = in.toSeq
       if(args.isEmpty) Seq(db.toNative)
       else args
     }
 
-    println("QSER:"+qser+ " - args:"+args)
+    //println("QSER:"+qser+ " - args:"+args)
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     

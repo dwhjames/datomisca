@@ -35,7 +35,7 @@ class DatomicEntitySpec extends Specification {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  case class Person(name: String, age: Long, characters: Set[DRef])
+  case class Person(name: String, age: Long, birth: java.util.Date, characters: Set[DRef])
 
   val person = new Namespace("person") {
     val character = Namespace("person.character")
@@ -50,16 +50,20 @@ class DatomicEntitySpec extends Specification {
   object PersonSchema {
     val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
     val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
+    val birth = Attribute( person / "birth", SchemaType.instant, Cardinality.one).withDoc("Person's birth date")
     val characters =  Attribute( person / "characters", SchemaType.ref, Cardinality.many).withDoc("Person's characterS")
 
-    val schema = Seq(name, age, characters)
+    val schema = Seq(name, age, birth, characters)
   }
 
   val personReader = (
     PersonSchema.name.read[String] and 
     PersonSchema.age.read[Long] and
+    PersonSchema.birth.read[java.util.Date] and
     PersonSchema.characters.read[Set[DRef]]
   )(Person)
+
+  val birthDate = new java.util.Date() 
 
   "Datomic" should {
     "create entity" in {
@@ -75,6 +79,7 @@ class DatomicEntitySpec extends Specification {
             addToEntity(DId(Partition.USER))(
               person / "name" -> "toto",
               person / "age" -> 30,
+              person / "birth" -> birthDate,
               person / "characters" -> Set(violent, weak)
             ),
             addToEntity(DId(Partition.USER))(
@@ -101,8 +106,8 @@ class DatomicEntitySpec extends Specification {
                     " map:" + entity.toMap
                   )
                   fromEntity(entity)(personReader).map {
-                    case Person(name, age, characters) => 
-                      println(s"Found person with name $name and age $age and characters $characters")
+                    case Person(name, age, birth, characters) => 
+                      println(s"Found person with name $name and age $age and birth $birth characters $characters")
                       success
                   }.get
                 }.getOrElse(failure("could't find entity"))
@@ -152,12 +157,53 @@ class DatomicEntitySpec extends Specification {
 
             val characters = entity.as(PersonSchema.characters)
             println("characters:"+characters)
+
+            val birthValue = entity.as[DInstant](person / "birth")
+            birthValue must beEqualTo(DInstant(birthDate))
+
+            val birthValue2 = entity.as[java.util.Date](person / "birth")
+            birthValue2 must beEqualTo(birthDate)
+
+            val birthValue3 = entity.as(PersonSchema.birth)
+            birthValue3 must beEqualTo(birthDate)
           }.getOrElse(failure("could't find entity"))
         case _ => failure("error")
       }
     }
 
-    "create entity from attribute" in {
+    "create ops from attributes" in {
+      import scala.util.{Try, Success, Failure}
+      import DatomicDataImplicits._
+      import EntityImplicits._
+
+      val id = DId(Partition.USER)
+      
+      val a = Datomic.typed.add(id)( PersonSchema.name -> "toto" )
+      a must beEqualTo(Add( id, person / "name", DString("toto") ))
+
+      val r = Datomic.typed.retract(id)( PersonSchema.name -> "toto" )
+      r must beEqualTo(Retract( id, person / "name", DString("toto") ))      
+
+      val e = Datomic.typed.addToEntity(
+        id,
+        PersonSchema.name -> "toto",
+        PersonSchema.age -> 45, 
+        PersonSchema.birth -> birthDate,
+        PersonSchema.characters -> Set(violent, weak)
+      )
+      e.toString must beEqualTo(AddToEntity( 
+        id, 
+        Map(
+          person / "name" -> DString("toto"),
+          person / "age" -> DLong(45),
+          person / "birth" -> DInstant(birthDate),
+          person / "characters" -> DSet(violent.ident, weak.ident)
+        )
+      ).toString)      
+
+      val props = (PersonSchema.name -> "toto") :: Props()
+
+      println("Props:"+props)
     }
   }
 }

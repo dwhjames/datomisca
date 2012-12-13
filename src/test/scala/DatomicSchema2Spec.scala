@@ -43,7 +43,7 @@ class DatomicSchema2Spec extends Specification {
         val character = Namespace("person.character")
       }
 
-      val violent = AddIdent(Keyword(person.character, "violent"))
+      val violent = AddIdent(person.character / "violent")
       val weak = AddIdent(Keyword(person.character, "weak"))
       val clever = AddIdent(Keyword(person.character, "clever"))
       val dumb = AddIdent(Keyword(person.character, "dumb"))

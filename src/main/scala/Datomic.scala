@@ -75,8 +75,11 @@ trait DatomicFacilities {
   def add(id: Long)(prop: (Keyword, DWrapper)) = Add(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   def retract(id: DId)(prop: (Keyword, DWrapper)) = Retract(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract(id: DLong)(prop: (Keyword, DWrapper)) = Retract(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract(id: Long)(prop: (Keyword, DWrapper)) = Retract(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   def retractEntity(id: DLong) = RetractEntity(id)
+  def retractEntity(id: Long) = RetractEntity(DLong(id))
   def retractEntity(id: FinalId) = RetractEntity(DLong(id.underlying))
 
   def addToEntity(id: DId)(props: (Keyword, DWrapper)*) = 
@@ -102,6 +105,8 @@ trait DatomicFacilities {
 
 }
 
+
+
 object Datomic 
   extends DatomicPeer 
   with DatomicTransactor 
@@ -109,6 +114,10 @@ object Datomic
   with DatomicDataImplicits 
   with ArgsImplicits 
   with DatomicQuery {
+
+  object typed extends DatomicSchemaFacilities {
+    def query[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]    
+  }
 
   def pureQuery(q: String): PureQuery = macro DatomicQueryMacro.pureQueryImpl
 

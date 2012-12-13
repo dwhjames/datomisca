@@ -184,4 +184,185 @@ object Attribute {
   val installAttr = Keyword(Namespace.DB.INSTALL, "_attribute")
 }
 
+sealed trait Props {
+  def ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): ::[DD, Card, A] = new ::(prop, this)(attrC)
+}
 
+case object PropsNil extends Props
+
+case class ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A), tail: Props)
+  (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]) extends Props
+
+/*trait Props {
+  type DD <: DatomicData
+  type Card <: Cardinality
+  type T
+
+  def attr: Attribute[DD, Card]
+  def value: T
+
+  def tail: Props
+
+  def +[DD2 <: DatomicData, Card2 <: Cardinality, T](attr2: Attribute[DD2, Card2]) = 
+    new Props()
+}*/
+
+object Props{
+  def apply() = PropsNil
+  /*def apply[DD <: DatomicData, Card <: Cardinality, T]() = new Props{
+    def attr = 
+  }*/
+}
+
+trait DatomicSchemaFacilities {
+  /** add based on Schema attributes 
+    */
+  def add[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Add = {
+    val entityWriter = attrC.convert(prop._1)
+    val partial = entityWriter.write(prop._2)
+    val (kw: Keyword, value: DatomicData) = partial.props.head
+    Add(id, kw, value)
+  }
+  def add[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Add = {
+    add(DId(id))(prop)(attrC)
+  }
+
+  def add[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Add = {
+    add(DId(DLong(id)))(prop)(attrC)
+  }
+
+  /** retract based on Schema attributes 
+    */
+  def retract[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Retract = {
+    val entityWriter = attrC.convert(prop._1)
+    val partial = entityWriter.write(prop._2)
+    val (kw: Keyword, value: DatomicData) = partial.props.head
+    Retract(id, kw, value)
+  }
+  def retract[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Retract = {
+    retract(DId(id))(prop)(attrC)
+  }
+
+  def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Retract = {
+    retract(DId(DLong(id)))(prop)(attrC)
+  }
+
+  /** addToEntity based on Schema attributes 
+    */
+  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1](id: DId, prop1: (Attribute[DD1, Card1], A1))
+    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1]): AddToEntity = {
+    AddToEntity(id, attrC1.convert(prop1._1).write(prop1._2))
+  }
+
+  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
+                  DD2 <: DatomicData, Card2 <: Cardinality, A2]
+                  (id: DId,
+                   prop1: (Attribute[DD1, Card1], A1), 
+                   prop2: (Attribute[DD2, Card2], A2))
+    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
+              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2]): AddToEntity = {
+    AddToEntity(id, 
+      attrC1.convert(prop1._1).write(prop1._2) ++
+      attrC2.convert(prop2._1).write(prop2._2) 
+    )
+  }
+
+  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
+                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
+                  DD3 <: DatomicData, Card3 <: Cardinality, A3]
+                  (id: DId,
+                   prop1: (Attribute[DD1, Card1], A1), 
+                   prop2: (Attribute[DD2, Card2], A2), 
+                   prop3: (Attribute[DD3, Card3], A3))
+    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
+              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
+              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3]): AddToEntity = {
+    AddToEntity(id, 
+      attrC1.convert(prop1._1).write(prop1._2) ++ 
+      attrC2.convert(prop2._1).write(prop2._2) ++ 
+      attrC3.convert(prop3._1).write(prop3._2) 
+    )
+  }
+
+  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
+                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
+                  DD3 <: DatomicData, Card3 <: Cardinality, A3,
+                  DD4 <: DatomicData, Card4 <: Cardinality, A4]
+                  (id: DId,
+                   prop1: (Attribute[DD1, Card1], A1), 
+                   prop2: (Attribute[DD2, Card2], A2), 
+                   prop3: (Attribute[DD3, Card3], A3), 
+                   prop4: (Attribute[DD4, Card4], A4))
+    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
+              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
+              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3],
+              attrC4: Attribute2PartialAddToEntityWriter[DD4, Card4, A4]): AddToEntity = {
+    AddToEntity(id, 
+      attrC1.convert(prop1._1).write(prop1._2) ++ 
+      attrC2.convert(prop2._1).write(prop2._2) ++ 
+      attrC3.convert(prop3._1).write(prop3._2) ++ 
+      attrC4.convert(prop4._1).write(prop4._2) 
+    )
+  }
+
+  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
+                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
+                  DD3 <: DatomicData, Card3 <: Cardinality, A3,
+                  DD4 <: DatomicData, Card4 <: Cardinality, A4,
+                  DD5 <: DatomicData, Card5 <: Cardinality, A5]
+                  (id: DId,
+                   prop1: (Attribute[DD1, Card1], A1), 
+                   prop2: (Attribute[DD2, Card2], A2), 
+                   prop3: (Attribute[DD3, Card3], A3), 
+                   prop4: (Attribute[DD4, Card4], A4), 
+                   prop5: (Attribute[DD5, Card5], A5))
+    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
+              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
+              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3],
+              attrC4: Attribute2PartialAddToEntityWriter[DD4, Card4, A4],
+              attrC5: Attribute2PartialAddToEntityWriter[DD5, Card5, A5]): AddToEntity = {
+    AddToEntity(id, 
+      attrC1.convert(prop1._1).write(prop1._2) ++ 
+      attrC2.convert(prop2._1).write(prop2._2) ++ 
+      attrC3.convert(prop3._1).write(prop3._2) ++ 
+      attrC4.convert(prop4._1).write(prop4._2) ++ 
+      attrC5.convert(prop5._1).write(prop5._2) 
+    )
+  }
+
+  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
+                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
+                  DD3 <: DatomicData, Card3 <: Cardinality, A3,
+                  DD4 <: DatomicData, Card4 <: Cardinality, A4,
+                  DD5 <: DatomicData, Card5 <: Cardinality, A5,
+                  DD6 <: DatomicData, Card6 <: Cardinality, A6]
+                  (id: DId,
+                   prop1: (Attribute[DD1, Card1], A1), 
+                   prop2: (Attribute[DD2, Card2], A2), 
+                   prop3: (Attribute[DD3, Card3], A3), 
+                   prop4: (Attribute[DD4, Card4], A4), 
+                   prop5: (Attribute[DD5, Card5], A5), 
+                   prop6: (Attribute[DD6, Card6], A6))
+    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
+              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
+              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3],
+              attrC4: Attribute2PartialAddToEntityWriter[DD4, Card4, A4],
+              attrC5: Attribute2PartialAddToEntityWriter[DD5, Card5, A5],
+              attrC6: Attribute2PartialAddToEntityWriter[DD6, Card6, A6]): AddToEntity = {
+    AddToEntity(id, 
+      attrC1.convert(prop1._1).write(prop1._2) ++ 
+      attrC2.convert(prop2._1).write(prop2._2) ++ 
+      attrC3.convert(prop3._1).write(prop3._2) ++ 
+      attrC4.convert(prop4._1).write(prop4._2) ++ 
+      attrC5.convert(prop5._1).write(prop5._2) ++ 
+      attrC6.convert(prop6._1).write(prop6._2) 
+    )
+  }
+}
