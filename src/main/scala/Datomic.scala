@@ -1,30 +1,50 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package reactivedatomic
 
 import java.io.Reader
 import java.io.FileReader
 
 import scala.concurrent.Future
-
-import scala.util.{Try, Success, Failure}
-import language.experimental.macros
-import scala.reflect.macros.Context
-import language.experimental.macros
-import scala.tools.reflect.Eval
-import scala.reflect.internal.util.{Position, OffsetPosition}
 import scala.concurrent.ExecutionContext
 
+import scala.reflect.macros.Context
+import scala.reflect.internal.util.{Position, OffsetPosition}
+import scala.tools.reflect.Eval
+import language.experimental.macros
+
+import scala.util.{Try, Success, Failure}
+
+/** Regroup basiic functions provided by Datomic Peer
+  * The most important is `connect(uri: String)` which allows to get a Connection on Datomic Peer.
+  * As you can see, `database` requires 
+  */
 trait DatomicPeer {
   /** Builds a Connection from URI
-   * In order to benefit from Datomic facilities based on implicit Connection,
-   * you should put a connection in an implicit val in your scope. Else, you 
-   * can also use provide Connection explicitly.
-   *
-   * @param uri The URI of Datomic DB
-   * @return Connection
-   * {{{
-   * implicit val conn = Datomic.connection("datomic:mem://mem")
-   * }}}
-   */
+    * In order to benefit from Datomic facilities based on implicit Connection,
+    * you should put a connection in an implicit val in your scope. Else, you 
+    * can also use provide Connection explicitly.
+    *
+    * @param uri The URI of Datomic DB
+    * @return Connection
+    * {{{
+    * implicit val conn = Datomic.connection("datomic:mem://mem")
+    * }}}
+    */
   def connect(uri: String): Connection = {
     val conn = datomic.Peer.connect(uri)
 
@@ -61,6 +81,8 @@ trait DatomicFacilities {
 
   def addToEntity(id: DId)(props: (Keyword, DWrapper)*) = 
     AddToEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
+
+  def addToEntity(id: DId, props: Map[Keyword, DatomicData]) = AddToEntity(id, props)
 
   def partialAddToEntity(props: (Keyword, DWrapper)*) = 
     PartialAddToEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)

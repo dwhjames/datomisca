@@ -115,7 +115,7 @@ class DatomicEntitySpec extends Specification {
 
     }
 
-    "get entity fields from attribute" in {
+    "get entity fields from attributes" in {
       import scala.util.{Try, Success, Failure}
       import DatomicDataImplicits._
       import EntityImplicits._
@@ -132,7 +132,6 @@ class DatomicEntitySpec extends Specification {
             val nameValue = entity.as(PersonSchema.name)
             nameValue must beEqualTo("toto")
 
-            
             val nameValue2 = entity.as[String](person / "name")
             nameValue2 must beEqualTo("toto")
             
@@ -156,6 +155,9 @@ class DatomicEntitySpec extends Specification {
           }.getOrElse(failure("could't find entity"))
         case _ => failure("error")
       }
+    }
+
+    "create entity from attribute" in {
     }
   }
 }

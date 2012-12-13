@@ -1,3 +1,19 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package reactivedatomic
 
 import scala.util.parsing.input.Positional
@@ -378,6 +394,11 @@ object DatomicDataImplicits extends DatomicDataImplicits
 trait DatomicDataImplicits {
   implicit val DString2String = DD2ScalaReader{ s: DString => s.underlying }
   implicit val DLong2Long = DD2ScalaReader{ s: DLong => s.underlying }
+  implicit val DBoolean2Boolean = DD2ScalaReader{ s: DBoolean => s.underlying }
+  implicit val DFloat2Float = DD2ScalaReader{ s: DFloat => s.underlying }
+  implicit val DDouble2Double = DD2ScalaReader{ s: DDouble => s.underlying }
+  implicit val DBigInt2BigInteger = DD2ScalaReader{ s: DBigInt => s.underlying }
+  implicit val DBigDec2BigDecimal = DD2ScalaReader{ s: DBigDec => s.underlying }
   implicit val DInstant2Date = DD2ScalaReader{ s: DInstant => s.underlying }
 
   implicit val DRef2DRef = DD2ScalaReader{ s: DRef => s }
@@ -399,14 +420,39 @@ trait DatomicDataImplicits {
     case _ => throw new RuntimeException("expected DLong to convert to DLong")
   }}
 
-  implicit val DatomicData2DEntity: DD2DDReader[DEntity] = DD2DDReader{ dd: DatomicData => dd match { 
-    case s: DEntity => s
-    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
+  implicit val DatomicData2DBoolean: DD2DDReader[DBoolean] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DBoolean => s
+    case _ => throw new RuntimeException("expected DBoolean to convert to DBoolean")
+  }}
+
+  implicit val DatomicData2DFloat: DD2DDReader[DFloat] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DFloat => s
+    case _ => throw new RuntimeException("expected DFloat to convert to DFloat")
+  }}
+
+  implicit val DatomicData2DDouble: DD2DDReader[DDouble] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DDouble => s
+    case _ => throw new RuntimeException("expected DDouble to convert to DDouble")
+  }}
+
+  implicit val DatomicData2DBigInt: DD2DDReader[DBigInt] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DBigInt => s
+    case _ => throw new RuntimeException("expected DBigInt to convert to DBigInt")
+  }}
+
+  implicit val DatomicData2DBigDec: DD2DDReader[DBigDec] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DBigDec => s
+    case _ => throw new RuntimeException("expected DBigDec to convert to DBigDec")
   }}
 
   implicit val DatomicData2DInstant: DD2DDReader[DInstant] = DD2DDReader{ dd: DatomicData => dd match { 
     case s: DInstant => s
     case _ => throw new RuntimeException("expected DInstant to convert to DInstant")
+  }}
+
+  implicit val DatomicData2DEntity: DD2DDReader[DEntity] = DD2DDReader{ dd: DatomicData => dd match { 
+    case s: DEntity => s
+    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
   }}
 
   implicit val DatomicData2DSet: DD2DDReader[DSet] = DD2DDReader{ dd: DatomicData => dd match { 
@@ -433,12 +479,37 @@ trait DatomicDataImplicits {
 
   implicit val DatomicData2String: DDReader[DatomicData, String] = DDReader{ dd: DatomicData => dd match { 
     case s: DString => s.underlying 
-    case _ => throw new RuntimeException("expected DString to convert to DString")
+    case _ => throw new RuntimeException("expected DString to convert to String")
   }}
 
-  implicit def DatomicData2Long: DDReader[DatomicData, Long] = DDReader{ dd: DatomicData => dd match { 
+  implicit val DatomicData2Long: DDReader[DatomicData, Long] = DDReader{ dd: DatomicData => dd match { 
     case s: DLong => s.underlying 
     case _ => throw new RuntimeException("expected DLong to convert to Long")
+  }}
+
+  implicit val DatomicData2Boolean: DDReader[DatomicData, Boolean] = DDReader{ dd: DatomicData => dd match { 
+    case s: DBoolean => s.underlying 
+    case _ => throw new RuntimeException("expected DBoolean to convert to Boolean")
+  }}
+
+  implicit val DatomicData2Float: DDReader[DatomicData, Float] = DDReader{ dd: DatomicData => dd match { 
+    case s: DFloat => s.underlying 
+    case _ => throw new RuntimeException("expected DFloat to convert to Float")
+  }}
+
+  implicit val DatomicData2Double: DDReader[DatomicData, Double] = DDReader{ dd: DatomicData => dd match { 
+    case s: DDouble => s.underlying 
+    case _ => throw new RuntimeException("expected DDouble to convert to Double")
+  }}
+
+  implicit val DatomicData2BigInt: DDReader[DatomicData, BigInt] = DDReader{ dd: DatomicData => dd match { 
+    case s: DBigInt => s.underlying 
+    case _ => throw new RuntimeException("expected DBigInt to convert to BigInteger")
+  }}
+
+  implicit val DatomicData2BigDec: DDReader[DatomicData, BigDecimal] = DDReader{ dd: DatomicData => dd match { 
+    case s: DBigDec => s.underlying 
+    case _ => throw new RuntimeException("expected DBigDec to convert to BigDecimal")
   }}
 
   implicit val DatomicData2Date: DDReader[DatomicData, java.util.Date] = DDReader{ dd: DatomicData => dd match { 

@@ -1,15 +1,31 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package reactivedatomic
 
-import scala.concurrent.{Future, Promise}
 import datomic.ListenableFuture
 
-import scala.concurrent.ExecutionContext
-import java.util.concurrent.Executor
+import scala.concurrent.{Future, Promise, ExecutionContext}
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{TimeUnit, Executor}
 
 import scala.util.{Try, Success, Failure}
+import scala.collection.generic.CanBuildFrom
+import scala.collection.TraversableLike
 
 object Utils {
   def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext): Future[T] = {
@@ -34,9 +50,6 @@ object Utils {
 
     p.future
   }
-
-  import scala.collection.generic.CanBuildFrom
-  import scala.collection.TraversableLike
 
   def sequence[A, M[_]](l: M[Try[A]])
     (implicit toTraversableLike: M[Try[A]] => TraversableLike[Try[A], M[Try[A]]], 
@@ -96,6 +109,7 @@ trait LowerPriorityImplicits {
   /** do not call explicitly! */
   implicit def sub[A, B >: A]: <:!<[A, B] = sys.error("should not be called")
 }
+
 object <:!< extends LowerPriorityImplicits {
   /** do not call explicitly! */
   implicit def nsub[A, B]: <:!<[A, B] = new <:!<[A, B]
@@ -206,8 +220,71 @@ class Builder[M[_]](combi: Combinator[M]) {
     }
   }
 
-  case class Builder6[A1, A2, A3, A4, A5, A6](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5], m2: M[A6])
+  case class Builder6[A1, A2, A3, A4, A5, A6](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5], m2: M[A6]) {
+    def ~[A7](m3: M[A7]) = Builder7(combi(m1, m2), m3)
+    def and[A7](m3: M[A7]) = this.~(m3)
 
+    def apply[B](f: (A1, A2, A3, A4, A5, A6) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3~A4~A5~A6, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 => f(a1, a2, a3, a4, a5, a6) } )
+
+    def apply[B](f: B => (A1, A2, A3, A4, A5, A6))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3~A4~A5~A6, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3, a4, a5, a6) => new ~(new ~(new ~(new ~(new ~(a1, a2), a3), a4), a5), a6) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3, A4, A5, A6)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6) => (a1, a2, a3, a4, a5, a6) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3, A4, A5, A6) => (a._1, a._2, a._3, a._4, a._5, a._6) }(f)
+    }
+  }
+
+  case class Builder7[A1, A2, A3, A4, A5, A6, A7](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6], m2: M[A7]) {
+    def ~[A8](m3: M[A8]) = Builder8(combi(m1, m2), m3)
+    def and[A8](m3: M[A8]) = this.~(m3)
+
+    def apply[B](f: (A1, A2, A3, A4, A5, A6, A7) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3~A4~A5~A6~A7, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 => f(a1, a2, a3, a4, a5, a6, a7) } )
+
+    def apply[B](f: B => (A1, A2, A3, A4, A5, A6, A7))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3~A4~A5~A6~A7, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3, a4, a5, a6, a7) => new ~(new ~(new ~(new ~(new ~(new ~(a1, a2), a3), a4), a5), a6), a7) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3, A4, A5, A6, A7)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7) => (a1, a2, a3, a4, a5, a6, a7) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3, A4, A5, A6, A7) => (a._1, a._2, a._3, a._4, a._5, a._6, a._7) }(f)
+    }
+  }
+
+  case class Builder8[A1, A2, A3, A4, A5, A6, A7, A8](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7], m2: M[A8]) {
+    def ~[A9](m3: M[A9]) = Builder9(combi(m1, m2), m3)
+    def and[A9](m3: M[A9]) = this.~(m3)
+
+    def apply[B](f: (A1, A2, A3, A4, A5, A6, A7, A8) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3~A4~A5~A6~A7~A8, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 => f(a1, a2, a3, a4, a5, a6, a7, a8) } )
+
+    def apply[B](f: B => (A1, A2, A3, A4, A5, A6, A7, A8))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3~A4~A5~A6~A7~A8, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3, a4, a5, a6, a7, a8) => new ~(new ~(new ~(new ~(new ~(new ~(new ~(a1, a2), a3), a4), a5), a6), a7), a8) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3, A4, A5, A6, A7, A8)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8) => (a1, a2, a3, a4, a5, a6, a7, a8) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3, A4, A5, A6, A7, A8) => (a._1, a._2, a._3, a._4, a._5, a._6, a._7, a._8) }(f)
+    }
+  }
+
+  case class Builder9[A1, A2, A3, A4, A5, A6, A7, A8, A9](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8], m2: M[A9]) {
+    def ~[A10](m3: M[A10]) = Builder9(combi(m1, m2), m3)
+    def and[A10](m3: M[A10]) = this.~(m3)
+
+    def apply[B](f: (A1, A2, A3, A4, A5, A6, A7, A8, A9) => B)(implicit functor: Functor[M]): M[B] = 
+      functor.fmap[A1~A2~A3~A4~A5~A6~A7~A8~A9, B]( combi(m1, m2), { case a1 ~ a2 ~ a3 ~ a4 ~ a5 ~ a6 ~ a7 ~ a8 ~ a9 => f(a1, a2, a3, a4, a5, a6, a7, a8, a9) } )
+
+    def apply[B](f: B => (A1, A2, A3, A4, A5, A6, A7, A8, A9))(implicit functor: ContraFunctor[M]): M[B] = 
+      functor.contramap[A1~A2~A3~A4~A5~A6~A7~A8~A9, B]( combi(m1, m2), { b:B => f(b) match { case (a1, a2, a3, a4, a5, a6, a7, a8, a9) => new ~(new ~(new ~(new ~(new ~(new ~(new ~(new ~(a1, a2), a3), a4), a5), a6), a7), a8), a9) } } )
+
+    def tupled(implicit v: Variant[M]): M[(A1, A2, A3, A4, A5, A6, A7, A8, A9)] = (v: @unchecked) match {
+      case f: Functor[M] => apply{ (a1: A1, a2: A2, a3: A3, a4: A4, a5: A5, a6: A6, a7: A7, a8: A8, a9: A9) => (a1, a2, a3, a4, a5, a6, a7, a8, a9) }(f)
+      case f: ContraFunctor[M] => apply{ a: (A1, A2, A3, A4, A5, A6, A7, A8, A9) => (a._1, a._2, a._3, a._4, a._5, a._6, a._7, a._8, a._9) }(f)
+    }
+  }
+
+  case class Builder10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](m1: M[A1 ~ A2 ~ A3 ~ A4 ~ A5 ~ A6 ~ A7 ~ A8 ~ A9], m2: M[A10])
 }
 
 trait Monad[M[_]] {
