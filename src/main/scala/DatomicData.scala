@@ -591,6 +591,11 @@ trait DatomicDataImplicits {
     case _ => throw new RuntimeException("expected DBigDec to convert to DBigDec")
   }}
 
+  implicit def DD2DRefWrites = DDWriter[DatomicData, DRef]{ dd: DatomicData => dd match {
+    case d: DRef => d
+    case _ => throw new RuntimeException("expected DRef to convert to DRef")
+  }}
+
   implicit def DD2DSetWrites = DDWriter[DatomicData, DSet]{ dd: DatomicData => dd match {
     case d: DSet => d
     case _ => throw new RuntimeException("expected DSet to convert to DSet")
