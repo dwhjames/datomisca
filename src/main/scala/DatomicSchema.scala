@@ -185,35 +185,83 @@ object Attribute {
 }
 
 sealed trait Props {
-  def ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): ::[DD, Card, A] = new ::(prop, this)(attrC)
+  def convert: PartialAddToEntity
+
+  private def ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Props = PropsLink(prop, this, attrC)
+
+  def +[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]) = {
+    def step(cur: Props): Props = {
+      cur match {
+        case PropsLink(head, tail, ac) => if(head._1 == prop._1) (prop :: tail)(attrC) else (head :: step(tail))(ac)
+        case PropsNil => prop :: PropsNil
+      }
+    }
+
+    step(this)
+  }
+
+  def -[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, Card]) = {
+    def step(cur: Props): Props = {
+      cur match {
+        case PropsLink(head, tail, ac) => if(head._1 == attr) tail else (head :: step(tail))(ac)
+        case PropsNil => PropsNil
+      }
+    }
+
+    step(this)
+  }
+
+  def get[DD <: DatomicData, Card <: Cardinality, A](attr: Attribute[DD, Card])
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Option[A] = {
+    def step(cur: Props): Option[A] = {
+      cur match {
+        case PropsLink(head, tail, ac) => if(head._1 == attr) Some(head._2.asInstanceOf[A]) else step(tail)
+        case PropsNil => None
+      }
+    }
+    step(this)
+  }
+
+  def ++(other: Props): Props = {
+    def step(cur: Props): Props = {
+      cur match {
+        case PropsLink(head, tail, ac) => (head :: step(tail))(ac)
+        case PropsNil => other
+      }
+    }
+
+    step(this)
+  }
 }
 
-case object PropsNil extends Props
-
-case class ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A), tail: Props)
-  (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]) extends Props
-
-/*trait Props {
-  type DD <: DatomicData
-  type Card <: Cardinality
-  type T
-
-  def attr: Attribute[DD, Card]
-  def value: T
-
-  def tail: Props
-
-  def +[DD2 <: DatomicData, Card2 <: Cardinality, T](attr2: Attribute[DD2, Card2]) = 
-    new Props()
-}*/
-
-object Props{
+object Props {
   def apply() = PropsNil
-  /*def apply[DD <: DatomicData, Card <: Cardinality, T]() = new Props{
-    def attr = 
-  }*/
+
+  def apply[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))  
+    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Props = {
+      prop :: PropsNil
+  }
 }
+
+case object PropsNil extends Props {
+  def convert: PartialAddToEntity = PartialAddToEntity.empty
+}
+
+case class PropsLink[DD <: DatomicData, Card <: Cardinality, A](
+  head: (Attribute[DD, Card], A), 
+  tail: Props, 
+  attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]
+) extends Props {
+  override def toString = s"""${head._1.ident} -> ${head._2} :: $tail""" 
+
+  def convert: PartialAddToEntity = {
+    attrC.convert(head._1).write(head._2) ++ tail.convert
+  }
+}
+
+
 
 trait DatomicSchemaFacilities {
   /** add based on Schema attributes 
@@ -256,6 +304,10 @@ trait DatomicSchemaFacilities {
 
   /** addToEntity based on Schema attributes 
     */
+  def addToEntity(id: DId)(props: Props): AddToEntity = {
+    AddToEntity(id, props.convert)
+  }
+
   def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1](id: DId, prop1: (Attribute[DD1, Card1], A1))
     (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1]): AddToEntity = {
     AddToEntity(id, attrC1.convert(prop1._1).write(prop1._2))

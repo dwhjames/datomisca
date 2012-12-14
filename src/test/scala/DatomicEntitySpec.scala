@@ -78,17 +78,17 @@ class DatomicEntitySpec extends Specification {
           transact(
             addToEntity(DId(Partition.USER))(
               person / "name" -> "toto",
-              person / "age" -> 30,
+              person / "age" -> 30L,
               person / "birth" -> birthDate,
               person / "characters" -> Set(violent, weak)
             ),
             addToEntity(DId(Partition.USER))(
               person / "name" -> "tutu",
-              person / "age" -> 54
+              person / "age" -> 54L
             ),
             addToEntity(DId(Partition.USER))(
               person / "name" -> "tata",
-              person / "age" -> 23
+              person / "age" -> 23L
             )
           ).map{ tx => 
             println("Provisioned data... TX:%s".format(tx))
@@ -187,7 +187,7 @@ class DatomicEntitySpec extends Specification {
       val e = Datomic.typed.addToEntity(
         id,
         PersonSchema.name -> "toto",
-        PersonSchema.age -> 45, 
+        PersonSchema.age -> 45L, 
         PersonSchema.birth -> birthDate,
         PersonSchema.characters -> Set(violent, weak)
       )
@@ -201,9 +201,27 @@ class DatomicEntitySpec extends Specification {
         )
       ).toString)      
 
-      val props = (PersonSchema.name -> "toto") :: Props()
+      val props =   
+        Props(PersonSchema.name -> "toto") + 
+          (PersonSchema.age -> 45L) + 
+          (PersonSchema.birth -> birthDate) +
+          (PersonSchema.characters -> Set(violent, weak))
 
       println("Props:"+props)
+      //val c = attr2PartialAddToEntityWriterOne[DLong,Long]
+      val ageValue = props.get(PersonSchema.age)
+      ageValue must beEqualTo(Some(45))
+
+      val ent = Datomic.typed.addToEntity(id)(props) 
+      ent.toString must beEqualTo(AddToEntity( 
+        id, 
+        Map(
+          person / "name" -> DString("toto"),
+          person / "age" -> DLong(45),
+          person / "birth" -> DInstant(birthDate),
+          person / "characters" -> DSet(violent.ident, weak.ident)
+        )
+      ).toString)
     }
   }
 }

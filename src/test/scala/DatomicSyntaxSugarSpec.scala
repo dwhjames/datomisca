@@ -54,24 +54,24 @@ class DatomicSyntaxSugarSpec extends Specification {
         person / "name" -> "toto",
         person / "age" -> 30L,
         person / "character" -> Seq(weak, dumb)
-      ) must beEqualTo(
+      ).toString must beEqualTo(
         AddToEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
-        )
+        ).toString
       )
 
       Datomic.addToEntity(id)(
         KW(":person/name") -> "toto",
         KW(":person/age") -> 30L,
         KW(""":person/character""") -> Seq(weak, dumb)
-      ) must beEqualTo(
+      ).toString must beEqualTo(
         AddToEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
-        )
+        ).toString
       )
 
       Datomic.addToEntity("""{
@@ -79,12 +79,12 @@ class DatomicSyntaxSugarSpec extends Specification {
         :person/name "toto"
         :person/age 30
         :person/character [ $weak $dumb ]
-      }""") must beEqualTo(
+      }""").toString must beEqualTo(
         AddToEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
-        )
+        ).toString
       )
 
       Datomic.transact(

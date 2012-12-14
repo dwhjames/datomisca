@@ -101,6 +101,8 @@ trait PartialAddToEntity {
   def props: Map[Keyword, DatomicData]
 
   def ++(other: PartialAddToEntity) = PartialAddToEntity( props ++ other.props )
+
+  //override def toString = props.toString
 }
 
 object PartialAddToEntity {

@@ -185,6 +185,8 @@ trait EntityWriterImplicits {
   import scala.collection.JavaConversions._
   import scala.collection.JavaConverters._
 
+  import DatomicDataImplicits._
+
   implicit object AddToEntityWriterCombinator extends Combinator[PartialAddToEntityWriter] {
     def apply[A, B](ma: PartialAddToEntityWriter[A], mb: PartialAddToEntityWriter[B]): PartialAddToEntityWriter[A ~ B] = 
       new PartialAddToEntityWriter[A ~ B] {

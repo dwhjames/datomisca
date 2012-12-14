@@ -236,7 +236,7 @@ class DatomicTxSpec extends Specification {
         person / "age" -> 30
       )
 
-      toEntity(totoId)(toto) must beEqualTo(totoEntity)
+      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
     }
 
     "4 - manage case class writing with references" in {

@@ -79,6 +79,14 @@ case class DLong(underlying: Long) extends DatomicData {
   def toNative: java.lang.Object = underlying: java.lang.Long
 }
 
+/** hidden structure just to be able to manipulate Int but should not be used directly by users 
+  * and not used in datomic at all 
+  */
+private[reactivedatomic] case class DInt(underlying: Int) extends DatomicData {
+  override def toString = underlying.toString
+  def toNative: java.lang.Object = underlying: java.lang.Integer
+}
+
 case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Float
@@ -402,9 +410,10 @@ trait DatomicDataImplicits {
   implicit val DInstant2Date = DD2ScalaReader{ s: DInstant => s.underlying }
 
   implicit val DRef2DRef = DD2ScalaReader{ s: DRef => s }
+  implicit val DEntity2DEntity = DD2ScalaReader{ s: DEntity => s }
+
   //implicit val DString2DString = DD2ScalaReader{ s: DString => s }
   //implicit val DInstant2DInstant = DD2ScalaReader{ s: DInstant => s }
-  //implicit val DEntity2DEntity = DD2ScalaReader{ s: DEntity => s }
   //implicit def DD2DD[DD <: DatomicData] = DD2ScalaReader{ d: DD => d: DD }
 
   implicit def DSet2T[DD <: DatomicData, T]
@@ -474,11 +483,6 @@ trait DatomicDataImplicits {
     }*/
   
 
-  /*implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] = DDReader{ dd: DatomicData => dd match { 
-    case s: DSet => s.toSet.map( reader.read(_) )
-    case _ => throw new RuntimeException("expected DSet to convert to DSet")
-  }}*/
-
   implicit val DatomicData2String: DDReader[DatomicData, String] = DDReader{ dd: DatomicData => dd match { 
     case s: DString => s.underlying 
     case _ => throw new RuntimeException("expected DString to convert to String")
@@ -519,24 +523,89 @@ trait DatomicDataImplicits {
     case _ => throw new RuntimeException("expected DInstant to convert to Data")
   }}
 
+  implicit val DRefDDReader: DDReader[DatomicData, DRef] = DDReader{ dd: DatomicData => dd match { 
+    case s: DRef => s
+    case _ => throw new RuntimeException("expected DRef to convert to DRef")
+  }}
+
+  implicit val DEntityDDReader: DDReader[DatomicData, DEntity] = DDReader{ dd: DatomicData => dd match { 
+    case s: DEntity => s
+    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
+  }}
+
+  implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] = DDReader{ dd: DatomicData => dd match { 
+    case s: DSet => s.toSet.map( reader.read(_) )
+    case _ => throw new RuntimeException("expected DSet to convert to DSet")
+  }}
+
 
   /*implicit def DatomicData2DD[DD <: DatomicData]: DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd match { 
     case s: DD => s
     case _ => throw new RuntimeException("couldn't convert")
   }}*/
 
-
-  implicit val DStringWrites = DDWriter[DString, String]( (s: String) => DString(s) )
+  implicit val String2DStringWrites = DDWriter[DString, String]( (s: String) => DString(s) )
   implicit val Long2DLongWrites = DDWriter[DLong, Long]( (l: Long) => DLong(l) )
-  implicit val Int2DLongWrites = DDWriter[DLong, Int]( (l: Int) => DLong(l) )
-  implicit val DBooleanWrites = DDWriter[DBoolean, Boolean]( (b: Boolean) => DBoolean(b) )
-  implicit val DFloatWrites = DDWriter[DFloat, Float]( (b: Float) => DFloat(b) )
-  implicit val DDoubleWrites = DDWriter[DDouble, Double]( (b: Double) => DDouble(b) )
-  implicit val DDateWrites = DDWriter[DInstant, java.util.Date]( (d: java.util.Date) => DInstant(d) )
-  implicit val DBigIntWrites = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
-  implicit val DBigDecWrites = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
-  implicit val DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ident )
-  implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
+  implicit val Int2DIntWrites = DDWriter[DInt, Int]( (l: Int) => DInt(l) )
+  implicit val Boolean2DBooleanWrites = DDWriter[DBoolean, Boolean]( (b: Boolean) => DBoolean(b) )
+  implicit val Float2DFloatWrites = DDWriter[DFloat, Float]( (b: Float) => DFloat(b) )
+  implicit val Double2DDoubleWrites = DDWriter[DDouble, Double]( (b: Double) => DDouble(b) )
+  implicit val Date2DDateWrites = DDWriter[DInstant, java.util.Date]( (d: java.util.Date) => DInstant(d) )
+  implicit val BigInt2DBigIntWrites = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
+  implicit val BigDec2DBigDecWrites = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
+  implicit val Ref2DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ident )
+  //implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
+  
+  implicit def DD2DStringWrites = DDWriter[DatomicData, DString]{ dd: DatomicData => dd match {
+    case d: DString => d
+    case _ => throw new RuntimeException("expected DString to convert to DString")
+  }}
+
+  implicit def DD2DLongWrites = DDWriter[DatomicData, DLong]{ dd: DatomicData => dd match {
+    case d: DLong => d
+    case _ => throw new RuntimeException("expected DLong to convert to DLong")
+  }}
+
+  implicit def DD2DBooleanWrites = DDWriter[DatomicData, DBoolean]{ dd: DatomicData => dd match {
+    case d: DBoolean => d
+    case _ => throw new RuntimeException("expected DBoolean to convert to DBoolean")
+  }}
+
+  implicit def DD2DFloatWrites = DDWriter[DatomicData, DFloat]{ dd: DatomicData => dd match {
+    case d: DFloat => d
+    case _ => throw new RuntimeException("expected DFloat to convert to DFloat")
+  }}
+
+  implicit def DD2DDoubleWrites = DDWriter[DatomicData, DDouble]{ dd: DatomicData => dd match {
+    case d: DDouble => d
+    case _ => throw new RuntimeException("expected DDouble to convert to DDouble")
+  }}
+
+  implicit def DD2DBigIntWrites = DDWriter[DatomicData, DBigInt]{ dd: DatomicData => dd match {
+    case d: DBigInt => d
+    case _ => throw new RuntimeException("expected DBigInt to convert to DBigInt")
+  }}
+
+  implicit def DD2DBigDecWrites = DDWriter[DatomicData, DBigDec]{ dd: DatomicData => dd match {
+    case d: DBigDec => d
+    case _ => throw new RuntimeException("expected DBigDec to convert to DBigDec")
+  }}
+
+  implicit def DD2DSetWrites = DDWriter[DatomicData, DSet]{ dd: DatomicData => dd match {
+    case d: DSet => d
+    case _ => throw new RuntimeException("expected DSet to convert to DSet")
+  }}
+
+  implicit def DD2TempIdWrites = DDWriter[DatomicData, TempId]{ dd: DatomicData => dd match {
+    case d: TempId => d
+    case _ => throw new RuntimeException("expected TempId to convert to TempId")
+  }}
+
+  implicit def DD2FinalIdWrites = DDWriter[DatomicData, FinalId]{ dd: DatomicData => dd match {
+    case d: FinalId => d
+    case _ => throw new RuntimeException("expected FinalId to convert to FinalId")
+  }}
+
   implicit def DRefWrites = DDWriter[DRef, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
   implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) = 
     DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
