@@ -34,7 +34,7 @@ class DatomicParserOpsSpec extends Specification {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val uri = "datomic:mem://datomicparseropsspec"
+  val uri = "datomic:mem://DatomicParserOpsSpec"
 
   def startDB = {
     println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))

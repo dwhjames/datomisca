@@ -31,7 +31,7 @@ class DatomicCompilerSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      val uri = "datomic:mem://datomicqueryspec"
+      val uri = "datomic:mem://DatomicCompilerSpec"
       Await.result(
       DatomicBootstrap(uri).map { tx =>
         

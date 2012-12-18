@@ -25,8 +25,8 @@ case class TxReport(
   dbAfter: DDatabase, 
   txData: Seq[DDatom] = Seq(), 
   tempids: Map[Long with datomic.db.DbId, Long] = Map()
-) {
-  def resolve(id: DId)(implicit db: DDatabase): Option[DLong] = 
+) extends TxReportHidden {
+  override def resolve(id: DId)(implicit db: DDatabase): Option[DLong] = 
     tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
 
   def resolve(identified: Identified)(implicit db: DDatabase): Option[DLong] = resolve(identified.id)
@@ -35,19 +35,6 @@ case class TxReport(
     ids.map{ id =>
       tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
     }
-
-  def resolve(id1: DId, id2: DId)(implicit db: DDatabase): (Option[DLong], Option[DLong]) = 
-    ( resolve(id1), resolve(id2) )
-
-  def resolve(id1: Identified, id2: Identified)(implicit db: DDatabase): (Option[DLong], Option[DLong]) = 
-    ( resolve(id1.id), resolve(id2.id) )
-
-  def resolve(id1: DId, id2: DId, id3: DId)(implicit db: DDatabase): (Option[DLong], Option[DLong], Option[DLong]) = 
-    ( resolve(id1), resolve(id2), resolve(id3) )
-
-  def resolve(id1: Identified, id2: Identified, id3: Identified)(implicit db: DDatabase): (Option[DLong], Option[DLong], Option[DLong]) = 
-    ( resolve(id1.id), resolve(id2.id), resolve(id3.id) )
-
 }
 
 trait Connection {

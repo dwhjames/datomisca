@@ -31,7 +31,7 @@ class DatomicDemoSpec extends Specification {
       import DatomicData._
       import scala.concurrent.ExecutionContext.Implicits.global
 
-      val uri = "datomic:mem://datomicschemaspec"
+      val uri = "datomic:mem://DatomicDemoSpec"
 
       //DatomicBootstrap(uri)
       println("created DB with uri %s: %s".format(uri, createDatabase(uri)))

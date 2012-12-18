@@ -111,26 +111,19 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-case class Attribute[DD <: DatomicData, Card <: Cardinality](
-  ident: Keyword,
-  valueType: SchemaType[DD],
-  cardinality: Card,
-  doc: Option[String] = None,
-  unique: Option[Unique] = None,
-  index: Option[Boolean] = None,
-  fulltext: Option[Boolean] = None,
-  isComponent: Option[Boolean] = None,
-  noHistory: Option[Boolean] = None
-) extends Operation with Identified {
+sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Identified {
+  def ident: Keyword
+  def valueType: SchemaType[DD]
+  def cardinality: Card
+  def doc: Option[String] = None
+  def unique: Option[Unique] = None
+  def index: Option[Boolean] = None
+  def fulltext: Option[Boolean] = None
+  def isComponent: Option[Boolean] = None
+  def noHistory: Option[Boolean] = None
+
   // using partiton :db.part/db
   override lazy val id = DId(Partition.DB)
-
-  def withDoc(str: String) = copy( doc = Some(str) )
-  def withUnique(u: Unique) = copy( unique = Some(u) )
-  def withIndex(b: Boolean) = copy( index = Some(b) )
-  def withFullText(b: Boolean) = copy( fulltext = Some(b) )
-  def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
-  def withNoHistory(b: Boolean) = copy( noHistory = Some(b) )
 
   lazy val toAddOps: AddToEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
@@ -168,9 +161,22 @@ case class Attribute[DD <: DatomicData, Card <: Cardinality](
   ( if(noHistory.isDefined) { "\n  " + Attribute.noHistory + " " + DBoolean(noHistory.get) } else { "" }) +
   "\n  " + Attribute.installAttr + " " + DRef(Partition.DB.keyword) + 
   "\n}"
-}
+
+} 
 
 object Attribute {
+  def apply[DD <: DatomicData, Card <: Cardinality](
+    ident: Keyword,
+    valueType: SchemaType[DD],
+    cardinality: Card,
+    doc: Option[String] = None,
+    unique: Option[Unique] = None,
+    index: Option[Boolean] = None,
+    fulltext: Option[Boolean] = None,
+    isComponent: Option[Boolean] = None,
+    noHistory: Option[Boolean] = None
+  ) = new RawAttribute(ident, valueType, cardinality, doc, unique, index, fulltext, isComponent, noHistory)
+
   val id = Keyword(Namespace.DB, "id")
   val ident = Keyword(Namespace.DB, "ident")
   val valueType = Keyword(Namespace.DB, "valueType")
@@ -183,6 +189,71 @@ object Attribute {
   val noHistory = Keyword(Namespace.DB, "noHistory")
   val installAttr = Keyword(Namespace.DB.INSTALL, "_attribute")
 }
+
+case class RawAttribute[DD <: DatomicData, Card <: Cardinality](
+  override val ident: Keyword,
+  override val valueType: SchemaType[DD],
+  override val cardinality: Card,
+  override val doc: Option[String] = None,
+  override val unique: Option[Unique] = None,
+  override val index: Option[Boolean] = None,
+  override val fulltext: Option[Boolean] = None,
+  override val isComponent: Option[Boolean] = None,
+  override val noHistory: Option[Boolean] = None
+) extends Attribute[DD, Card] {
+  def withDoc(str: String) = copy( doc = Some(str) )
+  def withUnique(u: Unique) = copy( unique = Some(u) )
+  def withIndex(b: Boolean) = copy( index = Some(b) )
+  def withFullText(b: Boolean) = copy( fulltext = Some(b) )
+  def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
+  def withNoHistory(b: Boolean) = copy( noHistory = Some(b) )
+
+}
+
+
+
+case class RefAttribute[T](
+  override val ident: Keyword,
+  override val doc: Option[String] = None,
+  override val unique: Option[Unique] = None,
+  override val index: Option[Boolean] = None,
+  override val fulltext: Option[Boolean] = None,
+  override val isComponent: Option[Boolean] = None,
+  override val noHistory: Option[Boolean] = None
+) extends Attribute[DRef, CardinalityOne.type]{
+  
+  override val valueType = SchemaType.ref
+  override val cardinality = CardinalityOne
+
+  def withDoc(str: String) = copy[T]( doc = Some(str) )
+  def withUnique(u: Unique) = copy[T]( unique = Some(u) )
+  def withIndex(b: Boolean) = copy[T]( index = Some(b) )
+  def withFullText(b: Boolean) = copy[T]( fulltext = Some(b) )
+  def withIsComponent(b: Boolean) = copy[T]( isComponent = Some(b) )
+  def withNoHistory(b: Boolean) = copy[T]( noHistory = Some(b) )
+}
+
+case class ManyRefAttribute[T](
+  override val ident: Keyword,
+  override val doc: Option[String] = None,
+  override val unique: Option[Unique] = None,
+  override val index: Option[Boolean] = None,
+  override val fulltext: Option[Boolean] = None,
+  override val isComponent: Option[Boolean] = None,
+  override val noHistory: Option[Boolean] = None
+) extends Attribute[DRef, CardinalityMany.type] {
+
+  override val valueType = SchemaType.ref
+  override val cardinality = CardinalityMany
+
+  def withDoc(str: String) = copy[T]( doc = Some(str) )
+  def withUnique(u: Unique) = copy[T]( unique = Some(u) )
+  def withIndex(b: Boolean) = copy[T]( index = Some(b) )
+  def withFullText(b: Boolean) = copy[T]( fulltext = Some(b) )
+  def withIsComponent(b: Boolean) = copy[T]( isComponent = Some(b) )
+  def withNoHistory(b: Boolean) = copy[T]( noHistory = Some(b) )
+}
+
 
 sealed trait Props {
   def convert: PartialAddToEntity
@@ -308,113 +379,4 @@ trait DatomicSchemaFacilities {
     AddToEntity(id, props.convert)
   }
 
-  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1](id: DId, prop1: (Attribute[DD1, Card1], A1))
-    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1]): AddToEntity = {
-    AddToEntity(id, attrC1.convert(prop1._1).write(prop1._2))
-  }
-
-  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
-                  DD2 <: DatomicData, Card2 <: Cardinality, A2]
-                  (id: DId,
-                   prop1: (Attribute[DD1, Card1], A1), 
-                   prop2: (Attribute[DD2, Card2], A2))
-    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
-              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2]): AddToEntity = {
-    AddToEntity(id, 
-      attrC1.convert(prop1._1).write(prop1._2) ++
-      attrC2.convert(prop2._1).write(prop2._2) 
-    )
-  }
-
-  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
-                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
-                  DD3 <: DatomicData, Card3 <: Cardinality, A3]
-                  (id: DId,
-                   prop1: (Attribute[DD1, Card1], A1), 
-                   prop2: (Attribute[DD2, Card2], A2), 
-                   prop3: (Attribute[DD3, Card3], A3))
-    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
-              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
-              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3]): AddToEntity = {
-    AddToEntity(id, 
-      attrC1.convert(prop1._1).write(prop1._2) ++ 
-      attrC2.convert(prop2._1).write(prop2._2) ++ 
-      attrC3.convert(prop3._1).write(prop3._2) 
-    )
-  }
-
-  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
-                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
-                  DD3 <: DatomicData, Card3 <: Cardinality, A3,
-                  DD4 <: DatomicData, Card4 <: Cardinality, A4]
-                  (id: DId,
-                   prop1: (Attribute[DD1, Card1], A1), 
-                   prop2: (Attribute[DD2, Card2], A2), 
-                   prop3: (Attribute[DD3, Card3], A3), 
-                   prop4: (Attribute[DD4, Card4], A4))
-    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
-              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
-              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3],
-              attrC4: Attribute2PartialAddToEntityWriter[DD4, Card4, A4]): AddToEntity = {
-    AddToEntity(id, 
-      attrC1.convert(prop1._1).write(prop1._2) ++ 
-      attrC2.convert(prop2._1).write(prop2._2) ++ 
-      attrC3.convert(prop3._1).write(prop3._2) ++ 
-      attrC4.convert(prop4._1).write(prop4._2) 
-    )
-  }
-
-  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
-                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
-                  DD3 <: DatomicData, Card3 <: Cardinality, A3,
-                  DD4 <: DatomicData, Card4 <: Cardinality, A4,
-                  DD5 <: DatomicData, Card5 <: Cardinality, A5]
-                  (id: DId,
-                   prop1: (Attribute[DD1, Card1], A1), 
-                   prop2: (Attribute[DD2, Card2], A2), 
-                   prop3: (Attribute[DD3, Card3], A3), 
-                   prop4: (Attribute[DD4, Card4], A4), 
-                   prop5: (Attribute[DD5, Card5], A5))
-    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
-              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
-              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3],
-              attrC4: Attribute2PartialAddToEntityWriter[DD4, Card4, A4],
-              attrC5: Attribute2PartialAddToEntityWriter[DD5, Card5, A5]): AddToEntity = {
-    AddToEntity(id, 
-      attrC1.convert(prop1._1).write(prop1._2) ++ 
-      attrC2.convert(prop2._1).write(prop2._2) ++ 
-      attrC3.convert(prop3._1).write(prop3._2) ++ 
-      attrC4.convert(prop4._1).write(prop4._2) ++ 
-      attrC5.convert(prop5._1).write(prop5._2) 
-    )
-  }
-
-  def addToEntity[DD1 <: DatomicData, Card1 <: Cardinality, A1, 
-                  DD2 <: DatomicData, Card2 <: Cardinality, A2,
-                  DD3 <: DatomicData, Card3 <: Cardinality, A3,
-                  DD4 <: DatomicData, Card4 <: Cardinality, A4,
-                  DD5 <: DatomicData, Card5 <: Cardinality, A5,
-                  DD6 <: DatomicData, Card6 <: Cardinality, A6]
-                  (id: DId,
-                   prop1: (Attribute[DD1, Card1], A1), 
-                   prop2: (Attribute[DD2, Card2], A2), 
-                   prop3: (Attribute[DD3, Card3], A3), 
-                   prop4: (Attribute[DD4, Card4], A4), 
-                   prop5: (Attribute[DD5, Card5], A5), 
-                   prop6: (Attribute[DD6, Card6], A6))
-    (implicit attrC1: Attribute2PartialAddToEntityWriter[DD1, Card1, A1],
-              attrC2: Attribute2PartialAddToEntityWriter[DD2, Card2, A2],
-              attrC3: Attribute2PartialAddToEntityWriter[DD3, Card3, A3],
-              attrC4: Attribute2PartialAddToEntityWriter[DD4, Card4, A4],
-              attrC5: Attribute2PartialAddToEntityWriter[DD5, Card5, A5],
-              attrC6: Attribute2PartialAddToEntityWriter[DD6, Card6, A6]): AddToEntity = {
-    AddToEntity(id, 
-      attrC1.convert(prop1._1).write(prop1._2) ++ 
-      attrC2.convert(prop2._1).write(prop2._2) ++ 
-      attrC3.convert(prop3._1).write(prop3._2) ++ 
-      attrC4.convert(prop4._1).write(prop4._2) ++ 
-      attrC5.convert(prop5._1).write(prop5._2) ++ 
-      attrC6.convert(prop6._1).write(prop6._2) 
-    )
-  }
 }

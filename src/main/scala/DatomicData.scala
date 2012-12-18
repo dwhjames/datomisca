@@ -296,17 +296,47 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     dd2t.read(dd2dd.read(apply(attr.ident)))
   }*/
 
-  def as[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): T = {
-    attrC.convert(attr).read(this).get
-  }
-
-  def getAs[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
+  def get[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
     attrC.convert(attr).read(this).toOption
   }
 
-  def tryGetAs[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
+  def tryGet[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
     attrC.convert(attr).read(this)
   }
+
+  def getRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
+    tryGet(attr).toOption
+  }
+
+  def getRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
+    tryGet(attr).toOption
+  }
+
+  def tryGetRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
+    tryGet(attr)
+  }
+
+  def tryGetRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
+    tryGet(attr)
+  }
+
+  def get[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
+    tryGet(attr).toOption
+  }
+
+  def tryGet[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
+    attrC.convert(attr).read(this)
+  }
+
+  def get[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
+    tryGet(attr).toOption
+  }
+
+  def tryGet[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
+    attrC.convert(attr).read(this)
+  }
+
+
 }
 
 object DEntity {
@@ -523,7 +553,7 @@ trait DatomicDataImplicits {
     case _ => throw new RuntimeException("expected DInstant to convert to Data")
   }}
 
-  implicit val DRefDDReader: DDReader[DatomicData, DRef] = DDReader{ dd: DatomicData => dd match { 
+  /*implicit val DRefDDReader: DDReader[DatomicData, DRef] = DDReader{ dd: DatomicData => dd match { 
     case s: DRef => s
     case _ => throw new RuntimeException("expected DRef to convert to DRef")
   }}
@@ -531,7 +561,7 @@ trait DatomicDataImplicits {
   implicit val DEntityDDReader: DDReader[DatomicData, DEntity] = DDReader{ dd: DatomicData => dd match { 
     case s: DEntity => s
     case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
-  }}
+  }}*/
 
   implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] = DDReader{ dd: DatomicData => dd match { 
     case s: DSet => s.toSet.map( reader.read(_) )
@@ -554,6 +584,7 @@ trait DatomicDataImplicits {
   implicit val BigInt2DBigIntWrites = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
   implicit val BigDec2DBigDecWrites = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
   implicit val Ref2DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ident )
+  implicit val DRef2DRefWrites = DDWriter[DRef, DRef]( (d: DRef) => d )
   //implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
   
   implicit def DD2DStringWrites = DDWriter[DatomicData, DString]{ dd: DatomicData => dd match {

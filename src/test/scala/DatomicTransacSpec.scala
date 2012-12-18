@@ -29,7 +29,7 @@ class DatomicTransacSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      val uri = "datomic:mem://datomicqueryspec"
+      val uri = "datomic:mem://DatomicTransacSpec"
 
       Await.result(
         DatomicBootstrap(uri),

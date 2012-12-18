@@ -26,7 +26,9 @@ object Ref {
   def apply[T](theId: DId)(t: T) = new Ref[T](t, theId)
 }
 
-trait EntityReader[A] {
+sealed trait EntityMapper[A]
+
+trait EntityReader[A] extends EntityMapper[A] {
   self => 
   def read(e: DEntity): Try[A]
 
@@ -45,7 +47,7 @@ object EntityReader{
   }
 }
 
-trait PartialAddToEntityWriter[A] {
+trait PartialAddToEntityWriter[A] extends EntityMapper[A] {
   def write(a: A): PartialAddToEntity
 }
 
@@ -110,7 +112,25 @@ trait EntityReaderImplicits {
     def fmap[A, B](ereader: EntityReader[A], f: A => B) = EntityReader{ e => ereader.read(e).map(f) }
   }
 
-  implicit def attr2EntityReaderOneRef[A](implicit er: EntityReader[A]) =
+  /*implicit val attr2EntityReaderManyDRef = 
+    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[DRef]] {
+      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[DRef]] = {
+        EntityReader[Set[DRef]]{ e: DEntity => 
+          try {
+            e.tryGetAs[DSet](attr.ident).map{ value =>
+              value.toSet.map{ 
+                case subent: DRef => subent
+                case _ => throw new RuntimeException("found an object not being a DRef")
+              }
+            }
+          }catch{
+            case e: Throwable => Failure(e)
+          }
+        }
+      }
+    }*/
+
+  implicit def attr2EntityReaderOneRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) =
     new Attribute2EntityReader[DRef, CardinalityOne.type, Ref[A]] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Ref[A]] = {
         EntityReader[Ref[A]]{ e: DEntity => 
@@ -127,7 +147,7 @@ trait EntityReaderImplicits {
       }
     }  
 
-  implicit def attr2EntityReaderManyRef[A](implicit er: EntityReader[A]) = 
+  implicit def attr2EntityReaderManyRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) = 
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[A]]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Ref[A]]] = {
         EntityReader[Set[Ref[A]]]{ e: DEntity => 

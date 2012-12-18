@@ -146,7 +146,7 @@ trait Combinator[M[_]] {
   def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B]
 }
 
-class CombinatorOps[A, M[_]](ma: M[A])(implicit combi: Combinator[M]) {
+class CombinatorOps[M[_], A](ma: M[A])(implicit combi: Combinator[M]) {
   def ~[B](mb: M[B]) = {
     val builder = new Builder(combi)
     new builder.Builder2(ma, mb)
@@ -295,15 +295,15 @@ trait Monad[M[_]] {
 object CombinatorImplicits extends CombinatorImplicits
 
 trait CombinatorImplicits {
-  def unlift[A, B](f: A => Option[B]): A => B = Function.unlift(f)
+  implicit def RDCombinatorOpsWrapper[M[_] <: EntityMapper[_], A](ma: M[A])(implicit combi: Combinator[M]) = new CombinatorOps(ma)(combi)
 
-  implicit def CombinatorOpsWrapper[A, M[_]](ma: M[A])(implicit combi: Combinator[M]) = new CombinatorOps(ma)(combi)
-
-  implicit def CombinatorWrapper[M[_]](implicit monad: Monad[M]) = new Combinator[M] {
+  implicit def RDCombinatorWrapper[M[_] <: EntityReader[_]](implicit monad: Monad[M]) = new Combinator[M] {
     def apply[A, B](ma: M[A], mb: M[B]): M[A ~ B] = monad.bind(ma, (a: A) => monad.bind(mb, (b: B) => monad.unit(new ~(a, b)) ))
   }
 
-  implicit def toFunctorOps[M[_], A](ma: M[A])(implicit fu: Functor[M]): FunctorOps[M, A] = new FunctorOps(ma)
-  implicit def toContraFunctorOps[M[_], A](ma: M[A])(implicit fu: ContraFunctor[M]): ContraFunctorOps[M, A] = new ContraFunctorOps(ma)
+  implicit def RDtoFunctorOps[M[_] <: EntityReader[_], A](ma: M[A])(implicit fu: Functor[M]): FunctorOps[M, A] = new FunctorOps(ma)
+  implicit def RDtoContraFunctorOps[M[_] <: PartialAddToEntityWriter[_], A](ma: M[A])(implicit fu: ContraFunctor[M]): ContraFunctorOps[M, A] = new ContraFunctorOps(ma)
+
+  def unlift[A, B](f: A => Option[B]): A => B = Function.unlift(f)
 
 }

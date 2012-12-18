@@ -34,7 +34,7 @@ class DatomicTxSpec extends Specification {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val uri = "datomic:mem://datomictxspec"
+  val uri = "datomic:mem://DatomicTxSpec"
   case class Person(name: String, age: Long)
   case class Dog(name: String, age: Long)
   case class PersonFriend(name: String, age: Long)

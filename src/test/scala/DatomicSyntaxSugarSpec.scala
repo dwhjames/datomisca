@@ -30,7 +30,7 @@ class DatomicSyntaxSugarSpec extends Specification {
       import Datomic._
       import DatomicData._
 
-      val uri = "datomic:mem://datomicschemaspec"
+      val uri = "datomic:mem://DatomicSyntaxSugarSpec"
 
       Await.result(
         DatomicBootstrap(uri),
