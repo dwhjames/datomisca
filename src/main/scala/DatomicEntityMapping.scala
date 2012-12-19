@@ -102,6 +102,8 @@ trait EntityReaderImplicits {
 
   import DatomicDataImplicits._
 
+  implicit val DEntityEntityReader = EntityReader[DEntity]( de => Success(de) )
+
   implicit object EntityReaderMonad extends Monad[EntityReader] {
     def unit[A](a: A) = EntityReader[A]{ (e: DEntity) => Success(a) }
     def bind[A, B](ma: EntityReader[A], f: A => EntityReader[B]) = 
@@ -111,24 +113,6 @@ trait EntityReaderImplicits {
   implicit object EntityReaderFunctor extends Functor[EntityReader] {
     def fmap[A, B](ereader: EntityReader[A], f: A => B) = EntityReader{ e => ereader.read(e).map(f) }
   }
-
-  /*implicit val attr2EntityReaderManyDRef = 
-    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[DRef]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[DRef]] = {
-        EntityReader[Set[DRef]]{ e: DEntity => 
-          try {
-            e.tryGetAs[DSet](attr.ident).map{ value =>
-              value.toSet.map{ 
-                case subent: DRef => subent
-                case _ => throw new RuntimeException("found an object not being a DRef")
-              }
-            }
-          }catch{
-            case e: Throwable => Failure(e)
-          }
-        }
-      }
-    }*/
 
   implicit def attr2EntityReaderOneRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) =
     new Attribute2EntityReader[DRef, CardinalityOne.type, Ref[A]] {

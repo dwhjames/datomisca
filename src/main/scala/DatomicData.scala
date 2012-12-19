@@ -642,7 +642,13 @@ trait DatomicDataImplicits {
     case _ => throw new RuntimeException("expected FinalId to convert to FinalId")
   }}
 
+  implicit def DD2DEntityWrites = DDWriter[DatomicData, DEntity]{ dd: DatomicData => dd match {
+    case d: DEntity => d
+    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
+  }}
+
   implicit def DRefWrites = DDWriter[DRef, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
+  
   implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) = 
     DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
 

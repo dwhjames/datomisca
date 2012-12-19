@@ -85,6 +85,8 @@ trait DatomicFacilities {
   def addToEntity(id: DId)(props: (Keyword, DWrapper)*) = 
     AddToEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
 
+  def addToEntity(id: DId, props: PartialAddToEntity) = AddToEntity(id, props)
+
   def addToEntity(id: DId, props: Map[Keyword, DatomicData]) = AddToEntity(id, props)
 
   def partialAddToEntity(props: (Keyword, DWrapper)*) = 
