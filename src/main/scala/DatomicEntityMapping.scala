@@ -102,7 +102,7 @@ trait EntityReaderImplicits {
 
   import DatomicDataImplicits._
 
-  implicit val DEntityEntityReader = EntityReader[DEntity]( de => Success(de) )
+  //implicit val DEntityEntityReader = EntityReader[DEntity]( de => Success(de) )
 
   implicit object EntityReaderMonad extends Monad[EntityReader] {
     def unit[A](a: A) = EntityReader[A]{ (e: DEntity) => Success(a) }

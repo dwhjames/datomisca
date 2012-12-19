@@ -163,9 +163,12 @@ object DatomicParser extends JavaTokenParsers {
   def output: Parser[Output] = outVariable
   def find: Parser[Find] = positioned(":find" ~> rep(output) ^^ { Find(_) })
 
+  // WITH
+  def wizz: Parser[With] = positioned(":with" ~> rep(variable) ^^ { With(_) })
+
   // QUERY
-  def query: Parser[PureQuery] = "[" ~> find ~ opt(in) ~ where <~ "]" ^^ { 
-    case find ~ in ~ where => PureQuery(find, in, where) 
+  def query: Parser[PureQuery] = "[" ~> find ~ opt(wizz) ~ opt(in) ~ where <~ "]" ^^ { 
+    case find ~ wizz ~ in ~ where => PureQuery(find, wizz, in, where) 
   }
 
   def scalaExpr: Parser[ScalaExpr] = "$" ~> ( brackets | literal ) ^^ { ScalaExpr(_) }

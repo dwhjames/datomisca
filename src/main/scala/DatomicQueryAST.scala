@@ -109,13 +109,19 @@ case class OutVariable(variable: Var) extends Output {
   override def toString = variable.toString
 }
 
+/* DATOMIC WITH (Optional) */
+case class With(variables: Seq[Var]) extends Positional {
+  override def toString = variables.map( _.toString ).mkString(":with ", " ", "")
+}
+
 /* DATOMIC QUERY */
 trait Query {
   def find: Find
+  def wizz: Option[With] = None
   def in: Option[In] = None
   def where: Where
 
-  override def toString = s"""[ $find ${in.map( _.toString + " " ).getOrElse("")}$where ]"""
+  override def toString = s"""[ $find ${wizz.map( _.toString + " " ).getOrElse("")}${in.map( _.toString + " " ).getOrElse("")}$where ]"""
 
   def apply[InArgs <: Args, OutArgs <: Args](in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = directQuery(in)
 
@@ -144,13 +150,15 @@ trait Query {
 }
 
 object Query {
-  def apply(find: Find, where: Where): PureQuery = PureQuery(find, None, where)
-  def apply(find: Find, in: In, where: Where): PureQuery = PureQuery(find, Some(in), where)
-  def apply(find: Find, in: Option[In], where: Where): PureQuery = PureQuery(find, in, where)
+  def apply(find: Find, where: Where): PureQuery = PureQuery(find, None, None, where)
+  def apply(find: Find, in: In, where: Where): PureQuery = PureQuery(find, None, Some(in), where)
+  def apply(find: Find, in: Option[In], where: Where): PureQuery = PureQuery(find, None, in, where)
+  def apply(find: Find, wizz: With, in: In, where: Where): PureQuery = PureQuery(find, Some(wizz), Some(in), where)
+  def apply(find: Find, wizz: Option[With], in: Option[In], where: Where): PureQuery = PureQuery(find, wizz, in, where)
   def apply[In <: Args, Out <: Args](q: PureQuery): TypedQuery[In, Out] = TypedQuery[In, Out](q)
 }
 
-case class PureQuery(override val find: Find, override val in: Option[In] = None, override val where: Where) extends Query {
+case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query {
   self =>
 
   private[reactivedatomic] def prepare[InArgs <: Args](in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
@@ -175,6 +183,7 @@ case class PureQuery(override val find: Find, override val in: Option[In] = None
 
 case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends Query {
   override def find = query.find
+  override def wizz = query.wizz
   override def in = query.in
   override def where = query.where
 

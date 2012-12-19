@@ -173,6 +173,26 @@ class DatomicParserSpec extends Specification {
       
     }
 
+    "parse query with with, in & DS & func" in {
+      DatomicParser.parseQuery(""" 
+        [ :find ?n ?e
+        :with ?toto
+        :in $data ?f
+        :where [ $data ?n :ns1.ns2/arg ?e ] [ ?n :ns/arg2 ?toto ] [(* ?a 12) ?months] ]
+      """) must beEqualTo(
+        Query(
+          Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
+          With(Seq(Var("toto"))),
+          In(Seq(InDataSource(ExternalDS("data")), InVariable(ScalarBinding(Var("f"))))),
+          Where(Seq(
+            DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
+            DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("toto") ),
+            ExpressionRule(FunctionExpression(DFunction("*"), Seq(Var("a"), Const(DLong(12))), ScalarBinding(Var("months")) ))
+          ))
+        )
+      )
+    }
+
     "serialize predicate rule" in {
       
       DataRule(ImplicitDS, Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") )
@@ -222,13 +242,14 @@ class DatomicParserSpec extends Specification {
     "serialize full query" in {
       Query(
         Find(Seq(OutVariable(Var("n")), OutVariable(Var("e")))),
+        With(Seq(Var("toto"))),
         In(Seq(InDataSource(ExternalDS("data")), InVariable(ScalarBinding(Var("f"))))),
         Where(Seq(
           DataRule(ExternalDS("data"), Var("n"), Keyword( "arg", Some(Namespace("ns1.ns2"))), Var("e") ),
           DataRule(ImplicitDS, Var("n"), Keyword( "arg2", Some(Namespace("ns"))), Var("f") )
         ))
       ).toString must beEqualTo(""" 
-        [ :find ?n ?e :in $data ?f :where [$data ?n :ns1.ns2/arg ?e] [?n :ns/arg2 ?f] ]
+        [ :find ?n ?e :with ?toto :in $data ?f :where [$data ?n :ns1.ns2/arg ?e] [?n :ns/arg2 ?f] ]
       """.trim)
     }
   }

@@ -85,6 +85,7 @@ class DatomicQuerySpec extends Specification {
         case (e: DLong) => 
           val entity = database.entity(e)
           println("2 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
+        case _ => failure("unexpected result")
       }
 
       success
@@ -104,6 +105,7 @@ class DatomicQuerySpec extends Specification {
         case (e: DLong) => 
           val entity = database.entity(e)
           println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
+        case _ => failure("unexpected result")
       }
 
       success
@@ -223,6 +225,26 @@ class DatomicQuerySpec extends Specification {
         case (e: DLong, age: DLong) => 
           println(s"e: $e - age: $age")
           age must beEqualTo(DLong(30L))
+        case _ => failure("unexpected result")
+      }
+    }
+
+    "9 - query with with" in {
+      implicit val conn = Datomic.connect(uri)
+      
+      val q = Datomic.typedQuery[Args0, Args2]("""
+        [ :find ?e ?n 
+          :with ?age
+          :where  [ ?e :person/name ?n ] 
+                  [ ?e :person/age ?age ] 
+                  [ ?e :person/character :person.character/violent ]
+        ]
+      """)
+
+      Datomic.query(q).map {
+        case (e: DLong, name: DString) => 
+          println(s"e: $e - name: $name")
+          name must beEqualTo(DString("tutu"))
         case _ => failure("unexpected result")
       }
     }

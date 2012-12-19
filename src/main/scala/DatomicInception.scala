@@ -193,10 +193,14 @@ trait DatomicInception {
       def incept(f: Find): c.Tree = 
         Apply( Ident(newTermName("Find")), List( Apply(Ident(newTermName("Seq")), f.outputs.map(incept(_)).toList )) )  
 
+      def incept(f: With): c.Tree = 
+        Apply( Ident(newTermName("With")), List( Apply(Ident(newTermName("Seq")), f.variables.map(incept(_)).toList )) )  
+
       def incept(q: PureQuery): c.universe.Tree = {
         Apply(
           Ident(newTermName("PureQuery")), 
           List(incept(q.find)) ++ 
+          q.wizz.map{ wizz => List(Apply(Ident(newTermName("Some")), List(incept(wizz)))) }.getOrElse(List(Ident(newTermName("None")))) ++ 
           q.in.map{ in => List(Apply(Ident(newTermName("Some")), List(incept(in)))) }.getOrElse(List(Ident(newTermName("None")))) ++ 
           List(incept(q.where))
         )
