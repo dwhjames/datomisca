@@ -136,7 +136,7 @@ trait Query {
       else args
     }
 
-    //println("QSER:"+qser+ " - args:"+args)
+    println("QSER:"+qser+ " - args:"+args)
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     

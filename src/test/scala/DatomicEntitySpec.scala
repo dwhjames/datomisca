@@ -55,12 +55,13 @@ class DatomicEntitySpec extends Specification {
     val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
     val birth = Attribute( person / "birth", SchemaType.instant, Cardinality.one).withDoc("Person's birth date")
     val characters =  Attribute( person / "characters", SchemaType.ref, Cardinality.many).withDoc("Person's characterS")
+    val specialChar =  Attribute( person / "specialChar", SchemaType.ref, Cardinality.one).withDoc("Person's Special character")
     val dog =  Attribute( person / "dog", SchemaType.ref, Cardinality.one).withDoc("Person's dog")
     val dogRef =  RefAttribute[Dog]( person / "dog").withDoc("Person's dog")
 
     val doggies =  ManyRefAttribute[Dog]( person / "doggies").withDoc("Person's doggies")
 
-    val schema = Seq(name, age, birth, characters, dog, doggies)
+    val schema = Seq(name, age, birth, characters, specialChar, dog, doggies)
   }
 
   object DogSchema {
@@ -133,6 +134,7 @@ class DatomicEntitySpec extends Specification {
               person / "age" -> 30L,
               person / "birth" -> birthDate,
               person / "characters" -> Set(violent, weak),
+              person / "specialChar" -> clever,
               person / "dog" -> medorId,
               person / "doggies" -> Set(doggy1Id, doggy2Id, doggy3Id)
             ),
@@ -213,6 +215,7 @@ class DatomicEntitySpec extends Specification {
             ageValue4 must beEqualTo(30)
 
             val characters = entity.get(PersonSchema.characters)
+            val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
             val birthValue = entity.as[DInstant](person / "birth")
             birthValue must beEqualTo(DInstant(birthDate))
@@ -222,6 +225,8 @@ class DatomicEntitySpec extends Specification {
 
             val birthValue3 = entity.get(PersonSchema.birth)
             birthValue3 must beEqualTo(Some(birthDate))
+
+            val dogValue0 = entity.getAs[DEntity](person / "dog")
 
             val dogValue = entity.getRef[Dog](PersonSchema.dog)
             dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
@@ -235,6 +240,14 @@ class DatomicEntitySpec extends Specification {
               Ref(DId(realDoggy2Id))(doggy2),
               Ref(DId(realDoggy3Id))(doggy3)
             )))
+
+            val writer = PersonSchema.specialChar.write[DRef]
+            writer.write(clever.ident).toMap must beEqualTo(
+              PartialAddToEntity(Map(
+                PersonSchema.specialChar.ident -> clever.ident
+              )).toMap
+            )
+
           }.getOrElse(failure("could't find entity"))
         case _ => failure("error")
       }

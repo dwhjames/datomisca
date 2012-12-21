@@ -55,7 +55,7 @@ object DatomicParser extends JavaTokenParsers {
 
   val decimalMandatory: Parser[String] = """(\d+\.\d*)""".r
 
-  val functionLiteral = """[a-zA-Z.]([a-zA-Z0-9.]|(-|_)[a-zA-Z0-9.])*""".r
+  val functionLiteral = """[a-zA-Z.]([a-zA-Z0-9.]|(-|_|/)[a-zA-Z0-9.])*""".r
   val operator: Parser[String] = """(\+|-|\*|/|not=|==|=|<=|>=|<|>)""".r
   //val operator: Parser[String] = "+" | "-" | "*" | "/" | "==" | "<=" | ">=" | "<" | ">"
 
@@ -233,7 +233,9 @@ object DatomicParser extends JavaTokenParsers {
   def addToEntityParsing: Parser[AddToEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddToEntityParsing(t.toMap) }
 
   def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addToEntityParsing) <~ "]"
-  def ops: Parser[Seq[Operation]] = "[" ~> rep(add | retract | retractEntity | addToEntity) <~ "]"
+  def ops: Parser[Seq[Operation]] = rep("[" ~> rep(add | retract | retractEntity | addToEntity) <~ "]") ^^ {
+    case l: Seq[Seq[Operation]] => l.flatten
+  }
 
   def eof = """\Z""".r
 

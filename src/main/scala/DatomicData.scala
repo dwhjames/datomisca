@@ -144,6 +144,8 @@ object DRef {
 }
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
+  self => 
+
   def entity(e: DLong): Option[DEntity] = entity(e.underlying)
   def entity(e: Long): Option[DEntity] = 
     Option(underlying.entity(e)).filterNot{ e: datomic.Entity => e.keySet.isEmpty }.map(DEntity(_))
@@ -182,12 +184,52 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     opt.get
   }
 
+  def filter(filterFn: (DDatabase, DDatom) => Boolean): DDatabase = {
+    DDatabase(underlying.filter(
+      new datomic.Database.Predicate[datomic.Datom](){
+        def apply(db: datomic.Database, d: datomic.Datom): Boolean = {
+          val ddb = DDatabase(db)
+          filterFn(ddb, DDatom(d)(ddb))
+        }
+      }
+    ))
+  }
+
+  def filter(filterFn: DDatom => Boolean): DDatabase = {
+    DDatabase(underlying.filter(
+      new datomic.Database.Predicate[datomic.Datom](){
+        def apply(db: datomic.Database, d: datomic.Datom): Boolean = {
+          filterFn(DDatom(d)(self))
+        }
+      }
+    ))
+  }
+
+  def touch(id: Long): Option[DEntity] = touch(DLong(id))
+  def touch(id: DLong): Option[DEntity] = entity(id).map( touch(_) )
+  def touch(entity: DEntity): DEntity = entity.touch
+
+  def datoms(index: Keyword, components: Keyword*): Seq[DDatom] = {
+    //import scala.collection.JavaConverters._
+    import scala.collection.JavaConversions._
+    underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => DDatom(d)(this) )
+  }
+
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying
 }
 
 object DDatabase {
   def apply(underlying: datomic.Database) = new DDatabase(underlying)
+
+  // Index component contains all datoms
+  val EAVT = Keyword("eavt")
+  // Index component contains all datoms
+  val AEVT = Keyword("aevt")
+  // Index component contains datoms for attributes where :db/index = true
+  val AVET = Keyword("avet")
+  // Index component contains datoms for attributes of :db.type/ref
+  val VAET = Keyword("vaet")
 } 
 
 trait DId extends DatomicData
@@ -246,6 +288,8 @@ object DSet {
 
 class DEntity(val entity: datomic.Entity) extends DatomicData {
   def toNative = entity
+
+  def touch() = new DEntity(entity.touch())
 
   def apply(keyword: Keyword): DatomicData = DatomicData.toDatomicData( entity.get(keyword.toNative) )
 
@@ -363,6 +407,7 @@ case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
 trait DDatom extends DatomicData{
   def id: DLong
   def attr: Keyword
+  def attrId: DId
   def value: DatomicData
   def tx: DLong
   def added: DBoolean
@@ -377,6 +422,7 @@ object DDatom{
   def apply(d: datomic.Datom)(implicit db: DDatabase) = new DDatom{
     lazy val id = DLong(d.e.asInstanceOf[Long])
     lazy val attr = db.ident(d.a.asInstanceOf[java.lang.Integer])
+    lazy val attrId = DId(DLong(d.a.asInstanceOf[java.lang.Integer].toLong))
     lazy val value = DatomicData.toDatomicData(d.v)
     lazy val tx = DLong(d.tx.asInstanceOf[Long])
     lazy val added = DBoolean(d.added.asInstanceOf[Boolean])
@@ -612,6 +658,11 @@ trait DatomicDataImplicits {
     case _ => throw new RuntimeException("expected DDouble to convert to DDouble")
   }}
 
+  implicit def DD2DInstantWrites = DDWriter[DatomicData, DInstant]{ dd: DatomicData => dd match {
+    case d: DInstant => d
+    case _ => throw new RuntimeException("expected DInstant to convert to DInstant")
+  }}
+
   implicit def DD2DBigIntWrites = DDWriter[DatomicData, DBigInt]{ dd: DatomicData => dd match {
     case d: DBigInt => d
     case _ => throw new RuntimeException("expected DBigInt to convert to DBigInt")
@@ -648,7 +699,7 @@ trait DatomicDataImplicits {
   }}
 
   implicit def DRefWrites = DDWriter[DRef, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
-  
+
   implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) = 
     DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
 

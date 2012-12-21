@@ -102,6 +102,7 @@ trait PartialAddToEntity {
 
   def ++(other: PartialAddToEntity) = PartialAddToEntity( props ++ other.props )
 
+  def toMap = props
   //override def toString = props.toString
 }
 
