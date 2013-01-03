@@ -27,7 +27,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 
 import Datomic._
-import DatomicData._
 
 
 @RunWith(classOf[JUnitRunner])
@@ -78,7 +77,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      val q = typedQuery[Args0, Args1](""" 
+      val q = Datomic.typed.query[Args0, Args1](""" 
         [:find ?e :where [?e :person/name]]
       """)
       query(q).map{
@@ -95,7 +94,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      query(typedQuery[Args2, Args1](""" 
+      query(Datomic.typed.query[Args2, Args1](""" 
         [
          :find ?e
          :in $ [?names ...] 
@@ -114,7 +113,7 @@ class DatomicQuerySpec extends Specification {
     "4 - typed query with rule with list of tuple inputs" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Datomic.typedQuery[Args2, Args3](""" 
+      val q = Datomic.typed.query[Args2, Args3](""" 
         [
          :find ?e ?name ?age
          :in $ [[?name ?age]]
@@ -140,7 +139,7 @@ class DatomicQuerySpec extends Specification {
     "5 - typed query with fulltext query" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Datomic.typedQuery[Args0, Args2](""" 
+      val q = Datomic.typed.query[Args0, Args2](""" 
         [
          :find ?e ?n
          :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
@@ -212,7 +211,7 @@ class DatomicQuerySpec extends Specification {
         ] ]
       """)
 
-      val q = Datomic.typedQuery[Args2, Args2]("""
+      val q = Datomic.typed.query[Args2, Args2]("""
         [
           :find ?e ?age
           :in $ %
@@ -232,7 +231,7 @@ class DatomicQuerySpec extends Specification {
     "9 - query with with" in {
       implicit val conn = Datomic.connect(uri)
       
-      val q = Datomic.typedQuery[Args0, Args2]("""
+      val q = Datomic.typed.query[Args0, Args2]("""
         [ :find ?e ?n 
           :with ?age
           :where  [ ?e :person/name ?n ] 

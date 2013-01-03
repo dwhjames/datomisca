@@ -16,6 +16,8 @@
 
 package reactivedatomic
 
+package dmacros
+
 import scala.reflect.macros.Context
 import scala.reflect.internal.util.{Position, OffsetPosition}
 

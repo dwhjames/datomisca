@@ -29,7 +29,6 @@ class DatomicCompilerSpec extends Specification {
   "Datomic" should {
     "query simple" in {
       import Datomic._
-      import DatomicData._
 
       val uri = "datomic:mem://DatomicCompilerSpec"
       Await.result(
@@ -39,7 +38,7 @@ class DatomicCompilerSpec extends Specification {
 
         val person = Namespace("person")
   
-        val q = typedQuery[Args2, Args2]("""
+        val q = Datomic.typed.query[Args2, Args2]("""
           [ :find ?e ?name
             :in $ ?age
             :where  [ ?e :person/name ?name ] 
@@ -56,7 +55,7 @@ class DatomicCompilerSpec extends Specification {
         }
         
         query(
-          typedQuery[Args2, Args3]("""
+          Datomic.typed.query[Args2, Args3]("""
             [ :find ?e ?name ?age
               :in $ ?age
               :where  [ ?e :person/name ?name ] 

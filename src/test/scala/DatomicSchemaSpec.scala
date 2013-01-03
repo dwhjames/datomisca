@@ -26,7 +26,6 @@ class DatomicSchemaSpec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
       import Datomic._
-      import DatomicData._
 
       val uri = "datomic:mem://datomicschemaspec"
 

@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import DatomicData._
 import EntityImplicits._
 
 @RunWith(classOf[JUnitRunner])
@@ -160,12 +159,12 @@ class DatomicDatabaseSpec extends Specification {
                   user / "passwordHash" -> "<SECRET>"
                 )
               ).map{ tx =>
-                val qPasswordHash = Datomic.typedQuery[Args1, Args1]("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
+                val qPasswordHash = Datomic.typed.query[Args1, Args1]("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
 
                 println("Find PasswordHash:" + Datomic.query(qPasswordHash, database))
                   
                 Datomic.query(
-                  Datomic.typedQuery[Args3, Args1]("""
+                  Datomic.typed.query[Args3, Args1]("""
                     [
                      :find ?e 
                      :in $ ?attr ?val 
@@ -199,7 +198,7 @@ class DatomicDatabaseSpec extends Specification {
                 // filter will be called for every datom, so it is idiomatic
                 // to filter only on the things that need filtering. Filtered
                 // and non-filtered database values can be combined, e.g.:
-                /*val qCombined = Datomic.typedQuery[Args3, Args1]("""
+                /*val qCombined = Datomic.typed.query[Args3, Args1]("""
                   [:find ?ent
                    :in $plain $filtered ?email
                    :where [$plain ?e :user/email ?email]
@@ -226,7 +225,7 @@ class DatomicDatabaseSpec extends Specification {
                 }
 
                 // all the stories
-                val qCount = Datomic.typedQuery[Args1, Args1]("""
+                val qCount = Datomic.typed.query[Args1, Args1]("""
                   [:find ?e :in $ :where [?e :story/url ]]
                 """)
                 val count = Datomic.query(qCount, database).size

@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import DatomicData._
 import EntityImplicits._
 
 class DatomicTxSpec extends Specification {
@@ -124,7 +123,7 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("Provisioned more data... TX:%s".format(tx))
 
-            query(typedQuery[Args0, Args1]("""
+            query(Datomic.typed.query[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
@@ -191,7 +190,7 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("2 Provisioned more data... TX:%s".format(tx))
 
-            query(typedQuery[Args0, Args1]("""
+            query(Datomic.typed.query[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]

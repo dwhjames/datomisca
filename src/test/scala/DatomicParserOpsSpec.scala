@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import DatomicData._
 import EntityImplicits._
 
 class DatomicParserOpsSpec extends Specification {

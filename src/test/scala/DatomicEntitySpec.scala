@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import DatomicData._
 import EntityImplicits._
 
 @RunWith(classOf[JUnitRunner])
@@ -157,7 +156,7 @@ class DatomicEntitySpec extends Specification {
               case _ => failure("couldn't resolve IDs")
             }
 
-            query(typedQuery[Args0, Args1]("""
+            query(Datomic.typed.query[Args0, Args1]("""
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
@@ -189,7 +188,7 @@ class DatomicEntitySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.query(typedQuery[Args0, Args1]("""
+      Datomic.query(Datomic.typed.query[Args0, Args1]("""
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]

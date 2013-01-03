@@ -53,16 +53,6 @@ trait Connection {
     
     future.flatMap{ javaMap: java.util.Map[_, _] =>
       Future(Utils.toTxReport(javaMap)(database))
-      /*val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
-
-      val opt = for{
-        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
-        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
-        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None)
-        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
-      } yield Future(TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap))
-    
-      opt.getOrElse(Future.failed(new RuntimeException("couldn't parse TxReport")))*/
     }
   }
 
@@ -75,17 +65,6 @@ trait Connection {
     override val queue = connection.txReportQueue
   }
 
-    /*  val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
-
-      val opt = for{
-        dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
-        dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
-        txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None)
-        tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
-      } yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap)
-
-      opt.get
-    }*/
 }
 
 object Connection {

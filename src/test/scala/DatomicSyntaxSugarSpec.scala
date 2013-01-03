@@ -28,7 +28,6 @@ class DatomicSyntaxSugarSpec extends Specification {
   "Datomic" should {
     "accept syntactic sugar" in {
       import Datomic._
-      import DatomicData._
 
       val uri = "datomic:mem://DatomicSyntaxSugarSpec"
 

@@ -29,7 +29,6 @@ class DatomicSchema2Spec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
       import Datomic._
-      import DatomicData._
       import scala.concurrent.ExecutionContext.Implicits.global
 
       val uri = "datomic:mem://DatomicSchema2Spec"

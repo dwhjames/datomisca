@@ -141,7 +141,7 @@ trait Query {
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
     val listOfTry = results.map { fields =>
-      outConv.toArgs(fields.map { field => DatomicData.toDatomicData(field) })
+      outConv.toArgs(fields.map { field => Datomic.toDatomicData(field) })
     }
 
     listOfTry.foldLeft(Nil: List[OutArgs]){ (acc, e) => acc :+ e }
@@ -175,7 +175,7 @@ case class PureQuery(override val find: Find, override val wizz: Option[With] = 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
     results.map { fields =>
-      fields.map { field => DatomicData.toDatomicData(field) }
+      fields.map { field => Datomic.toDatomicData(field) }
     }    
   }
   

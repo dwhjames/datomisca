@@ -27,7 +27,6 @@ class DatomicTransacSpec extends Specification {
   "Datomic" should {
     "operation simple" in {
       import Datomic._
-      import DatomicData._
 
       val uri = "datomic:mem://DatomicTransacSpec"
 
