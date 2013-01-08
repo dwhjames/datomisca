@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import EntityImplicits._
+//import EntityImplicits._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicDatabaseSpec extends Specification {

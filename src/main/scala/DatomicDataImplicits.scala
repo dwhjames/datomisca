@@ -1,8 +1,13 @@
 package reactivedatomic
 
-object DatomicDataImplicits extends DatomicDataImplicits
+object DatomicDataImplicits 
+  extends DD2ScalaReaderImplicits 
+  with DD2DDReaderImplicits
+  with DDReaderImplicits
+  with DDWriterImplicits
 
-trait DatomicDataImplicits {
+
+trait DD2ScalaReaderImplicits {
   implicit val DString2String = DD2ScalaReader{ s: DString => s.underlying }
   implicit val DLong2Long = DD2ScalaReader{ s: DLong => s.underlying }
   implicit val DBoolean2Boolean = DD2ScalaReader{ s: DBoolean => s.underlying }
@@ -18,7 +23,10 @@ trait DatomicDataImplicits {
   //implicit val DString2DString = DD2ScalaReader{ s: DString => s }
   //implicit val DInstant2DInstant = DD2ScalaReader{ s: DInstant => s }
   //implicit def DD2DD[DD <: DatomicData] = DD2ScalaReader{ d: DD => d: DD }
+}
 
+trait DD2DDReaderImplicits {
+  
   implicit def DSet2T[DD <: DatomicData, T]
     (implicit dd2dd: DD2DDReader[DD], dd2t: DD2ScalaReader[DD, T]): DD2ScalaReader[DSet, Set[T]] = {
     DD2ScalaReader{ ds: DSet => ds.toSet.map( e => dd2t.read(dd2dd.read(e)) ) }
@@ -78,13 +86,14 @@ trait DatomicDataImplicits {
     case s: DRef => s
     case _ => throw new RuntimeException("expected DRef to convert to DRef")
   }}
+}
 
+trait DDReaderImplicits {
   implicit def Datomicdata2DD[DD <: DatomicData](implicit dd2dd: DD2DDReader[DD]): DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd2dd.read(dd) }
   /*implicit def genericDDReader[A](implicit dd2t: DD2ScalaReader[DatomicData, A]): DDReader[DatomicData, A] = 
     DDReader{ dd: DatomicData =>
       dd2t.read(dd)
     }*/
-  
 
   implicit val DatomicData2String: DDReader[DatomicData, String] = DDReader{ dd: DatomicData => dd match { 
     case s: DString => s.underlying 
@@ -140,7 +149,9 @@ trait DatomicDataImplicits {
     case s: DSet => s.toSet.map( reader.read(_) )
     case _ => throw new RuntimeException("expected DSet to convert to DSet")
   }}
+}
 
+trait DDWriterImplicits{
 
   /*implicit def DatomicData2DD[DD <: DatomicData]: DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd match { 
     case s: DD => s

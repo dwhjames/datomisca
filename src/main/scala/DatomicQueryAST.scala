@@ -197,7 +197,7 @@ case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends
   }
 }
 
-trait DatomicQuery {
+trait DatomicQuery extends DatomicQueryHidden {
   def query[InArgs <: Args](q: PureQuery, in: InArgs = Args0())(implicit db: DDatabase) = 
     q.prepare(in)
 
@@ -205,21 +205,7 @@ trait DatomicQuery {
     implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
   ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
 
-  def query[OutArgs <: Args, T](q: TypedQuery[Args1, OutArgs], d1: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF1[List[T]]).execute(d1)
-
-  def query[OutArgs <: Args, T](q: TypedQuery[Args2, OutArgs], d1: DatomicData, d2: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF2[List[T]]).execute(d1, d2)
-
-  def query[OutArgs <: Args, T](q: TypedQuery[Args3, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF3[List[T]]).execute(d1, d2, d3)
-
-  def query[OutArgs <: Args, T](q: TypedQuery[Args4, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF4[List[T]]).execute(d1, d2, d3, d4)
+  // .. others are in DatomicQueryHidden
 }
 
 sealed trait Args {
@@ -277,32 +263,16 @@ trait DatomicExecutor {
 
 object ArgsImplicits extends ArgsImplicits
 
-trait ArgsImplicits {
+trait ArgsImplicits extends ToFunctionImplicits with DatomicDataToArgsImplicits with ArgsToTupleImplicits
 
+trait ToFunctionImplicits extends ToFunctionImplicitsHidden {
   implicit def toF0[Out] = new ToFunction[Args0, Out] {
     type F[Out] = Function0[Out]
     def convert(f: (Args0 => Out)): F[Out] = () => f(Args0())
   }
+}
 
-  implicit def toF1[Out] = new ToFunction[Args1, Out] {
-    type F[Out] = Function1[DatomicData, Out]
-    def convert(f: (Args1 => Out)): F[Out] = (d1: DatomicData) => f(Args1(d1))
-  }
-
-  implicit def toF2[Out] = new ToFunction[Args2, Out] {
-    type F[Out] = Function2[DatomicData, DatomicData, Out]
-    def convert(f: (Args2 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData) => f(Args2(d1, d2)) 
-  }
-
-  implicit def toF3[Out] = new ToFunction[Args3, Out] {
-    type F[Out] = Function3[DatomicData, DatomicData, DatomicData, Out]
-    def convert(f: (Args3 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData, d3: DatomicData) => f(Args3(d1, d2, d3))
-  }
-
-  implicit def toF4[Out] = new ToFunction[Args4, Out] {
-    type F[Out] = Function4[DatomicData, DatomicData, DatomicData, DatomicData, Out]
-    def convert(f: (Args4 => Out)): F[Out] = (d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData) => f(Args4(d1, d2, d3, d4))
-  }
+trait DatomicDataToArgsImplicits extends DatomicDataToArgsImplicitsHidden {
 
   implicit object DatomicDataToArgs1 extends DatomicDataToArgs[Args1] {
     def toArgs(l: Seq[DatomicData]): Args1 = l match {
@@ -311,42 +281,12 @@ trait ArgsImplicits {
     }
   }
 
+}
 
-  implicit object DatomicDataToArgs2 extends DatomicDataToArgs[Args2] {
-    def toArgs(l: Seq[DatomicData]): Args2 = l match {
-      case List(_1, _2) => Args2(_1, _2)
-      case _ => throw new RuntimeException("Could convert Seq to Args2")
-    }
-  }
-
-  implicit def DatomicDataToArgs3 = new DatomicDataToArgs[Args3] {
-    def toArgs(l: Seq[DatomicData]): Args3 = l match {
-      case List(_1, _2, _3) => Args3(_1, _2, _3)
-      case _ => throw new RuntimeException("Could convert Seq to Args3")
-    }
-  }
-
-  implicit def DatomicDataToArgs4 = new DatomicDataToArgs[Args4] {
-    def toArgs(l: Seq[DatomicData]): Args4 = l match {
-      case List(_1, _2, _3, _4) => Args4(_1, _2, _3, _4)
-      case _ => throw new RuntimeException("Could convert Seq to Args4")
-    }
-  }
+trait ArgsToTupleImplicits extends ArgsToTupleImplicitsHidden {
 
   implicit def Args1ToTuple = new ArgsToTuple[Args1, DatomicData] {
     def convert(from: Args1) = from._1
-  }
-
-  implicit def Args2ToTuple = new ArgsToTuple[Args2, (DatomicData, DatomicData)] {
-    def convert(from: Args2) = (from._1, from._2)
-  }
-
-  implicit def Args3ToTuple = new ArgsToTuple[Args3, (DatomicData, DatomicData, DatomicData)] {
-    def convert(from: Args3) = (from._1, from._2, from._3)
-  }
-
-  implicit def Args4ToTuple = new ArgsToTuple[Args4, (DatomicData, DatomicData, DatomicData, DatomicData)] {
-    def convert(from: Args4) = (from._1, from._2, from._3, from._4)
   }
 
 }

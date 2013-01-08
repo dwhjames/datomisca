@@ -24,13 +24,13 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import EntityImplicits._
+import DatomicMapping._
 
 @RunWith(classOf[JUnitRunner])
-class DatomicEntitySpec extends Specification {
+class DatomicMappingSpec extends Specification {
   sequential
 
-  val uri = "datomic:mem://DatomicEntitySpec"
+  val uri = "datomic:mem://DatomicMappingSpec"
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -168,7 +168,7 @@ class DatomicEntitySpec extends Specification {
                     " name:" + entity(person / "name") +
                     " map:" + entity.toMap
                   )
-                  fromEntity(entity)(personReader).map {
+                  DatomicMapping.fromEntity(entity)(personReader).map {
                     case Person(name, age, birth, characters, dog, doggies) => 
                       println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
                       success
@@ -254,8 +254,6 @@ class DatomicEntitySpec extends Specification {
 
     "create ops from attributes" in {
       import scala.util.{Try, Success, Failure}
-      import DatomicDataImplicits._
-      import EntityImplicits._
 
       val id = DId(Partition.USER)
       

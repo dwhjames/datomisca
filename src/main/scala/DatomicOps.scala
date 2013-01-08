@@ -16,26 +16,6 @@
 
 package reactivedatomic
 
-trait Identified {
-  def id: DId
-}
-
-trait Referenceable {
-  def ident: DRef
-}
-
-case class Fact(id: DId, attr: Keyword, value: DatomicData)
-
-case class Partition(keyword: Keyword) {
-  override def toString = keyword.toString
-}
-
-object Partition {
-  val DB = Partition(Keyword("db", Some(Namespace.DB.PART)))
-  val TX = Partition(Keyword("tx", Some(Namespace.DB.PART)))
-  val USER = Partition(Keyword("user", Some(Namespace.DB.PART)))
-}
-
 trait Operation extends Nativeable
 
 trait DataFunction extends Operation {

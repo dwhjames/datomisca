@@ -382,7 +382,7 @@ trait DatomicFacilities {
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param props the map containing all tupled (keyword, value)
     */
-    def addToEntity(id: DId, props: Map[Keyword, DatomicData]) = AddToEntity(id, props)
+  def addToEntity(id: DId, props: Map[Keyword, DatomicData]) = AddToEntity(id, props)
 
 
   /** Creates a Multiple-"Add" targeting a single [[DId]] and using a [[PartialAddToEntity]]
@@ -402,6 +402,11 @@ trait DatomicFacilities {
     */
   def addToEntity(id: DId, props: PartialAddToEntity) = AddToEntity(id, props)
 
+  /** Creates a [[PartialAddToEntity]] which is basically a AddToEntity without the DId part (''technical API'').
+    *
+    * @param props A sequence of tuple (keyword, value)
+    *              where value can be a simple Scala type which can be converted into a DatomicData
+    */
   def partialAddToEntity(props: (Keyword, DWrapper)*) = 
     PartialAddToEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)
 
@@ -451,6 +456,46 @@ trait DatomicFacilities {
     def apply[DD <: DatomicData](dd: DD)(implicit ddr: DDReader[DD, T]): T = ddr.read(dd)
   }
 
+  /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity) 
+    * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated
+    * at runtime'''
+    *
+    * You can then directly copy some Clojure code in a String and get it parsed at runtime. This is why
+    * it returns a `Try[Seq[Operation]]`
+    * It also manages comments.
+    *
+    * {{{
+    * val ops = Datomic.parseOps("""
+    * ;; comment blabla
+    * [
+    *   [:db/add #db/id[:db.part/user] :db/ident :character/weak]
+    *   ;; comment blabla
+    *   [:db/add #db/id[:db.part/user] :db/ident :character/dumb]
+    *   [:db/add #db/id[:db.part/user] :db/ident :region/n]
+    *   [:db/retract #db/id[:db.part/user] :db/ident :region/n]
+    *   [:db/retractEntity 1234]
+    *   ;; comment blabla
+    *   {
+    *     :db/id #db/id[:db.part/user]
+    *     :person/name "toto, tata"
+    *     :person/age 30
+    *     :person/character [ :character/_weak :character/dumb-toto ]
+    *   }
+    *   { :db/id #db/id[:db.part/user], :person/name "toto",
+    *     :person/age 30, :person/character [ :character/_weak, :character/dumb-toto ]
+    *   }
+    * ]""")
+    * }}}
+    *
+    * @param q the Clojure string
+    * @return a sequence of operations or an error
+    */
+  def parseOps(q: String): Try[Seq[Operation]] = DatomicParser.parseOpSafe(q) match {
+    case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+      Failure(new RuntimeException(s"Couldn't parse operations[msg:$msg, line:$offsetLine, col:$offsetCol]"))
+    case Right(ops) => 
+      Success(ops)
+  }
 }
 
 trait DatomicTyped {
@@ -499,52 +544,8 @@ trait DatomicTyped {
   }
 
 }
-/** Main object containing:
-  *    - all Datomic basic functions (Peer, Transactor)
-  *    - all Scala basic functions
-  *    - all Scala high-level functions (macro, typed ops) 
-  *    - all implicit DDReader/DDWriter
-  *
-  *
-  * {{{
-  * import Datomic._ // brings all DDReader/DDWriter
-  * }}}
-  */
-object Datomic 
-  extends DatomicPeer 
-  with DatomicTransactor 
-  with DatomicFacilities 
-  with DatomicDataImplicits 
-  with ArgsImplicits 
-  with DatomicQuery 
-  with DatomicTyped {
 
-  /** Converts any data to a Datomic Data (or not if not possible) */
-  def toDatomicData(v: Any): DatomicData = v match {
-    case s: String => DString(s)
-    case b: Boolean => DBoolean(b)
-    case i: Int => DLong(i)
-    case l: Long => DLong(l)
-    case f: Float => DFloat(f)
-    case d: Double => DDouble(d)
-    case bi: BigInt => DBigInt(bi)
-    case bd: BigDecimal => DBigDec(bd)
-    case bi: java.math.BigInteger => DBigInt(BigInt(bi))
-    case bd: java.math.BigDecimal => DBigDec(BigDecimal(bd))
-    case d: java.util.Date => DInstant(d)
-    case u: java.util.UUID => DUuid(u)
-    case u: java.net.URI => DUri(u)
-    case kw: clojure.lang.Keyword => DRef(Keyword(kw.getName, Namespace(kw.getNamespace)))
-    case e: datomic.Entity => DEntity(e)
-    case coll: java.util.Collection[_] => 
-      import scala.collection.JavaConversions._
-      DSet(coll.toSet.map{dd: Any => toDatomicData(dd)})
-
-    //DRef(DId(e.get(Keyword("id", Namespace.DB).toNative).asInstanceOf[Long]))
-    // REF???
-    case v => throw new RuntimeException("Unknown Datomic underlying "+v.getClass)
-  }
-
+trait DatomicMacros {
   /** Creates a macro-based compile-time pure query from a String (only syntax validation is performed).<br/>
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
     * 
@@ -666,46 +667,55 @@ object Datomic
     */
   def ops(q: String): Seq[Operation] = macro DatomicMacroOps.opsImpl
 
-  /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity) 
-    * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated
-    * at runtime'''
-    *
-    * You can then directly copy some Clojure code in a String and get it parsed at runtime. This is why
-    * it returns a `Try[Seq[Operation]]`
-    * It also manages comments.
-    *
-    * {{{
-    * val ops = Datomic.parseOps("""
-    * ;; comment blabla
-    * [
-    *   [:db/add #db/id[:db.part/user] :db/ident :character/weak]
-    *   ;; comment blabla
-    *   [:db/add #db/id[:db.part/user] :db/ident :character/dumb]
-    *   [:db/add #db/id[:db.part/user] :db/ident :region/n]
-    *   [:db/retract #db/id[:db.part/user] :db/ident :region/n]
-    *   [:db/retractEntity 1234]
-    *   ;; comment blabla
-    *   {
-    *     :db/id #db/id[:db.part/user]
-    *     :person/name "toto, tata"
-    *     :person/age 30
-    *     :person/character [ :character/_weak :character/dumb-toto ]
-    *   }
-    *   { :db/id #db/id[:db.part/user], :person/name "toto",
-    *     :person/age 30, :person/character [ :character/_weak, :character/dumb-toto ]
-    *   }
-    * ]""")
-    * }}}
-    *
-    * @param q the Clojure string
-    * @return a sequence of operations or an error
-    */
-  def parseOps(q: String): Try[Seq[Operation]] = DatomicParser.parseOpSafe(q) match {
-    case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-      Failure(new RuntimeException(s"Couldn't parse operations[msg:$msg, line:$offsetLine, col:$offsetCol]"))
-    case Right(ops) => 
-      Success(ops)
+  
+}
+
+/** Main object containing:
+  *    - all Datomic basic functions (Peer, Transactor)
+  *    - all Scala basic functions
+  *    - all Scala high-level functions (macro, typed ops) 
+  *    - all implicit DDReader/DDWriter
+  *
+  *
+  * {{{
+  * import Datomic._ // brings all DDReader/DDWriter
+  * }}}
+  */
+object Datomic 
+  extends DatomicPeer 
+  with DatomicTransactor 
+  with DatomicFacilities 
+  with ArgsImplicits 
+  with DatomicQuery 
+  with DatomicTyped 
+  with DatomicMacros{
+
+  /** Converts any data to a Datomic Data (or not if not possible) */
+  def toDatomicData(v: Any): DatomicData = v match {
+    case s: String => DString(s)
+    case b: Boolean => DBoolean(b)
+    case i: Int => DLong(i)
+    case l: Long => DLong(l)
+    case f: Float => DFloat(f)
+    case d: Double => DDouble(d)
+    case bi: BigInt => DBigInt(bi)
+    case bd: BigDecimal => DBigDec(bd)
+    case bi: java.math.BigInteger => DBigInt(BigInt(bi))
+    case bd: java.math.BigDecimal => DBigDec(BigDecimal(bd))
+    case d: java.util.Date => DInstant(d)
+    case u: java.util.UUID => DUuid(u)
+    case u: java.net.URI => DUri(u)
+    case kw: clojure.lang.Keyword => DRef(Keyword(kw.getName, Namespace(kw.getNamespace)))
+    case e: datomic.Entity => DEntity(e)
+    case coll: java.util.Collection[_] => 
+      import scala.collection.JavaConversions._
+      DSet(coll.toSet.map{dd: Any => toDatomicData(dd)})
+
+    //DRef(DId(e.get(Keyword("id", Namespace.DB).toNative).asInstanceOf[Long]))
+    // REF???
+    case v => throw new RuntimeException("Unknown Datomic underlying "+v.getClass)
   }
+
 }
 
 

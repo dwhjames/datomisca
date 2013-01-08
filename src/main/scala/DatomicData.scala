@@ -16,38 +16,7 @@
 
 package reactivedatomic
 
-import scala.util.parsing.input.Positional
 import scala.util.{Try, Success, Failure}
-
-case class Namespace(name: String) {
-  override def toString = name
-
-  def /(name: String) = Keyword(name, Some(this))
-}
-
-object Namespace {
-  val DB = new Namespace("db") {
-    val PART = Namespace("db.part")
-    val TYPE = Namespace("db.type")
-    val CARDINALITY = Namespace("db.cardinality")
-    val INSTALL = Namespace("db.install")
-    val UNIQUE = Namespace("db.unique")
-    val FN = Namespace("db.fn")
-  } 
-}
-
-trait Nativeable {
-  def toNative: java.lang.Object
-}
-
-trait Namespaceable extends Nativeable {
-  def name: String
-  def ns: Option[Namespace] = None
-
-  override def toString = ":" + ( if(ns.isDefined) {ns.get + "/"} else "" ) + name
-
-  def toNative: java.lang.Object = clojure.lang.Keyword.intern(( if(ns.isDefined) {ns.get + "/"} else "" ) + name )
-}
 
 /* DATOMIC TYPES */
 sealed trait DatomicData extends Nativeable {
@@ -422,83 +391,7 @@ object DDatom{
   }
 }
 
-trait DD2ScalaReader[-DD <: DatomicData, A] {
-  def read(dd: DD): A
-}
-
-object DD2ScalaReader{
-  def apply[DD <: DatomicData, A](f: DD => A) = new DD2ScalaReader[DD, A]{
-    def read(dd: DD): A = f(dd)
-  }
-}
-
-trait DD2DDReader[+DD <: DatomicData] {
-  def read(d: DatomicData): DD
-}
-
-object DD2DDReader{
-  def apply[DD <: DatomicData](f: DatomicData => DD) = new DD2DDReader[DD]{
-    def read(d: DatomicData): DD = f(d)
-  }
-}
-
-trait DDReader[-DD <: DatomicData, +A] {
-  def read(dd: DD): A
-}
-
-object DDReader{
-  def apply[DD <: DatomicData, A](f: DD => A) = new DDReader[DD, A]{
-    def read(dd: DD): A = f(dd)
-  }
-}
-
-trait DDWriter[+DD <: DatomicData, -A] {
-  def write(a: A): DD
-}
-
-object DDWriter{
-  def apply[DD <: DatomicData, A](f: A => DD) = new DDWriter[DD, A] {
-    def write(a: A) = f(a)
-  }
-}
-
-trait DWrapper extends NotNull
-private[reactivedatomic] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
 
 
 
 
-/* DATOMIC TERMS */
-sealed trait Term
-
-case class Var(name: String) extends Term {
-  override def toString = "?" + name
-}
-
-case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable with Positional
-
-object Keyword {
-  def apply(name: String, ns: Namespace) = new Keyword(name, Some(ns))
-  def apply(ns: Namespace, name: String) = new Keyword(name, Some(ns))
-
-  def apply(kw: clojure.lang.Keyword) = new Keyword(kw.getName, Some(Namespace(kw.getNamespace)))
-}
-
-case class Const(underlying: DatomicData) extends Term {
-  override def toString = underlying.toString
-}
-
-case object Empty extends Term {
-  override def toString = "_"
-}
-
-trait DataSource extends Term {
-  def name: String
-
-  override def toString = "$" + name
-}
-
-case class ExternalDS(override val name: String) extends DataSource
-case object ImplicitDS extends DataSource {
-  def name = ""
-}

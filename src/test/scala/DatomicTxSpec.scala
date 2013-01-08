@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 
 import Datomic._
-import EntityImplicits._
+import DatomicMapping._
 
 class DatomicTxSpec extends Specification {
   sequential

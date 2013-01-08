@@ -41,7 +41,7 @@ trait EntityReader[A] extends EntityMapper[A] {
   }
 }
 
-object EntityReader{
+object EntityReader extends EntityReaderImplicits {
   def apply[A]( f: DEntity => Try[A] ) = new EntityReader[A] {
     def read(e: DEntity): Try[A] = f(e)
   }
@@ -51,24 +51,25 @@ trait PartialAddToEntityWriter[A] extends EntityMapper[A] {
   def write(a: A): PartialAddToEntity
 }
 
-object PartialAddToEntityWriter{
+object PartialAddToEntityWriter extends PartialAddToEntityWriterImplicits {
   def apply[A](f: A => PartialAddToEntity) = new PartialAddToEntityWriter[A] {
     def write(a: A) = f(a)
   }
-
-}
-
-trait DatomicEntityFormat {
-  def fromDatomic[A](e: DEntity)(implicit er: EntityReader[A]) = er.read(e)
 }
 
 trait Attribute2EntityReader[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): EntityReader[Dest]
 }
 
+object Attribute2EntityReader extends Attribute2EntityReaderImplicits
+
+
 trait Attribute2PartialAddToEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): PartialAddToEntityWriter[Dest]
 }
+
+object Attribute2PartialAddToEntityWriter extends Attribute2PartialAddToEntityWriterImplicits
+
 
 class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, Card])
 {
@@ -90,19 +91,24 @@ class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, C
     } }
 }  
 
-object EntityImplicits extends EntityReaderImplicits with CombinatorImplicits with EntityWriterImplicits {
+object DatomicMapping 
+  extends CombinatorImplicits 
+  with EntityReaderImplicits 
+  with Attribute2EntityReaderImplicits
+  with PartialAddToEntityWriterImplicits
+  with Attribute2PartialAddToEntityWriterImplicits
+{
   def fromEntity[A](e: DEntity)(implicit er: EntityReader[A]) = er.read(e)
 
   def toEntity[A](id: DId)(a: A)(implicit ew: PartialAddToEntityWriter[A]) = AddToEntity(id, ew.write(a))
+
+  val ID = Attribute( Namespace.DB / "id", SchemaType.long, Cardinality.one)
+
+  def readId = new AttributeOps(ID).read[Long](attr2EntityReaderOne)
+  def readIdOpt = new AttributeOps(ID).readOpt[Long](attr2EntityReaderOne)
 }
 
 trait EntityReaderImplicits {
-  import scala.collection.JavaConversions._
-  import scala.collection.JavaConverters._
-
-  import DatomicDataImplicits._
-
-  //implicit val DEntityEntityReader = EntityReader[DEntity]( de => Success(de) )
 
   implicit object EntityReaderMonad extends Monad[EntityReader] {
     def unit[A](a: A) = EntityReader[A]{ (e: DEntity) => Success(a) }
@@ -113,7 +119,10 @@ trait EntityReaderImplicits {
   implicit object EntityReaderFunctor extends Functor[EntityReader] {
     def fmap[A, B](ereader: EntityReader[A], f: A => B) = EntityReader{ e => ereader.read(e).map(f) }
   }
+}
 
+trait Attribute2EntityReaderImplicits {
+  
   implicit def attr2EntityReaderOneRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) =
     new Attribute2EntityReader[DRef, CardinalityOne.type, Ref[A]] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Ref[A]] = {
@@ -142,6 +151,78 @@ trait EntityReaderImplicits {
                   subent.tryGetAs[DLong](Keyword("id", Namespace.DB)).flatMap{ id => 
                     er.read(subent).map{ a: A => Ref(DId(id))(a) }
                   }
+                case _ => Failure(new RuntimeException("found an object not being a DEntity"))
+              }
+
+              Utils.sequence(l)
+            }
+          }catch{
+            case e: Throwable => Failure(e)
+          }
+        }
+      }
+    }
+
+  implicit val attr2EntityReaderIdOnly =
+    new Attribute2EntityReader[DRef, CardinalityOne.type, Long] {
+      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Long] = {
+        EntityReader[Long]{ e: DEntity => 
+          try {
+            e.tryGetAs[DEntity](attr.ident).flatMap{ subent => 
+              subent.tryGetAs[Long](Namespace.DB / "id")
+            }
+          }catch{
+            case e: Throwable => Failure(e)
+          }
+        }
+      }
+    }  
+
+  implicit def attr2EntityReaderOneObj[A](implicit er: EntityReader[A]) =
+    new Attribute2EntityReader[DRef, CardinalityOne.type, A] {
+      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[A] = {
+        EntityReader[A]{ e: DEntity => 
+          try {
+            e.tryGetAs[DEntity](attr.ident).flatMap{ subent => 
+              er.read(subent)
+            }
+          }catch{
+            case e: Throwable => Failure(e)
+          }
+        }
+      }
+    }  
+
+  implicit val attr2EntityReaderManyIdOnly = 
+    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Long]] {
+      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Long]] = {
+        EntityReader[Set[Long]]{ e: DEntity => 
+          try {
+            e.tryGetAs[DSet](attr.ident).flatMap{ value =>
+              val l = value.toSet.map{ 
+                case subent: DEntity => 
+                  subent.tryGetAs[Long](Namespace.DB / "id")
+                case _ => Failure(new RuntimeException("found an object not being a DEntity"))
+              }
+
+              Utils.sequence(l)
+            }
+          }catch{
+            case e: Throwable => Failure(e)
+          }
+        }
+      }
+    }
+
+  implicit def attr2EntityReaderManyObj[A](implicit er: EntityReader[A]) = 
+    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[A]] {
+      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] = {
+        EntityReader[Set[A]]{ e: DEntity => 
+          try {
+            e.tryGetAs[DSet](attr.ident).flatMap{ value =>
+              val l = value.toSet.map{ 
+                case subent: DEntity => 
+                  er.read(subent)
                 case _ => Failure(new RuntimeException("found an object not being a DEntity"))
               }
 
@@ -185,11 +266,7 @@ trait EntityReaderImplicits {
 
 }
 
-trait EntityWriterImplicits {
-  import scala.collection.JavaConversions._
-  import scala.collection.JavaConverters._
-
-  import DatomicDataImplicits._
+trait PartialAddToEntityWriterImplicits {
 
   implicit object AddToEntityWriterCombinator extends Combinator[PartialAddToEntityWriter] {
     def apply[A, B](ma: PartialAddToEntityWriter[A], mb: PartialAddToEntityWriter[B]): PartialAddToEntityWriter[A ~ B] = 
@@ -203,6 +280,10 @@ trait EntityWriterImplicits {
   implicit object PartialAddToEntityWriterContraFunctor extends ContraFunctor[PartialAddToEntityWriter] {
     def contramap[A, B](w: PartialAddToEntityWriter[A], f: B => A) = PartialAddToEntityWriter{ b => w.write(f(b)) }
   }
+
+}
+
+trait Attribute2PartialAddToEntityWriterImplicits {
 
   implicit def attr2PartialAddToEntityWriterOne[DD <: DatomicData, Dest](implicit ddw: DDWriter[DD, Dest]) = 
     new Attribute2PartialAddToEntityWriter[DD, CardinalityOne.type, Dest] {
