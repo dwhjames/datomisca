@@ -283,7 +283,7 @@ trait DatomicFacilities {
     */
   def retract(id: DLong)(prop: (Keyword, DWrapper)) = Retract(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
-  /** Creates a single Retract operation targeting a given [[DId]]
+  /** Creates a single Retract operation targeting a given [[reactivedatomic.DId]]
     * 
     * In Clojure, this is equivalent to:
     * {{{[:db/retract entity-id attribute value]}}}
@@ -361,7 +361,7 @@ trait DatomicFacilities {
   def addToEntity(id: DId)(props: (Keyword, DWrapper)*) = 
     AddToEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
 
-  /** Creates a Multiple-"Add" targeting a single [[DId]] from a simple Map[[[Keyword]], [[DatomicData]]]
+  /** Creates a Multiple-"Add" targeting a single [[reactivedatomic.DId]] from a simple Map[[[reactivedatomic.Keyword]], [[reactivedatomic.DatomicData]]]
     * 
     * In Clojure, this is equivalent to:
     * {{{
@@ -623,10 +623,10 @@ trait DatomicMacros {
     * val dumb = AddIdent(Keyword(person.character, "dumb"))
     *
     * Datomic.addToEntity("""{
-    *   :db/id ${DId(Partition.USER)}
-    *   :person/name $name
+    *   :db/id \${DId(Partition.USER)}
+    *   :person/name \$name
     *   :person/age 30
-    *   :person/character [ $weak $dumb ]
+    *   :person/character [ \$weak \$dumb ]
     * }""")
     * }}}
     *
@@ -650,14 +650,14 @@ trait DatomicMacros {
     * val id = DId(Partition.USER)
     * val ops = Datomic.ops("""[
     *   [:db/add #db/id[:db.part/user] :db/ident :region/n]
-    *   [:db/add ${DId(Partition.USER)} :db/ident :region/n]
+    *   [:db/add \${DId(Partition.USER)} :db/ident :region/n]
     *   [:db/retract #db/id[:db.part/user] :db/ident :region/n]
     *   [:db/retractEntity 1234]
     *   {
-    *     :db/id ${id}
+    *     :db/id \${id}
     *     :person/name "toto"
     *     :person/age 30
-    *     :person/character [ $weak $dumb ]
+    *     :person/character [ \$weak \$dumb ]
     *   }
     * ]""")
     * }}}
