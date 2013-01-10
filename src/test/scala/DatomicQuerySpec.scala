@@ -25,9 +25,7 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
 import Datomic._
-
 
 @RunWith(classOf[JUnitRunner])
 class DatomicQuerySpec extends Specification {
@@ -47,7 +45,7 @@ class DatomicQuerySpec extends Specification {
   } 
 
   def stopDB = {
-    deleteDatabase(uri)
+    Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }
 
@@ -59,7 +57,7 @@ class DatomicQuerySpec extends Specification {
       implicit val conn = Datomic.connect(uri)
 
 
-      query(pureQuery("""
+      Datomic.q(Datomic.pureQuery("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
@@ -80,7 +78,7 @@ class DatomicQuerySpec extends Specification {
       val q = Datomic.typed.query[Args0, Args1](""" 
         [:find ?e :where [?e :person/name]]
       """)
-      query(q).map{
+      Datomic.q(q).map{
         case (e: DLong) => 
           val entity = database.entity(e)
           println("2 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
@@ -94,7 +92,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      query(Datomic.typed.query[Args2, Args1](""" 
+      Datomic.q(Datomic.typed.query[Args2, Args1](""" 
         [
          :find ?e
          :in $ [?names ...] 
@@ -121,7 +119,7 @@ class DatomicQuerySpec extends Specification {
                 [?e :person/age ?age]
         ]
       """)
-      Datomic.query(
+      Datomic.q(
         q, database, 
         DSet(
           DSet(DString("toto"), DLong(30L)),
@@ -145,7 +143,7 @@ class DatomicQuerySpec extends Specification {
          :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
         ]
       """)
-      Datomic.query(q).map{
+      Datomic.q(q).map{
         case (e: DLong, n: DString) => 
           println("5 - entity: "+ e + " name:"+ n)
         case _ => failure("result not expected")
@@ -220,7 +218,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
 
-      Datomic.query(q, database, totoRule).map {
+      Datomic.q(q, database, totoRule).map {
         case (e: DLong, age: DLong) => 
           println(s"e: $e - age: $age")
           age must beEqualTo(DLong(30L))
@@ -240,7 +238,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
 
-      Datomic.query(q).map {
+      Datomic.q(q).map {
         case (e: DLong, name: DString) => 
           println(s"e: $e - name: $name")
           name must beEqualTo(DString("tutu"))

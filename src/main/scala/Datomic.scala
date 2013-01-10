@@ -519,7 +519,7 @@ trait DatomicTyped {
       * to the number of output parameters
       *
       * {{{
-      * val q = Datomic.typedQuery[Args2, Args3](""" 
+      * val q = Datomic.typed.query[Args2, Args3](""" 
       *   [
       *    :find ?e ?name ?age
       *    :in $ [[?name ?age]]
@@ -528,7 +528,7 @@ trait DatomicTyped {
       *   ]
       * """)
       *
-      * Datomic.query(
+      * Datomic.q(
       *   q, database, 
       *   DSet(
       *     DSet(DString("toto"), DLong(30L)),

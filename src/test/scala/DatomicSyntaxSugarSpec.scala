@@ -21,6 +21,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 
 import reactivedatomic._
+import Datomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])

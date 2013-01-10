@@ -22,6 +22,7 @@ import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
+import Datomic._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicDemoSpec extends Specification {
@@ -97,7 +98,7 @@ class DatomicDemoSpec extends Specification {
            *  - change Input Args2 to Args3 to show compiling error (beginning of query)
            *  - erase ?a to show compiling error in query (beginning of query)
            */
-          val l1 = query(Datomic.typed.query[Args2, Args3]("""
+          val l1 = Datomic.q(Datomic.typed.query[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -114,7 +115,7 @@ class DatomicDemoSpec extends Specification {
             case e => throw new RuntimeException("unexpected result")
           }
 
-          val l2 = query(Datomic.typed.query[Args2, Args3]("""
+          val l2 = Datomic.q(Datomic.typed.query[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -131,7 +132,7 @@ class DatomicDemoSpec extends Specification {
             case e => throw new RuntimeException("unexpected result")
           }
 
-          val l3 = query(Datomic.typed.query[Args2, Args3]("""
+          val l3 = Datomic.q(Datomic.typed.query[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age

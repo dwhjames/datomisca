@@ -22,13 +22,12 @@ import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
-import reactivedatomic.Datomic._
+import Datomic._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicSchema2Spec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
-      import Datomic._
       import scala.concurrent.ExecutionContext.Implicits.global
 
       val uri = "datomic:mem://DatomicSchema2Spec"
@@ -57,11 +56,11 @@ class DatomicSchema2Spec extends Specification {
         dumb
       )
 
-      Await.result(transact(schema).flatMap{ tx => 
+      Await.result(Datomic.transact(schema).flatMap{ tx => 
         println("Provisioned schema... TX:%s".format(tx))
 
         val id = DId(Partition.USER)
-        transact(
+        Datomic.transact(
           AddToEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
@@ -79,7 +78,7 @@ class DatomicSchema2Spec extends Specification {
           )
         ).flatMap{ tx => 
           println("Provisioned data... TX:%s".format(tx))
-          val totoId = query(pureQuery("""
+          val totoId = Datomic.q(Datomic.pureQuery("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
@@ -87,19 +86,19 @@ class DatomicSchema2Spec extends Specification {
           //.map {
           //  case List(totoId: DLong) => 
           println("TOTO:"+totoId)
-          transact(
+          Datomic.transact(
             RetractEntity(totoId)
           ).flatMap{ tx => 
             println("Retracted data... TX:%s".format(tx))
 
-            query(pureQuery("""
+            Datomic.q(pureQuery("""
               [ :find ?e
                 :where  [ ?e :person/name "toto" ] 
               ]
             """)).isEmpty must beTrue
 
             println("Provisioned data... TX:%s".format(tx))
-            val tutuId = query(pureQuery("""
+            val tutuId = Datomic.q(Datomic.pureQuery("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
@@ -107,12 +106,12 @@ class DatomicSchema2Spec extends Specification {
             //.map {
             //  case List(totoId: DLong) => 
             println("TUTU:"+tutuId)
-            transact(
+            Datomic.transact(
               RetractEntity(tutuId)
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              query(pureQuery("""
+              Datomic.q(Datomic.pureQuery("""
                 [ :find ?e
                   :where  [ ?e :person/name "tutu" ] 
                 ]

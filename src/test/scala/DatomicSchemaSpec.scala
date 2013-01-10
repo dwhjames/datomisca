@@ -21,16 +21,17 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import Datomic._
+
 @RunWith(classOf[JUnitRunner])
 class DatomicSchemaSpec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
-      import Datomic._
 
       val uri = "datomic:mem://datomicschemaspec"
 
       //DatomicBootstrap(uri)
-      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      println("created DB with uri %s: %s".format(uri, Datomic.createDatabase(uri)))
 
       val person = new Namespace("person") {
         val character = Namespace("person.character")
@@ -53,10 +54,10 @@ class DatomicSchemaSpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      transact(schema).map{ tx => 
+      Datomic.transact(schema).map{ tx => 
         println("Provisioned schema... TX:%s".format(tx))
 
-        transact(
+        Datomic.transact(
           AddToEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
@@ -78,18 +79,18 @@ class DatomicSchemaSpec extends Specification {
           case e => println(e.getMessage)
         }
 
-        query(pureQuery("""
+        Datomic.q(Datomic.pureQuery("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
         """)).map {
           case List(totoId: DLong) => 
-            transact(
+            Datomic.transact(
               RetractEntity(totoId)
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              query(pureQuery("""
+              Datomic.q(Datomic.pureQuery("""
                 [ :find ?e
                   :where  [ ?e :person/name "toto" ] 
                 ]

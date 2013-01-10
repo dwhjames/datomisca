@@ -22,9 +22,7 @@ import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
-
 import Datomic._
-//import EntityImplicits._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicDatabaseSpec extends Specification {
@@ -146,9 +144,9 @@ class DatomicDatabaseSpec extends Specification {
       val user = Namespace("user")
       val story = Namespace("story")
       Await.result(
-        schema.map{ schema => transact(schema).flatMap{ tx =>
+        schema.map{ schema => Datomic.transact(schema).flatMap{ tx =>
           data.map{ data => 
-            transact(data).flatMap { tx =>
+            Datomic.transact(data).flatMap { tx =>
               ///////////////////////////////////////////////////////////////////
               // Plain DB can see passwordHash
               transact(
@@ -161,9 +159,9 @@ class DatomicDatabaseSpec extends Specification {
               ).map{ tx =>
                 val qPasswordHash = Datomic.typed.query[Args1, Args1]("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
 
-                println("Find PasswordHash:" + Datomic.query(qPasswordHash, database))
+                println("Find PasswordHash:" + Datomic.q(qPasswordHash, database))
                   
-                Datomic.query(
+                Datomic.q(
                   Datomic.typed.query[Args3, Args1]("""
                     [
                      :find ?e 
@@ -192,7 +190,7 @@ class DatomicDatabaseSpec extends Specification {
                   datom.attrId != passwordHashId
                 }
 
-                println("Find PasswordHash:" + Datomic.query(qPasswordHash, filteredDb))
+                println("Find PasswordHash:" + Datomic.q(qPasswordHash, filteredDb))
 
                 ///////////////////////////////////////////////////////////////////
                 // filter will be called for every datom, so it is idiomatic
@@ -206,7 +204,7 @@ class DatomicDatabaseSpec extends Specification {
                   ]
                 """)
 
-                Datomic.query(qCombined, database, filteredDb, DString("jdoe@example.com")).headOption.collect{
+                Datomic.q(qCombined, database, filteredDb, DString("jdoe@example.com")).headOption.collect{
                   case eid: DLong => 
                     database.touch(eid).foreach(e => println("Entity:"+e))
                 }*/
@@ -228,7 +226,7 @@ class DatomicDatabaseSpec extends Specification {
                 val qCount = Datomic.typed.query[Args1, Args1]("""
                   [:find ?e :in $ :where [?e :story/url ]]
                 """)
-                val count = Datomic.query(qCount, database).size
+                val count = Datomic.q(qCount, database).size
                 println(s"Found $count entities")
                 
                 // same query, filtered to stories that have been published.
@@ -239,7 +237,7 @@ class DatomicDatabaseSpec extends Specification {
                   }
                 }
 
-                val count2 = Datomic.query(qCount, filteredDb2).size
+                val count2 = Datomic.q(qCount, filteredDb2).size
                 println(s"Found $count2 entities")
 
                 success

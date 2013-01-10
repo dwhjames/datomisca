@@ -136,7 +136,7 @@ trait Query {
       else args
     }
 
-    println("QSER:"+qser+ " - args:"+args)
+    //println("QSER:"+qser+ " - args:"+args)
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
@@ -198,12 +198,12 @@ case class TypedQuery[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends
 }
 
 trait DatomicQuery extends DatomicQueryHidden {
-  def query[InArgs <: Args](q: PureQuery, in: InArgs = Args0())(implicit db: DDatabase) = 
-    q.prepare(in)
+  def q[InArgs <: Args](query: PureQuery, in: InArgs = Args0())(implicit db: DDatabase) = 
+    query.prepare(in)
 
-  def query[OutArgs <: Args, T](q: TypedQuery[Args0, OutArgs])(
+  def q[OutArgs <: Args, T](query: TypedQuery[Args0, OutArgs])(
     implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
+  ) = query.prepare[T]()(db, outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
 
   // .. others are in DatomicQueryHidden
 }

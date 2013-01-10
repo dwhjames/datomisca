@@ -22,14 +22,13 @@ import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
+import Datomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])
 class DatomicCompilerSpec extends Specification {
   "Datomic" should {
     "query simple" in {
-      import Datomic._
-
       val uri = "datomic:mem://DatomicCompilerSpec"
       Await.result(
       DatomicBootstrap(uri).map { tx =>
@@ -38,7 +37,7 @@ class DatomicCompilerSpec extends Specification {
 
         val person = Namespace("person")
   
-        val q = Datomic.typed.query[Args2, Args2]("""
+        val query = Datomic.typed.query[Args2, Args2]("""
           [ :find ?e ?name
             :in $ ?age
             :where  [ ?e :person/name ?name ] 
@@ -47,14 +46,14 @@ class DatomicCompilerSpec extends Specification {
           ]
         """)
 
-        val qf = query(q, database, DLong(54L)).collect {
+        val qf = Datomic.q(query, database, DLong(54L)).collect {
           case (e: DLong, n: DString) => 
             val entity = database.entity(e)
             println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
             n must beEqualTo(DString("tutu"))
         }
         
-        query(
+        Datomic.q(
           Datomic.typed.query[Args2, Args3]("""
             [ :find ?e ?name ?age
               :in $ ?age

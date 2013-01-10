@@ -119,6 +119,8 @@ trait EntityReaderImplicits {
   implicit object EntityReaderFunctor extends Functor[EntityReader] {
     def fmap[A, B](ereader: EntityReader[A], f: A => B) = EntityReader{ e => ereader.read(e).map(f) }
   }
+
+  implicit val DEntityReader = EntityReader{ e: DEntity => Success(e) }
 }
 
 trait Attribute2EntityReaderImplicits {
@@ -214,27 +216,6 @@ trait Attribute2EntityReaderImplicits {
       }
     }
 
-  implicit def attr2EntityReaderManyObj[A](implicit er: EntityReader[A]) = 
-    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[A]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] = {
-        EntityReader[Set[A]]{ e: DEntity => 
-          try {
-            e.tryGetAs[DSet](attr.ident).flatMap{ value =>
-              val l = value.toSet.map{ 
-                case subent: DEntity => 
-                  er.read(subent)
-                case _ => Failure(new RuntimeException("found an object not being a DEntity"))
-              }
-
-              Utils.sequence(l)
-            }
-          }catch{
-            case e: Throwable => Failure(e)
-          }
-        }
-      }
-    }
-
   implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit dd2dd: DD2DDReader[DD], dd2dest: DD2ScalaReader[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityOne.type, A] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
@@ -256,6 +237,27 @@ trait Attribute2EntityReaderImplicits {
               }
             }
           } catch {
+            case e: Throwable => Failure(e)
+          }
+        }
+      }
+    }
+
+  implicit def attr2EntityReaderManyObj[A](implicit er: EntityReader[A]) = 
+    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[A]] {
+      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] = {
+        EntityReader[Set[A]]{ e: DEntity => 
+          try {
+            e.tryGetAs[DSet](attr.ident).flatMap{ value =>
+              val l = value.toSet.map{ 
+                case subent: DEntity => 
+                  er.read(subent)
+                case _ => Failure(new RuntimeException("found an object not being a DEntity"))
+              }
+
+              Utils.sequence(l)
+            }
+          }catch{
             case e: Throwable => Failure(e)
           }
         }

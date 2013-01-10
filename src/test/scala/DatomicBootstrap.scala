@@ -7,8 +7,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object DatomicBootstrap {
   def apply(theUri: String): Future[TxReport] = {
-    import reactivedatomic.Datomic._
     import reactivedatomic._
+    import Datomic._
 
     val person = new Namespace("person") {
       val character = Namespace("person.character")

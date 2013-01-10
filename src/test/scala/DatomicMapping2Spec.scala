@@ -158,30 +158,30 @@ class DatomicMapping2Spec extends Specification {
     "create entity" in {
       
       //DatomicBootstrap(uri)
-      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      println("created DB with uri %s: %s".format(uri, Datomic.createDatabase(uri)))
       implicit val conn = Datomic.connect(uri)
 
       Await.result(
         transact(PersonSchema.schema ++ DogSchema.schema ++ Seq(violent, weak, dumb, clever, stupid)).flatMap{ tx =>
           println("TX:"+tx)
-          transact(
-            addToEntity(medorId)(
+          Datomic.transact(
+            Datomic.addToEntity(medorId)(
               dog / "name" -> "medor",
               dog / "age" -> 5L
             ),
-            addToEntity(doggy1Id)(
+            Datomic.addToEntity(doggy1Id)(
               dog / "name" -> "doggy1",
               dog / "age" -> 5L
             ),
-            addToEntity(doggy2Id)(
+            Datomic.addToEntity(doggy2Id)(
               dog / "name" -> "doggy2",
               dog / "age" -> 5L
             ),
-            addToEntity(doggy3Id)(
+            Datomic.addToEntity(doggy3Id)(
               dog / "name" -> "doggy3",
               dog / "age" -> 5L
             ),
-            addToEntity(totoId)(
+            Datomic.addToEntity(totoId)(
               person / "name" -> "toto",
               person / "age" -> 30L,
               person / "birth" -> birthDate,
@@ -190,18 +190,18 @@ class DatomicMapping2Spec extends Specification {
               person / "dog" -> medorId,
               person / "doggies" -> Set(doggy1Id, doggy2Id, doggy3Id)
             ),
-            addToEntity(toto2Id)(
+            Datomic.addToEntity(toto2Id)(
               person / "name" -> "toto2",
               person / "age" -> 30L,
               person / "birth" -> birthDate,
               person / "characters" -> Set(violent, weak),
               person / "specialChar" -> clever
             ),
-            addToEntity(DId(Partition.USER))(
+            Datomic.addToEntity(DId(Partition.USER))(
               person / "name" -> "tutu",
               person / "age" -> 54L
             ),
-            addToEntity(DId(Partition.USER))(
+            Datomic.addToEntity(DId(Partition.USER))(
               person / "name" -> "tata",
               person / "age" -> 23L
             )
@@ -218,7 +218,7 @@ class DatomicMapping2Spec extends Specification {
               case _ => failure("couldn't resolve IDs")
             }
 
-            query(Datomic.typed.query[Args0, Args1]("""
+            Datomic.q(Datomic.typed.query[Args0, Args1]("""
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
@@ -250,7 +250,7 @@ class DatomicMapping2Spec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.query(Datomic.typed.query[Args0, Args1]("""
+      Datomic.q(Datomic.typed.query[Args0, Args1]("""
         [ :find ?e 
           :where [?e :dog/name "medor"]
         ]
@@ -262,7 +262,7 @@ class DatomicMapping2Spec extends Specification {
         case _ => failure("unexpected result")
       }
 
-      Datomic.query(Datomic.typed.query[Args0, Args1]("""
+      Datomic.q(Datomic.typed.query[Args0, Args1]("""
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]
@@ -292,7 +292,7 @@ class DatomicMapping2Spec extends Specification {
         case _ => failure("unexpected result")
       }
 
-      Datomic.query(Datomic.typed.query[Args0, Args1]("""
+      Datomic.q(Datomic.typed.query[Args0, Args1]("""
         [ :find ?e 
           :where [?e :person/name "toto2"]
         ]
@@ -313,7 +313,7 @@ class DatomicMapping2Spec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.query(Datomic.typed.query[Args0, Args1]("""
+      Datomic.q(Datomic.typed.query[Args0, Args1]("""
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]

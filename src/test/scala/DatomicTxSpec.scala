@@ -45,20 +45,20 @@ class DatomicTxSpec extends Specification {
   case class PersonLikes(name: String, age: Long, likes: Set[String] = Set())
 
   object PersonSchema {
-    val name = Attribute( KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
-    val age = Attribute( KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age")
-    val friend = Attribute( KW(":person/friend"), SchemaType.ref, Cardinality.one).withDoc("Person's friend")
-    val dog = Attribute( KW(":person/dog"), SchemaType.ref, Cardinality.one).withDoc("Person's dog")
-    val dogs = Attribute( KW(":person/dogs"), SchemaType.ref, Cardinality.many).withDoc("Person's dogs")
-    val like = Attribute( KW(":person/like"), SchemaType.string, Cardinality.one).withDoc("Person's like")
-    val likes = Attribute( KW(":person/likes"), SchemaType.string, Cardinality.many).withDoc("Person's likes")
+    val name = Attribute( Datomic.KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
+    val age = Attribute( Datomic.KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age")
+    val friend = Attribute( Datomic.KW(":person/friend"), SchemaType.ref, Cardinality.one).withDoc("Person's friend")
+    val dog = Attribute( Datomic.KW(":person/dog"), SchemaType.ref, Cardinality.one).withDoc("Person's dog")
+    val dogs = Attribute( Datomic.KW(":person/dogs"), SchemaType.ref, Cardinality.many).withDoc("Person's dogs")
+    val like = Attribute( Datomic.KW(":person/like"), SchemaType.string, Cardinality.one).withDoc("Person's like")
+    val likes = Attribute( Datomic.KW(":person/likes"), SchemaType.string, Cardinality.many).withDoc("Person's likes")
 
     val schema = Seq(name, age, friend, dog, dogs, like, likes)
   }
 
   object DogSchema {
-    val name = Attribute( KW(":dog/name"), SchemaType.string, Cardinality.one).withDoc("Dog's name")
-    val age = Attribute( KW(":dog/age"), SchemaType.long, Cardinality.one).withDoc("Dog's age")
+    val name = Attribute( Datomic.KW(":dog/name"), SchemaType.string, Cardinality.one).withDoc("Dog's name")
+    val age = Attribute( Datomic.KW(":dog/age"), SchemaType.long, Cardinality.one).withDoc("Dog's age")
 
     val schema = Seq(name, age)
   }
@@ -70,12 +70,12 @@ class DatomicTxSpec extends Specification {
   val dog = Namespace("dog")      
 
   def startDB = {
-    println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))
+    println("Creating DB with uri %s: %s".format(uri, Datomic.createDatabase(uri)))
 
     implicit val conn = Datomic.connect(uri)  
     
     Await.result(
-      transact(PersonSchema.schema ++ DogSchema.schema),
+      Datomic.transact(PersonSchema.schema ++ DogSchema.schema),
       Duration("2 seconds")
     )
   } 
@@ -98,8 +98,8 @@ class DatomicTxSpec extends Specification {
 
       val idToto = DId(Partition.USER)
 
-      val fut = transact(
-        addToEntity(idToto)(
+      val fut = Datomic.transact(
+        Datomic.addToEntity(idToto)(
           person / "name" -> "toto",
           person / "age" -> 30
         )
@@ -109,13 +109,13 @@ class DatomicTxSpec extends Specification {
         println("Resolved Id for toto: temp(%s) real(%s)".format(idToto.toNative, tx.resolve(idToto)))
 
         tx.resolve(idToto).map { totoId => 
-          transact(
-            addToEntity( DId(Partition.USER) )(
+          Datomic.transact(
+            Datomic.addToEntity( DId(Partition.USER) )(
               person / "name" -> "tutu",
               person / "age" -> 54,
               person / "friend" -> totoId
             ),
-            addToEntity( DId(Partition.USER) )(
+            Datomic.addToEntity( DId(Partition.USER) )(
               person / "name" -> "tata",
               person / "age" -> 23,
               person / "friend" -> totoId
@@ -123,7 +123,7 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("Provisioned more data... TX:%s".format(tx))
 
-            query(Datomic.typed.query[Args0, Args1]("""
+            Datomic.q(Datomic.typed.query[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
@@ -131,7 +131,7 @@ class DatomicTxSpec extends Specification {
             """)).map{
               case e: DLong =>
                 database.entity(e).map{ entity =>
-                  fromEntity[Person](entity).map{
+                  DatomicMapping.fromEntity[Person](entity).map{
                     case p @ Person(name, age) => 
                       println(s"Found person with name $name and age $age")
                       p
@@ -164,25 +164,25 @@ class DatomicTxSpec extends Specification {
       val idTutu = DId(Partition.USER)
       val idTata = DId(Partition.USER)
 
-      val toto = addToEntity(idToto)(
+      val toto = Datomic.addToEntity(idToto)(
         person / "name" -> "toto",
         person / "age" -> 30
       )
 
-      val fut = transact(
+      val fut = Datomic.transact(
         toto
       ).flatMap{ tx => 
         println("2 Provisioned data... TX:%s".format(tx))
 
         println("2 Resolved Id for toto: temp(%s) real(%s)".format(idToto.toNative, tx.resolve(idToto)))
         tx.resolve(toto).map{ totoId => 
-          transact(
-            addToEntity(idTutu)(
+          Datomic.transact(
+            Datomic.addToEntity(idTutu)(
               person / "name" -> "tutu",
               person / "age" -> 54,
               person / "friend" -> totoId
             ),
-            addToEntity(idTata)(
+            Datomic.addToEntity(idTata)(
               person / "name" -> "tata",
               person / "age" -> 23,
               person / "friend" -> totoId
@@ -190,7 +190,7 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("2 Provisioned more data... TX:%s".format(tx))
 
-            query(Datomic.typed.query[Args0, Args1]("""
+            Datomic.q(Datomic.typed.query[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
@@ -198,7 +198,7 @@ class DatomicTxSpec extends Specification {
             """)).map{
               case e: DLong =>
                 database.entity(e).map{ entity =>
-                  fromEntity(entity).map {
+                  DatomicMapping.fromEntity(entity).map {
                     case Person(name, age) => println(s"2 Found person with name $name and age $age")
                   }
                 }
@@ -230,12 +230,12 @@ class DatomicTxSpec extends Specification {
       val toto = Person("toto", 30)
       val totoId = DId(Partition.USER)
 
-      val totoEntity = addToEntity(totoId)(
+      val totoEntity = Datomic.addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30
       )
 
-      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
     }
 
     "4 - manage case class writing with references" in {
@@ -268,17 +268,17 @@ class DatomicTxSpec extends Specification {
       val toto = PersonDog("toto", 30, Ref(medorId)(medor))
       val totoId = DId(Partition.USER)
 
-      val totoEntity = addToEntity(totoId)(
+      val totoEntity = Datomic.addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dog" -> medorId
       )
 
-      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
 
-      val fut = transact(
-        toEntity(totoId)(toto),
-        toEntity(medorId)(medor)
+      val fut = Datomic.transact(
+        DatomicMapping.toEntity(totoId)(toto),
+        DatomicMapping.toEntity(medorId)(medor)
       ).map{ tx =>
         println("2 Provisioned more data... TX:%s".format(tx))
         
@@ -286,7 +286,7 @@ class DatomicTxSpec extends Specification {
           case (Some(medorId), Some(totoId)) => 
             println(s"4 totoId:$totoId medorId:$medorId")
             database.entity(totoId).map{ entity =>
-              fromEntity[PersonDog](entity).map {
+              DatomicMapping.fromEntity[PersonDog](entity).map {
                 case PersonDog(name, age, dog) => println(s"Found Toto $name $age $dog")
               }.get
             }.getOrElse(failure("unable to find entity"))
@@ -322,17 +322,17 @@ class DatomicTxSpec extends Specification {
       val tutu = PersonLike("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
-      val totoEntity = addToEntity(totoId)(
+      val totoEntity = Datomic.addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "like" -> "chocolate"
       )
 
-      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
 
-      val fut = transact(
-        toEntity(totoId)(toto),
-        toEntity(tutuId)(tutu)
+      val fut = Datomic.transact(
+        DatomicMapping.toEntity(totoId)(toto),
+        DatomicMapping.toEntity(tutuId)(tutu)
       ).map{ tx =>
         println("5 - Provisioned more data... TX:%s".format(tx))
         
@@ -340,13 +340,13 @@ class DatomicTxSpec extends Specification {
           case (Some(totoId), Some(tutuId)) => 
             println(s"5 - totoId:$totoId tutuId:$tutuId")
             database.entity(totoId).map{ entity =>
-              fromEntity[PersonLike](entity).map { t => 
+              DatomicMapping.fromEntity[PersonLike](entity).map { t => 
                 println(s"5 - retrieved toto:$t")
                 t.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
               }.get
             }.getOrElse(failure("unable to find entity"))
             database.entity(tutuId).map{ entity =>
-              fromEntity[PersonLike](entity).map { t => 
+              DatomicMapping.fromEntity[PersonLike](entity).map { t => 
                 println(s"5 - retrieved tutu:$t")
                 t must beEqualTo(tutu)
               }.get
@@ -380,15 +380,15 @@ class DatomicTxSpec extends Specification {
       val toto = PersonLikes("toto", 30, Set("chocolate", "vanilla"))
       val totoId = DId(Partition.USER)
 
-      val totoEntity = addToEntity(totoId)(
+      val totoEntity = Datomic.addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "likes" -> Set("chocolate", "vanilla")
       )
 
-      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
-      val fut = transact(
-        toEntity(totoId)(toto)
+      DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      val fut = Datomic.transact(
+        DatomicMapping.toEntity(totoId)(toto)
       ).map{ tx =>
         println("5 - Provisioned more data... TX:%s".format(tx))
         
@@ -396,7 +396,7 @@ class DatomicTxSpec extends Specification {
           case Some(totoId) => 
             println(s"6 - totoId:$totoId")
             database.entity(totoId).map{ entity =>
-              fromEntity[PersonLikes](entity).map { t => 
+              DatomicMapping.fromEntity[PersonLikes](entity).map { t => 
                 println(s"5 - retrieved toto:$t")
                 t must beEqualTo(PersonLikes("toto", 30, Set("chocolate", "vanilla")))
               }.get
@@ -444,18 +444,18 @@ class DatomicTxSpec extends Specification {
       val tutu = PersonDogOpt("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
-      val totoEntity = addToEntity(totoId)(
+      val totoEntity = Datomic.addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dog" -> medorId
       )
 
-      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
 
-      val fut = transact(
-        toEntity(totoId)(toto),
-        toEntity(medorId)(medor),
-        toEntity(tutuId)(tutu)
+      val fut = Datomic.transact(
+        DatomicMapping.toEntity(totoId)(toto),
+        DatomicMapping.toEntity(medorId)(medor),
+        DatomicMapping.toEntity(tutuId)(tutu)
       ).map{ tx =>
         println("7 - Provisioned more data... TX:%s".format(tx))
         
@@ -463,14 +463,14 @@ class DatomicTxSpec extends Specification {
           case (Some(medorId), Some(totoId), Some(tutuId)) => 
             println(s"7 - totoId:$totoId medorId:$medorId")
             database.entity(totoId).map{ entity =>
-              fromEntity[PersonDogOpt](entity).map { t => 
+              DatomicMapping.fromEntity[PersonDogOpt](entity).map { t => 
                 println(s"7 - retrieved toto:$t")
                 t.toString must beEqualTo(PersonDogOpt("toto", 30, Some(Ref(DId(medorId))(medor))).toString)
               }.get
               }.getOrElse(failure("unable to find entity"))
 
             database.entity(tutuId).map{ entity => 
-              fromEntity[PersonDogOpt](entity).map { t => 
+              DatomicMapping.fromEntity[PersonDogOpt](entity).map { t => 
                 println(s"7 - retrieved tutu:$t")
                 t must beEqualTo(tutu)
               }.get
@@ -520,26 +520,26 @@ class DatomicTxSpec extends Specification {
       val toto = PersonDogList("toto", 30, Set(Ref(medorId)(medor), Ref(brutusId)(brutus)))
       val totoId = DId(Partition.USER)
 
-      val totoEntity = addToEntity(totoId)(
+      val totoEntity = Datomic.addToEntity(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dogs" -> Set(medorId, brutusId)
       )
 
-      toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
-      println("8 - toto:"+toto+" TOTO ENTITY:"+toEntity(totoId)(toto))
+      DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+      println("8 - toto:"+toto+" TOTO ENTITY:"+DatomicMapping.toEntity(totoId)(toto))
 
-      val fut = transact(
-        toEntity(totoId)(toto),
-        toEntity(medorId)(medor),
-        toEntity(brutusId)(brutus)
+      val fut = Datomic.transact(
+        DatomicMapping.toEntity(totoId)(toto),
+        DatomicMapping.toEntity(medorId)(medor),
+        DatomicMapping.toEntity(brutusId)(brutus)
       ).map{ tx =>
         println("8 - Provisioned more data... TX:%s".format(tx))
         
         tx.resolve(medorId, brutusId, totoId) match {
           case (Some(medorId), Some(brutusId), Some(totoId)) => 
             database.entity(totoId).map{ entity =>
-              fromEntity[PersonDogList](entity).map{ t => 
+              DatomicMapping.fromEntity[PersonDogList](entity).map{ t => 
                 t must beEqualTo(PersonDogList("toto", 30, Set(Ref(DId(medorId))(medor), Ref(DId(brutusId))(brutus))))
               }.get
             }.getOrElse(failure("unable to find entity"))

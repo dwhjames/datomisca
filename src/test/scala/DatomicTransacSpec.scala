@@ -20,13 +20,13 @@ import java.util.concurrent.TimeUnit._
 import scala.concurrent.duration.Duration
 
 import reactivedatomic._
+import Datomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])
 class DatomicTransacSpec extends Specification {
   "Datomic" should {
     "operation simple" in {
-      import Datomic._
 
       val uri = "datomic:mem://DatomicTransacSpec"
 
@@ -55,7 +55,7 @@ class DatomicTransacSpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      transact(Seq(
+      Datomic.transact(Seq(
         violent,
         weak,
         person1
@@ -66,7 +66,7 @@ class DatomicTransacSpec extends Specification {
       }
 
       //println("DID:"+DId(Partition.USER).value.getClass)
-      query(pureQuery("""
+      Datomic.q(Datomic.pureQuery("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
