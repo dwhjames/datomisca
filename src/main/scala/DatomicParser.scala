@@ -303,6 +303,7 @@ object DatomicParser extends JavaTokenParsers {
   def parseKeywordSafe(input: String): Either[PositionFailure, Keyword] = parseAll(posKeyword, input) match {
     case Success(result, _) => Right(result)
     case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
   def parseRule(input: String): Rule = parseAll(rule, input) match {
@@ -327,27 +328,32 @@ object DatomicParser extends JavaTokenParsers {
 
   def parseQuerySafe(input: String): Either[PositionFailure, PureQuery] = parseAll(query, input) match {
     case Success(result, _) => Right(result)
-    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
   def parseAddToEntityParsingSafe(input: String): Either[PositionFailure, AddToEntityParsing] = parseAll(addToEntityParsing, input) match {
     case Success(result, _) => Right(result)
-    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
   def parseOpParsingSafe(input: String): Either[PositionFailure, Seq[OpParsing]] = parseAll(opsParsing, input) match {
     case Success(result, _) => Right(result)
-    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
   def parseOpSafe(input: String): Either[PositionFailure, Seq[Operation]] = parseAll(ops, input) match {
     case Success(result, _) => Right(result)
-    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
    def parseDRuleAliasesSafe(input: String): Either[PositionFailure, DRuleAliases] = parseAll(drulealiases, input) match {
     case Success(result, _) => Right(result)
-    case c @ Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
+    case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 }
 

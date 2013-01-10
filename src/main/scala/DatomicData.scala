@@ -155,6 +155,8 @@ object DSet {
   def apply(set: Set[DatomicData]) = new DSet(set)
   def apply(dd: DatomicData) = new DSet(Set(dd))
   def apply(dd: DatomicData, dds: DatomicData *) = new DSet(Set(dd) ++ dds)
+
+  def unapply(dset: DSet): Option[Set[DatomicData]] = Some(dset.toSet)
 }
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
@@ -228,6 +230,20 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     import scala.collection.JavaConversions._
     underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => DDatom(d)(this) )
   }
+
+  def history = DDatabase(underlying.history)
+  
+
+  def id: String = underlying.id
+  def isFiltered: Boolean = underlying.isFiltered
+  def isHistory: Boolean = underlying.isHistory
+  def basisT: Long = underlying.basisT
+  def nextT: Long = underlying.nextT
+  def sinceT: Option[Long] = Option(underlying.sinceT)
+
+  // TODO
+  // indexRange
+  // invoke
 
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying

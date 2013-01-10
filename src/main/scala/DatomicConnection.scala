@@ -65,6 +65,12 @@ trait Connection {
     override val queue = connection.txReportQueue
   }
 
+  def removeTxReportQueue: Unit = connection.removeTxReportQueue
+
+  def requestIndex: Boolean = connection.requestIndex
+
+  def gcStorage(olderThan: java.util.Date): Unit = connection.gcStorage(olderThan)
+
 }
 
 object Connection {

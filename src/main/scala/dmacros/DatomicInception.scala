@@ -61,11 +61,17 @@ trait DatomicInception {
         }))
         case DBigInt(v) => Apply(Ident(newTermName("DBigInt")), List(Literal(Constant(v))))
         case DBigDec(v) => Apply(Ident(newTermName("DBigDec")), List(Literal(Constant(v))))
+        case DSet(elts) => Apply(Ident(newTermName("DSet")), elts.map(incept(_)).toList)
+        case id: DId => id match{
+          case FinalId(v) => Apply(Ident(newTermName("FinalId")), List(Literal(Constant(v))))
+          case TempId(part, id, dbId) => Apply(Ident(newTermName("TempId")), List(incept(part), incept(id), Literal(Constant(dbId))))
+        }
         //case DBigDec(v) => v.toString
-        //case DInstant(v) => v.toString
-        //case DUuid(v) => v.toString
-        //case DUri(v) => v.toString
-        
+        /*case DInstant(v) => Apply(Ident(newTermName("DInstant")), List(Literal(Constant(v))))
+        case DBytes(v) => Apply(Ident(newTermName("DBytes")), List(Literal(Constant(v))))
+        case DUuid(v) => Apply(Ident(newTermName("DUuid")), List(Literal(Constant(v))))
+        case DUri(v) => Apply(Ident(newTermName("DUri")), List(Literal(Constant(v))))*/
+        case e => throw new RuntimeException("Unexcepted type "+e.getClass.toString+" while incepting a macro")
       }
 
       def incept(ds: DataSource): c.Tree = ds match {
@@ -226,6 +232,7 @@ trait DatomicInception {
           seq.elts.map{ 
             case Left(se: ScalaExpr) => incept(se)
             case Right(dd: DatomicData) => incept(dd)
+            case _ => throw new RuntimeException("Unexpected data while incepting DSetParsing")
           }.toList
         )
       }
