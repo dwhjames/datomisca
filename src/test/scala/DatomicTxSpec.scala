@@ -198,7 +198,7 @@ class DatomicTxSpec extends Specification {
             """)).map{
               case e: DLong =>
                 database.entity(e).map{ entity =>
-                  DatomicMapping.fromEntity(entity).map {
+                  DatomicMapping.fromEntity[Person](entity).map {
                     case Person(name, age) => println(s"2 Found person with name $name and age $age")
                   }
                 }

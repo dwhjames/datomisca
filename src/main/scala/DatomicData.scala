@@ -19,7 +19,7 @@ package reactivedatomic
 import scala.util.{Try, Success, Failure}
 
 /* DATOMIC TYPES */
-sealed trait DatomicData extends Nativeable {
+trait DatomicData extends Nativeable {
   def as[A](implicit reader: DDReader[DatomicData, A]) = reader.read(this)
 
   def tryAs[A](implicit reader: DDReader[DatomicData, A]): Try[A] = {

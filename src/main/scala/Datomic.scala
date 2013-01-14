@@ -496,6 +496,10 @@ trait DatomicFacilities {
     case Right(ops) => 
       Success(ops)
   }
+
+  def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): Option[DEntity] = {
+    tx.resolve(id).flatMap(db.entity(_))
+  }
 }
 
 trait DatomicTyped {
