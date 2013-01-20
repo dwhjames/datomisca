@@ -61,24 +61,24 @@ class DatomicSchema2Spec extends Specification {
 
         val id = DId(Partition.USER)
         Datomic.transact(
-          AddToEntity(id)(
+          AddEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
           ),
-          AddToEntity(DId(Partition.USER))(
+          AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tutu"),
             Keyword(person, "age") -> DLong(54L),
             Keyword(person, "character") -> DSet(violent.ident, clever.ident)
           ),
-          AddToEntity(DId(Partition.USER))(
+          AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tata"),
             Keyword(person, "age") -> DLong(23L),
             Keyword(person, "character") -> DSet(weak.ident, clever.ident)
           )
         ).flatMap{ tx => 
           println("Provisioned data... TX:%s".format(tx))
-          val totoId = Datomic.q(Datomic.pureQuery("""
+          val totoId = Datomic.q(Query.pure("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
@@ -91,14 +91,14 @@ class DatomicSchema2Spec extends Specification {
           ).flatMap{ tx => 
             println("Retracted data... TX:%s".format(tx))
 
-            Datomic.q(pureQuery("""
+            Datomic.q(Query.pure("""
               [ :find ?e
                 :where  [ ?e :person/name "toto" ] 
               ]
             """)).isEmpty must beTrue
 
             println("Provisioned data... TX:%s".format(tx))
-            val tutuId = Datomic.q(Datomic.pureQuery("""
+            val tutuId = Datomic.q(Query.pure("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
@@ -111,7 +111,7 @@ class DatomicSchema2Spec extends Specification {
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              Datomic.q(Datomic.pureQuery("""
+              Datomic.q(Query.pure("""
                 [ :find ?e
                   :where  [ ?e :person/name "tutu" ] 
                 ]

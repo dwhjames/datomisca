@@ -45,20 +45,20 @@ class DatomicTxSpec extends Specification {
   case class PersonLikes(name: String, age: Long, likes: Set[String] = Set())
 
   object PersonSchema {
-    val name = Attribute( Datomic.KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
-    val age = Attribute( Datomic.KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age")
-    val friend = Attribute( Datomic.KW(":person/friend"), SchemaType.ref, Cardinality.one).withDoc("Person's friend")
-    val dog = Attribute( Datomic.KW(":person/dog"), SchemaType.ref, Cardinality.one).withDoc("Person's dog")
-    val dogs = Attribute( Datomic.KW(":person/dogs"), SchemaType.ref, Cardinality.many).withDoc("Person's dogs")
-    val like = Attribute( Datomic.KW(":person/like"), SchemaType.string, Cardinality.one).withDoc("Person's like")
-    val likes = Attribute( Datomic.KW(":person/likes"), SchemaType.string, Cardinality.many).withDoc("Person's likes")
+    val name = Attribute( KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
+    val age = Attribute( KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age")
+    val friend = Attribute( KW(":person/friend"), SchemaType.ref, Cardinality.one).withDoc("Person's friend")
+    val dog = Attribute( KW(":person/dog"), SchemaType.ref, Cardinality.one).withDoc("Person's dog")
+    val dogs = Attribute( KW(":person/dogs"), SchemaType.ref, Cardinality.many).withDoc("Person's dogs")
+    val like = Attribute( KW(":person/like"), SchemaType.string, Cardinality.one).withDoc("Person's like")
+    val likes = Attribute( KW(":person/likes"), SchemaType.string, Cardinality.many).withDoc("Person's likes")
 
     val schema = Seq(name, age, friend, dog, dogs, like, likes)
   }
 
   object DogSchema {
-    val name = Attribute( Datomic.KW(":dog/name"), SchemaType.string, Cardinality.one).withDoc("Dog's name")
-    val age = Attribute( Datomic.KW(":dog/age"), SchemaType.long, Cardinality.one).withDoc("Dog's age")
+    val name = Attribute( KW(":dog/name"), SchemaType.string, Cardinality.one).withDoc("Dog's name")
+    val age = Attribute( KW(":dog/age"), SchemaType.long, Cardinality.one).withDoc("Dog's age")
 
     val schema = Seq(name, age)
   }
@@ -99,7 +99,7 @@ class DatomicTxSpec extends Specification {
       val idToto = DId(Partition.USER)
 
       val fut = Datomic.transact(
-        Datomic.addToEntity(idToto)(
+        Entity.add(idToto)(
           person / "name" -> "toto",
           person / "age" -> 30
         )
@@ -110,12 +110,12 @@ class DatomicTxSpec extends Specification {
 
         tx.resolve(idToto).map { totoId => 
           Datomic.transact(
-            Datomic.addToEntity( DId(Partition.USER) )(
+            Entity.add( DId(Partition.USER) )(
               person / "name" -> "tutu",
               person / "age" -> 54,
               person / "friend" -> totoId
             ),
-            Datomic.addToEntity( DId(Partition.USER) )(
+            Entity.add( DId(Partition.USER) )(
               person / "name" -> "tata",
               person / "age" -> 23,
               person / "friend" -> totoId
@@ -123,7 +123,7 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("Provisioned more data... TX:%s".format(tx))
 
-            Datomic.q(Datomic.typed.query[Args0, Args1]("""
+            Datomic.q(Query.manual[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
@@ -164,7 +164,7 @@ class DatomicTxSpec extends Specification {
       val idTutu = DId(Partition.USER)
       val idTata = DId(Partition.USER)
 
-      val toto = Datomic.addToEntity(idToto)(
+      val toto = Entity.add(idToto)(
         person / "name" -> "toto",
         person / "age" -> 30
       )
@@ -177,12 +177,12 @@ class DatomicTxSpec extends Specification {
         println("2 Resolved Id for toto: temp(%s) real(%s)".format(idToto.toNative, tx.resolve(idToto)))
         tx.resolve(toto).map{ totoId => 
           Datomic.transact(
-            Datomic.addToEntity(idTutu)(
+            Entity.add(idTutu)(
               person / "name" -> "tutu",
               person / "age" -> 54,
               person / "friend" -> totoId
             ),
-            Datomic.addToEntity(idTata)(
+            Entity.add(idTata)(
               person / "name" -> "tata",
               person / "age" -> 23,
               person / "friend" -> totoId
@@ -190,7 +190,7 @@ class DatomicTxSpec extends Specification {
           ).map{ tx => 
             println("2 Provisioned more data... TX:%s".format(tx))
 
-            Datomic.q(Datomic.typed.query[Args0, Args1]("""
+            Datomic.q(Query.manual[Args0, Args1]("""
               [ :find ?e 
                 :where [ ?e :person/friend ?f ]
                        [ ?f :person/name "toto" ]
@@ -230,7 +230,7 @@ class DatomicTxSpec extends Specification {
       val toto = Person("toto", 30)
       val totoId = DId(Partition.USER)
 
-      val totoEntity = Datomic.addToEntity(totoId)(
+      val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30
       )
@@ -268,7 +268,7 @@ class DatomicTxSpec extends Specification {
       val toto = PersonDog("toto", 30, Ref(medorId)(medor))
       val totoId = DId(Partition.USER)
 
-      val totoEntity = Datomic.addToEntity(totoId)(
+      val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dog" -> medorId
@@ -322,7 +322,7 @@ class DatomicTxSpec extends Specification {
       val tutu = PersonLike("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
-      val totoEntity = Datomic.addToEntity(totoId)(
+      val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "like" -> "chocolate"
@@ -380,7 +380,7 @@ class DatomicTxSpec extends Specification {
       val toto = PersonLikes("toto", 30, Set("chocolate", "vanilla"))
       val totoId = DId(Partition.USER)
 
-      val totoEntity = Datomic.addToEntity(totoId)(
+      val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "likes" -> Set("chocolate", "vanilla")
@@ -444,7 +444,7 @@ class DatomicTxSpec extends Specification {
       val tutu = PersonDogOpt("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
-      val totoEntity = Datomic.addToEntity(totoId)(
+      val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dog" -> medorId
@@ -520,7 +520,7 @@ class DatomicTxSpec extends Specification {
       val toto = PersonDogList("toto", 30, Set(Ref(medorId)(medor), Ref(brutusId)(brutus)))
       val totoId = DId(Partition.USER)
 
-      val totoEntity = Datomic.addToEntity(totoId)(
+      val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
         person / "age" -> 30,
         person / "dogs" -> Set(medorId, brutusId)

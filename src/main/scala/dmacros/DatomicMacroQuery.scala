@@ -47,7 +47,7 @@ object DatomicQueryMacro extends DatomicInception {
     
   }
 
-  def typedQueryImpl[A <: Args : c.WeakTypeTag, B <: Args : c.WeakTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQuery[A, B]] = {
+  def typedQueryImpl[A <: Args : c.WeakTypeTag, B <: Args : c.WeakTypeTag](c: Context)(q: c.Expr[String]) : c.Expr[TypedQueryInOut[A, B]] = {
     def verifyInputs(query: Query): Option[PositionFailure] = {
       val tpe = implicitly[c.WeakTypeTag[A]].tpe
       val sz = query.in.map( _.inputs.size ).getOrElse(0)
@@ -111,7 +111,69 @@ object DatomicQueryMacro extends DatomicInception {
             println("offsetPos:"+offsetPos)
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
 
-          case Right(t) => c.Expr[TypedQuery[A, B]]( inc.incept(TypedQuery[A, B](t)) )
+          case Right(t) => c.Expr[TypedQueryInOut[A, B]]( inc.incept(TypedQueryInOut[A, B](t)) )
+        }
+
+      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+    }
+      
+  }
+
+
+  def autoTypedQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[Any] = {
+    
+    import c.universe._
+
+    val inc = inception(c)
+
+    def pkgDatomic(tpe: String) = Select(Ident(newTermName("reactivedatomic")), tpe)
+    def pkgDatomicType(tpe: String) = Select(Ident(newTermName("reactivedatomic")), newTypeName(tpe))
+
+    q.tree match {
+      case Literal(Constant(s: String)) => 
+        DatomicParser.parseQuerySafe(s) match {
+          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
+            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
+            val offsetPos = new OffsetPosition(
+              treePos.source, 
+              computeOffset(treePos, offsetLine, offsetCol)
+            )
+            c.abort(offsetPos.asInstanceOf[c.Position], msg)
+
+          case Right(query) => 
+            val insz = query.in.map( _.inputs.size ).getOrElse(0)
+            val outsz = query.find.outputs.size
+
+            /*println( showRaw(
+              reify(
+                reactivedatomic.TypedQuery[reactivedatomic.Args0, reactivedatomic.Args2](query)
+              )
+            ) )*/
+
+            val tree = c.Expr[Any]( 
+              Apply(
+                TypeApply(
+                  Select(
+                    pkgDatomic("TypedQueryAuto"+insz), 
+                    newTermName("apply")
+                  ), 
+                  List.fill(insz)(pkgDatomicType("DatomicData")) :+
+                  (outsz match {
+                    case 0 => Ident(newTypeName("Unit"))
+                    case 1 => Ident(newTypeName("DatomicData"))
+                    case n => AppliedTypeTree(
+                                Ident(newTypeName("Tuple" + n )),
+                                List.fill(outsz)(pkgDatomicType("DatomicData"))
+                              )
+                  })                  
+                ), 
+                List(inc.incept(query))
+              )
+            )
+
+            //println( "Tree:"+showRaw(tree) )
+
+            tree
         }
 
       case _ => c.abort(c.enclosingPosition, "Only accepts String")

@@ -22,8 +22,8 @@ trait DataFunction extends Operation {
   def func: Keyword
 }
 
-case class Add(fact: Fact) extends DataFunction with Identified {
-  override val func = Add.kw
+case class AddFact(fact: Fact) extends DataFunction with Identified {
+  override val func = AddFact.kw
   override val id = fact.id
 
   def toNative: java.lang.Object = {
@@ -35,14 +35,14 @@ case class Add(fact: Fact) extends DataFunction with Identified {
   } 
 }
 
-object Add {
+object AddFact {
   val kw = Keyword("add", Some(Namespace.DB))
-  def apply( id: DId, attr: Keyword, value: DatomicData) = new Add(Fact(id, attr, value))
+  def apply( id: DId, attr: Keyword, value: DatomicData) = new AddFact(Fact(id, attr, value))
 }
 
 
-case class Retract(fact: Fact) extends DataFunction with Identified {
-  override val func = Retract.kw
+case class RetractFact(fact: Fact) extends DataFunction with Identified {
+  override val func = RetractFact.kw
   override val id = fact.id
 
   def toNative: java.lang.Object = {
@@ -54,9 +54,9 @@ case class Retract(fact: Fact) extends DataFunction with Identified {
   }
 }
 
-object Retract {
+object RetractFact {
   val kw = Keyword("retract", Some(Namespace.DB))
-  def apply( id: DId, attr: Keyword, value: DatomicData) = new Retract(Fact(id, attr, value))
+  def apply( id: DId, attr: Keyword, value: DatomicData) = new RetractFact(Fact(id, attr, value))
 }
 
 case class RetractEntity(entId: DLong) extends DataFunction {
@@ -77,25 +77,24 @@ object RetractEntity {
   val kw = Keyword("retractEntity", Some(Namespace.DB.FN))
 }
 
-trait PartialAddToEntity {
+trait PartialAddEntity {
   def props: Map[Keyword, DatomicData]
 
-  def ++(other: PartialAddToEntity) = PartialAddToEntity( props ++ other.props )
+  def ++(other: PartialAddEntity) = PartialAddEntity( props ++ other.props )
 
   def toMap = props
   //override def toString = props.toString
 }
 
-object PartialAddToEntity {
-  def apply(theProps: Map[Keyword, DatomicData]) = new PartialAddToEntity {
+object PartialAddEntity {
+  def apply(theProps: Map[Keyword, DatomicData]) = new PartialAddEntity {
     def props = theProps
   }
 
-  def empty: PartialAddToEntity = apply(Map())
+  def empty: PartialAddEntity = apply(Map())
 }
 
-case class AddToEntity(id: DId, partialProps: Map[Keyword, DatomicData]) 
-extends PartialAddToEntity with Operation with Identified {
+case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity with Operation with Identified {
   override def props = partialProps + (Keyword("id", Namespace.DB) -> id)
 
   def toNative: java.lang.Object = {
@@ -106,16 +105,16 @@ extends PartialAddToEntity with Operation with Identified {
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
-object AddToEntity {
+object AddEntity {
   //def apply(id: DId, props: Map[Keyword, DatomicData]): AddToEntity = new AddToEntity(props + (Keyword("id", Namespace.DB) -> id) )
-  def apply(id: DId)(props: (Keyword, DatomicData)*): AddToEntity = new AddToEntity(id, props.toMap)
-  def apply(id: DId, partial: PartialAddToEntity) = new AddToEntity(id, partial.props)
+  def apply(id: DId)(props: (Keyword, DatomicData)*): AddEntity = new AddEntity(id, props.toMap)
+  def apply(id: DId, partial: PartialAddEntity) = new AddEntity(id, partial.props)
 }
 
 case class AddIdent(override val ident: DRef, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {
   override lazy val id = DId(partition)
 
-  def toNative = Add( Fact(id, Keyword("ident", Namespace.DB), ident) ).toNative
+  def toNative = AddFact( Fact(id, Keyword("ident", Namespace.DB), ident) ).toNative
 
   override def toString = toNative.toString
 

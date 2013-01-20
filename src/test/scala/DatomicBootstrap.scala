@@ -8,7 +8,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object DatomicBootstrap {
   def apply(theUri: String): Future[TxReport] = {
     import reactivedatomic._
-    import Datomic._
 
     val person = new Namespace("person") {
       val character = Namespace("person.character")
@@ -30,22 +29,22 @@ object DatomicBootstrap {
       stupid
     )
 
-    println("created DB with uri %s: %s".format(theUri, createDatabase(theUri)))
+    println("created DB with uri %s: %s".format(theUri, Datomic.createDatabase(theUri)))
     implicit val conn = Datomic.connect(theUri) //"datomic:mem://datomicspec2"
 
-    transact(schema).flatMap{ tx =>
-      transact(
-        AddToEntity(DId(Partition.USER))(
+    Datomic.transact(schema).flatMap{ tx =>
+      Datomic.transact(
+        AddEntity(DId(Partition.USER))(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
         ),
-        AddToEntity(DId(Partition.USER))(
+        AddEntity(DId(Partition.USER))(
           Keyword(person, "name") -> DString("tutu"),
           Keyword(person, "age") -> DLong(54L),
           Keyword(person, "character") -> DSet(violent.ident, clever.ident)
         ),
-        AddToEntity(DId(Partition.USER))(
+        AddEntity(DId(Partition.USER))(
           Keyword(person, "name") -> DString("tata"),
           Keyword(person, "age") -> DLong(23L),
           Keyword(person, "character") -> DSet(weak.ident, clever.ident)

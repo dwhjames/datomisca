@@ -302,7 +302,7 @@ trait CombinatorImplicits {
   }
 
   implicit def RDtoFunctorOps[M[_] <: EntityReader[_], A](ma: M[A])(implicit fu: Functor[M]): FunctorOps[M, A] = new FunctorOps(ma)
-  implicit def RDtoContraFunctorOps[M[_] <: PartialAddToEntityWriter[_], A](ma: M[A])(implicit fu: ContraFunctor[M]): ContraFunctorOps[M, A] = new ContraFunctorOps(ma)
+  implicit def RDtoContraFunctorOps[M[_] <: PartialAddEntityWriter[_], A](ma: M[A])(implicit fu: ContraFunctor[M]): ContraFunctorOps[M, A] = new ContraFunctorOps(ma)
 
   def unlift[A, B](f: A => Option[B]): A => B = Function.unlift(f)
 

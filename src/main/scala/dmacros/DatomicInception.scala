@@ -176,7 +176,25 @@ trait DatomicInception {
               Apply(Ident(newTermName("Seq")), ra.args.map(incept(_)).toList )
             )
           )
+        case DataRuleParsing(ds, entity, attr, value, tx, added) =>
+          Apply( Ident(newTermName("DataRule")), 
+            List(
+              (if(ds == ImplicitDS) Ident(newTermName("ImplicitDS")) else Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(ds.name)))) ), 
+              incept(entity), 
+              incept(attr), 
+              incept(value), 
+              incept(tx), 
+              incept(added)
+            ) 
+          )
+
       }
+
+      def incept(t: TermParsing): c.Tree = t.value match {
+        case Left(se: ScalaExpr) => c.parse(se.expr)
+        case Right(t: Term) => incept(t)
+      }
+
 
       def incept(o: Output): c.Tree = o match {
         case OutVariable(v) => Apply(Ident(newTermName("OutVariable")), List(incept(v)))
@@ -212,9 +230,9 @@ trait DatomicInception {
         )
       }
 
-      def incept[A <: Args, B <: Args](q: TypedQuery[A, B]): c.universe.Tree = {
+      def incept[A <: Args, B <: Args](q: TypedQueryInOut[A, B]): c.universe.Tree = {
         Apply(
-          Ident(newTermName("TypedQuery")), 
+          Ident(newTermName("TypedQueryInOut")), 
           List(
             incept(q.query)
           )
@@ -223,12 +241,14 @@ trait DatomicInception {
 
       def incept(se: ScalaExpr): c.universe.Tree = {
         val compiled = c.parse(se.expr)
+
+        println("TPE: "+compiled.tpe)
         Apply(Select(Ident(newTermName("Datomic")), "toDWrapper"), List(compiled))
       }
 
       def incept(seq: DSetParsing): c.universe.Tree = {
         Apply(
-          Select(Ident(newTermName("Datomic")), "dset"),
+          Select(Ident(newTermName("Datomic")), "set"),
           seq.elts.map{ 
             case Left(se: ScalaExpr) => incept(se)
             case Right(dd: DatomicData) => incept(dd)
@@ -249,13 +269,13 @@ trait DatomicInception {
         case Right(dd: DatomicData) => incept(dd)
       }
 
-      def incept(a: AddToEntityParsing): c.universe.Tree = {
+      def incept(a: AddEntityParsing): c.universe.Tree = {
         if(!a.props.contains(Keyword("id", Namespace.DB)))
-          c.abort(c.enclosingPosition, "An AddToEntity requires one :db/id field")
+          c.abort(c.enclosingPosition, "addEntity requires one :db/id field")
         else {
           val tree = Apply(
             Apply(
-              Select(Ident(newTermName("Datomic")), "addToEntity"),
+              Ident(newTermName("AddEntity")),
               List(inceptId(a.props(Keyword("id", Namespace.DB))))
             ),
             ( a.props - Keyword("id", Namespace.DB) ).map{ case (k, v) => 
@@ -293,16 +313,16 @@ trait DatomicInception {
         )
       }
 
-      def incept(op: AddParsing): c.universe.Tree = {
+      def incept(op: AddFactParsing): c.universe.Tree = {
         Apply(
-          Ident(newTermName("Add")),
+          Ident(newTermName("AddFact")),
           List(incept(op.fact))  
         )
       }
 
-      def incept(op: RetractParsing): c.universe.Tree = {
+      def incept(op: RetractFactParsing): c.universe.Tree = {
         Apply(
-          Ident(newTermName("Retract")),
+          Ident(newTermName("RetractFact")),
           List(incept(op.fact))  
         )
       }
@@ -344,10 +364,10 @@ trait DatomicInception {
         Apply(
           Ident(newTermName("Seq")),
           ops.map{
-            case add: AddParsing => incept(add)
-            case ret: RetractParsing => incept(ret)
+            case add: AddFactParsing => incept(add)
+            case ret: RetractFactParsing => incept(ret)
             case retEnt: RetractEntityParsing => incept(retEnt)
-            case addEnt: AddToEntityParsing => incept(addEnt)
+            case addEnt: AddEntityParsing => incept(addEnt)
           }.toList
         )       
       }

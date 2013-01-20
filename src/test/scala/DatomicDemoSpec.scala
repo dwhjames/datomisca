@@ -28,13 +28,12 @@ import Datomic._
 class DatomicDemoSpec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
-      import Datomic._
       import scala.concurrent.ExecutionContext.Implicits.global
 
       val uri = "datomic:mem://DatomicDemoSpec"
 
       //DatomicBootstrap(uri)
-      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      println("created DB with uri %s: %s".format(uri, Datomic.createDatabase(uri)))
 
       val person = new Namespace("person") {
         val character = Namespace("person.character")
@@ -73,17 +72,17 @@ class DatomicDemoSpec extends Specification {
          *  - remove a ] from addEntity to show compiling error
          */
         conn.transact(
-          AddToEntity(DId(Partition.USER))(
+          AddEntity(DId(Partition.USER))(
             person / "name" -> DString("toto"),
             person / "age" -> DLong(30L),
             person / "character" -> DSet(weak.ident, dumb.ident)
           ),
-          addToEntity(DId(Partition.USER))(
+          Entity.add(DId(Partition.USER))(
             KW(":person/name") -> "tata",
             KW(":person/age") -> 54L,
             KW(":person/character") -> Seq(violent, clever)
           ),
-          addToEntity("""{
+          Entity.add("""{
             :db/id ${DId(Partition.USER)}
             :person/name "tutu"
             :person/age 35
@@ -98,7 +97,7 @@ class DatomicDemoSpec extends Specification {
            *  - change Input Args2 to Args3 to show compiling error (beginning of query)
            *  - erase ?a to show compiling error in query (beginning of query)
            */
-          val l1 = Datomic.q(Datomic.typed.query[Args2, Args3]("""
+          val l1 = Datomic.q(Query.manual[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -115,7 +114,7 @@ class DatomicDemoSpec extends Specification {
             case e => throw new RuntimeException("unexpected result")
           }
 
-          val l2 = Datomic.q(Datomic.typed.query[Args2, Args3]("""
+          val l2 = Datomic.q(Query.manual[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -132,7 +131,7 @@ class DatomicDemoSpec extends Specification {
             case e => throw new RuntimeException("unexpected result")
           }
 
-          val l3 = Datomic.q(Datomic.typed.query[Args2, Args3]("""
+          val l3 = Datomic.q(Query.manual[Args2, Args3]("""
             [ 
               :find ?e ?name ?a
               :in $ ?age

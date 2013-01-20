@@ -241,5 +241,7 @@ trait DDWriterImplicits{
   implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) = 
     DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
 
+  implicit def ddIdentity = DDWriter[DatomicData, DatomicData]{ dd => dd }
+
 }
 

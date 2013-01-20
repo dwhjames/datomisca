@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit._
 import reactivedatomic._
 import Datomic._
 
+
 @RunWith(classOf[JUnitRunner])
 class DatomicDatabaseSpec extends Specification {
   sequential
@@ -149,27 +150,27 @@ class DatomicDatabaseSpec extends Specification {
             Datomic.transact(data).flatMap { tx =>
               ///////////////////////////////////////////////////////////////////
               // Plain DB can see passwordHash
-              transact(
-                Datomic.addToEntity(DId(Partition.USER))(
+              Datomic.transact(
+                Entity.add(DId(Partition.USER))(
                   user / "firstName" -> "John",
                   user / "lastName" -> "Doe",
                   user / "email" -> "jdoe@example.com",
                   user / "passwordHash" -> "<SECRET>"
                 )
               ).map{ tx =>
-                val qPasswordHash = Datomic.typed.query[Args1, Args1]("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
+                val qPasswordHash = Query.manual[Args1, Args1]("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
 
                 println("Find PasswordHash:" + Datomic.q(qPasswordHash, database))
                   
                 Datomic.q(
-                  Datomic.typed.query[Args3, Args1]("""
+                  Query.manual[Args3, Args1]("""
                     [
                      :find ?e 
                      :in $ ?attr ?val 
                      :where [?e ?attr ?val]
                     ]
                   """), 
-                  database, 
+                  Datomic.database, 
                   DRef(user / "email"), 
                   DString("jdoe@example.com")
                 ).collect{
@@ -178,15 +179,15 @@ class DatomicDatabaseSpec extends Specification {
                     database.touch(e)
                 }
 
-                val datoms = database.datoms(DDatabase.AEVT, user / "passwordHash")
+                val datoms = Datomic.database.datoms(DDatabase.AEVT, user / "passwordHash")
                 println("Datoms: "+datoms)
 
                 ///////////////////////////////////////////////////////////////////
                 // filtered db cannot
-                val passwordHashId = database.entid(user / "passwordHash")
+                val passwordHashId = Datomic.database.entid(user / "passwordHash")
                 println("passwordHashId:"+passwordHashId)
 
-                val filteredDb = database.filter{ (_, datom) => 
+                val filteredDb = Datomic.database.filter{ (_, datom) => 
                   datom.attrId != passwordHashId
                 }
 
@@ -210,12 +211,12 @@ class DatomicDatabaseSpec extends Specification {
                 }*/
 
                 // add a publish/at date to a transaction
-                transact(
-                  Datomic.addToEntity(DId(Partition.USER))(
+                Datomic.transact(
+                  Entity.add(DId(Partition.USER))(
                     story / "title" -> "codeq",
                     story / "url" -> "http://blog.datomic.com/2012/10/codeq.html"
                   ),
-                  Datomic.addToEntity(DId(Partition.TX))(
+                  Entity.add(DId(Partition.TX))(
                     Namespace("publish") / "at" -> DInstant(new java.util.Date())
                   )
                 ).map{ tx =>
@@ -223,14 +224,14 @@ class DatomicDatabaseSpec extends Specification {
                 }
 
                 // all the stories
-                val qCount = Datomic.typed.query[Args1, Args1]("""
+                val qCount = Query.manual[Args1, Args1]("""
                   [:find ?e :in $ :where [?e :story/url ]]
                 """)
-                val count = Datomic.q(qCount, database).size
+                val count = Datomic.q(qCount, Datomic.database).size
                 println(s"Found $count entities")
                 
                 // same query, filtered to stories that have been published.
-                val filteredDb2 = database.filter{ (db, datom) =>
+                val filteredDb2 = Datomic.database.filter{ (db, datom) =>
                   db.entity(datom.tx) match {
                     case Some(entity) => entity.get(KW(":publish/at")).isDefined
                     case _ => false

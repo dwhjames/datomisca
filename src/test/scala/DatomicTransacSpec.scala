@@ -47,7 +47,7 @@ class DatomicTransacSpec extends Specification {
       val violent = AddIdent(Keyword(person.character, "violent"))
       val weak = AddIdent(Keyword(person.character, "weak"), Partition.USER)
       
-      val person1 = AddToEntity( DId(Partition.USER) )(
+      val person1 = AddEntity( DId(Partition.USER) )(
         Keyword(Namespace("person"), "name") -> DString("bob"),
         Keyword(Namespace("person"), "age") -> DLong(30L),
         Keyword(Namespace("person"), "character") -> DSet( violent.ident, weak.ident )
@@ -66,7 +66,7 @@ class DatomicTransacSpec extends Specification {
       }
 
       //println("DID:"+DId(Partition.USER).value.getClass)
-      Datomic.q(Datomic.pureQuery("""
+      Datomic.q(Query.pure("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]

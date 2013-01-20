@@ -23,14 +23,16 @@ import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
 import reactivedatomic._
+import Datomic._
+import DatomicDataImplicits._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import Datomic._
 
 @RunWith(classOf[JUnitRunner])
-class DatomicQuerySpec extends Specification {
+class DatomicQuery2Spec extends Specification {
   sequential 
-  val uri = "datomic:mem://datomicqueryspec"
+  val uri = "datomic:mem://datomicquery2spec"
   val person = Namespace("person")
 
   def startDB = {
@@ -53,17 +55,21 @@ class DatomicQuerySpec extends Specification {
 
   "Datomic" should {
     "1 - pure query" in {
-
       implicit val conn = Datomic.connect(uri)
-
-
-      Datomic.q(Query.pure("""
+      val query = Query("""
         [ :find ?e ?n 
+          :in $ ?char
           :where  [ ?e :person/name ?n ] 
-                  [ ?e :person/character :person.character/violent ]
+                  [ ?e :person/character ?char ]
         ]
-      """)).collect {
-        case List(e: DLong, n: DString) => 
+      """)
+      
+      Datomic.q(
+        query, 
+        database, 
+        DRef(KW(":person.character/violent"))
+      ).map {
+        case (e: DLong, n: DString) => 
           val entity = database.entity(e)
           println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
       }
@@ -75,9 +81,10 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      val q = Query.manual[Args0, Args1](""" 
+      val q = Query(""" 
         [:find ?e :where [?e :person/name]]
       """)
+
       Datomic.q(q).map{
         case (e: DLong) => 
           val entity = database.entity(e)
@@ -92,7 +99,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.q(Query.manual[Args2, Args1](""" 
+      Datomic.q(Query(""" 
         [
          :find ?e
          :in $ [?names ...] 
@@ -111,7 +118,7 @@ class DatomicQuerySpec extends Specification {
     "4 - typed query with rule with list of tuple inputs" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Query.manual[Args2, Args3](""" 
+      val q = Query(""" 
         [
          :find ?e ?name ?age
          :in $ [[?name ?age]]
@@ -119,6 +126,7 @@ class DatomicQuerySpec extends Specification {
                 [?e :person/age ?age]
         ]
       """)
+
       Datomic.q(
         q, database, 
         DSet(
@@ -137,12 +145,13 @@ class DatomicQuerySpec extends Specification {
     "5 - typed query with fulltext query" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Query.manual[Args0, Args2](""" 
+      val q = Query(""" 
         [
          :find ?e ?n
          :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
         ]
       """)
+
       Datomic.q(q).map{
         case (e: DLong, n: DString) => 
           println("5 - entity: "+ e + " name:"+ n)
@@ -150,54 +159,6 @@ class DatomicQuerySpec extends Specification {
       }
 
       success
-    }
-
-    "6 - serialize rule alias" in {
-
-      val alias = DRuleAliases(
-        Seq(DRuleAlias(
-          "region", 
-          Seq(Var("c"), Var("r")),
-          Seq(
-            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
-            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
-            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
-            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
-          )
-        ))
-      )
-
-      alias.toNative.trim must beEqualTo(
-        ( "[ [ [region ?c ?r]" +
-          " [?c :community/neighborhood ?n]" +
-          " [?n :neighborhood/district ?d]" +
-          " [?d :district/region ?re]" +
-          " [?re :db/ident ?r] ] ]").trim
-      )
-    }
-
-    "7 - parse rule alias" in {
-      val alias = DRuleAliases(
-        Seq(DRuleAlias(
-          "region", 
-          Seq(Var("c"), Var("r")),
-          Seq(
-            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
-            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
-            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
-            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
-          )
-        ))
-      )
-
-      Query.rules("""
-        [ [ [region ?c ?r]
-           [?c :community/neighborhood ?n]
-           [?n :neighborhood/district ?d]
-           [?d :district/region ?re]
-           [?re :db/ident ?r] 
-        ] ]
-      """) must beEqualTo(alias) 
     }
 
     "8 - query with rule alias" in {
@@ -209,7 +170,7 @@ class DatomicQuerySpec extends Specification {
         ] ]
       """)
 
-      val q = Query.manual[Args2, Args2]("""
+      val q = Query("""
         [
           :find ?e ?age
           :in $ %
@@ -229,7 +190,7 @@ class DatomicQuerySpec extends Specification {
     "9 - query with with" in {
       implicit val conn = Datomic.connect(uri)
       
-      val q = Query.manual[Args0, Args2]("""
+      val q = Query("""
         [ :find ?e ?n 
           :with ?age
           :where  [ ?e :person/name ?n ] 
@@ -245,6 +206,5 @@ class DatomicQuerySpec extends Specification {
         case _ => failure("unexpected result")
       }
     }
-
   }
 }

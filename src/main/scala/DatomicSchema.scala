@@ -111,7 +111,7 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Identified {
+sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Identified with Term with Namespaceable {
   def ident: Keyword
   def valueType: SchemaType[DD]
   def cardinality: Card
@@ -124,8 +124,10 @@ sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation
 
   // using partiton :db.part/db
   override lazy val id = DId(Partition.DB)
+  override lazy val name = ident.name
+  override lazy val ns = ident.ns
 
-  lazy val toAddOps: AddToEntity = {
+  lazy val toAddOps: AddEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
       Attribute.id -> id,
       Attribute.ident -> DRef(ident),
@@ -142,12 +144,13 @@ sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation
     // installing attribute
     mb += Attribute.installAttr -> DRef(Partition.DB.keyword)
 
-    AddToEntity(id, mb.result())
+    AddEntity(id, mb.result())
   }
   
-  def toNative: java.lang.Object = toAddOps.toNative
+  override def toNative: java.lang.Object = toAddOps.toNative
+  override def toString = ident.toString
 
-  override def toString = s"""
+  def stringify = s"""
 { 
   ${Attribute.id} $id
   ${Attribute.ident} ${DRef(ident)}
@@ -256,13 +259,13 @@ case class ManyRefAttribute[T](
 
 
 sealed trait Props {
-  def convert: PartialAddToEntity
+  def convert: PartialAddEntity
 
   private def ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Props = PropsLink(prop, this, attrC)
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Props = PropsLink(prop, this, attrC)
 
   def +[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]) = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]) = {
     def step(cur: Props): Props = {
       cur match {
         case PropsLink(head, tail, ac) => if(head._1 == prop._1) (prop :: tail)(attrC) else (head :: step(tail))(ac)
@@ -285,7 +288,7 @@ sealed trait Props {
   }
 
   def get[DD <: DatomicData, Card <: Cardinality, A](attr: Attribute[DD, Card])
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Option[A] = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Option[A] = {
     def step(cur: Props): Option[A] = {
       cur match {
         case PropsLink(head, tail, ac) => if(head._1 == attr) Some(head._2.asInstanceOf[A]) else step(tail)
@@ -311,72 +314,81 @@ object Props {
   def apply() = PropsNil
 
   def apply[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))  
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Props = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Props = {
       prop :: PropsNil
   }
 }
 
 case object PropsNil extends Props {
-  def convert: PartialAddToEntity = PartialAddToEntity.empty
+  def convert: PartialAddEntity = PartialAddEntity.empty
 }
 
 case class PropsLink[DD <: DatomicData, Card <: Cardinality, A](
   head: (Attribute[DD, Card], A), 
   tail: Props, 
-  attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]
+  attrC: Attribute2PartialAddEntityWriter[DD, Card, A]
 ) extends Props {
   override def toString = s"""${head._1.ident} -> ${head._2} :: $tail""" 
 
-  def convert: PartialAddToEntity = {
+  def convert: PartialAddEntity = {
     attrC.convert(head._1).write(head._2) ++ tail.convert
   }
 }
 
 
-
-trait DatomicSchemaFacilities {
+trait DatomicSchemaFactFacilities extends DatomicTypeWrapper {
   /** add based on Schema attributes 
     */
   def add[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Add = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: DatomicData) = partial.props.head
-    Add(id, kw, value)
+    AddFact(id, kw, value)
   }
+
   def add[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Add = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
     add(DId(id))(prop)(attrC)
   }
 
   def add[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Add = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
     add(DId(DLong(id)))(prop)(attrC)
   }
 
   /** retract based on Schema attributes 
     */
   def retract[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Retract = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: DatomicData) = partial.props.head
-    Retract(id, kw, value)
+    RetractFact(id, kw, value)
   }
   def retract[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Retract = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     retract(DId(id))(prop)(attrC)
   }
 
   def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddToEntityWriter[DD, Card, A]): Retract = {
+    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     retract(DId(DLong(id)))(prop)(attrC)
   }
+}
 
-  /** addToEntity based on Schema attributes 
+trait DatomicSchemaEntityFacilities extends DatomicTypeWrapper {
+  /** AddEntity based on Schema attributes 
     */
-  def addToEntity(id: DId)(props: Props): AddToEntity = {
-    AddToEntity(id, props.convert)
-  }
+  def add(id: DId)(props: Props): AddEntity = AddEntity(id, props.convert)
 
 }
+
+trait DatomicSchemaQueryFacilities {
+
+} 
+
+object SchemaFact extends DatomicSchemaFactFacilities
+
+object SchemaEntity extends DatomicSchemaEntityFacilities
+

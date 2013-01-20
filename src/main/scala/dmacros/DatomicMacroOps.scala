@@ -23,14 +23,14 @@ import scala.reflect.internal.util.{Position, OffsetPosition}
 
 object DatomicMacroOps extends DatomicInception {
 
-  def addToEntityImpl(c: Context)(q: c.Expr[String]): c.Expr[AddToEntity] = {
+  def addEntityImpl(c: Context)(q: c.Expr[String]): c.Expr[AddEntity] = {
     import c.universe._
 
     val inc = inception(c)
 
     q.tree match {
       case Literal(Constant(s: String)) => 
-        DatomicParser.parseAddToEntityParsingSafe(s) match {
+        DatomicParser.parseAddEntityParsingSafe(s) match {
           case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
             val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
 
@@ -40,7 +40,7 @@ object DatomicMacroOps extends DatomicInception {
             )
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
           case Right(ae) => 
-            c.Expr[AddToEntity]( inc.incept(ae) )
+            c.Expr[AddEntity]( inc.incept(ae) )
         }
 
       case _ => c.abort(c.enclosingPosition, "Only accepts String")

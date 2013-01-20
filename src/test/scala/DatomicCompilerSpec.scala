@@ -37,7 +37,7 @@ class DatomicCompilerSpec extends Specification {
 
         val person = Namespace("person")
   
-        val query = Datomic.typed.query[Args2, Args2]("""
+        val query = Query.manual[Args2, Args2]("""
           [ :find ?e ?name
             :in $ ?age
             :where  [ ?e :person/name ?name ] 
@@ -46,7 +46,7 @@ class DatomicCompilerSpec extends Specification {
           ]
         """)
 
-        val qf = Datomic.q(query, database, DLong(54L)).collect {
+        val qf = Datomic.q(query, Datomic.database, DLong(54L)).collect {
           case (e: DLong, n: DString) => 
             val entity = database.entity(e)
             println("Q2 entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
@@ -54,7 +54,7 @@ class DatomicCompilerSpec extends Specification {
         }
         
         Datomic.q(
-          Datomic.typed.query[Args2, Args3]("""
+          Query.manual[Args2, Args3]("""
             [ :find ?e ?name ?age
               :in $ ?age
               :where  [ ?e :person/name ?name ] 
@@ -62,7 +62,7 @@ class DatomicCompilerSpec extends Specification {
                       [ (< ?a ?age) ]
             ]
           """
-        ), database, DLong(30)).map{
+        ), Datomic.database, DLong(30)).map{
           case (entity: DLong, name: DString, age: DLong) => 
             println(s"""Q3 entity: $entity - name: $name - age: $age""")
             name must beEqualTo(DString("tata"))

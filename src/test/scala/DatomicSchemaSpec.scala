@@ -58,17 +58,17 @@ class DatomicSchemaSpec extends Specification {
         println("Provisioned schema... TX:%s".format(tx))
 
         Datomic.transact(
-          AddToEntity(DId(Partition.USER))(
+          AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
           ),
-          AddToEntity(DId(Partition.USER))(
+          AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tutu"),
             Keyword(person, "age") -> DLong(54L),
             Keyword(person, "character") -> DSet(violent.ident, clever.ident)
           ),
-          AddToEntity(DId(Partition.USER))(
+          AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tata"),
             Keyword(person, "age") -> DLong(23L),
             Keyword(person, "character") -> DSet(weak.ident, clever.ident)
@@ -79,7 +79,7 @@ class DatomicSchemaSpec extends Specification {
           case e => println(e.getMessage)
         }
 
-        Datomic.q(Datomic.pureQuery("""
+        Datomic.q(Query.pure("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
@@ -90,7 +90,7 @@ class DatomicSchemaSpec extends Specification {
             ).map{ tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              Datomic.q(Datomic.pureQuery("""
+              Datomic.q(Query.pure("""
                 [ :find ?e
                   :where  [ ?e :person/name "toto" ] 
                 ]

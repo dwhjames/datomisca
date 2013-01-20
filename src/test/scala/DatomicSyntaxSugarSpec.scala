@@ -50,37 +50,37 @@ class DatomicSyntaxSugarSpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.addToEntity(id)(
+      Entity.add(id)(
         person / "name" -> "toto",
         person / "age" -> 30L,
         person / "character" -> Seq(weak, dumb)
       ).toString must beEqualTo(
-        AddToEntity(id)(
+        AddEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
         ).toString
       )
 
-      Datomic.addToEntity(id)(
+      Entity.add(id)(
         KW(":person/name") -> "toto",
         KW(":person/age") -> 30L,
         KW(""":person/character""") -> Seq(weak, dumb)
       ).toString must beEqualTo(
-        AddToEntity(id)(
+        AddEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
         ).toString
       )
 
-      Datomic.addToEntity("""{
+      Entity.add("""{
         :db/id $id
         :person/name "toto"
         :person/age 30
         :person/character [ $weak $dumb ]
       }""").toString must beEqualTo(
-        AddToEntity(id)(
+        AddEntity(id)(
           Keyword(person, "name") -> DString("toto"),
           Keyword(person, "age") -> DLong(30L),
           Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
@@ -88,7 +88,7 @@ class DatomicSyntaxSugarSpec extends Specification {
       )
 
       Datomic.transact(
-        Datomic.addToEntity("""{
+        Entity.add("""{
           :db/id ${DId(Partition.USER)}
           :person/name "toto"
           :person/age 30

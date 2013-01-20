@@ -57,7 +57,7 @@ class DatomicParserOpsSpec extends Specification {
       println(s"1 - Ops:$ops")
 
       ops.toString must beEqualTo(
-        List(Add(Fact( ops(0).fact.id, KW(":db/ident"), DRef(KW(":region/n"))))).toString
+        List(AddFact(Fact( ops(0).fact.id, KW(":db/ident"), DRef(KW(":region/n"))))).toString
       )
     }
 
@@ -72,7 +72,7 @@ class DatomicParserOpsSpec extends Specification {
 
       println(s"2 - Ops:$ops")
       ops.toString must beEqualTo(
-        List(Add(Fact( id, KW(":db/ident"), DRef(KW(":region/n"))))).toString
+        List(AddFact(Fact( id, KW(":db/ident"), DRef(KW(":region/n"))))).toString
       )
     }
 
@@ -89,8 +89,8 @@ class DatomicParserOpsSpec extends Specification {
       println(s"3 - Ops:$ops")
       ops.toString must beEqualTo(
         List(
-          Add(Fact( ops(0).fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
-          Add(Fact( id, KW(":db/ident"), DRef(KW(":region/n"))))
+          AddFact(Fact( ops(0).fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
+          AddFact(Fact( id, KW(":db/ident"), DRef(KW(":region/n"))))
         ).toString
       )
     }
@@ -105,7 +105,7 @@ class DatomicParserOpsSpec extends Specification {
       println(s"4 - Ops:$ops")
 
       ops.toString must beEqualTo(
-        List(Retract(Fact( ops(0).fact.id, KW(":db/ident"), DRef(KW(":region/n"))))).toString
+        List(RetractFact(Fact( ops(0).fact.id, KW(":db/ident"), DRef(KW(":region/n"))))).toString
       )
     }
 
@@ -123,7 +123,7 @@ class DatomicParserOpsSpec extends Specification {
       )
     }
 
-    "6 - map simple addToEntity op" in {
+    "6 - map simple AddEntity op" in {
       implicit val conn = Datomic.connect(uri)  
 
       val person = new Namespace("person") {
@@ -146,7 +146,7 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          AddToEntity(id)(
+          AddEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
@@ -183,11 +183,11 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Add(Fact( ops(0).asInstanceOf[Add].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
-          Add(Fact( id, KW(":db/ident"), DRef(KW(":region/n")))),
-          Retract(Fact( ops(2).asInstanceOf[Retract].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
+          AddFact(Fact( ops(0).asInstanceOf[AddFact].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
+          AddFact(Fact( id, KW(":db/ident"), DRef(KW(":region/n")))),
+          RetractFact(Fact( ops(2).asInstanceOf[RetractFact].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
           RetractEntity(DLong(1234L)),
-          AddToEntity(id)(
+          AddEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
@@ -229,17 +229,17 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Add(Fact( ops(0).asInstanceOf[Add].fact.id, KW(":db/ident"), DRef(KW(":character/weak")))),
-          Add(Fact( ops(1).asInstanceOf[Add].fact.id, KW(":db/ident"), DRef(KW(":character/dumb")))),
-          Add(Fact( ops(2).asInstanceOf[Add].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
-          Retract(Fact( ops(3).asInstanceOf[Retract].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
+          AddFact(Fact( ops(0).asInstanceOf[AddFact].fact.id, KW(":db/ident"), DRef(KW(":character/weak")))),
+          AddFact(Fact( ops(1).asInstanceOf[AddFact].fact.id, KW(":db/ident"), DRef(KW(":character/dumb")))),
+          AddFact(Fact( ops(2).asInstanceOf[AddFact].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
+          RetractFact(Fact( ops(3).asInstanceOf[RetractFact].fact.id, KW(":db/ident"), DRef(KW(":region/n")))),
           RetractEntity(DLong(1234L)),
-          AddToEntity(ops(5).asInstanceOf[AddToEntity].id)(
+          AddEntity(ops(5).asInstanceOf[AddEntity].id)(
             Keyword(person, "name") -> DString("toto, tata"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(DRef(KW(":character/_weak")), DRef(KW(":character/dumb-toto")))
           ),
-          AddToEntity(ops(6).asInstanceOf[AddToEntity].id)(
+          AddEntity(ops(6).asInstanceOf[AddEntity].id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
             Keyword(person, "character") -> DSet(DRef(KW(":character/_weak")), DRef(KW(":character/dumb-toto")))

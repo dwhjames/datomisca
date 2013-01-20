@@ -33,7 +33,7 @@ trait Namespaceable extends Nativeable {
   def toNative: java.lang.Object = clojure.lang.Keyword.intern(( if(ns.isDefined) {ns.get + "/"} else "" ) + name )
 }
 
-sealed trait Term
+trait Term
 
 case class Var(name: String) extends Term {
   override def toString = "?" + name
@@ -75,8 +75,6 @@ trait Identified {
 trait Referenceable {
   def ident: DRef
 }
-
-case class Fact(id: DId, attr: Keyword, value: DatomicData)
 
 case class Partition(keyword: Keyword) {
   override def toString = keyword.toString

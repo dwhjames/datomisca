@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package object reactivedatomic 

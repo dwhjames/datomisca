@@ -35,12 +35,10 @@ trait DDWriter[+DD <: DatomicData, -A] {
   def write(a: A): DD
 }
 
-object DDWriter extends DDWriterImplicits{
+object DDWriter extends DDWriterImplicits {
   def apply[DD <: DatomicData, A](f: A => DD) = new DDWriter[DD, A] {
     def write(a: A) = f(a)
   }
 }
 
-trait DWrapper extends NotNull
-private[reactivedatomic] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
 

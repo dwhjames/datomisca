@@ -32,11 +32,43 @@ case class DSetParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends Pars
 case class DIdParsing(partition: Partition, id: Option[Long] = None)
 
 sealed trait OpParsing
-case class AddToEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
+case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
 case class FactParsing(id: Either[ParsingExpr, DIdParsing], attr: Keyword, value: Either[ParsingExpr, DatomicData])
-case class AddParsing(fact: FactParsing) extends OpParsing
-case class RetractParsing(fact: FactParsing) extends OpParsing
+case class AddFactParsing(fact: FactParsing) extends OpParsing
+case class RetractFactParsing(fact: FactParsing) extends OpParsing
 case class RetractEntityParsing(entid: Either[ParsingExpr, DLong]) extends OpParsing
+
+case class TermParsing(value: Either[ScalaExpr, Term]) extends Term {
+  override def toString = value match {
+    case Left(se) => se.toString
+    case Right(t) => t.toString
+  }
+
+  def isEmpty = value match {
+    case Right(Empty) => true
+    case _ => false
+  }
+}
+
+object TermParsing{
+  def apply(t: Term) = new TermParsing(Right(t))
+}
+
+case class DataRuleParsing(ds: DataSource, entity: TermParsing, attr: TermParsing, value: TermParsing, tx: TermParsing, added: TermParsing) extends Rule {
+  override def toString = """[%s%s%s%s%s%s]""".format(
+    if(ds == ImplicitDS) "" else ds+" ",
+    if(entity.isEmpty){ if(!attr.isEmpty || !value.isEmpty || !tx.isEmpty || !added.isEmpty) (entity+" ") else ""} else entity,
+    if(attr.isEmpty){ if(!value.isEmpty || !tx.isEmpty || !added.isEmpty) (" "+attr) else ""} else (" "+attr),
+    if(value.isEmpty){ if(!tx.isEmpty || !added.isEmpty) (" "+value) else "" } else (" "+value),
+    if(tx.isEmpty){ if(!added.isEmpty) (" "+tx) else "" } else (" "+tx),
+    if(added.isEmpty) "" else (" "+added)
+  )
+}
+
+object DataRuleParsing{
+  def apply(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty, tx: Term = Empty, added: Term = Empty) = 
+    new DataRuleParsing(ds, TermParsing(entity), TermParsing(attr), TermParsing(value), TermParsing(tx), TermParsing(added))
+}
 
 object DatomicParser extends JavaTokenParsers {
   import scala.annotation.tailrec
@@ -103,6 +135,10 @@ object DatomicParser extends JavaTokenParsers {
   def variable: Parser[Var] = "?" ~> ident ^^ { (n: String) => Var(n) }
   def const: Parser[Const] = datomicData ^^ { Const(_) }
   def term: Parser[Term] = empty | keyword | variable | const | datasource
+  def termParsing: Parser[TermParsing] = (scalaExpr | term) ^^ {
+    case t: Term => TermParsing(Right(t))
+    case se: ScalaExpr => TermParsing(Left(se))
+  } 
 
   // DATA RULES
   def dataRuleTerms: Parser[(Term, Term, Term, Term, Term)] = ( term ~ term ~ term ~ term ~ term | term ~ term ~ term ~ term | term ~ term ~ term | term ~ term | term ) ^^ {
@@ -113,9 +149,22 @@ object DatomicParser extends JavaTokenParsers {
     case (t1: Term) => (t1, Empty, Empty, Empty, Empty)
   }
 
+  def dataRuleTermParsings: Parser[(TermParsing, TermParsing, TermParsing, TermParsing, TermParsing)] = ( termParsing ~ termParsing ~ termParsing ~ termParsing ~ termParsing | termParsing ~ termParsing ~ termParsing ~ termParsing | termParsing ~ termParsing ~ termParsing | termParsing ~ termParsing | termParsing ) ^^ {
+    case (t1: TermParsing) ~ (t2: TermParsing) ~ (t3: TermParsing) ~ (t4: TermParsing) ~ (t5: TermParsing) => (t1, t2, t3, t4, t5)
+    case (t1: TermParsing) ~ (t2: TermParsing) ~ (t3: TermParsing) ~ (t4: TermParsing) => (t1, t2, t3, t4, TermParsing(Right(Empty)))
+    case (t1: TermParsing) ~ (t2: TermParsing) ~ (t3: TermParsing) => (t1, t2, t3, TermParsing(Right(Empty)), TermParsing(Right(Empty)))
+    case (t1: TermParsing) ~ (t2: TermParsing) => (t1, t2, TermParsing(Right(Empty)), TermParsing(Right(Empty)), TermParsing(Right(Empty)))
+    case (t1: TermParsing) => (t1, TermParsing(Right(Empty)), TermParsing(Right(Empty)), TermParsing(Right(Empty)), TermParsing(Right(Empty)))
+  }
+
   def dataRule: Parser[DataRule] = opt(datasource) ~ dataRuleTerms ^^ { 
     case None ~ terms => DataRule(ImplicitDS, terms._1, terms._2, terms._3, terms._4, terms._5)
     case Some(ds) ~ terms => DataRule(ds, terms._1, terms._2, terms._3, terms._4, terms._5)
+  }
+
+  def dataRuleParsing: Parser[DataRuleParsing] = opt(datasource) ~ dataRuleTermParsings ^^ { 
+    case None ~ terms => DataRuleParsing(ImplicitDS, terms._1, terms._2, terms._3, terms._4, terms._5)
+    case Some(ds) ~ terms => DataRuleParsing(ds, terms._1, terms._2, terms._3, terms._4, terms._5)
   }
 
   // EXPRESSION RULES
@@ -146,7 +195,7 @@ object DatomicParser extends JavaTokenParsers {
     case (name: String) ~ (args: Seq[Term]) => RuleAliasCall(name, args)
   }
   // RULES
-  def rule: Parser[Rule] = positioned(("[" ~> (dataRule | expressionRule) <~ "]") | ruleAliasCall)
+  def rule: Parser[Rule] = positioned(("[" ~> (dataRuleParsing | expressionRule) <~ "]") | ruleAliasCall)
 
   // WHERE
   def where: Parser[Where] = positioned(":where" ~> rep(rule) ^^ { Where(_) })
@@ -215,11 +264,11 @@ object DatomicParser extends JavaTokenParsers {
   def retractKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("retract", Some(Namespace.DB)) => kw } 
   def retractEntityKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("retractEntity", Some(Namespace.DB)) => kw } 
 
-  def add: Parser[Add] = "[" ~> addKeyword ~> fact <~ "]" ^^ { fact => Add(fact) }
-  def addParsing: Parser[AddParsing] = "[" ~> addKeyword ~> factParsing <~ "]" ^^ { fact => AddParsing(fact) }
+  def add: Parser[AddFact] = "[" ~> addKeyword ~> fact <~ "]" ^^ { fact => AddFact(fact) }
+  def addParsing: Parser[AddFactParsing] = "[" ~> addKeyword ~> factParsing <~ "]" ^^ { fact => AddFactParsing(fact) }
 
-  def retract: Parser[Retract] = "[" ~> retractKeyword ~> fact <~ "]" ^^ { fact => Retract(fact) }
-  def retractParsing: Parser[RetractParsing] = "[" ~> retractKeyword ~> factParsing <~ "]" ^^ { fact => RetractParsing(fact) }
+  def retract: Parser[RetractFact] = "[" ~> retractKeyword ~> fact <~ "]" ^^ { fact => RetractFact(fact) }
+  def retractParsing: Parser[RetractFactParsing] = "[" ~> retractKeyword ~> factParsing <~ "]" ^^ { fact => RetractFactParsing(fact) }
 
   def retractEntity: Parser[RetractEntity] = "[" ~> retractEntityKeyword ~> datomicLong <~ "]" ^^ { 
     case entid: DLong => RetractEntity(entid) 
@@ -229,11 +278,11 @@ object DatomicParser extends JavaTokenParsers {
     case se: ParsingExpr => RetractEntityParsing(Left(se)) 
   }
 
-  def addToEntity: Parser[AddToEntity] = "{" ~> ensureHasIdKeyword(rep(attribute)) <~ "}"
-  def addToEntityParsing: Parser[AddToEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddToEntityParsing(t.toMap) }
+  def addEntity: Parser[AddEntity] = "{" ~> ensureHasIdKeyword(rep(attribute)) <~ "}"
+  def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
 
-  def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addToEntityParsing) <~ "]"
-  def ops: Parser[Seq[Operation]] = rep("[" ~> rep(add | retract | retractEntity | addToEntity) <~ "]") ^^ {
+  def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addEntityParsing) <~ "]"
+  def ops: Parser[Seq[Operation]] = rep("[" ~> rep(add | retract | retractEntity | addEntity) <~ "]") ^^ {
     case l: Seq[Seq[Operation]] => l.flatten
   }
 
@@ -263,15 +312,15 @@ object DatomicParser extends JavaTokenParsers {
     }
   }
 
-  def ensureHasIdKeyword[T](p: Parser[Seq[(Keyword, DatomicData)]]): Parser[AddToEntity] = Parser { in =>
+  def ensureHasIdKeyword[T](p: Parser[Seq[(Keyword, DatomicData)]]): Parser[AddEntity] = Parser { in =>
     p(in) match {
       case Success(t, n) => 
         val attrs = t.toMap
         val idkw = Keyword("id", Namespace.DB)
         attrs.get(idkw) match {
-          case Some(id: DId) => Success(AddToEntity(id, attrs - idkw), n)
-          case Some(_) => Error("AddToEntity requires at least one DId field", in)
-          case None => Error("AddToEntity requires at least one DId field", in)
+          case Some(id: DId) => Success(AddEntity(id, attrs - idkw), n)
+          case Some(_) => Error("AddEntity requires at least one DId field", in)
+          case None => Error("AddEntity requires at least one DId field", in)
         }
       case f @ Failure(_, _) => f
       case Error("EOF", _) => Error("Unmatched bracket", in)
@@ -332,7 +381,7 @@ object DatomicParser extends JavaTokenParsers {
     case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
   }
 
-  def parseAddToEntityParsingSafe(input: String): Either[PositionFailure, AddToEntityParsing] = parseAll(addToEntityParsing, input) match {
+  def parseAddEntityParsingSafe(input: String): Either[PositionFailure, AddEntityParsing] = parseAll(addEntityParsing, input) match {
     case Success(result, _) => Right(result)
     case Failure(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
     case Error(msg, input) => Left(PositionFailure(msg, input.pos.line, input.pos.column))
