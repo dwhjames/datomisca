@@ -41,4 +41,12 @@ object DDWriter extends DDWriterImplicits {
   }
 }
 
+trait DD2Writer[-A] {
+  def write(a: A): DatomicData
+}
 
+object DD2Writer extends DD2WriterImplicits {
+  def apply[A](f: A => DatomicData) = new DD2Writer[A] {
+    def write(a: A) = f(a)
+  }
+}

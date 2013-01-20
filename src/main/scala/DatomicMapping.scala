@@ -315,4 +315,13 @@ trait Attribute2PartialAddEntityWriterImplicits {
       }
     }
 
+  /*implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData] = 
+    new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, DD] {
+      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[DD] = {
+        PartialAddEntityWriter[DD]{ d: DD => 
+          PartialAddEntity( Map( attr.ident -> d ) )
+        }
+      }
+    }*/
+
 }

@@ -241,7 +241,23 @@ trait DDWriterImplicits{
   implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) = 
     DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
 
-  implicit def ddIdentity = DDWriter[DatomicData, DatomicData]{ dd => dd }
+  //implicit def ddIdentity = DDWriter[DatomicData, DatomicData]{ dd => dd }
 
 }
 
+trait DD2WriterImplicits {
+
+  implicit def ddIdentity = DD2Writer[DatomicData]{ dd => dd }
+
+  implicit val StringDD2Writes = DD2Writer[String]( (s: String) => DString(s) )
+  implicit val LongDD2Writes = DD2Writer[Long]( (l: Long) => DLong(l) )
+  implicit val IntDD2Writes = DD2Writer[Int]( (l: Int) => DInt(l) )
+  implicit val BooleanDD2Writes = DD2Writer[Boolean]( (b: Boolean) => DBoolean(b) )
+  implicit val FloatDD2Writes = DD2Writer[Float]( (b: Float) => DFloat(b) )
+  implicit val DoubleDD2Writes = DD2Writer[Double]( (b: Double) => DDouble(b) )
+  implicit val DateDD2Writes = DD2Writer[java.util.Date]( (d: java.util.Date) => DInstant(d) )
+  implicit val BigIntDD2Writes = DD2Writer[java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
+  implicit val BigDecDD2Writes = DD2Writer[java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
+  implicit val ReferenceableDD2Writes = DD2Writer[Referenceable]( (referenceable: Referenceable) => referenceable.ident )
+
+}

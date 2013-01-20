@@ -242,7 +242,7 @@ trait DatomicInception {
       def incept(se: ScalaExpr): c.universe.Tree = {
         val compiled = c.parse(se.expr)
 
-        println("TPE: "+compiled.tpe)
+        //println("TPE: "+compiled.tpe)
         Apply(Select(Ident(newTermName("Datomic")), "toDWrapper"), List(compiled))
       }
 
