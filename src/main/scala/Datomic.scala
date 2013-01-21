@@ -232,8 +232,11 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     def apply[DD <: DatomicData](dd: DD)(implicit ddr: DDReader[DD, T]): T = ddr.read(dd)
   }
 
-  def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): Option[DEntity] = {
-    tx.resolve(id).flatMap(db.entity(_))
+  def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): Try[DEntity] = {
+    tx.resolve(id) match {
+      case None => Failure( new TempidNotResolved(id) )
+      case Some(e) => db.tryEntity(e)
+    }
   }
 
   /** Converts any data to a Datomic Data (or not if not possible) */
@@ -259,7 +262,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
 
     //DRef(DId(e.get(Keyword("id", Namespace.DB).toNative).asInstanceOf[Long]))
     // REF???
-    case v => throw new RuntimeException("Unknown Datomic underlying "+v.getClass)
+    case v => throw new UnexpectedDatomicTypeException(v.getClass.getName)
   }
 
   /** Macro-based helper to create Datomic keyword using Clojure-style
@@ -372,3 +375,8 @@ object Datomic
   with DatomicFacilities 
   with DatomicQueryExecutor 
   with DatomicTypeWrapper
+
+class EntityNotFoundException(id: DId) extends RuntimeException(s"Datomic Error: entity not found with id($id)")
+class TempidNotResolved(id: DId) extends RuntimeException(s"Datomic Error: entity not found with id($id)")
+class UnexpectedDatomicTypeException(typeName: String) extends RuntimeException(s"Datomic Error: unresolved datomic type $typeName")
+

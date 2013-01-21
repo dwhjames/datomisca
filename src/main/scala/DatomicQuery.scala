@@ -287,7 +287,7 @@ object QueryExecutor {
     // serializes query
     val qser = q.toString
 
-    println("QSER:"+qser)
+    //println("QSER:"+qser)
 
     val args = {
       if(in.isEmpty) Seq(db.toNative)

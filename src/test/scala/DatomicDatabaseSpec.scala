@@ -232,7 +232,7 @@ class DatomicDatabaseSpec extends Specification {
                 
                 // same query, filtered to stories that have been published.
                 val filteredDb2 = Datomic.database.filter{ (db, datom) =>
-                  db.entity(datom.tx) match {
+                  db.entityOpt(datom.tx) match {
                     case Some(entity) => entity.get(KW(":publish/at")).isDefined
                     case _ => false
                   }

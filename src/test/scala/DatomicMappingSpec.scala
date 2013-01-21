@@ -162,7 +162,7 @@ class DatomicMappingSpec extends Specification {
               ]
             """)).head match {
               case e: DLong =>
-                database.entity(e).map { entity =>
+                database.entityOpt(e).map { entity =>
                   println(
                     "dentity age:" + entity.getAs[DLong](person / "age") + 
                     " name:" + entity(person / "name") +
@@ -194,7 +194,7 @@ class DatomicMappingSpec extends Specification {
         ]
       """)).head match {
         case e: DLong =>
-          database.entity(e).map { entity =>
+          database.entityOpt(e).map { entity =>
             val nameValue = entity.get(PersonSchema.name)
             nameValue must beEqualTo(Some("toto"))
 
