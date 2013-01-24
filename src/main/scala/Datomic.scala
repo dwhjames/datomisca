@@ -376,7 +376,18 @@ object Datomic
   with DatomicQueryExecutor 
   with DatomicTypeWrapper
 
-class EntityNotFoundException(id: DId) extends RuntimeException(s"Datomic Error: entity not found with id($id)")
-class TempidNotResolved(id: DId) extends RuntimeException(s"Datomic Error: entity not found with id($id)")
-class UnexpectedDatomicTypeException(typeName: String) extends RuntimeException(s"Datomic Error: unresolved datomic type $typeName")
+class EntityNotFoundException(id: DId)
+  extends Exception(s"Datomic Error: entity not found with id($id)")
+
+class TempidNotResolved(id: DId)
+  extends Exception(s"Datomic Error: entity not found with id($id)")
+
+class UnexpectedDatomicTypeException(typeName: String)
+  extends Exception(s"Datomic Error: unresolved datomic type $typeName")
+
+class EmptyEntityException
+  extends Exception("The entity is empty")
+
+class EntityKeyNotFoundException(keyword: Keyword)
+  extends Exception(s"The keyword $keyword not found in the entity")
 

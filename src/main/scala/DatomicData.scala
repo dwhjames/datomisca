@@ -272,38 +272,31 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def touch() = new DEntity(entity.touch())
 
-  def apply(keyword: Keyword): DatomicData = Datomic.toDatomicData( entity.get(keyword.toNative) )
-
-  def get(keyword: Keyword): Option[DatomicData] = {
-    if(entity.keySet.isEmpty) None
-
-    Option(entity.get(keyword.toNative)) match {
-      case None => None
-      case Some(value) => Some(Datomic.toDatomicData(value))
+  def apply(keyword: Keyword): DatomicData =
+    if (entity.keySet.isEmpty)
+      throw new EmptyEntityException
+    else Option {
+      entity.get(keyword.toNative)
+    } match {
+      case None => throw new EntityKeyNotFoundException(keyword)
+      case Some(value) => Datomic.toDatomicData(value)
     }
-  }
 
-  def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T = {
+  def get(keyword: Keyword): Option[DatomicData] =
+    Try { apply(keyword) } .toOption
+
+  def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T =
     reader.read(apply(keyword))
-  } 
 
   
-  def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] = {
-    get(keyword).map( reader.read(_) )
-  }
+  def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] =
+    Try { as(keyword) } .toOption
 
-  def tryGet(keyword: Keyword): Try[DatomicData] = {
-    if(entity.keySet.isEmpty) Failure(new RuntimeException("empty entity"))
+  def tryGet(keyword: Keyword): Try[DatomicData] =
+    Try { apply(keyword) }
 
-    Option(entity.get(keyword.toNative)) match {
-      case None => Failure(new RuntimeException(s"keyword $keyword not found in entity"))
-      case Some(value) => Success(Datomic.toDatomicData(value))
-    }
-  }
-
-  def tryGetAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Try[T] = {
-    tryGet(keyword).map( reader.read(_) )
-  }
+  def tryGetAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Try[T] =
+    Try { as(keyword) }
 
   def toMap: Map[Keyword, DatomicData] = {
     import scala.collection.JavaConversions._
