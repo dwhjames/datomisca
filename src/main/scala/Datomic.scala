@@ -232,10 +232,10 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     def apply[DD <: DatomicData](dd: DD)(implicit ddr: DDReader[DD, T]): T = ddr.read(dd)
   }
 
-  def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): Try[DEntity] = {
+  def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): DEntity = {
     tx.resolve(id) match {
-      case None => Failure( new TempidNotResolved(id) )
-      case Some(e) => db.tryEntity(e)
+      case None => throw new TempidNotResolved(id)
+      case Some(e) => db.entity(e)
     }
   }
 
