@@ -292,12 +292,6 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] =
     Try { as(keyword) } .toOption
 
-  def tryGet(keyword: Keyword): Try[DatomicData] =
-    Try { apply(keyword) }
-
-  def tryGetAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Try[T] =
-    Try { as(keyword) }
-
   def toMap: Map[Keyword, DatomicData] = {
     import scala.collection.JavaConversions._
 
