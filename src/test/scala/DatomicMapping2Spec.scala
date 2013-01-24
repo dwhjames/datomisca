@@ -241,19 +241,17 @@ class DatomicMapping2Spec extends Specification {
               ]
             """)).head match {
               case e: DLong =>
-                database.entityOpt(e).map { entity =>
-                  println(
-                    "dentity age:" + entity.getAs[DLong](person / "age") + 
-                    " name:" + entity(person / "name") +
-                    " map:" + entity.toMap
-                  )
-                  DatomicMapping.fromEntity(entity)(personReader).map {
-                    case Person(id, name, age, birth, characters, specialChar, dog, doggies) => 
-                      println(s"Found person with id $id name $name and age $age and birth $birth characters $characters specialChar $specialChar dog $dog doggies $doggies")
-                      success
-                  }.get
-                }.getOrElse(failure("could't find entity"))
-              case _ => failure("error")
+                val entity = database.entity(e)
+                println(
+                  "dentity age:" + entity.getAs[DLong](person / "age") + 
+                  " name:" + entity(person / "name") +
+                  " map:" + entity.toMap
+                )
+                DatomicMapping.fromEntity(entity)(personReader).map {
+                  case Person(id, name, age, birth, characters, specialChar, dog, doggies) => 
+                    println(s"Found person with id $id name $name and age $age and birth $birth characters $characters specialChar $specialChar dog $dog doggies $doggies")
+                    success
+                }.get
             }
           }
         },
@@ -273,9 +271,8 @@ class DatomicMapping2Spec extends Specification {
         ]
       """)).head match {
         case e: DLong =>
-          database.entityOpt(e).map { entity => 
-            DatomicMapping.fromEntity[Dog](entity).get must beEqualTo(medor.copy(id=Some(realMedorId.underlying)))
-          }.get
+          val entity = database.entity(e)
+          DatomicMapping.fromEntity[Dog](entity).get must beEqualTo(medor.copy(id=Some(realMedorId.underlying)))
         case _ => failure("unexpected result")
       }
 
@@ -285,28 +282,25 @@ class DatomicMapping2Spec extends Specification {
         ]
       """)).head match {
         case e: DLong =>
-          database.entityOpt(e).map { entity => 
-            val realMedor = medor.copy(id=Some(realMedorId.underlying))
-            val realDoggy1 = doggy1.copy(id=Some(realDoggy1Id.underlying))
-            val realDoggy2 = doggy2.copy(id=Some(realDoggy2Id.underlying))
-            val realDoggy3 = doggy3.copy(id=Some(realDoggy3Id.underlying))
-            
-            DatomicMapping.fromEntity[Person](entity).get must beEqualTo(
-              toto.copy(
-                id=realTotoId.underlying, 
-                dog=Some(realMedor),
-                doggies=Set(realDoggy1, realDoggy2, realDoggy3)
-              ))
+          val entity = database.entity(e)
+          val realMedor = medor.copy(id=Some(realMedorId.underlying))
+          val realDoggy1 = doggy1.copy(id=Some(realDoggy1Id.underlying))
+          val realDoggy2 = doggy2.copy(id=Some(realDoggy2Id.underlying))
+          val realDoggy3 = doggy3.copy(id=Some(realDoggy3Id.underlying))
+          
+          DatomicMapping.fromEntity[Person](entity).get must beEqualTo(
+            toto.copy(
+              id=realTotoId.underlying, 
+              dog=Some(realMedor),
+              doggies=Set(realDoggy1, realDoggy2, realDoggy3)
+            ))
 
-            DatomicMapping.fromEntity[Person2](entity).get must beEqualTo(
-              totobis.copy(
-                id=realTotoId.underlying, 
-                dog=Some(realMedorId.underlying),
-                doggies=Set(realDoggy1Id.underlying, realDoggy2Id.underlying, realDoggy3Id.underlying)
-              ))
-
-          }.get
-        case _ => failure("unexpected result")
+          DatomicMapping.fromEntity[Person2](entity).get must beEqualTo(
+            totobis.copy(
+              id=realTotoId.underlying, 
+              dog=Some(realMedorId.underlying),
+              doggies=Set(realDoggy1Id.underlying, realDoggy2Id.underlying, realDoggy3Id.underlying)
+            ))
       }
 
       Datomic.q(Query.manual[Args0, Args1]("""
@@ -315,13 +309,11 @@ class DatomicMapping2Spec extends Specification {
         ]
       """)).head match {
         case e: DLong =>
-          database.entityOpt(e).map { entity => 
-            DatomicMapping.fromEntity[Person3](entity).get must beEqualTo(
-              toto2.copy(
-                id=realToto2Id.underlying
-              ))
-          }.get
-        case _ => failure("unexpected result")
+          val entity = database.entity(e)
+          DatomicMapping.fromEntity[Person3](entity).get must beEqualTo(
+            toto2.copy(
+              id=realToto2Id.underlying
+            ))
       }
     }
 
@@ -336,61 +328,58 @@ class DatomicMapping2Spec extends Specification {
         ]
       """)).head match {
         case e: DLong =>
-          database.entityOpt(e).map { entity =>
-            val nameValue = entity.get(PersonSchema.name)
-            nameValue must beEqualTo(Some("toto"))
+          val entity = database.entity(e)
+          val nameValue = entity.get(PersonSchema.name)
+          nameValue must beEqualTo(Some("toto"))
 
-            val nameValue2 = entity.as[String](person / "name")
-            nameValue2 must beEqualTo("toto")
-            
-            val nameValue3 = entity.as[DString](person / "name")
-            nameValue3.underlying must beEqualTo("toto")
+          val nameValue2 = entity.as[String](person / "name")
+          nameValue2 must beEqualTo("toto")
+          
+          val nameValue3 = entity.as[DString](person / "name")
+          nameValue3.underlying must beEqualTo("toto")
 
-            val ageValue2 = entity.get(PersonSchema.age)
-            ageValue2 must beEqualTo(Some(30))
+          val ageValue2 = entity.get(PersonSchema.age)
+          ageValue2 must beEqualTo(Some(30))
 
-            val ageValue3 = entity.tryGet(PersonSchema.age)
-            ageValue3 must beEqualTo(Success(30))
+          val ageValue3 = entity.tryGet(PersonSchema.age)
+          ageValue3 must beEqualTo(Success(30))
 
-            val ageValue4 = entity.as[Long](person / "age")
-            ageValue4 must beEqualTo(30)
+          val ageValue4 = entity.as[Long](person / "age")
+          ageValue4 must beEqualTo(30)
 
-            val characters = entity.get(PersonSchema.characters)
-            val characters2 = entity.getAs[Set[DRef]](person / "characters")
+          val characters = entity.get(PersonSchema.characters)
+          val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
-            val birthValue = entity.as[DInstant](person / "birth")
-            birthValue must beEqualTo(DInstant(birthDate))
+          val birthValue = entity.as[DInstant](person / "birth")
+          birthValue must beEqualTo(DInstant(birthDate))
 
-            val birthValue2 = entity.as[java.util.Date](person / "birth")
-            birthValue2 must beEqualTo(birthDate)
+          val birthValue2 = entity.as[java.util.Date](person / "birth")
+          birthValue2 must beEqualTo(birthDate)
 
-            val birthValue3 = entity.get(PersonSchema.birth)
-            birthValue3 must beEqualTo(Some(birthDate))
+          val birthValue3 = entity.get(PersonSchema.birth)
+          birthValue3 must beEqualTo(Some(birthDate))
 
-            val dogValue0 = entity.getAs[DEntity](person / "dog")
+          val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-            val dogValue = entity.getRef[Dog](PersonSchema.dog)
-            dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId.underlying)))))
+          val dogValue = entity.getRef[Dog](PersonSchema.dog)
+          dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId.underlying)))))
 
-            val dogValue2 = entity.get(PersonSchema.dogRef)
-            dogValue2 must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId.underlying)))))
+          val dogValue2 = entity.get(PersonSchema.dogRef)
+          dogValue2 must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId.underlying)))))
 
-            val doggiesValue = entity.get(PersonSchema.doggies)
-            doggiesValue must beEqualTo(Some(Set(
-              Ref(DId(realDoggy1Id))(doggy1.copy(id=Some(realDoggy1Id.underlying))),
-              Ref(DId(realDoggy2Id))(doggy2.copy(id=Some(realDoggy2Id.underlying))),
-              Ref(DId(realDoggy3Id))(doggy3.copy(id=Some(realDoggy3Id.underlying)))
-            )))
+          val doggiesValue = entity.get(PersonSchema.doggies)
+          doggiesValue must beEqualTo(Some(Set(
+            Ref(DId(realDoggy1Id))(doggy1.copy(id=Some(realDoggy1Id.underlying))),
+            Ref(DId(realDoggy2Id))(doggy2.copy(id=Some(realDoggy2Id.underlying))),
+            Ref(DId(realDoggy3Id))(doggy3.copy(id=Some(realDoggy3Id.underlying)))
+          )))
 
-            val writer = PersonSchema.specialChar.write[DRef]
-            writer.write(clever.ident).toMap must beEqualTo(
-              PartialAddEntity(Map(
-                PersonSchema.specialChar.ident -> clever.ident
-              )).toMap
-            )
-
-          }.getOrElse(failure("could't find entity"))
-        case _ => failure("error")
+          val writer = PersonSchema.specialChar.write[DRef]
+          writer.write(clever.ident).toMap must beEqualTo(
+            PartialAddEntity(Map(
+              PersonSchema.specialChar.ident -> clever.ident
+            )).toMap
+          )
       }
     }
 

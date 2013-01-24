@@ -170,15 +170,6 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       if(entity.keySet.isEmpty) throw new EntityNotFoundException(DId(e))
       else DEntity(entity)
   }
-  
-  def entityOpt(e: DLong): Option[DEntity] = entityOpt(e.underlying)
-  def entityOpt(e: FinalId): Option[DEntity] = entityOpt(e.underlying)
-  def entityOpt(e: Long): Option[DEntity] = 
-    Option(underlying.entity(e)).filterNot{ e: datomic.Entity => e.keySet.isEmpty }.map(DEntity(_))
-
-  def tryEntity(e: DLong): Try[DEntity] = tryEntity(e.underlying)
-  def tryEntity(e: FinalId): Try[DEntity] = tryEntity(e.underlying)
-  def tryEntity(e: Long): Try[DEntity] = Try { entity(e) }
 
   def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
   def asOf(date: DInstant): DDatabase = asOf(date.underlying)
@@ -234,8 +225,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     ))
   }
 
-  def touch(id: Long): Option[DEntity] = touch(DLong(id))
-  def touch(id: DLong): Option[DEntity] = entityOpt(id).map( touch(_) )
+  def touch(id: Long): DEntity = touch(DLong(id))
+  def touch(id: DLong): DEntity = touch(entity(id))
   def touch(entity: DEntity): DEntity = entity.touch
 
   def datoms(index: Keyword, components: Keyword*): Seq[DDatom] = {

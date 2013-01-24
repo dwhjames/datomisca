@@ -162,19 +162,17 @@ class DatomicMappingSpec extends Specification {
               ]
             """)).head match {
               case e: DLong =>
-                database.entityOpt(e).map { entity =>
-                  println(
-                    "dentity age:" + entity.getAs[DLong](person / "age") + 
-                    " name:" + entity(person / "name") +
-                    " map:" + entity.toMap
-                  )
-                  DatomicMapping.fromEntity(entity)(personReader).map {
-                    case Person(name, age, birth, characters, dog, doggies) => 
-                      println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
-                      success
-                  }.get
-                }.getOrElse(failure("could't find entity"))
-              case _ => failure("error")
+                val entity = database.entity(e)
+                println(
+                  "dentity age:" + entity.getAs[DLong](person / "age") + 
+                  " name:" + entity(person / "name") +
+                  " map:" + entity.toMap
+                )
+                DatomicMapping.fromEntity(entity)(personReader).map {
+                  case Person(name, age, birth, characters, dog, doggies) => 
+                    println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
+                    success
+                }.get
             }
           }
         },
@@ -194,61 +192,58 @@ class DatomicMappingSpec extends Specification {
         ]
       """)).head match {
         case e: DLong =>
-          database.entityOpt(e).map { entity =>
-            val nameValue = entity.get(PersonSchema.name)
-            nameValue must beEqualTo(Some("toto"))
+          val entity = database.entity(e)
+          val nameValue = entity.get(PersonSchema.name)
+          nameValue must beEqualTo(Some("toto"))
 
-            val nameValue2 = entity.as[String](person / "name")
-            nameValue2 must beEqualTo("toto")
-            
-            val nameValue3 = entity.as[DString](person / "name")
-            nameValue3.underlying must beEqualTo("toto")
+          val nameValue2 = entity.as[String](person / "name")
+          nameValue2 must beEqualTo("toto")
+          
+          val nameValue3 = entity.as[DString](person / "name")
+          nameValue3.underlying must beEqualTo("toto")
 
-            val ageValue2 = entity.get(PersonSchema.age)
-            ageValue2 must beEqualTo(Some(30))
+          val ageValue2 = entity.get(PersonSchema.age)
+          ageValue2 must beEqualTo(Some(30))
 
-            val ageValue3 = entity.tryGet(PersonSchema.age)
-            ageValue3 must beEqualTo(Success(30))
+          val ageValue3 = entity.tryGet(PersonSchema.age)
+          ageValue3 must beEqualTo(Success(30))
 
-            val ageValue4 = entity.as[Long](person / "age")
-            ageValue4 must beEqualTo(30)
+          val ageValue4 = entity.as[Long](person / "age")
+          ageValue4 must beEqualTo(30)
 
-            val characters = entity.get(PersonSchema.characters)
-            val characters2 = entity.getAs[Set[DRef]](person / "characters")
+          val characters = entity.get(PersonSchema.characters)
+          val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
-            val birthValue = entity.as[DInstant](person / "birth")
-            birthValue must beEqualTo(DInstant(birthDate))
+          val birthValue = entity.as[DInstant](person / "birth")
+          birthValue must beEqualTo(DInstant(birthDate))
 
-            val birthValue2 = entity.as[java.util.Date](person / "birth")
-            birthValue2 must beEqualTo(birthDate)
+          val birthValue2 = entity.as[java.util.Date](person / "birth")
+          birthValue2 must beEqualTo(birthDate)
 
-            val birthValue3 = entity.get(PersonSchema.birth)
-            birthValue3 must beEqualTo(Some(birthDate))
+          val birthValue3 = entity.get(PersonSchema.birth)
+          birthValue3 must beEqualTo(Some(birthDate))
 
-            val dogValue0 = entity.getAs[DEntity](person / "dog")
+          val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-            val dogValue = entity.getRef[Dog](PersonSchema.dog)
-            dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
+          val dogValue = entity.getRef[Dog](PersonSchema.dog)
+          dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
 
-            val dogValue2 = entity.get(PersonSchema.dogRef)
-            dogValue2 must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
+          val dogValue2 = entity.get(PersonSchema.dogRef)
+          dogValue2 must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
 
-            val doggiesValue = entity.get(PersonSchema.doggies)
-            doggiesValue must beEqualTo(Some(Set(
-              Ref(DId(realDoggy1Id))(doggy1),
-              Ref(DId(realDoggy2Id))(doggy2),
-              Ref(DId(realDoggy3Id))(doggy3)
-            )))
+          val doggiesValue = entity.get(PersonSchema.doggies)
+          doggiesValue must beEqualTo(Some(Set(
+            Ref(DId(realDoggy1Id))(doggy1),
+            Ref(DId(realDoggy2Id))(doggy2),
+            Ref(DId(realDoggy3Id))(doggy3)
+          )))
 
-            val writer = PersonSchema.specialChar.write[DRef]
-            writer.write(clever.ident).toMap must beEqualTo(
-              PartialAddEntity(Map(
-                PersonSchema.specialChar.ident -> clever.ident
-              )).toMap
-            )
-
-          }.getOrElse(failure("could't find entity"))
-        case _ => failure("error")
+          val writer = PersonSchema.specialChar.write[DRef]
+          writer.write(clever.ident).toMap must beEqualTo(
+            PartialAddEntity(Map(
+              PersonSchema.specialChar.ident -> clever.ident
+            )).toMap
+          )
       }
     }
 
