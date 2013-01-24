@@ -168,11 +168,8 @@ class DatomicMappingSpec extends Specification {
                   " name:" + entity(person / "name") +
                   " map:" + entity.toMap
                 )
-                DatomicMapping.fromEntity(entity)(personReader).map {
-                  case Person(name, age, birth, characters, dog, doggies) => 
-                    println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
-                    success
-                }.get
+                val Person(name, age, birth, characters, dog, doggies) = DatomicMapping.fromEntity(entity)(personReader)
+                println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
             }
           }
         },

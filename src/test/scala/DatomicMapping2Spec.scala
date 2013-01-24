@@ -247,11 +247,8 @@ class DatomicMapping2Spec extends Specification {
                   " name:" + entity(person / "name") +
                   " map:" + entity.toMap
                 )
-                DatomicMapping.fromEntity(entity)(personReader).map {
-                  case Person(id, name, age, birth, characters, specialChar, dog, doggies) => 
-                    println(s"Found person with id $id name $name and age $age and birth $birth characters $characters specialChar $specialChar dog $dog doggies $doggies")
-                    success
-                }.get
+                val Person(id, name, age, birth, characters, specialChar, dog, doggies) = DatomicMapping.fromEntity(entity)(personReader)
+                println(s"Found person with id $id name $name and age $age and birth $birth characters $characters specialChar $specialChar dog $dog doggies $doggies")
             }
           }
         },
@@ -272,7 +269,7 @@ class DatomicMapping2Spec extends Specification {
       """)).head match {
         case e: DLong =>
           val entity = database.entity(e)
-          DatomicMapping.fromEntity[Dog](entity).get must beEqualTo(medor.copy(id=Some(realMedorId.underlying)))
+          DatomicMapping.fromEntity[Dog](entity) must beEqualTo(medor.copy(id=Some(realMedorId.underlying)))
         case _ => failure("unexpected result")
       }
 
@@ -288,14 +285,14 @@ class DatomicMapping2Spec extends Specification {
           val realDoggy2 = doggy2.copy(id=Some(realDoggy2Id.underlying))
           val realDoggy3 = doggy3.copy(id=Some(realDoggy3Id.underlying))
           
-          DatomicMapping.fromEntity[Person](entity).get must beEqualTo(
+          DatomicMapping.fromEntity[Person](entity) must beEqualTo(
             toto.copy(
               id=realTotoId.underlying, 
               dog=Some(realMedor),
               doggies=Set(realDoggy1, realDoggy2, realDoggy3)
             ))
 
-          DatomicMapping.fromEntity[Person2](entity).get must beEqualTo(
+          DatomicMapping.fromEntity[Person2](entity) must beEqualTo(
             totobis.copy(
               id=realTotoId.underlying, 
               dog=Some(realMedorId.underlying),
@@ -310,7 +307,7 @@ class DatomicMapping2Spec extends Specification {
       """)).head match {
         case e: DLong =>
           val entity = database.entity(e)
-          DatomicMapping.fromEntity[Person3](entity).get must beEqualTo(
+          DatomicMapping.fromEntity[Person3](entity) must beEqualTo(
             toto2.copy(
               id=realToto2Id.underlying
             ))

@@ -322,11 +322,11 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   }*/
 
   def get[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
-    attrC.convert(attr).read(this).toOption
+    Try { attrC.convert(attr).read(this) }.toOption
   }
 
   def tryGet[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
-    attrC.convert(attr).read(this)
+    Try { attrC.convert(attr).read(this) }
   }
 
   def getRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
@@ -350,7 +350,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   }
 
   def tryGet[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
-    attrC.convert(attr).read(this)
+    Try { attrC.convert(attr).read(this) }
   }
 
   def get[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
@@ -358,7 +358,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   }
 
   def tryGet[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
-    attrC.convert(attr).read(this)
+    Try { attrC.convert(attr).read(this) }
   }
 
 

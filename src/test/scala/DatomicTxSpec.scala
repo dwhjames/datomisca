@@ -131,11 +131,9 @@ class DatomicTxSpec extends Specification {
             """)).map{
               case e: DLong =>
                 val entity = database.entity(e)
-                DatomicMapping.fromEntity[Person](entity).map{
-                  case p @ Person(name, age) => 
-                    println(s"Found person with name $name and age $age")
-                    p
-                }.get
+                val p @ Person(name, age) = DatomicMapping.fromEntity[Person](entity)
+                println(s"Found person with name $name and age $age")
+                p
             } must beEqualTo(List(Person("tutu", 54), Person("tata", 23)))  
           }
         }.getOrElse(failure("toto Id not found"))
@@ -196,9 +194,8 @@ class DatomicTxSpec extends Specification {
             """)).map{
               case e: DLong =>
                 val entity = database.entity(e)
-                DatomicMapping.fromEntity[Person](entity).map {
-                  case Person(name, age) => println(s"2 Found person with name $name and age $age")
-                }
+                val Person(name, age) = DatomicMapping.fromEntity[Person](entity)
+                println(s"2 Found person with name $name and age $age")
             }
             success
           }
@@ -281,9 +278,8 @@ class DatomicTxSpec extends Specification {
           case (Some(medorId), Some(totoId)) => 
             println(s"4 totoId:$totoId medorId:$medorId")
             val entity = database.entity(totoId)
-            DatomicMapping.fromEntity[PersonDog](entity).map {
-              case PersonDog(name, age, dog) => println(s"Found Toto $name $age $dog")
-            }.get
+            val PersonDog(name, age, dog) = DatomicMapping.fromEntity[PersonDog](entity)
+            println(s"Found Toto $name $age $dog")
           case _ => failure("unable to resolve ids")
         }
       }      
@@ -334,15 +330,13 @@ class DatomicTxSpec extends Specification {
           case (Some(totoId), Some(tutuId)) => 
             println(s"5 - totoId:$totoId tutuId:$tutuId")
             val entityToto = database.entity(totoId)
-            DatomicMapping.fromEntity[PersonLike](entityToto).map { t => 
-              println(s"5 - retrieved toto:$t")
-              t.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
-            }.get
+            val t1 = DatomicMapping.fromEntity[PersonLike](entityToto)
+            println(s"5 - retrieved toto:$t")
+            t1.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
             val entityTutu = database.entity(tutuId)
-            DatomicMapping.fromEntity[PersonLike](entityTutu).map { t => 
-              println(s"5 - retrieved tutu:$t")
-              t must beEqualTo(tutu)
-            }.get
+            val t2 = DatomicMapping.fromEntity[PersonLike](entityTutu)
+            println(s"5 - retrieved tutu:$t")
+            t2 must beEqualTo(tutu)
           case _ => failure("unable to resolve ids")
         }
       }      
@@ -388,10 +382,9 @@ class DatomicTxSpec extends Specification {
           case Some(totoId) => 
             println(s"6 - totoId:$totoId")
             val entity = database.entity(totoId)
-            DatomicMapping.fromEntity[PersonLikes](entity).map { t => 
-              println(s"5 - retrieved toto:$t")
-              t must beEqualTo(PersonLikes("toto", 30, Set("chocolate", "vanilla")))
-            }.get
+            val t = DatomicMapping.fromEntity[PersonLikes](entity)
+            println(s"5 - retrieved toto:$t")
+            t must beEqualTo(PersonLikes("toto", 30, Set("chocolate", "vanilla")))
           case _ => failure("unable to resolve id")
         }
       }      
@@ -454,16 +447,14 @@ class DatomicTxSpec extends Specification {
           case (Some(medorId), Some(totoId), Some(tutuId)) => 
             println(s"7 - totoId:$totoId medorId:$medorId")
             val entityToto = database.entity(totoId)
-            DatomicMapping.fromEntity[PersonDogOpt](entityToto).map { t => 
-              println(s"7 - retrieved toto:$t")
-              t.toString must beEqualTo(PersonDogOpt("toto", 30, Some(Ref(DId(medorId))(medor))).toString)
-            }.get
+            val t1 = DatomicMapping.fromEntity[PersonDogOpt](entityToto)
+            println(s"7 - retrieved toto:$t")
+            t1.toString must beEqualTo(PersonDogOpt("toto", 30, Some(Ref(DId(medorId))(medor))).toString)
 
             val entityTutu = database.entity(tutuId)
-            DatomicMapping.fromEntity[PersonDogOpt](entityTutu).map { t => 
-              println(s"7 - retrieved tutu:$t")
-              t must beEqualTo(tutu)
-            }.get
+            val t2 = DatomicMapping.fromEntity[PersonDogOpt](entityTutu)
+            println(s"7 - retrieved tutu:$t")
+            t2 must beEqualTo(tutu)
           case _ => failure("unable to resolve ids")
         }
       }      
@@ -528,9 +519,8 @@ class DatomicTxSpec extends Specification {
         tx.resolve(medorId, brutusId, totoId) match {
           case (Some(medorId), Some(brutusId), Some(totoId)) => 
             val entity = database.entity(totoId)
-            DatomicMapping.fromEntity[PersonDogList](entity).map{ t => 
-              t must beEqualTo(PersonDogList("toto", 30, Set(Ref(DId(medorId))(medor), Ref(DId(brutusId))(brutus))))
-            }.get
+            val t = DatomicMapping.fromEntity[PersonDogList](entity)
+            t must beEqualTo(PersonDogList("toto", 30, Set(Ref(DId(medorId))(medor), Ref(DId(brutusId))(brutus))))
           case _ => failure("unable to resolve ids")
         }
       }      
