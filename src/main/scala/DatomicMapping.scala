@@ -160,7 +160,7 @@ trait EntityReaderImplicits {
     def fmap[A, B](ereader: EntityReader[A], f: A => B) = EntityReader{ e => f(ereader.read(e)) }
   }
 
-  implicit val DEntityReader = EntityReader{ e: DEntity => Success(e) }
+  implicit val DEntityReader: EntityReader[DEntity] = EntityReader{ e: DEntity => e }
 }
 
 trait Attribute2EntityReaderImplicits {
@@ -180,7 +180,7 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[A]]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Ref[A]]] = {
         EntityReader[Set[Ref[A]]]{ e: DEntity => 
-          val value = e.as[DSet](attr.ident)
+          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
           value.toSet map { 
             case subent: DEntity => 
               val id = subent.as[DLong](Keyword("id", Namespace.DB))
@@ -240,7 +240,8 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
-          val value = e.as[DSet](attr.ident)
+          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
+          
           value.toSet map { e =>
             dd2dest.read(dd2dd.read(e))
           }
@@ -252,11 +253,12 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
-          val value = e.as[DSet](attr.ident)
+          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
+
           value.toSet map {
             case subent: DEntity =>
               er.read(subent)
-            case _ => throw new RuntimeException("found an object not being a DEntity")
+            case _ => throw new EntityMappingException("found a DatomicData not being a DEntity")
           }
         }
       }
@@ -297,7 +299,8 @@ trait Attribute2PartialAddEntityWriterImplicits {
     new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Dest]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Dest]] = {
         PartialAddEntityWriter[Set[Dest]]{ d: Set[Dest] => 
-          PartialAddEntity( Map( attr.ident -> ddw.write(d) ) )              
+          if(d.isEmpty) PartialAddEntity( Map() )              
+          else PartialAddEntity( Map( attr.ident -> ddw.write(d) ) )              
         }
       }
     }

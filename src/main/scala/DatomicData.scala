@@ -152,7 +152,7 @@ class DSet(elements: Set[DatomicData]) extends DatomicData {
 }
 
 object DSet {
-  def apply(set: Set[DatomicData]) = new DSet(set)
+  def apply(set: Set[DatomicData] = Set()) = new DSet(set)
   def apply(dd: DatomicData) = new DSet(Set(dd))
   def apply(dd: DatomicData, dds: DatomicData *) = new DSet(Set(dd) ++ dds)
 

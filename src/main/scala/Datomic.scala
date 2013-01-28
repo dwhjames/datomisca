@@ -376,20 +376,22 @@ object Datomic
   with DatomicQueryExecutor 
   with DatomicTypeWrapper
 
+class DatomicException(msg: String) extends Exception(msg)
+
 class EntityNotFoundException(id: DId)
-  extends Exception(s"Datomic Error: entity not found with id($id)")
+  extends DatomicException(s"Datomic Error: entity not found with id($id)")
 
 class TempidNotResolved(id: DId)
-  extends Exception(s"Datomic Error: entity not found with id($id)")
+  extends DatomicException(s"Datomic Error: entity not found with id($id)")
 
 class UnexpectedDatomicTypeException(typeName: String)
-  extends Exception(s"Datomic Error: unresolved datomic type $typeName")
+  extends DatomicException(s"Datomic Error: unresolved datomic type $typeName")
 
 class EmptyEntityException
-  extends Exception("The entity is empty")
+  extends DatomicException("The entity is empty")
 
 class EntityKeyNotFoundException(keyword: Keyword)
-  extends Exception(s"The keyword $keyword not found in the entity")
+  extends DatomicException(s"The keyword $keyword not found in the entity")
 
 class EntityMappingException(msg: String)
-  extends Exception(s"Datomic Error: $msg")
+  extends DatomicException(s"Datomic Error: $msg")

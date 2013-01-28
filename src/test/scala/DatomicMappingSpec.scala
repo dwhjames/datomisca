@@ -35,6 +35,8 @@ class DatomicMappingSpec extends Specification {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   case class Person(name: String, age: Long, birth: java.util.Date, characters: Set[DRef], dog: Option[Ref[Dog]] = None, doggies: Set[Ref[Dog]])
+
+  case class Person2(name: String, age: Long, birth: java.util.Date, dog: Option[Ref[Dog]] = None, doggies: Set[Ref[Dog]])
   case class Dog(name: String, age: Long)
 
   val person = new Namespace("person") {
@@ -89,6 +91,15 @@ class DatomicMappingSpec extends Specification {
     PersonSchema.dog.readOpt[Ref[Dog]] and
     PersonSchema.doggies.read[Set[Ref[Dog]]]
   )(Person)
+
+  implicit val personWriter = (
+    PersonSchema.name.write[String] and 
+    PersonSchema.age.write[Long] and
+    PersonSchema.birth.write[java.util.Date] and
+    PersonSchema.characters.write[Set[DRef]] and
+    PersonSchema.dog.writeOpt[Ref[Dog]] and
+    PersonSchema.doggies.write[Set[Ref[Dog]]]
+  )(unlift(Person.unapply))
 
   val birthDate = new java.util.Date() 
   val medor = Dog("medor", 5L)
@@ -173,7 +184,14 @@ class DatomicMappingSpec extends Specification {
                   " name:" + entity(person / "name") +
                   " map:" + entity.toMap
                 )
-                val Person(name, age, birth, characters, dog, doggies) = DatomicMapping.fromEntity(entity)(personReader)
+                val p = DatomicMapping.fromEntity(entity)(personReader)
+                val Person(name, age, birth, characters, dog, doggies) = p
+                p must beEqualTo(
+                  Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), 
+                    Some(Ref(DId(realMedorId))(medor)), 
+                    Set(Ref(DId(realDoggy1Id))(doggy1), Ref(DId(realDoggy2Id))(doggy2), Ref(DId(realDoggy3Id))(doggy3))
+                  )
+                )
                 println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
             }
           }
@@ -298,6 +316,90 @@ class DatomicMappingSpec extends Specification {
           person / "characters" -> DSet(violent.ident, weak.ident)
         )
       ).toString)
+    }
+
+    "get entity with empty set" in {
+      
+      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      implicit val conn = Datomic.connect(uri)
+
+      Await.result(
+        transact(PersonSchema.schema ++ DogSchema.schema ++ Seq(violent, weak, dumb, clever, stupid)).flatMap{ tx =>
+          println("TX:"+tx)
+          Datomic.transact(
+            Entity.add(medorId)(
+              dog / "name" -> "medor",
+              dog / "age" -> 5L
+            ),
+            Entity.add(doggy1Id)(
+              dog / "name" -> "doggy1",
+              dog / "age" -> 5L
+            ),
+            Entity.add(doggy2Id)(
+              dog / "name" -> "doggy2",
+              dog / "age" -> 5L
+            ),
+            Entity.add(doggy3Id)(
+              dog / "name" -> "doggy3",
+              dog / "age" -> 5L
+            ),
+            Entity.add(DId(Partition.USER))(
+              person / "name" -> "toto",
+              person / "age" -> 30L,
+              person / "birth" -> birthDate,
+              person / "characters" -> Set(violent, weak),
+              person / "specialChar" -> clever,
+              person / "dog" -> medorId
+            )
+          ).map{ tx => 
+            println("Provisioned data... TX:%s".format(tx))
+            tx.resolve(medorId, doggy1Id, doggy2Id, doggy3Id) match{
+              case (Some(medorId), Some(doggy1Id), Some(doggy2Id), Some(doggy3Id)) => 
+                realMedorId = medorId
+                realDoggy1Id = doggy1Id
+                realDoggy2Id = doggy2Id
+                realDoggy3Id = doggy3Id
+              case _ => failure("couldn't resolve IDs")
+            }
+
+            Datomic.q(Query.manual[Args0, Args1]("""
+              [ :find ?e 
+                :where [?e :person/name "toto"]
+              ]
+            """)).head match {
+              case e: DLong =>
+                val entity = database.entity(e)
+                println(
+                  "dentity age:" + entity.getAs[DLong](person / "age") + 
+                  " name:" + entity(person / "name") +
+                  " map:" + entity.toMap
+                )
+                val p = DatomicMapping.fromEntity(entity)(personReader)                
+                val Person(name, age, birth, characters, dog, doggies) = p
+                println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
+                p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), Some(Ref(DId(realMedorId))(medor)), Set()))
+                
+                DatomicMapping.toEntity(DId(e))(
+                  Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), 
+                    Some(Ref(DId(realMedorId))(medor)), Set())
+                ).toMap.get(PersonSchema.doggies.ident) must beEqualTo(None)                
+            }
+          }
+        },
+        Duration("2 seconds")
+      )
+
+    }
+
+    "entity list" in {      
+      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      implicit val conn = Datomic.connect(uri)
+
+      val rd = PersonSchema.dog.read[Ref[DEntity]]
+      val rd2 = PersonSchema.dog.read[DRef]
+      val rd3 = PersonSchema.dog.read[Long]
+
+      success
     }
   }
 
