@@ -32,13 +32,42 @@ trait EntityReader[A] extends EntityMapper[A] {
   self => 
   def read(e: DEntity): A
 
-  def map[B](f: A => B): EntityReader[B] = new EntityReader[B] {
-    def read(e: DEntity): B = f(self.read(e))
+  def map[B](f: A => B): EntityReader[B] = EntityReader[B] { e =>
+    f(self.read(e))
   }
 
-  def flatMap[B](f: A => EntityReader[B]): EntityReader[B] = new EntityReader[B] {
-    def read(e: DEntity): B = f(self.read(e)).read(e)
+  def flatMap[B](f: A => EntityReader[B]): EntityReader[B] = EntityReader[B]{ e => 
+    f(self.read(e)).read(e)
   }
+
+  def orElse(other: EntityReader[A]): EntityReader[A] = EntityReader[A]{ e =>
+    try {
+      self.read(e)
+    } catch {
+      case ex: Throwable => other.read(e)
+    }
+  }
+
+  def collect[B](f: PartialFunction[A, B]) = EntityReader[B]{ e =>
+    val a = self.read(e)
+    if(f.isDefinedAt(a)) f(a)
+    else throw new EntityMappingException(s"PartialFunction not defined for value $a")
+  }
+
+  def filter(p: A => Boolean): EntityReader[A] = EntityReader[A]{ e =>
+    val a = self.read(e)
+
+    if(p(a)) a
+    else throw new EntityMappingException(s"filtered value $a")
+  }
+
+  def filterNot(p: A => Boolean): EntityReader[A] = EntityReader[A]{ e =>
+    val a = self.read(e)
+
+    if(!p(a)) a
+    else throw new EntityMappingException(s"filtered value $a")
+  }
+
 }
 
 object EntityReader extends EntityReaderImplicits {

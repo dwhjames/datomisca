@@ -433,4 +433,5 @@ class DatomicMapping2Spec extends Specification {
       ).toString)
     }
   }
+  
 }

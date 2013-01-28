@@ -391,3 +391,5 @@ class EmptyEntityException
 class EntityKeyNotFoundException(keyword: Keyword)
   extends Exception(s"The keyword $keyword not found in the entity")
 
+class EntityMappingException(msg: String)
+  extends Exception(s"Datomic Error: $msg")
