@@ -215,7 +215,7 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Long]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Long]] = {
         EntityReader[Set[Long]]{ e: DEntity => 
-          val value = e.as[DSet](attr.ident)
+          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
           value.toSet map { 
             case subent: DEntity => 
               subent.as[Long](Namespace.DB / "id")

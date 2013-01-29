@@ -36,7 +36,8 @@ class DatomicMappingSpec extends Specification {
 
   case class Person(name: String, age: Long, birth: java.util.Date, characters: Set[DRef], dog: Option[Ref[Dog]] = None, doggies: Set[Ref[Dog]])
 
-  case class Person2(name: String, age: Long, birth: java.util.Date, dog: Option[Ref[Dog]] = None, doggies: Set[Ref[Dog]])
+  case class Person2(name: String, age: Long, birth: java.util.Date, characters: Set[DRef], dog: Option[Long] = None, doggies: Set[Long])
+
   case class Dog(name: String, age: Long)
 
   val person = new Namespace("person") {
@@ -91,6 +92,15 @@ class DatomicMappingSpec extends Specification {
     PersonSchema.dog.readOpt[Ref[Dog]] and
     PersonSchema.doggies.read[Set[Ref[Dog]]]
   )(Person)
+
+  val personReader2 = (
+    PersonSchema.name.read[String] and 
+    PersonSchema.age.read[Long] and
+    PersonSchema.birth.read[java.util.Date] and
+    PersonSchema.characters.read[Set[DRef]] and
+    PersonSchema.dog.readOpt[Long] and
+    PersonSchema.doggies.read[Set[Long]]
+  )(Person2)
 
   implicit val personWriter = (
     PersonSchema.name.write[String] and 
@@ -379,10 +389,14 @@ class DatomicMappingSpec extends Specification {
                 println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
                 p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), Some(Ref(DId(realMedorId))(medor)), Set()))
                 
+                val p2 = DatomicMapping.fromEntity(entity)(personReader2)                
+                p2 must beEqualTo(Person2("toto", 30L, birthDate, Set(violent.ident, weak.ident), Some(realMedorId.underlying), Set()))
+
                 DatomicMapping.toEntity(DId(e))(
                   Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), 
                     Some(Ref(DId(realMedorId))(medor)), Set())
                 ).toMap.get(PersonSchema.doggies.ident) must beEqualTo(None)                
+
             }
           }
         },
