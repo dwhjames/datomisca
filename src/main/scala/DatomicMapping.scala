@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 import scala.util.{Try, Success, Failure}
 

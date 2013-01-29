@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 import scala.reflect.macros.Context
 import language.experimental.macros

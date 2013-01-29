@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.combinator.RegexParsers
@@ -204,7 +204,7 @@ object DatomicParser extends JavaTokenParsers {
   def inDatasource: Parser[InDataSource] = datasource ^^ { InDataSource(_) }
   def inVariable: Parser[InVariable] = binding ^^ { InVariable(_) }
   def inRuleAlias: Parser[InRuleAlias.type] = "%" ^^ { _ => InRuleAlias }
-  def input: Parser[reactivedatomic.Input] = inRuleAlias | inDatasource | inVariable
+  def input: Parser[datomisca.Input] = inRuleAlias | inDatasource | inVariable
   def in: Parser[In] = positioned(":in" ~> rep(input) ^^ { In(_) })
 
   // FIND

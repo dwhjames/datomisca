@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 import java.io.Reader
 import java.io.FileReader
@@ -202,7 +202,7 @@ trait DatomicTypeWrapper {
   implicit def toDWrapper[T](t: T)(implicit ddw: DDWriter[DatomicData, T]): DWrapper = DWrapperImpl(Datomic.toDatomic(t)(ddw))
 
   trait DWrapper extends NotNull
-  private[reactivedatomic] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
+  private[datomisca] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
 
 }
 

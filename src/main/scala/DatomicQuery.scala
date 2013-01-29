@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 import scala.util.{Try, Success, Failure}
 import scala.util.parsing.input.Positional
@@ -181,7 +181,7 @@ trait QueryMacros {
 case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query {
   self =>
 
-  private[reactivedatomic] def prepare[InArgs <: Args](in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
+  private[datomisca] def prepare[InArgs <: Args](in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     val qser = self.toString
@@ -208,7 +208,7 @@ case class TypedQueryInOut[InArgs <: Args, OutArgs <: Args](query: PureQuery) ex
   override def in = query.in
   override def where = query.where
 
-  private[reactivedatomic] def prepare[T]()(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], tf: ToFunction[InArgs, List[T]]) = {
+  private[datomisca] def prepare[T]()(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], tf: ToFunction[InArgs, List[T]]) = {
     new DatomicExecutor {
       type F[_] = tf.F[List[T]]
       def execute = tf.convert(
@@ -238,7 +238,7 @@ case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends 
 
 /* DATOMIC QUERY */
 object QueryExecutor {
-  private[reactivedatomic] def directQuery[InArgs <: Args](q: Query, in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
+  private[datomisca] def directQuery[InArgs <: Args](q: Query, in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     // serializes query
@@ -258,7 +258,7 @@ object QueryExecutor {
     }    
   }
 
-  private[reactivedatomic] def directQueryInOut[InArgs <: Args, OutArgs <: Args](q: Query, in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
+  private[datomisca] def directQueryInOut[InArgs <: Args, OutArgs <: Args](q: Query, in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
 
@@ -280,7 +280,7 @@ object QueryExecutor {
     listOfTry.foldLeft(Nil: List[OutArgs]){ (acc, e) => acc :+ e }
   }
 
-  private[reactivedatomic] def directQueryOut[OutArgs](q: Query, in: Seq[Object])(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
+  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[Object])(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
 

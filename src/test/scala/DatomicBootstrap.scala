@@ -1,4 +1,4 @@
-import reactivedatomic._
+import datomisca._
 import scala.concurrent._
 import scala.concurrent.util._
 import scala.concurrent.duration._
@@ -7,8 +7,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object DatomicBootstrap {
   def apply(theUri: String): Future[TxReport] = {
-    import reactivedatomic._
-
     val person = new Namespace("person") {
       val character = Namespace("person.character")
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 import scala.util.{Try, Success, Failure}
 
@@ -51,7 +51,7 @@ case class DLong(underlying: Long) extends DatomicData {
 /** hidden structure just to be able to manipulate Int but should not be used directly by users 
   * and not used in datomic at all 
   */
-private[reactivedatomic] case class DInt(underlying: Int) extends DatomicData {
+private[datomisca] case class DInt(underlying: Int) extends DatomicData {
   override def toString = underlying.toString
   def toNative: java.lang.Object = underlying: java.lang.Integer
 }

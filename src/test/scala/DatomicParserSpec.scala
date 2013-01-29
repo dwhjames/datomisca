@@ -19,8 +19,8 @@ import scala.concurrent._
 import scala.concurrent.util._
 import java.util.concurrent.TimeUnit._
 
-import reactivedatomic._
-import reactivedatomic.Datomic._
+import datomisca._
+import datomisca.Datomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])

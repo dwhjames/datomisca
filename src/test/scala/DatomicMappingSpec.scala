@@ -21,7 +21,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
 import java.util.concurrent.TimeUnit._
 
-import reactivedatomic._
+import datomisca._
 
 import Datomic._
 import DatomicMapping._
@@ -442,10 +442,10 @@ class DatomicMappingSpec extends Specification {
               case _ => failure("couldn't resolve IDs")
             }
 
-            DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(wrongDogReader) must throwA[reactivedatomic.EntityKeyNotFoundException] 
+            DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(wrongDogReader) must throwA[datomisca.EntityKeyNotFoundException] 
             DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(wrongDogReader orElse dogReader) should beEqualTo(Dog("medor", 5L))
             DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(dogReader.filter(dog => dog.name == "medor")) should beEqualTo(Dog("medor", 5L))
-            DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(dogReader.filter(dog => dog.name == "brutus")) should throwA[reactivedatomic.EntityMappingException] 
+            DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(dogReader.filter(dog => dog.name == "brutus")) should throwA[datomisca.EntityMappingException] 
           }
         },
         Duration("2 seconds")

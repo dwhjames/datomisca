@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
 import java.util.concurrent.TimeUnit._
 
-import reactivedatomic._
+import datomisca._
 
 import Datomic._
 import DatomicMapping._
@@ -550,8 +550,8 @@ class DatomicTxSpec extends Specification {
         tx.resolve(idToto).map { id =>
           database.entity(id) !== beNull
         }
-        database.entity(1234L) must throwA[reactivedatomic.EntityNotFoundException]
-        Datomic.resolveEntity(tx, DId(Partition.USER)) must throwA[reactivedatomic.EntityNotFoundException]
+        database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
+        Datomic.resolveEntity(tx, DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
       }
     }
   }

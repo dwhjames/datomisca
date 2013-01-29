@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 trait SchemaType[DD <: DatomicData] {
   def keyword: Keyword

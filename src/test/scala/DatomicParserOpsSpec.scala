@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
 import java.util.concurrent.TimeUnit._
 
-import reactivedatomic._
+import datomisca._
 
 import Datomic._
 //import EntityImplicits._

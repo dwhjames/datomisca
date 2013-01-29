@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package reactivedatomic
+package datomisca
 
 package dmacros
 
@@ -126,8 +126,8 @@ object DatomicQueryMacro extends DatomicInception {
 
     val inc = inception(c)
 
-    def pkgDatomic(tpe: String) = Select(Ident(newTermName("reactivedatomic")), tpe)
-    def pkgDatomicType(tpe: String) = Select(Ident(newTermName("reactivedatomic")), newTypeName(tpe))
+    def pkgDatomic(tpe: String) = Select(Ident(newTermName("datomisca")), tpe)
+    def pkgDatomicType(tpe: String) = Select(Ident(newTermName("datomisca")), newTypeName(tpe))
 
     q.tree match {
       case Literal(Constant(s: String)) => 
@@ -146,7 +146,7 @@ object DatomicQueryMacro extends DatomicInception {
 
             /*println( showRaw(
               reify(
-                reactivedatomic.TypedQuery[reactivedatomic.Args0, reactivedatomic.Args2](query)
+                datomisca.TypedQuery[datomisca.Args0, datomisca.Args2](query)
               )
             ) )*/
 

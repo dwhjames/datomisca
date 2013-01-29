@@ -19,7 +19,7 @@ import scala.concurrent.util._
 import java.util.concurrent.TimeUnit._
 import scala.concurrent.duration.Duration
 
-import reactivedatomic._
+import datomisca._
 import Datomic._
 import scala.concurrent.ExecutionContext.Implicits.global
 
