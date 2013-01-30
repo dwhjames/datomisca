@@ -147,7 +147,7 @@ sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation
     AddEntity(id, mb.result())
   }
   
-  override def toNative: java.lang.Object = toAddOps.toNative
+  override def toNative: AnyRef = toAddOps.toNative
   override def toString = ident.toString
 
   def stringify = s"""

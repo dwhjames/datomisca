@@ -35,17 +35,17 @@ trait DatomicData extends Nativeable {
 
 case class DString(underlying: String) extends DatomicData {
   override def toString = "\""+ underlying + "\""
-  def toNative: java.lang.Object = underlying: java.lang.String 
+  def toNative: AnyRef = underlying: java.lang.String
 }
 
 case class DBoolean(underlying: Boolean) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying: java.lang.Boolean
+  def toNative: AnyRef = underlying: java.lang.Boolean
 }
 
 case class DLong(underlying: Long) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying: java.lang.Long
+  def toNative: AnyRef = underlying: java.lang.Long
 }
 
 /** hidden structure just to be able to manipulate Int but should not be used directly by users 
@@ -53,47 +53,47 @@ case class DLong(underlying: Long) extends DatomicData {
   */
 private[datomisca] case class DInt(underlying: Int) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying: java.lang.Integer
+  def toNative: AnyRef = underlying: java.lang.Integer
 }
 
 case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying: java.lang.Float
+  def toNative: AnyRef = underlying: java.lang.Float
 }
 
 case class DDouble(underlying: Double) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying: java.lang.Double
+  def toNative: AnyRef = underlying: java.lang.Double
 }
 
 case class DBigInt(underlying: BigInt) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying.underlying
+  def toNative: AnyRef = underlying.underlying
 }
 
 case class DBigDec(underlying: BigDecimal) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying.underlying
+  def toNative: AnyRef = underlying.underlying
 }
 
 case class DInstant(underlying: java.util.Date) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying
+  def toNative: AnyRef = underlying
 }
 
 case class DUuid(underlying: java.util.UUID) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying
+  def toNative: AnyRef = underlying
 }
 
 case class DUri(underlying: java.net.URI) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying
+  def toNative: AnyRef = underlying
 }
 
 case class DBytes(underlying: Array[Byte]) extends DatomicData {
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying: java.lang.Object
+  def toNative: AnyRef = underlying: AnyRef
 }
 
 case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
@@ -101,7 +101,7 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
   }
-  def toNative: java.lang.Object = underlying match {
+  def toNative: AnyRef = underlying match {
     case Left(kw) => kw.toNative
     case Right(id) => id.toNative
   }
@@ -115,15 +115,15 @@ object DRef {
 trait DId extends DatomicData
 
 case class FinalId(underlying: Long) extends DId {
-  //def toNative: java.lang.Object = underlying
-  override lazy val toNative: java.lang.Object = underlying: java.lang.Long
+  //def toNative: AnyRef = underlying
+  override lazy val toNative: AnyRef = underlying: java.lang.Long
 
   override def toString = toNative.toString
 }
 
-case class TempId(partition: Partition, id: Option[Long] = None, dbId: java.lang.Object) extends DId {
-  //def toNative: java.lang.Object = underlying
-  override lazy val toNative: java.lang.Object = dbId
+case class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
+  //def toNative: AnyRef = underlying
+  override lazy val toNative: AnyRef = dbId
 
   override def toString = toNative.toString
 }
@@ -142,7 +142,7 @@ object DId {
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {
-  def toNative: java.lang.Object = {
+  def toNative: AnyRef = {
     java.util.Arrays.asList(elements.map(_.toNative).toSeq: _*) 
   }
 
@@ -250,7 +250,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   // invoke
 
   override def toString = underlying.toString
-  def toNative: java.lang.Object = underlying
+  def toNative: AnyRef = underlying
 }
 
 object DDatabase {

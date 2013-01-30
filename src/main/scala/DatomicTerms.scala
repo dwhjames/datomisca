@@ -37,7 +37,7 @@ object Namespace {
 }
 
 trait Nativeable {
-  def toNative: java.lang.Object
+  def toNative: AnyRef
 }
 
 trait Namespaceable extends Nativeable {
@@ -46,7 +46,7 @@ trait Namespaceable extends Nativeable {
 
   override def toString = ":" + ( if(ns.isDefined) {ns.get + "/"} else "" ) + name
 
-  def toNative: java.lang.Object = clojure.lang.Keyword.intern(( if(ns.isDefined) {ns.get + "/"} else "" ) + name )
+  def toNative: AnyRef = clojure.lang.Keyword.intern(( if(ns.isDefined) {ns.get + "/"} else "" ) + name )
 }
 
 trait Term
