@@ -155,18 +155,18 @@ class DatomicMapping2Spec extends Specification {
 
   val toto = Person(
     0L, "toto", 30L, birthDate, 
-    Set(violent.ident, weak.ident), clever.ident, Some(medor), Set(doggy1, doggy2, doggy3)
+    Set(violent.ref, weak.ref), clever.ref, Some(medor), Set(doggy1, doggy2, doggy3)
   )
   val totobis = Person2(
     0L, "toto", 30L, birthDate, 
-    Set(violent.ident, weak.ident), clever.ident, None, Set()
+    Set(violent.ref, weak.ref), clever.ref, None, Set()
   )
   val totoId = DId(Partition.USER)
   var realTotoId = DLong(0L)
 
   val toto2 = Person3(
     0L, "toto2", 30L, birthDate, 
-    Set(violent.ident, weak.ident), clever.ident, None, None
+    Set(violent.ref, weak.ref), clever.ref, None, None
   )
   val toto2Id = DId(Partition.USER)
   var realToto2Id = DLong(0L)
@@ -372,9 +372,9 @@ class DatomicMapping2Spec extends Specification {
           )))
 
           val writer = PersonSchema.specialChar.write[DRef]
-          writer.write(clever.ident).toMap must beEqualTo(
+          writer.write(clever.ref).toMap must beEqualTo(
             PartialAddEntity(Map(
-              PersonSchema.specialChar.ident -> clever.ident
+              PersonSchema.specialChar.ident -> clever.ref
             )).toMap
           )
       }
@@ -403,7 +403,7 @@ class DatomicMapping2Spec extends Specification {
           person / "name" -> DString("toto"),
           person / "age" -> DLong(45),
           person / "birth" -> DInstant(birthDate),
-          person / "characters" -> DSet(violent.ident, weak.ident)
+          person / "characters" -> DSet(violent.ref, weak.ref)
         )
       ).toString)      
 
@@ -428,7 +428,7 @@ class DatomicMapping2Spec extends Specification {
           person / "name" -> DString("toto"),
           person / "age" -> DLong(45),
           person / "birth" -> DInstant(birthDate),
-          person / "characters" -> DSet(violent.ident, weak.ident)
+          person / "characters" -> DSet(violent.ref, weak.ref)
         )
       ).toString)
     }

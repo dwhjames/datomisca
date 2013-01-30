@@ -75,7 +75,7 @@ class DatomicDemoSpec extends Specification {
           AddEntity(DId(Partition.USER))(
             person / "name" -> DString("toto"),
             person / "age" -> DLong(30L),
-            person / "character" -> DSet(weak.ident, dumb.ident)
+            person / "character" -> DSet(weak.ref, dumb.ref)
           ),
           Entity.add(DId(Partition.USER))(
             KW(":person/name") -> "tata",

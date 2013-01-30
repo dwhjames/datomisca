@@ -71,17 +71,17 @@ class DatomicSchemaQuerySpec extends Specification {
           AddEntity(id)(
             Keyword(person, "name") -> DString("toto"),
             Keyword(person, "age") -> DLong(30L),
-            Keyword(person, "character") -> DSet(weak.ident, dumb.ident)
+            Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
           ),
           AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tutu"),
             Keyword(person, "age") -> DLong(54L),
-            Keyword(person, "character") -> DSet(violent.ident, clever.ident)
+            Keyword(person, "character") -> DSet(violent.ref, clever.ref)
           ),
           AddEntity(DId(Partition.USER))(
             Keyword(person, "name") -> DString("tata"),
             Keyword(person, "age") -> DLong(23L),
-            Keyword(person, "character") -> DSet(weak.ident, clever.ident)
+            Keyword(person, "character") -> DSet(weak.ref, clever.ref)
           )
         ).map{ tx => 
           println("Provisioned data... TX:%s".format(tx))

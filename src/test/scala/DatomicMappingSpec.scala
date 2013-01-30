@@ -197,7 +197,7 @@ class DatomicMappingSpec extends Specification {
                 val p = DatomicMapping.fromEntity(entity)(personReader)
                 val Person(name, age, birth, characters, dog, doggies) = p
                 p must beEqualTo(
-                  Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), 
+                  Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), 
                     Some(Ref(DId(realMedorId))(medor)), 
                     Set(Ref(DId(realDoggy1Id))(doggy1), Ref(DId(realDoggy2Id))(doggy2), Ref(DId(realDoggy3Id))(doggy3))
                   )
@@ -269,9 +269,9 @@ class DatomicMappingSpec extends Specification {
           )))
 
           val writer = PersonSchema.specialChar.write[DRef]
-          writer.write(clever.ident).toMap must beEqualTo(
+          writer.write(clever.ref).toMap must beEqualTo(
             PartialAddEntity(Map(
-              PersonSchema.specialChar.ident -> clever.ident
+              PersonSchema.specialChar.ident -> clever.ref
             )).toMap
           )
       }
@@ -301,7 +301,7 @@ class DatomicMappingSpec extends Specification {
           person / "name" -> DString("toto"),
           person / "age" -> DLong(45),
           person / "birth" -> DInstant(birthDate),
-          person / "characters" -> DSet(violent.ident, weak.ident)
+          person / "characters" -> DSet(violent.ref, weak.ref)
         )
       ).toString)      
 
@@ -323,7 +323,7 @@ class DatomicMappingSpec extends Specification {
           person / "name" -> DString("toto"),
           person / "age" -> DLong(45),
           person / "birth" -> DInstant(birthDate),
-          person / "characters" -> DSet(violent.ident, weak.ident)
+          person / "characters" -> DSet(violent.ref, weak.ref)
         )
       ).toString)
     }
@@ -387,13 +387,13 @@ class DatomicMappingSpec extends Specification {
                 val p = DatomicMapping.fromEntity(entity)(personReader)                
                 val Person(name, age, birth, characters, dog, doggies) = p
                 println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
-                p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), Some(Ref(DId(realMedorId))(medor)), Set()))
+                p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(Ref(DId(realMedorId))(medor)), Set()))
                 
                 val p2 = DatomicMapping.fromEntity(entity)(personReader2)                
-                p2 must beEqualTo(Person2("toto", 30L, birthDate, Set(violent.ident, weak.ident), Some(realMedorId.underlying), Set()))
+                p2 must beEqualTo(Person2("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(realMedorId.underlying), Set()))
 
                 DatomicMapping.toEntity(DId(e))(
-                  Person("toto", 30L, birthDate, Set(violent.ident, weak.ident), 
+                  Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), 
                     Some(Ref(DId(realMedorId))(medor)), Set())
                 ).toMap.get(PersonSchema.doggies.ident) must beEqualTo(None)                
 

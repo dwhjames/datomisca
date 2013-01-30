@@ -111,19 +111,14 @@ object AddEntity {
   def apply(id: DId, partial: PartialAddEntity) = new AddEntity(id, partial.props)
 }
 
-case class AddIdent(override val ident: DRef, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {
+case class AddIdent(val ident: Keyword, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {
   override lazy val id = DId(partition)
+  override lazy val ref = DRef(ident)
 
-  def toNative = AddFact( Fact(id, Keyword("ident", Namespace.DB), ident) ).toNative
+  def toNative = AddFact( Fact(id, Keyword("ident", Namespace.DB), ref) ).toNative
 
   override def toString = toNative.toString
 
 }
-
-object AddIdent {
-  def apply(ident: Keyword) = new AddIdent(DRef(ident))
-  def apply(ident: Keyword, partition: Partition) = new AddIdent(DRef(ident), partition)
-}
-
 
 

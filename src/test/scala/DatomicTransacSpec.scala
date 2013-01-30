@@ -50,7 +50,7 @@ class DatomicTransacSpec extends Specification {
       val person1 = AddEntity( DId(Partition.USER) )(
         Keyword(Namespace("person"), "name") -> DString("bob"),
         Keyword(Namespace("person"), "age") -> DLong(30L),
-        Keyword(Namespace("person"), "character") -> DSet( violent.ident, weak.ident )
+        Keyword(Namespace("person"), "character") -> DSet( violent.ref, weak.ref )
       )
 
       implicit val conn = Datomic.connect(uri)

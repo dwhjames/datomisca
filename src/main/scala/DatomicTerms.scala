@@ -89,7 +89,7 @@ trait Identified {
 }
 
 trait Referenceable {
-  def ident: DRef
+  def ref: DRef
 }
 
 case class Partition(keyword: Keyword) {

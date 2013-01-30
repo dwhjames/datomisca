@@ -183,7 +183,7 @@ trait DDWriterImplicits{
   implicit val Date2DDateWrites = DDWriter[DInstant, java.util.Date]( (d: java.util.Date) => DInstant(d) )
   implicit val BigInt2DBigIntWrites = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
   implicit val BigDec2DBigDecWrites = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
-  implicit val Ref2DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ident )
+  implicit val Ref2DReferenceable = DDWriter[DRef, Referenceable]( (referenceable: Referenceable) => referenceable.ref )
   implicit val DRef2DRefWrites = DDWriter[DRef, DRef]( (d: DRef) => d )
   //implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
   
@@ -274,6 +274,6 @@ trait DD2WriterImplicits {
   implicit val DateDD2Writes = DD2Writer[java.util.Date]( (d: java.util.Date) => DInstant(d) )
   implicit val BigIntDD2Writes = DD2Writer[java.math.BigInteger]( (i: java.math.BigInteger) => DBigInt(i) )
   implicit val BigDecDD2Writes = DD2Writer[java.math.BigDecimal]( (i: java.math.BigDecimal) => DBigDec(i) )
-  implicit val ReferenceableDD2Writes = DD2Writer[Referenceable]( (referenceable: Referenceable) => referenceable.ident )
+  implicit val ReferenceableDD2Writes = DD2Writer[Referenceable]( (referenceable: Referenceable) => referenceable.ref )
 
 }
