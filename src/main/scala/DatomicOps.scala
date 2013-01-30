@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.collection.JavaConverters._
+
 trait Operation extends Nativeable
 
 trait DataFunction extends Operation {
@@ -26,13 +28,13 @@ case class AddFact(fact: Fact) extends DataFunction with Identified {
   override val func = AddFact.kw
   override val id = fact.id
 
-  def toNative: java.lang.Object = {
-    val l = List[java.lang.Object]( func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative)
-    val javal = new java.util.ArrayList[Object]()
-
-    l.foreach( e => javal.add(e.asInstanceOf[Object]) )
+  def toNative: AnyRef = {
+    val javal = new java.util.ArrayList[AnyRef]
+    javal.addAll(
+      Seq(func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative).asJava
+    )
     javal
-  } 
+  }
 }
 
 object AddFact {
@@ -45,11 +47,11 @@ case class RetractFact(fact: Fact) extends DataFunction with Identified {
   override val func = RetractFact.kw
   override val id = fact.id
 
-  def toNative: java.lang.Object = {
-    val l = List[java.lang.Object]( func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative)
-    val javal = new java.util.ArrayList[Object]()
-
-    l.foreach( e => javal.add(e.asInstanceOf[Object]) )
+  def toNative: AnyRef = {
+    val javal = new java.util.ArrayList[AnyRef]
+    javal.addAll(
+      Seq(func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative).asJava
+    )
     javal
   }
 }
@@ -62,11 +64,11 @@ object RetractFact {
 case class RetractEntity(entId: DLong) extends DataFunction {
   override val func = RetractEntity.kw
 
-  def toNative: java.lang.Object = {
-    val l = List[java.lang.Object]( func.toNative, entId.toNative)
-    val javal = new java.util.ArrayList[Object]()
-
-    l.foreach( e => javal.add(e.asInstanceOf[Object]) )
+  def toNative: AnyRef = {
+    val javal = new java.util.ArrayList[AnyRef]
+    javal.addAll(
+      Seq(func.toNative, entId.toNative).asJava
+    )
     javal
   } 
 
@@ -97,9 +99,12 @@ object PartialAddEntity {
 case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity with Operation with Identified {
   override def props = partialProps + (Keyword("id", Namespace.DB) -> id)
 
-  def toNative: java.lang.Object = {
+  def toNative: AnyRef = {
     import scala.collection.JavaConverters._
-    ( props.map( t => (t._1.toNative, t._2.toNative) ) + (Keyword("id", Namespace.DB).toNative -> id.toNative) ).asJava
+    (
+      props.map{case (k, v) => (k.toNative, v.toNative)} +
+      (Keyword("id", Namespace.DB).toNative -> id.toNative)
+    ).asJava
   }
 
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
