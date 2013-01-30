@@ -33,15 +33,15 @@ object Utils {
 
     listenF.addListener(
       new java.lang.Runnable {
-        override def run: Unit = {
-          p.complete(
-            try {
-              Success(listenF.get(0, MILLISECONDS))
-            }catch {
-              case e => Failure(e)
-            }
-          )
-        }
+        override def run: Unit =
+          try {
+            p.success(listenF.get())
+          } catch {
+            case ex: java.util.concurrent.ExecutionException =>
+              p.failure(ex.getCause)
+            case ex: Throwable =>
+              p.failure(ex)
+          }
       },
       new java.util.concurrent.Executor {
         def execute(arg0: Runnable): Unit = ex.execute(arg0)
