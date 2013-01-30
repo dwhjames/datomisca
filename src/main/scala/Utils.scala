@@ -64,19 +64,16 @@ object Utils {
     * It requires an implicit DDatabase because it must resolve the keyword from Datom (from Integer in the map)
     */
   def toTxReport(javaMap: java.util.Map[_, _])(implicit database: DDatabase): TxReport = {
-    import scala.collection.JavaConverters._
     import scala.collection.JavaConversions._
 
     val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
 
-    val opt = for{
-      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
-      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None)
-      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None)
-      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
-    } yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(database)).toSeq, tempids.toMap)
+    val dbBefore = m(datomic.Connection.DB_BEFORE.toString).asInstanceOf[datomic.db.Db]
+    val dbAfter  = m(datomic.Connection.DB_AFTER.toString).asInstanceOf[datomic.db.Db]
+    val txData   = m(datomic.Connection.TX_DATA.toString).asInstanceOf[java.util.List[datomic.Datom]]
+    val tempids  = m(datomic.Connection.TEMPIDS.toString).asInstanceOf[java.util.Map[Long with datomic.db.DbId, Long]]
 
-    opt.get
+    TxReport(DDatabase(dbBefore), DDatabase(dbAfter), txData.map(DDatom(_)(database)).toSeq, tempids.toMap)
   }
 
   def queue2Stream[A](queue: java.util.concurrent.BlockingQueue[A]): Stream[Option[A]] = {

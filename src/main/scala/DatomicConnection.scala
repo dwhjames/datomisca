@@ -45,9 +45,8 @@ trait Connection {
 
   def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
     import scala.collection.JavaConverters._
-    import scala.collection.JavaConversions._
 
-    val datomicOps = ops.map( _.toNative ).toList.asJava
+    val datomicOps = ops.map( _.toNative ).asJava
 
     val future = Utils.bridgeDatomicFuture(connection.transactAsync(datomicOps))
     
