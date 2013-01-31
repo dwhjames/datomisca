@@ -21,16 +21,6 @@ import scala.util.{Try, Success, Failure}
 /* DATOMIC TYPES */
 trait DatomicData extends Nativeable {
   def as[A](implicit reader: DDReader[DatomicData, A]) = reader.read(this)
-
-  def tryAs[A](implicit reader: DDReader[DatomicData, A]): Try[A] = {
-    val t = try {
-      Success(this)
-    } catch {
-      case e: Throwable => Failure(e)
-    }
-
-    t.map( reader.read(_) )
-  }
 }
 
 case class DString(underlying: String) extends DatomicData {
