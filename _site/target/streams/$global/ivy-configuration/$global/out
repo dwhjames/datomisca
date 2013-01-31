@@ -1,0 +1,11 @@
+[0m[[0mdebug[0m] [0mOther repositories:[0m
+[0m[[0mdebug[0m] [0m	FileRepository(snapshots,FileConfiguration(true,None),sbt.Patterns@83e591f)[0m
+[0m[[0mdebug[0m] [0mDefault repositories:[0m
+[0m[[0mdebug[0m] [0m	Raw(ProjectResolver(inter-project, mapped: ))[0m
+[0m[[0mdebug[0m] [0m	FileRepository(local,FileConfiguration(true,None),sbt.Patterns@38bb41fd)[0m
+[0m[[0mdebug[0m] [0m	Typesafe repository snapshots: http://repo.typesafe.com/typesafe/snapshots/[0m
+[0m[[0mdebug[0m] [0m	Typesafe repository releases: http://repo.typesafe.com/typesafe/releases/[0m
+[0m[[0mdebug[0m] [0m	clojars: https://clojars.org/repo[0m
+[0m[[0mdebug[0m] [0m	couchbase: http://files.couchbase.com/maven2[0m
+[0m[[0mdebug[0m] [0m	public: http://repo1.maven.org/maven2/[0m
+[0m[[0mdebug[0m] [0mUsing inline dependencies specified in Scala.[0m

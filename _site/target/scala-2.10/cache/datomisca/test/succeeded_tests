@@ -1,0 +1,17 @@
+#Successful Tests
+#Thu Jan 31 17:01:34 CET 2013
+DatomicMapping2Spec=1359648092504
+DatomicDemoSpec=1359648094527
+DatomicMappingSpec=1359648093374
+DatomicQuery2Spec=1359648092820
+DatomicQuerySpec=1359648093549
+DatomicSchemaQuerySpec=1359648094434
+DatomicSchema2Spec=1359648094670
+DatomicTxSpec=1359648093101
+DatomicDatabaseSpec=1359648094290
+DatomicTransacSpec=1359648094360
+DatomicParserSpec=1359648094066
+DatomicParserOpsSpec=1359648093846
+DatomicSchemaSpec=1359648094583
+DatomicSyntaxSugarSpec=1359648093659
+DatomicCompilerSpec=1359648094168

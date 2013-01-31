@@ -1,0 +1,19 @@
+<aws.simpledb.SimpleDBSpec-results timestamp="1349776208159"><result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:30)" id="677875687"><stats expectations="1" examples="1" errors="1" time="141"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:35)" id="-1369735144"><stats expectations="1" examples="1" errors="1" time="140"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:41)" id="-1338579251"><stats expectations="1" examples="1" errors="1" time="138"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:49)" id="-931927256"><stats expectations="1" examples="1" errors="1" time="33"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:65)" id="1106645708"><stats expectations="1" examples="1" errors="1" time="33"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:74)" id="-1734388005"><stats expectations="1" examples="1" errors="1" time="30"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:90)" id="-2048215886"><stats expectations="1" examples="1" errors="1" time="30"></stats></result>
+</aws.simpledb.SimpleDBSpec-results>
+<aws.simpledb.SimpleDBSpec-stats timestamp="1349776208168"><stats expectations="7" examples="7" errors="7" time="165"></stats></aws.simpledb.SimpleDBSpec-stats>
+<aws.simpledb.SimpleDBSpec-results timestamp="1349776685634"><result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:30)" id="677875687"><stats expectations="1" examples="1" errors="1" time="27"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:35)" id="-1369735144"><stats expectations="1" examples="1" errors="1" time="27"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:41)" id="-1338579251"><stats expectations="1" examples="1" errors="1" time="27"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:49)" id="-931927256"><stats expectations="1" examples="1" errors="1" time="27"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:65)" id="1106645708"><stats expectations="1" examples="1" errors="1" time="27"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:74)" id="-1734388005"><stats expectations="1" examples="1" errors="1" time="26"></stats></result>
+<result location="aws.simpledb.SimpleDBSpec (SimpleDBSpec.scala:90)" id="-2048215886"><stats expectations="1" examples="1" errors="1" time="26"></stats></result>
+</aws.simpledb.SimpleDBSpec-results>
+<aws.simpledb.SimpleDBSpec-stats timestamp="1349776685647"><stats expectations="7" examples="7" errors="7" time="37"></stats></aws.simpledb.SimpleDBSpec-stats>
+<aws.simpledb.SimpleDBSpec-stats timestamp="1349776722397"><stats expectations="7" examples="7" successes="7" time="4951"><trend><stats errors="-7" successes="7" time="4951"></stats></trend></stats></aws.simpledb.SimpleDBSpec-stats>

@@ -1,0 +1,10 @@
+{% for p in site.navigation %}
+  {% if found == true %}
+    <div class="next-link">Next: <a href="{{ site.url }}/{{ p.url }}">{{ p.title }}</a></div>
+    {% assign found = false %}
+  {% elsif page.url contains p.url %}
+    {% assign found = true %}
+  {% endif %}
+{% endfor %}
+
+
