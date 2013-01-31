@@ -45,7 +45,14 @@ object ApplicationBuild extends Build {
         "org.scala-lang" % "scala-compiler" % "2.10.0",
         "org.specs2" %% "specs2" % "1.13" % "test",
         "junit" % "junit" % "4.8" % "test"
-      )
+      ),
+      publishMavenStyle := true,
+      publishTo <<= version { (version: String) =>
+        val localPublishRepo = "../datomisca-repo/"
+        if(version.trim.endsWith("SNAPSHOT"))
+          Some(Resolver.file("snapshots", new File(localPublishRepo + "/snapshots")))
+        else Some(Resolver.file("releases", new File(localPublishRepo + "/releases")))
+      }
     )
   )
 }
