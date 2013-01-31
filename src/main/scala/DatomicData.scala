@@ -283,13 +283,12 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     Try { as(keyword) } .toOption
 
   def toMap: Map[Keyword, DatomicData] = {
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
 
-    entity.keySet.toSet
-      .map{x: Any => x.asInstanceOf[clojure.lang.Keyword]}
-      .foldLeft(Map[Keyword, DatomicData]()){ (acc, key) => 
-        acc + (Keyword(key) -> Datomic.toDatomicData(entity.get(key)))
-      }
+    entity.keySet.asScala.view map { x: Any =>
+      val key = x.asInstanceOf[clojure.lang.Keyword]
+      (Keyword(key) -> Datomic.toDatomicData(entity.get(key)))
+    } toMap
   }
 
   /* extension with attributes */
