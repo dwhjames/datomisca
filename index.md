@@ -7,7 +7,6 @@ title: Datomisca by Pellucid & Zenexity
 
 > To begin directly with Datomisca, go to [Getting Started](doc/getstarted.html)
 
-<br/>
 ## Philosophy in a nutshell
 
 ### <i class="icon-circle-arrow-right"> </i>Embrace Datomic principles without compromising it<a href="doc/philosophy.html#philosophy-embrace" class="icon-after icon-external-link"> </a>
@@ -16,17 +15,27 @@ title: Datomisca by Pellucid & Zenexity
 <br/>
 ## API Features
 
-### <i class="icon-circle-arrow-right"> </i>Reactive transactor API (asynchronous & non-blocking)<a href="doc/features.html#features-reactive" class="icon-after icon-external-link"> </a>
+#### <i class="icon-circle-arrow-right"> </i>Reactive transactor API (asynchronous & non-blocking)<a href="doc/features.html#features-reactive" class="icon-after icon-external-link"> </a>
 
-### <i class="icon-circle-arrow-right"> </i>Compile-time query validation & in/out parameters inference<a href="doc/features.html#features-compilequeries" class="icon-after icon-external-link"> </a>
+#### <i class="icon-circle-arrow-right"> </i>Datomic/Clojure to Scala types conversion <a href="doc/features.html#features-scalatypes" class="icon-after icon-external-link"> </a>
 
-### <i class="icon-circle-arrow-right"> </i>Use query as static reusable structures<a href="doc/features.html#features-staticqueries" class="icon-after icon-external-link"> </a>
+#### <i class="icon-circle-arrow-right"> </i>Compile-time query validation & in/out parameters inference<a href="doc/features.html#features-compilequeries" class="icon-after icon-external-link"> </a>
 
-### <i class="icon-circle-arrow-right"> </i>Static-typed & programmatic schema definition API<a href="doc/features.html#features-schema" class="icon-after icon-external-link"> </a>
+#### <i class="icon-circle-arrow-right"> </i>Use query as static reusable structures<a href="doc/features.html#features-staticqueries" class="icon-after icon-external-link"> </a>
 
-### <i class="icon-circle-arrow-right"> </i>Programmatic & type-safe Datomic operations<a href="doc/features.html#features-ops" class="icon-after icon-external-link"> </a>
+#### <i class="icon-circle-arrow-right"> </i>Programmatic Datomic operations<a href="doc/features.html#features-ops" class="icon-after icon-external-link"> </a>
 
-### <i class="icon-circle-arrow-right"> </i>Type-safe mapping from scala structure to/from Datomic entities<a href="doc/features.html#features-mapping" class="icon-after icon-external-link"> </a>
+#### <i class="icon-circle-arrow-right"> </i>Static-typed & programmatic schema definition API<a href="doc/features.html#features-schema" class="icon-after icon-external-link"> </a>
+
+#### <i class="icon-circle-arrow-right"> </i>Datomic DTM files runtime parsing<a href="doc/features.html#features-dtm-parsing" class="icon-after icon-external-link"> </a>
+
+<br/>
+## Extended Features
+
+
+#### <i class="icon-circle-arrow-right"> </i>Type-safe Datomic operations using Schema<a href="doc/features.html#features-typesafe-ops" class="icon-after icon-external-link"> </a>
+
+#### <i class="icon-circle-arrow-right"> </i>Type-safe mapping from Scala structure to Datomic entities<a href="doc/features.html#features-mapping" class="icon-after icon-external-link"> </a>
 
 <br/>
 ## Driver Extensions
