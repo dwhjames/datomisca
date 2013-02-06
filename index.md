@@ -9,37 +9,37 @@ title: Datomisca by Pellucid & Zenexity
 
 ## Philosophy in a nutshell
 
-### <i class="icon-circle-arrow-right"> </i>Embrace Datomic principles without compromising it<a href="doc/philosophy.html#philosophy-embrace" class="icon-after icon-external-link"> </a>
-### <i class="icon-circle-arrow-right"> </i>Enhance Datomic features with Scala flavors<a href="doc/philosophy.html#philosophy-enhance" class="icon-after icon-external-link"> </a>
+### <a href="doc/philosophy.html#philosophy-embrace" class="icon-circle-arrow-right"><span class="space5">Embrace Datomic principles without compromising it</span></a>
+### <a href="doc/philosophy.html#philosophy-enhance" class="icon-circle-arrow-right"><span class="space5">Enhance Datomic features with Scala flavors</span></a>
 
 <br/>
 ## API Features
 
-#### <i class="icon-circle-arrow-right"> </i>Reactive transactor API (asynchronous & non-blocking)<a href="doc/features.html#features-reactive" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-reactive" class="icon-circle-arrow-right"><span class="space5">Reactive transactor API (asynchronous & non-blocking)</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Datomic/Clojure to Scala types conversion <a href="doc/features.html#features-scalatypes" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-scalatypes" class="icon-circle-arrow-right"><span class="space5">Datomic/Clojure to Scala types conversion</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Compile-time query validation & in/out parameters inference<a href="doc/features.html#features-compilequeries" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-compilequeries" class="icon-circle-arrow-right"><span class="space5">Compile-time query validation & in/out parameters inference</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Use query as static reusable structures<a href="doc/features.html#features-staticqueries" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-staticqueries" class="icon-circle-arrow-right"><span class="space5">Use query as static reusable structures</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Programmatic Datomic operations<a href="doc/features.html#features-ops" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-ops" class="icon-circle-arrow-right"><span class="space5">Programmatic Datomic operations</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Static-typed & programmatic schema definition API<a href="doc/features.html#features-schema" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-schema" class="icon-circle-arrow-right"><span class="space5">Static-typed & programmatic schema definition API</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Datomic DTM files runtime parsing<a href="doc/features.html#features-dtm-parsing" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-dtm-parsing" class="icon-circle-arrow-right"><span class="space5">Datomic DTM files runtime parsing</span></a>
 
 <br/>
 ## Extended Features
 
 
-#### <i class="icon-circle-arrow-right"> </i>Type-safe Datomic operations using Schema<a href="doc/features.html#features-typesafe-ops" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-typesafe-ops" class="icon-circle-arrow-right"><span class="space5">Type-safe Datomic operations using Schema</span></a>
 
-#### <i class="icon-circle-arrow-right"> </i>Type-safe mapping from Scala structure to Datomic entities<a href="doc/features.html#features-mapping" class="icon-after icon-external-link"> </a>
+#### <a href="doc/features.html#features-mapping" class="icon-circle-arrow-right"><span class="space5">Type-safe mapping from Scala structure to Datomic entities</span></a>
 
 <br/>
 ## Driver Extensions
 
-### <i class="icon-circle-arrow-right"> </i><a href="http://www.playframework.org">Play Framework</a> Integration module Reactive Web framework<a href="doc/philosophy.html#reactive" class="icon-after icon-external-link"> </a>
+#### <a href="#" class="icon-circle-arrow-right"><span class="space5">Play Framework Integration module Reactive Web framework</span></a>
 
 
