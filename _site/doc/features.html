@@ -1,0 +1,175 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Features</title>
+
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
+    </style>
+    <link rel="stylesheet/less" href="/stylesheets/font-awesome.less">
+    <link rel="stylesheet/less" href="/stylesheets/styles.less">
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/less.js/1.3.0/less-1.3.0.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            $("pre").addClass("prettyprint scala")
+            window.prettyPrint && prettyPrint()
+            $("select").change(function() {
+                document.location = $(this).val()
+            });
+            $("h1 img").click(function(){
+                $("header ul").slideToggle(function (){
+                    if (!$(this).is(":visible")) {
+                        $(this).removeAttr("style");
+                    }
+                });
+            });
+        });
+    </script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="/index.html">Datomisca</a>
+        <img src="/images/menu.png">
+        </h1>
+        <p id="subtitle">Non-Blocking &amp; Scala-ish driver for Datomic</p>
+
+        <ul class="hdr-buttons">
+          <li><a href="/api/scaladoc">Read the <strong>Scaladoc</strong></a></li>
+          <li><a href="https://github.com/pellucidanalytics/datomisca">See on <strong>GitHub</strong></a></li>
+        </ul>
+<ul class="hdr-menu">
+
+  
+  <li><a href="/index.html">Home</a></li>
+  
+
+  
+  <li><a href="/doc/philosophy.html">Philosophy in Details</a></li>
+  
+
+  
+  <li>Features in Details</li>
+  
+
+  
+  <li><a href="/doc/getstarted.html">Getting Started</a></li>
+  
+
+</ul>
+
+
+
+
+        <p id="subtitle"><i>Please note Datomisca is <b>beta</b> but already used in an important project at Pellucid company. So we are involved in making it production-ready right now.</i></p>
+      </header>
+      <section>
+<h1 id="toc_117"><a name="features">Raw API Features</a></h1>
+
+<h2 id="toc_118"><a name="features-reactive">Reactive Transactor API (Asynchronous &amp; Non-Blocking with potential execution isolation)</a></h2>
+
+<p>Using Scala 2.10 Execution Contexts &amp; Futures, Datomic transactions are executed by Datomisca in an asynchronous &amp; non-blocking way managed by the provided execution context. In this way, you can control in which pool of threads you want to execute your remote transactor requests.</p>
+
+<h2 id="toc_119"><a name="features-compilequeries">Compile-Time query validation &amp; input/output parameters inference</a></h2>
+
+<p>Based on Scala 2.10 Macros, Datomisca is able :
+- <strong>to validate Datomic query strings at compile-time</strong> and then detect where there are errors.
+- <strong>to infer the number of input/output parameters</strong> so when you execute the query  , you must pass the right number of input parameters and manage the right number of output parameters.</p>
+
+<p><em>In the future, based on type-safe Schema presented below, we will also be able to infer parameter types.</em></p>
+<div class="highlight"><pre><code class="scala">    <span class="nc">Query</span><span class="o">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">      [ :find ?e ?n </span>
+<span class="s">        :in $ ?char</span>
+<span class="s">        :where  [ ?e :person/name ?n ] </span>
+<span class="s">                [ ?e :person/character ?char ]</span>
+<span class="s">      ]</span>
+<span class="s">    &quot;&quot;&quot;</span><span class="o">)</span>
+
+    <span class="c1">// produces a Query with :</span>
+    <span class="c1">//   - 2 input arguments (db and ?char)</span>
+    <span class="c1">//   - 2 output arguments (?e ?n)</span>
+</code></pre>
+</div>
+
+<p><br/></p>
+
+<h2 id="toc_120"><a name="features-staticqueries">Query as static reusable structures</a></h2>
+
+<p>This is a very important idea in Datomic: <strong>A query is a static structure</strong> which can be built once and reused as many times as you want.</p>
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">query</span> <span class="k">=</span> <span class="nc">Query</span><span class="o">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">      [ :find ?e ?n </span>
+<span class="s">        :in $ ?char</span>
+<span class="s">        :where  [ ?e :person/name ?n ] </span>
+<span class="s">                [ ?e :person/character ?char ]</span>
+<span class="s">      ]</span>
+<span class="s">    &quot;&quot;&quot;</span><span class="o">)</span>
+
+    <span class="nc">Datomic</span><span class="o">.</span><span class="n">q</span><span class="o">(</span>
+      <span class="n">query</span><span class="o">,</span> 
+      <span class="n">database</span><span class="o">,</span> 
+      <span class="nc">DRef</span><span class="o">(</span><span class="nc">KW</span><span class="o">(</span><span class="s">&quot;:person.character/violent&quot;</span><span class="o">))</span>
+    <span class="o">).</span><span class="n">map</span> <span class="o">{</span>
+      <span class="k">case</span> <span class="o">(</span><span class="n">e</span><span class="k">:</span> <span class="kt">DLong</span><span class="o">,</span> <span class="n">n</span><span class="k">:</span> <span class="kt">DString</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="c1">// </span>
+    <span class="o">}</span>
+</code></pre>
+</div>
+
+<p><br/></p>
+
+<h1 id="toc_121"><a name="features">Extended Features</a></h1>
+
+<h2 id="toc_122"><a name="features-schema">Static-typed &amp; programmatic Schema definition API</a></h2>
+
+<p>Schema is one of the remarkable specific features of Datomic as it enables contraints on the type and cardinality of the inserted data.<br>
+Schema attributes are just facts stored in Datomic in a special partition defining the parameters of an attribute : 
+As Scala is static-typed language, it seems really logical to link those attributes to </p>
+
+<h2 id="toc_123"><a name="features-ops">Programmatic &amp; type-safe Datomic operations</a></h2>
+
+<p>Based on previously described static-typed schema, you can build your operations <code>add</code> / <code>retract</code> / <code>addEntity</code> / <code>retractEntity</code> operations in a type-safe way.</p>
+
+<h2 id="toc_124"><a name="features-mapping">Type-safe mapping from/to Scala structure to/from Datomic entities</a></h2>
+
+<p>Based on Scala typeclass conversions and pure functional combinators, we provide this tool to build mappers to convert datomic entities from/to Scala structures such as case classes, tuples or collections.</p>
+
+
+
+  
+
+  
+
+  
+    
+  
+
+  
+    <div class="next-link">Next: <a href="/doc/getstarted.html">Getting Started</a></div>
+    
+  
+
+
+
+
+
+      </section>
+
+      <footer>
+        <p>Sponsored By <a href="http://pellucid.com">Pellucid</a> and <a href="http://zenexity.com">Zenexity</a></p>
+        <p>Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache v2.0</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="/javascripts/scale.fix.js"></script>
+
+  </body>
+</html>

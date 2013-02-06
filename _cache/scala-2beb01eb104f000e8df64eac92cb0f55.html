@@ -1,0 +1,13 @@
+<div class="highlight"><pre><code class="scala">    <span class="nc">Query</span><span class="o">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">      [ :find ?e ?n </span>
+<span class="s">        :in $ ?char</span>
+<span class="s">        :where  [ ?e :person/name ?n ] </span>
+<span class="s">                [ ?e :person/character ?char ]</span>
+<span class="s">      ]</span>
+<span class="s">    &quot;&quot;&quot;</span><span class="o">)</span>
+
+    <span class="c1">// produces a Query with :</span>
+    <span class="c1">//   - 2 input arguments (db and ?char)</span>
+    <span class="c1">//   - 2 output arguments (?e ?n)</span>
+</code></pre>
+</div>

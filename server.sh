@@ -1,2 +1,2 @@
-jekyll --pygments --no-lsi --safe --server --auto --url=""
+jekyll --pygments --no-lsi --server --auto --url=""
 

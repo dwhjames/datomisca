@@ -1,0 +1,22 @@
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">query</span> <span class="k">=</span> <span class="nc">Query</span>
+<span class="err">`</span><span class="n">`</span>
+
+<span class="n">&lt;br/&gt;</span>
+<span class="n"># &lt;a name=&quot;features&quot;&gt;Extended Features&lt;/a&gt;</span>
+
+<span class="n">## &lt;a name=&quot;features-schema&quot;&gt;Static-typed &amp;amp; programmatic Schema definition API&lt;/a&gt;</span>
+
+<span class="n">Schema is one of the remarkable specific features of Datomic as it enables contraints on the type and cardinality of the inserted data.  </span>
+<span class="n">Schema attributes are just facts stored in Datomic in a special partition defining the parameters of an attribute : </span>
+<span class="n">As Scala is static-typed language, it seems really logical to link those attributes to </span>
+
+<span class="n">## &lt;a name=&quot;features-ops&quot;&gt;Programmatic &amp;amp; type-safe Datomic operations&lt;/a&gt;</span>
+
+<span class="n">Based on previously described static-typed schema, you can build your operations `add` / `retract` / `addEntity` / `retractEntity</span><span class="err">`</span> <span class="n">operations</span> <span class="n">in</span> <span class="n">a</span> <span class="n">type</span><span class="o">-</span><span class="n">safe</span> <span class="n">way</span><span class="o">.</span>
+
+
+<span class="o">#</span><span class="k">#</span> <span class="o">&lt;</span><span class="n">a</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;features-mapping&quot;</span><span class="o">&gt;</span><span class="nc">Type</span><span class="o">-</span><span class="n">safe</span> <span class="n">mapping</span> <span class="n">from</span><span class="o">/</span><span class="n">to</span> <span class="nc">Scala</span> <span class="n">structure</span> <span class="n">to</span><span class="o">/</span><span class="n">from</span> <span class="nc">Datomic</span> <span class="n">entities</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;</span>
+
+<span class="nc">Based</span> <span class="n">on</span> <span class="nc">Scala</span> <span class="n">typeclass</span> <span class="n">conversions</span> <span class="n">and</span> <span class="n">pure</span> <span class="n">functional</span> <span class="n">combinators</span><span class="o">,</span> <span class="n">we</span> <span class="n">provide</span> <span class="k">this</span> <span class="n">tool</span> <span class="n">to</span> <span class="n">build</span> <span class="n">mappers</span> <span class="n">to</span> <span class="n">convert</span> <span class="n">datomic</span> <span class="n">entities</span> <span class="n">from</span><span class="o">/</span><span class="n">to</span> <span class="nc">Scala</span> <span class="n">structures</span> <span class="n">such</span> <span class="n">as</span> <span class="k">case</span> <span class="n">classes</span><span class="o">,</span> <span class="n">tuples</span> <span class="n">or</span> <span class="n">collections</span><span class="o">.</span>
+</code></pre>
+</div>

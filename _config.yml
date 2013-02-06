@@ -1,7 +1,16 @@
-safe: true
+safe: false
 pygments: true
 lsi: false
 url: /datomisca
+markdown: redcarpet2
+redcarpet:
+  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "strikethrough", "superscript", "with_toc_data"]
 navigation:
+- title: Home
+  url: index.html
+- title: Philosophy in Details
+  url: doc/philosophy.html
+- title: Features in Details
+  url: doc/features.html
 - title: Getting Started
   url: doc/getstarted.html

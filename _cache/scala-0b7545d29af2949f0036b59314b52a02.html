@@ -1,0 +1,17 @@
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">query</span> <span class="k">=</span> <span class="nc">Query</span><span class="o">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">      [ :find ?e ?n </span>
+<span class="s">        :in $ ?char</span>
+<span class="s">        :where  [ ?e :person/name ?n ] </span>
+<span class="s">                [ ?e :person/character ?char ]</span>
+<span class="s">      ]</span>
+<span class="s">    &quot;&quot;&quot;</span><span class="o">)</span>
+
+    <span class="nc">Datomic</span><span class="o">.</span><span class="n">q</span><span class="o">(</span>
+      <span class="n">query</span><span class="o">,</span> 
+      <span class="n">database</span><span class="o">,</span> 
+      <span class="nc">DRef</span><span class="o">(</span><span class="nc">KW</span><span class="o">(</span><span class="s">&quot;:person.character/violent&quot;</span><span class="o">))</span>
+    <span class="o">).</span><span class="n">map</span> <span class="o">{</span>
+      <span class="k">case</span> <span class="o">(</span><span class="n">e</span><span class="k">:</span> <span class="kt">DLong</span><span class="o">,</span> <span class="n">n</span><span class="k">:</span> <span class="kt">DString</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="c1">// </span>
+    <span class="o">}</span>
+</code></pre>
+</div>
