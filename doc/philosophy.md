@@ -5,7 +5,7 @@ title: Philosophy
 
 # <a name="philosophy">Philosophy</a>
 
-## <a name="philosophy-embrace">Embrace Datomic principles without compromises</a>
+## <a name="philosophy-embrace">Embrace Datomic principles without compromising it</a>
 Datomisca is a very thin layer around Java API but we aim at exposing Datomic Clojure functionalities as directly as possible without compromising their essential purpose.
 
 ## <a name="philosophy-enhance">Enhance Datomic features with Scala flavors</a>
