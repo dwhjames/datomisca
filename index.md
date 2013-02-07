@@ -3,13 +3,13 @@ layout: default
 title: Datomisca by Pellucid & Zenexity
 ---
 
-#_Embrace Datomic the Scala way_
+# <span style="color:#777">Embrace [Datomic](http://www.datomic.com) the Scala way</span>
 
 > To begin directly with Datomisca, go to [Getting Started](doc/getstarted.html)
 
 ## Philosophy in a nutshell
 
-### <a href="doc/philosophy.html#philosophy-embrace" class="icon-circle-arrow-right"><span class="space5">Embrace Datomic principles without compromising it</span></a>
+### <a href="doc/philosophy.html#philosophy-embrace" class="icon-circle-arrow-right"><span class="space5">Embrace Datomic principles without compromising</span></a>
 ### <a href="doc/philosophy.html#philosophy-enhance" class="icon-circle-arrow-right"><span class="space5">Enhance Datomic features with Scala flavors</span></a>
 
 <br/>
@@ -40,6 +40,6 @@ title: Datomisca by Pellucid & Zenexity
 <br/>
 ## Driver Extensions
 
-#### <a href="#" class="icon-circle-arrow-right"><span class="space5">Play Framework Integration module Reactive Web framework</span></a>
+#### <a href="doc/play-datomisca.html" class="icon-circle-arrow-right"><span class="space5">_Play Datomisca_, a module for using Datomisca with Play Framework</span></a>
 
 

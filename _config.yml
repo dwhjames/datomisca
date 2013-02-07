@@ -12,3 +12,7 @@ navigation:
   url: doc/features.html
 - title: Getting Started
   url: doc/getstarted.html
+- title: Datomisca for Play Framework
+  url: doc/play-datomisca.html
+- title: About Us
+  url: doc/about-us.html

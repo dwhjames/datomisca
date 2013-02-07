@@ -73,6 +73,12 @@ scala> Query("""
                      ^
 ```
 
+Datomisca is also able to manage:
+
+- datalog rules alias
+- query functions
+- cherry on cake: you can use Scala valus in query using `${myval}` as in String Interpolation
+
 _In the future, based on type-safe Schema presented below, we will also be able to infer parameter types._
 
 
@@ -244,6 +250,8 @@ These conversions are naturally based on previously described schema typed attri
 
 
 ```scala
+import Datomic._
+import DatomicMapping._
 
 case class Person(
   name: String, age: Long
@@ -258,8 +266,15 @@ object PersonSchema {
 
 implicit val personReader = (
   PersonSchema.name.read[String] and 
-  PersonSchema.age.read[Long]
+  PersonSchema.age.read[Long] and
+  PersonSchema.birth.read[java.util.Date]
 )(Person)
+
+implicit val personWriter = (
+  PersonSchema.name.write[String] and 
+  PersonSchema.age.write[Long] and
+  PersonSchema.birth.write[java.util.Date]
+)(unlift(Person.unapply))
 
 DatomicMapping.toEntity(DId(Partition.USER))(
   Person("toto", 30L, birthDate)
