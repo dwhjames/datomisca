@@ -26,15 +26,25 @@ case class TxReport(
   txData: Seq[DDatom] = Seq(), 
   tempids: Map[Long with datomic.db.DbId, Long] = Map()
 ) extends TxReportHidden {
-  override def resolve(id: DId)(implicit db: DDatabase): Option[DLong] = 
-    tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
 
-  def resolve(identified: Identified)(implicit db: DDatabase): Option[DLong] = resolve(identified.id)
-
-  def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[DLong]] = 
-    ids.map{ id =>
-      tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map(DLong(_))
+  override def resolve(id: DId)(implicit db: DDatabase): DLong = 
+    tempids.get(db.underlying.entid(id.toNative)
+           .asInstanceOf[Long with datomic.db.DbId]) match {
+      case Some(l)  => DLong(l)
+      case None     => throw new TempidNotResolved(id)
     }
+  
+  def resolve(identified: Identified)(implicit db: DDatabase): DLong = 
+    resolve(identified.id)
+
+  def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[DLong] = 
+    ids map { resolve(_) }
+
+  def resolveOpt(id: DId)(implicit db: DDatabase): Option[DLong] = 
+    tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map( DLong(_) )
+  
+  def resolveOpt(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[DLong]] = 
+    ids map { resolveOpt(_) }
 }
 
 trait Connection {

@@ -1,3 +1,0 @@
-[
-  [:db/add :db.part/db :db.install/attribute #db/id[:db.part/db -1]]
-]

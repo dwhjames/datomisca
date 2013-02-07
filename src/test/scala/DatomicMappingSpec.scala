@@ -174,7 +174,7 @@ class DatomicMappingSpec extends Specification {
           ).map{ tx => 
             println("Provisioned data... TX:%s".format(tx))
             tx.resolve(medorId, doggy1Id, doggy2Id, doggy3Id) match{
-              case (Some(medorId), Some(doggy1Id), Some(doggy2Id), Some(doggy3Id)) => 
+              case (medorId, doggy1Id, doggy2Id, doggy3Id) => 
                 realMedorId = medorId
                 realDoggy1Id = doggy1Id
                 realDoggy2Id = doggy2Id
@@ -364,7 +364,7 @@ class DatomicMappingSpec extends Specification {
           ).map{ tx => 
             println("Provisioned data... TX:%s".format(tx))
             tx.resolve(medorId, doggy1Id, doggy2Id, doggy3Id) match{
-              case (Some(medorId), Some(doggy1Id), Some(doggy2Id), Some(doggy3Id)) => 
+              case (medorId, doggy1Id, doggy2Id, doggy3Id) => 
                 realMedorId = medorId
                 realDoggy1Id = doggy1Id
                 realDoggy2Id = doggy2Id
@@ -436,7 +436,7 @@ class DatomicMappingSpec extends Specification {
           ).map{ tx => 
             println("Provisioned data... TX:%s".format(tx))
             tx.resolve(medorId, doggy1Id) match{
-              case (Some(medorId), Some(doggy1Id)) => 
+              case (medorId, doggy1Id) => 
                 realMedorId = medorId
                 realDoggy1Id = doggy1Id
               case _ => failure("couldn't resolve IDs")

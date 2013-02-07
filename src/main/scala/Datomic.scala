@@ -233,8 +233,8 @@ trait DatomicFacilities extends DatomicTypeWrapper{
   }
 
   def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): DEntity = {
-    tx.resolve(id) match {
-      case None => throw new TempidNotResolved(id)
+    tx.resolveOpt(id) match {
+      case None    => throw new TempidNotResolved(id)
       case Some(e) => db.entity(e)
     }
   }

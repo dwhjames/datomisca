@@ -225,7 +225,7 @@ class DatomicMapping2Spec extends Specification {
           ).map{ tx => 
             println("Provisioned data... TX:%s".format(tx))
             tx.resolve(totoId, toto2Id, medorId, doggy1Id, doggy2Id, doggy3Id) match{
-              case (Some(totoId), Some(toto2Id), Some(medorId), Some(doggy1Id), Some(doggy2Id), Some(doggy3Id)) => 
+              case (totoId, toto2Id, medorId, doggy1Id, doggy2Id, doggy3Id) => 
                 realTotoId = totoId
                 realToto2Id = toto2Id
                 realMedorId = medorId
