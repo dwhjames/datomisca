@@ -26,14 +26,14 @@ When Datomic entities are created or accessed, Datomic types (ie Clojure types) 
 
 ```scala
 val s: DString = Datomic.toDatomic("toto")
-val l: DLong = Datomic.toDatomic("5L")
+val l: DLong   = Datomic.toDatomic("5L")
 
 val l: String = Datomic.fromDatomic(DString("toto"))
-val s: Long = Datomic.fromDatomic(DLong(5L))
+val s: Long   = Datomic.fromDatomic(DLong(5L))
 
 val entity = database.entity(entityId)
-val name = entity.as[String](person / "name")
-val age = entity.as[Long](person / "age")
+val name   = entity.as[String](person / "name")
+val age    = entity.as[Long](person / "age")
 ```
 
 <br/>
@@ -114,9 +114,9 @@ val person = Namespace("person")
 
 Datomic.transact(
   // Atomic Fact ops
-  Fact.add(DId(Partition.USER))(person / "name" -> "tata")
-  Fact.retract(DId(Partition.USER))(person / "name" -> "titi")
-  Fact.partition(Partition(Namespace.DB.PART / "mypart"))
+  Fact.add(DId(Partition.USER))(person / "name" -> "tata"),
+  Fact.retract(DId(Partition.USER))(person / "name" -> "titi"),
+  Fact.partition(Partition(Namespace.DB.PART / "mypart")),
 
   // Entity ops
   Entity.add(DId(Partition.USER))(
@@ -155,9 +155,9 @@ val person = new Namespace("person") {
 }
 
 val violent = AddIdent(person.character / "violent")
-val weak = AddIdent(Keyword(person.character, "weak"))
-val clever = AddIdent(Keyword(person.character, "clever"))
-val dumb = AddIdent(Keyword(person.character, "dumb"))
+val weak    = AddIdent(Keyword(person.character, "weak"))
+val clever  = AddIdent(Keyword(person.character, "clever"))
+val dumb    = AddIdent(Keyword(person.character, "dumb"))
 
 val name = Attribute( 
   person / "name", 
@@ -216,9 +216,18 @@ Based on previously described static-typed schema, you can build your operations
 val person = Namespace("person")
 
 object PersonSchema {
-  val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
-  val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
-  val birth = Attribute( person / "birth", SchemaType.instant, Cardinality.one).withDoc("Person's birth date")
+  val name  = Attribute(
+    person / "name",
+    SchemaType.string,
+    Cardinality.one).withDoc("Person's name")
+  val age   = Attribute(
+    person / "age",
+    SchemaType.long,
+    Cardinality.one).withDoc("Person's name")
+  val birth = Attribute(
+    person / "birth",
+    SchemaType.instant,
+    Cardinality.one).withDoc("Person's birth date")
 }
 
 // OK
@@ -228,15 +237,15 @@ SchemaFact.add(DId(Partition.USER))( PersonSchema.name -> 123L )
 
 // OK
 val e = SchemaEntity.add(DId(Partition.USER))( Props() +
-  (PersonSchema.name -> "toto") +
-  (PersonSchema.age -> 45L) +
+  (PersonSchema.name  -> "toto") +
+  (PersonSchema.age   -> 45L) +
   (PersonSchema.birth -> birthDate)
 )
 
 // ERROR at compile-time (field "name" should be a string)
 val e = SchemaEntity.add(DId(Partition.USER))( Props() +
-  (PersonSchema.name -> 123) +
-  (PersonSchema.age -> 45L) +
+  (PersonSchema.name  -> 123) +
+  (PersonSchema.age   -> 45L) +
   (PersonSchema.birth -> birthDate)
 )
 
@@ -258,21 +267,30 @@ case class Person(
 )
 
 object PersonSchema {
-  val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
-  val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
-  val birth = Attribute( person / "birth", SchemaType.instant, Cardinality.one).withDoc("Person's birth date")
+  val name  = Attribute(
+    person / "name",
+    SchemaType.string,
+    Cardinality.one).withDoc("Person's name")
+  val age   = Attribute(
+    person / "age",
+    SchemaType.long,
+    Cardinality.one).withDoc("Person's name")
+  val birth = Attribute(
+    person / "birth",
+    SchemaType.instant,
+    Cardinality.one).withDoc("Person's birth date")
   ...
 }
 
 implicit val personReader = (
-  PersonSchema.name.read[String] and 
-  PersonSchema.age.read[Long] and
+  PersonSchema.name .read[String] and
+  PersonSchema.age  .read[Long]   and
   PersonSchema.birth.read[java.util.Date]
 )(Person)
 
 implicit val personWriter = (
-  PersonSchema.name.write[String] and 
-  PersonSchema.age.write[Long] and
+  PersonSchema.name .write[String] and
+  PersonSchema.age  .write[Long]   and
   PersonSchema.birth.write[java.util.Date]
 )(unlift(Person.unapply))
 
