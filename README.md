@@ -4,7 +4,7 @@ Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) 
 
 # <a name="philosophy">Philosophy in a very nutshell</a>
 
-## <a name="philosophy-embrace">Embrace Datomic principles without compromising it</a>
+## <a name="philosophy-embrace">Embrace Datomic principles without compromising</a>
 Datomisca is a very thin layer around Java API but we aim at exposing Datomic Clojure functionalities as directly as possible without compromising their essential purpose.
 
 
