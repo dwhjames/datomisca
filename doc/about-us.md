@@ -5,12 +5,12 @@ title: About Us
 
 # About Us
 
-Datomisca project was sponsored by [Pellucid Analytics](http://www.pellucidanalytics.com) and developed by [Zenexity](http://www.zenexity.com).
+The Datomisca project is sponsored by [Pellucid Analytics](http://www.pellucidanalytics.com) and developed by [Zenexity](http://www.zenexity.com).
 
-The project was developed by:
+The project is developed by:
 
-- Pascal Voitot ([@mandubian](https://twitter.com/mandubian)) from Zenexity as Lead Dev & API Architect & Eternal "API rewritter" until release
-- Daniel James from Pellucid as Dev & External Advisor to bring fresh air in the machine
+- Pascal Voitot ([@mandubian](https://twitter.com/mandubian)) from Zenexity as Lead Dev & API Architect & Eternal "API rewriter" until release
+- Daniel James from Pellucid as Dev & External Advisor to bring fresh air into the machine
 
 And supervised by:
 
