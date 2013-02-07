@@ -109,22 +109,34 @@ object Person {
   }      
 
   // Attributes
-  val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
-  val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
-  val birth = Attribute( person / "birth", SchemaType.instant, Cardinality.one).withDoc("Person's birth date")
-  val characters =  Attribute( person / "characters", SchemaType.ref, Cardinality.many).withDoc("Person's characterS")
+  val name = Attribute(
+    person / "name",
+    SchemaType.string,
+    Cardinality.one).withDoc("Person's name")
+  val age = Attribute(
+    person / "age",
+    SchemaType.long,
+    Cardinality.one).withDoc("Person's name")
+  val birth = Attribute(
+    person / "birth",
+    SchemaType.instant,
+    Cardinality.one).withDoc("Person's birth date")
+  val characters = Attribute(
+    person / "characters",
+    SchemaType.ref,
+    Cardinality.many).withDoc("Person's characters")
 
   // Characters enumerated values
   val violent = AddIdent(person.character / "violent")
-  val weak = AddIdent(person.character / "weak")
-  val clever = AddIdent(person.character / "clever")
-  val dumb = AddIdent(person.character / "dumb")
-  val stupid = AddIdent(person.character / "stupid")
+  val weak    = AddIdent(person.character / "weak")
+  val clever  = AddIdent(person.character / "clever")
+  val dumb    = AddIdent(person.character / "dumb")
+  val stupid  = AddIdent(person.character / "stupid")
 
   // Schema
   val schema = Seq(
-    name, age, birth, characters,
-    violent, weak, clever, dumb, stupid
+    name, age, birth, characters, // attributes
+    violent, weak, clever, dumb, stupid // idents
   )
 
 }
@@ -157,7 +169,7 @@ As as you can see, it just accepts operations and returns a `Future[TxReport]`.
 So let's insert our schema into Datomic:
 
 ```scala
-Datomic.transact(Person.schema).flatMap{ tx =>
+Datomic.transact(Person.schema) flatMap { tx =>
   ...
   // do something
   ...
@@ -226,7 +238,7 @@ Adding an entity is just like adding the schema as both are operations.
 
 ```scala
 // creates an entity
-Datomic.transact(john).map{ tx =>
+Datomic.transact(john) map { tx =>
   val realJohnId = tx.resolve(johnId)
   ...
   // Do something else
@@ -290,7 +302,7 @@ According to the input query, the compiler has infered that there should be 2 ou
 Thus, `results` is a `List[(DatomicData, DatomicData)]`.
 
 ```scala
-results.headOption.map{ 
+results.headOption map { 
   case (e: DLong, age: DLong) =>
     ...
     // do something
@@ -309,10 +321,12 @@ With the previous query, we are retrieved `e` which is an entity ID and now we c
 ```scala
 val entity: DEntity = database.entity(e)
 
-val johnName = entity.as[String](Person.person / "name")
-val johnAge = entity.as[Long](Person.person / "age")   
-valbo johnBirth = entity.as[java.util.Date](Person.person / "birth")   
-val johnCharacters = entity.as[Set[DRef]](Person.person / "characters") 
+val (johnName, johnAge, johnBirth, johnCharacters) = (
+  entity.as[String]        (Person.person / "name"),
+  entity.as[Long]          (Person.person / "age"),
+  entity.as[java.util.Date](Person.person / "birth"),
+  entity.as[Set[DRef]]     (Person.person / "characters")
+)
 ```
 
 Please note:
