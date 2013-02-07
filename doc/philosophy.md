@@ -5,8 +5,8 @@ title: Philosophy
 
 # <a name="philosophy">Philosophy</a>
 
-## <a name="philosophy-embrace">Embrace Datomic principles without compromising</a>
-Datomisca is a very thin layer around Java API but we aim at exposing Datomic Clojure functionalities as directly as possible without compromising their essential purpose.
+## <a name="philosophy-embrace">Datomic principles, without compromise</a>
+Datomisca is a thin layer around Datomic aimed at exposing Datomic functionalities and leveraging its full power.
 
 Datomic features we really love are:
 
@@ -27,14 +27,14 @@ In our design, we are also deeply aware of the architecture of Datomic:
 
 
 <br/>
-## <a name="philosophy-enhance">Enhance Datomic features with Scala flavors</a>
+## <a name="philosophy-enhance">Datomic features with a Scala flavor</a>
 
-When meaningful, we enhance Datomic features with Scala specific patterns such as:
+Datomisca uses Scala concepts to enhance Datomic experience for Scala developers:
 
 - Type-safety, 
 - Asynchronism & non-blocking patterns, 
-- Functional programming
-- Compile-time enhancement with Scala 2.10 Macro
+- Advanced Functional programming
+- Scala 2.10 Macros Compile-time enhancement
 
 Datomic Java API is also quite poor in terms of typing because it tends to return `List[List[Object]]`. In Datomisca, we provide tools to convert those too generic types into Scala generic typers.
 
