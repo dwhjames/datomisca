@@ -16,7 +16,7 @@ Here is a very simple sample to begin with Datomisca.
 You can find this sample in Datomic Github Samples [Getting-Started](https://github.com/pellucidanalytics/datomisca/tree/master/samples/getting-started)
 
 
-## 1# Add resolvers to SBT
+## #1 Add resolvers to SBT
 
 You can add that in your `build.sbt` or `Build.scala depending on your choice.
 
@@ -29,7 +29,7 @@ resolvers ++= Seq(
 )
 ```
 
-## 2# Add dependencies
+## #2 Add dependencies
 
 ```scala
 libraryDependencies ++= Seq(
@@ -38,7 +38,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-## 3# Default import
+## #3 Default import
 
 You could be more precise but following imports ensure you have everything required in your scope including a few required implicits.
 
@@ -48,7 +48,7 @@ import Datomic._
 ```
 
 
-## 4# Create Datomic implicit connection
+## #4 Create Datomic implicit connection
 
 To use Datomisca facilities, you need an implicit connection to Datomic in your scope.
 
@@ -68,7 +68,7 @@ Please note that having an implicit connection in your scope also provides you w
 implicit def database(implicit conn: Connection): DDatabase
 ```
 
-## 5# Create Datomic DB
+## #5 Create Datomic DB
 
 We start from scratch so let's first create a DB.
 
@@ -77,7 +77,7 @@ We start from scratch so let's first create a DB.
 Datomic.createDatabase(uri)
 ```
 
-## 6# Create Schema in Datomisca way
+## #6 Create Schema in Datomisca way
 
 Datomisca allows to define your Schema in a programmatic way.
 
@@ -150,7 +150,7 @@ Please note that :
  - Schema is just a `Seq[Operation]`
  - Person is just a way to gather Schema information but it has no real existence outside this.
 
-## 7# Provision your schema into Datomic
+## #7 Provision your schema into Datomic
 
 Hey, we have a schema, now let's insert it into Datomic.
 This is our 1st operation using Datomic transactor and as you may know, Datomisca manages transactor's communication in an asynchronous and non-blocking way based on Scala 2.10 Execution Context.
@@ -178,7 +178,7 @@ Datomic.transact(Person.schema) flatMap { tx =>
 
 > We use `flatMap` because we expect to perform other transactions returning other Future so we will compose them.
 
-## 8# Create your 1st entity
+## #8 Create your 1st entity
 
 All atomic fact operations creation helpers are available in 
 ```scala
@@ -232,7 +232,7 @@ Please note:
 - `Person.person / "name"       -> "John"` is in fact `Keyword -> DatomicData` so it should be `DString("John")` but Datomisca provides a clean implicit conversion for that.
 - `Entity.add` is just a helper to create an operation adding several facts associated with the same DId
 
-## 8# Provision your entity into Datomic
+## #9 Provision your entity into Datomic
 
 Adding an entity is just like adding the schema as both are operations. 
 
@@ -254,7 +254,7 @@ Please note:
 val (realId1, realId2, realId3) = tx.resolve(id1, id2, id3)
 ```
 
-## 9# Write your first query
+## #10 Write your first query
 
 So now that we have an entity in our DB, let's try to query it.
 
@@ -279,7 +279,7 @@ Please note:
 - `$` identifies the database as an input data source
 - `?name` is our "by name" input parameter
 
-## 10# Execute your first query
+## #11 Execute your first query
 
 You just execute by calling `Datomic.q` on your query with the right input parameters.
 
@@ -294,7 +294,7 @@ Please note:
 - `Datomic.q` expects a query and the right number of input parameters according to your query (here 2)
 - `database` is the implicit database and we force you to give it explicitly because in Datomic, this is also mandatory and we want to respect Datomic choices.
 
-## 11# Use query result
+## #12 Use query result
 
 After executing previous query, you retrieve `results`.  
 According to the input query, the compiler has infered that there should be 2 output parameters. 
@@ -314,7 +314,7 @@ Please note:
 - Note that results is a `List[(DatomicData, DatomicData)]` and not `List[(DLong, DLong)]` as you would expect. Why? Because with the info provided in the query, it's impossible to infer those types directly. In the roadmap, we foresee to provide type-safety for output parameters using Datomic Schema. And maybe we could almost deduce it should be a `List[(Long, Long)]`... Be patient ;)
 - if you don't give the right number of output parameters in the `case`, you should have a compiling error such as:
 
-## 11# Use query result
+## #13 Use query result
 
 With the previous query, we are retrieved `e` which is an entity ID and now we could get the entity from Datomic directly and then inspect entity fields.
 
@@ -334,7 +334,7 @@ Please note:
 - `DEntity` provides lots of helpers to access entity fields and convert them into Scala types. For more info, go in [DEntity ScalaDoc](/api/scaladoc/#datomisca.DEntity)
 
 
-## 12# Awaiting result
+## #14 Awaiting result
 
 In this sample, we run the code in a pure ScalaApp.  
 So as transactions are async/non-blocking, we must wait for results at the end of execution to be sure everything was OK.
@@ -343,7 +343,7 @@ So as transactions are async/non-blocking, we must wait for results at the end o
 Await.result(res, Duration("2 seconds"))
 ```
 
-## 13# Using Datomisca in SBT environment
+## #15 Using Datomisca in SBT environment
 
 When using Future in Scala, you need to provide an ExecutionContext representing the pool of threads on which your async request is going to be executed. This allows to provide non-blocking behavior.  
 But there is a weird behavior when running Datomisca in SBT console: the 1st time it runs perfectly, the 2nd time it fails with horrible Datomic exceptions "class not found in cache". This is linked to the way SBT manages classloaders and ExecutionContex apparently. 
@@ -362,7 +362,7 @@ Hopefully, Datomisca provides its own Execution Context helper and provides an `
 ```
 
 
-## 14# And much more
+## #16 And much more
 
 You can also:
 
