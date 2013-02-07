@@ -15,6 +15,6 @@ The project was developed by:
 And supervised by:
 
 - Dustin Whitney ([@dustinwhitney](https://twitter.com/dustinwhitney)) from Pellucid as coordinator
-- Daniel James ([@sadache](https://twitter.com/sadache)) from Zenexity as father of the project & wise Functional Philosopher
+- Sadek Drobi ([@sadache](https://twitter.com/sadache)) from Zenexity as father of the project & wise Functional Philosopher
 
 
