@@ -1,4 +1,4 @@
-# Datomisca, a Non-Blocking & Scala-ish driver for [Datomic](http://www.datomic.com)
+# [Datomisca](http://pellucidanalytics.github.com/datomisca), a Non-Blocking & Scala-ish driver for [Datomic](http://www.datomic.com)
 
 Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of project & features, getting started & samples!
 
