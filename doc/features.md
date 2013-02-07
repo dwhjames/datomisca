@@ -5,7 +5,7 @@ title: Features
 
 # <a name="features">Raw API Features</a>
 
-## <a name="features-reactive">Reactive Transactor API (Asynchronous &amp; Non-Blocking with potential execution isolation)</a>
+## <a name="features-reactive">Reactive transactions (Asynchronous &amp; Non-Blocking with potential execution isolation)</a>
 Using Scala 2.10 Execution Contexts &amp; Futures, Datomic transactions are executed by Datomisca in an asynchronous & non-blocking way managed by the provided execution context. In this way, you can control in which pool of threads you want to execute your transactor requests (communicating with remote Datomic transactor).
 
 ```scala
@@ -19,7 +19,7 @@ Datomic.transact(
 ```
 
 <br/>
-## <a name="features-scalatypes">Datomic/Clojure to Scala types conversion</a>
+## <a name="features-scalatypes">Conversion between Datomic/Clojure and Scala types</a>
 
 When Datomic entities are created or accessed, Datomic types (ie Clojure types) are retrieved. From Java API, all those types are seen as `Object` which is not really useful. So you could end into using `.asInstanceOf[T]` everywhere. Hopefully, Datomisca provides some conversion from/to Datomic types.
 
@@ -83,7 +83,7 @@ _In the future, based on type-safe Schema presented below, we will also be able 
 
 
 <br/>
-## <a name="features-staticqueries">Query as static reusable structures</a>
+## <a name="features-staticqueries">Queries as static reusable structures</a>
 
 This is a very important idea in Datomic: **a query is a static structure** which can be built once and reused as many times as you want.
 
@@ -105,7 +105,7 @@ Datomic.q( query, database, DRef(person.character/clever) ) map {
 }
 ```
 <br/>
-## <a name="features-ops">Programmatic Datomic operations</a>
+## <a name="features-ops">Build transaction data programmatically</a>
 
 You can build your operations `add` / `retract` / `addEntity` / `retractEntity` operations in a programmatic way.
 
@@ -129,7 +129,7 @@ Datomic.transact(
 }
 ```
 <br/>
-## <a name="features-schema">Static-typed &amp; programmatic Schema definition API</a>
+## <a name="features-schema">Build schemas programmatically</a>
 
 Schema is one of the remarkable specific features of Datomic : schema attributes contrain the type and cardinality of field of Datomic entities. 
 
@@ -187,7 +187,7 @@ Datomic.transact(schema) map { tx =>
 ```
 
 <br/>
-## <a name="features-dtm-parsing">Datomic DTM files runtime parsing</a>
+## <a name="features-dtm-parsing">Parse Datomic DTM files at runtime</a>
 
 If you wrote your schema in a DTM file for example, you can load and parse it at runtime.
 
