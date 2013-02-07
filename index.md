@@ -24,7 +24,6 @@ Datomisca uses Scala concepts to enhance Datomic experience for Scala developers
 <br/>
 ## Features of the API
 
-<<<<<<< HEAD
 #### <a href="doc/features.html#features-reactive" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font-small">Reactive transactions (asynchronous & non-blocking)</span></span></a>
 
 #### <a href="doc/features.html#features-scalatypes" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font-small">Conversion between Datomic/Clojure and Scala types</span></span></a>
