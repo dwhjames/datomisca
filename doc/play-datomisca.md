@@ -5,8 +5,8 @@ title: Play Datomisca
 
 # Play Datomisca
 
-[Play Datomisca](https://github.com/pellucidanalytics/play-datomisca) is a module for [Play Framework](http://www.playframework.org) which allows using Datomisca in Play in a seamless way.
+[Play Datomisca](https://github.com/pellucidanalytics/play-datomisca) is a module for [Play Framework](http://www.playframework.org) that enables you to use Datomisca from within Play in a seamless way.
 
-For now, it's quite raw not providing much more on top of Datomisca but more features should be added progressively to configure Datomic for ex.
+For now, it’s quite raw and doesn’t provide much on top of Datomisca, but more features will be progressively added, such as help to configure Datomic.
 
-> Play Datomisca is on Github [there](https://github.com/pellucidanalytics/play-datomisca)
+> Play Datomisca is available on GitHub [here](https://github.com/pellucidanalytics/play-datomisca)
