@@ -1,6 +1,6 @@
 # [Datomisca](http://pellucidanalytics.github.com/datomisca), Use Datomic in the Scala Way
 
-### A Non-Blocking & Scala-ish driver for [Datomic](http://www.datomic.com)
+### _A Non-Blocking & Scala-ish driver for [Datomic](http://www.datomic.com)_
 
 Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of project & features, getting started & samples!
 
