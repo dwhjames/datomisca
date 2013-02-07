@@ -16,6 +16,4 @@ resolvers ++= Seq(
 libraryDependencies ++= Seq(
   "pellucidanalytics" %% "datomisca" % "0.1-SNAPSHOT",
   "com.datomic" % "datomic-free" % "0.8.3789"
-    exclude("org.slf4j", "slf4j-nop") 
-    exclude("org.jboss.netty", "netty")
 )

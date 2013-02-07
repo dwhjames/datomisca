@@ -59,8 +59,10 @@ object GettingStarted {
 
     // Loads Schema
     val res = Datomic.transact(Person.schema).flatMap{ _ =>
-      // creates person entities
-      val john = Entity.add(DId(Partition.USER))(
+      // John temporary ID
+      val johnId = DId(Partition.USER)
+      // John person entity
+      val john = Entity.add(johnId)(
         Person.person / "name"       -> "John",
         Person.person / "age"        -> 35L,
         Person.person / "birth"      -> new java.util.Date(),
@@ -70,9 +72,9 @@ object GettingStarted {
 
       // creates an entity
       Datomic.transact(john).map{ tx =>
-        val johnId = tx.resolve(john)
+        val realJohnId = tx.resolve(johnId)
 
-        println(s"Real JohnId: $johnId")            
+        println(s"Real JohnId: $realJohnId")            
 
         val queryFindByName = Query("""
           [ :find ?e ?age
@@ -87,11 +89,11 @@ object GettingStarted {
         results.headOption.map{ 
           case (e: DLong, age: DLong) =>
             // retrieves again the entity directly by its ID
-            val entity = database.entity(johnId)
+            val entity = database.entity(e)
 
             val johnName = entity.as[String](Person.person / "name")
             val johnAge = entity.as[Long](Person.person / "age")   
-            val johnBirth = entity.as[java.util.Date](Person.person / "birth")   
+            valbo johnBirth = entity.as[java.util.Date](Person.person / "birth")   
             val johnCharacters = entity.as[Set[DRef]](Person.person / "characters") 
 
             println(s"john: $johnName $johnAge $johnBirth $johnCharacters")            
