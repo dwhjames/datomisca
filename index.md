@@ -10,16 +10,16 @@ title: Datomisca by Pellucid & Zenexity
 ## The philosophy of Datomisca in a nutshell
 
 ### <a href="doc/philosophy.html#philosophy-embrace" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font">Datomic principles, without compromise</span></span></a>
-Datomisca is a thin layer around Datomic aimed at exposing Datomic functionalities and leveraging its full power.
+Datomisca is a thin layer around Datomic aimed at exposing Datomic’s functionality and leveraging its full power.
 
 ### <a href="doc/philosophy.html#philosophy-enhance" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font">Datomic features with a Scala flavor</span></span></a>
 
-Datomisca uses Scala concepts to enhance Datomic experience for Scala developers:
+Datomisca uses Scala features to enhance the Datomic experience for Scala developers:
 
-- Type-safety
-- Asynchronism & non-blocking patterns 
-- Advanced Functional programming
-- Scala 2.10 Macros Compile-time enhancement
+- Type safety
+- Asynchronicity & non-blocking patterns
+- Advanced functional programming
+- Compile-time enhancement with Scala 2.10 macros
 
 <br/>
 ## Features of the API
