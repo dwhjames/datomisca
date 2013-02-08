@@ -1,8 +1,8 @@
-# [Datomisca](http://pellucidanalytics.github.com/datomisca), Use Datomic in the Scala Way
+# [Datomisca](http://pellucidanalytics.github.com/datomisca), embrace Datomic the Scala way
 
 ### _A Scala API for [Datomic](http://www.datomic.com)_
 
-Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of the project and its features, as well as a guide for getting started and samples!
+Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of the project and its [features](http://pellucidanalytics.github.com/datomisca/doc/features.html), as well as a guide for [getting started](http://pellucidanalytics.github.com/datomisca/doc/getstarted.html) and samples!
 
 ## <a name="philosophy">The philosophy of Datomisca in a nutshell</a>
 
