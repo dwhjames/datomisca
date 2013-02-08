@@ -2,21 +2,21 @@
 
 ### _A Scala API for [Datomic](http://www.datomic.com)_
 
-Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of project & features, getting started & samples!
+Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of the project and its features, as well as a guide for getting started and samples!
 
-## <a name="philosophy">Philosophy in a very nutshell</a>
+## <a name="philosophy">The philosophy of Datomisca in a nutshell</a>
 
-### <a name="philosophy-embrace">Embrace Datomic principles without compromising</a>
-Datomisca is a very thin layer around Java API but we aim at exposing Datomic Clojure functionalities as directly as possible without compromising their essential purpose.
+### <a name="philosophy-embrace">Datomic principles, without compromise</a>
+Datomisca is a thin layer around Datomic aimed at exposing Datomic’s functionality and leveraging its full power.
 
 
 <br/>
-### <a name="philosophy-enhance">Enhance Datomic features with Scala flavors</a>
+### <a name="philosophy-enhance">Datomic features with a Scala flavor</a>
 
-When meaningful, we enhance Datomic features with Scala specific patterns such as:
+Datomisca uses Scala concepts to enhance the Datomic experience for Scala developers:
 
-- Type-safety, 
-- Asynchronism & non-blocking patterns, 
+- Type safety, 
+- Asynchronicity & non-blocking patterns, 
 - Functional programming
-- Compile-time enhancement with Scala 2.10 Macro
+- Compile-time enhancement with Scala 2.10 macros
 
