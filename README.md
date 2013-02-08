@@ -9,14 +9,12 @@ Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) 
 ### <a name="philosophy-embrace">Datomic principles, without compromise</a>
 Datomisca is a thin layer around Datomic aimed at exposing Datomic’s functionality and leveraging its full power.
 
-
-<br/>
 ### <a name="philosophy-enhance">Datomic features with a Scala flavor</a>
 
 Datomisca uses Scala concepts to enhance the Datomic experience for Scala developers:
 
 - Type safety, 
 - Asynchronicity & non-blocking patterns, 
-- Functional programming
+- Advanced functional programming
 - Compile-time enhancement with Scala 2.10 macros
 
