@@ -8,7 +8,7 @@ navigation:
   url: index.html
 - title: Philosophy
   url: doc/philosophy.html
-- title: Features in Details
+- title: Features in Detail
   url: doc/features.html
 - title: Getting Started
   url: doc/getstarted.html
