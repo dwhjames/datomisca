@@ -97,7 +97,7 @@ case class DBytes(underlying: Array[Byte]) extends DatomicData {
   def toBytes = underlying
 }
 
-case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
+case class DRef(val underlying: Either[Keyword, DId]) extends DatomicData {
   override def toString = underlying match {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
@@ -106,11 +106,37 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
     case Left(kw) => kw.toNative
     case Right(id) => id.toNative
   }
+
+  def asEither = underlying
+
+  def toId = underlying match {
+    case Right(id) => id
+    case _         => throw new DatomicException("DRef was not an Id but a Keyword")
+  }
+
+  def toKeyword = underlying match {
+    case Left(kw)  => kw
+    case _         => throw new DatomicException("DRef was not an Keyword but an DId") 
+  }
 }
 
 object DRef {
   def apply(kw: Keyword) = new DRef(Left(kw))
   def apply(id: DId) = new DRef(Right(id))
+
+  object IsKeyword {
+    def unapply(ref: DRef): Option[Keyword] = ref.underlying match {
+      case Left(kw) => Some(kw)
+      case _         => None
+    }
+  }
+
+  object IsId {
+    def unapply(ref: DRef): Option[DId] = ref.underlying match {
+      case Right(id) => Some(id)
+      case _         => None
+    }
+  }
 }
 
 trait DId extends DatomicData
@@ -139,7 +165,13 @@ object DId {
   def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
   def apply(id: Long) = new FinalId(id)
   def apply(id: DLong) = new FinalId(id.underlying)
+
+  def unapply(ref: DRef): Option[DId] = ref.underlying match {
+    case Right(id) => Some(id)
+    case _         => None
+  }
 }
+
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {
