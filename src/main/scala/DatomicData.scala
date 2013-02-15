@@ -165,11 +165,6 @@ object DId {
   def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
   def apply(id: Long) = new FinalId(id)
   def apply(id: DLong) = new FinalId(id.underlying)
-
-  def unapply(ref: DRef): Option[DId] = ref.underlying match {
-    case Right(id) => Some(id)
-    case _         => None
-  }
 }
 
 
