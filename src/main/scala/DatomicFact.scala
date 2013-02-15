@@ -16,6 +16,7 @@
 
 package datomisca
 
+import scala.language.reflectiveCalls
 import language.experimental.macros
 
 import dmacros._
