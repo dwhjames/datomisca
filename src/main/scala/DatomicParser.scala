@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.language.reflectiveCalls
+
 import scala.util.parsing.combinator.JavaTokenParsers
 import scala.util.parsing.combinator.RegexParsers
 import scala.util.parsing.input.{Positional, Reader}

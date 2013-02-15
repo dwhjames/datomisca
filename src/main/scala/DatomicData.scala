@@ -285,10 +285,10 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   def toMap: Map[Keyword, DatomicData] = {
     import scala.collection.JavaConverters._
 
-    entity.keySet.asScala.view map { x: Any =>
+    entity.keySet.asScala.view.map{ x: Any =>
       val key = x.asInstanceOf[clojure.lang.Keyword]
       (Keyword(key) -> Datomic.toDatomicData(entity.get(key)))
-    } toMap
+    }.toMap
   }
 
   /* extension with attributes */

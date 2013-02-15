@@ -16,10 +16,11 @@
 
 package datomisca
 
+import scala.language.higherKinds
+import language.experimental.macros
+
 import scala.util.{Try, Success, Failure}
 import scala.util.parsing.input.Positional
-
-import language.experimental.macros
 
 import dmacros._
 
