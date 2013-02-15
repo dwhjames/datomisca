@@ -27,7 +27,7 @@ trait DatomicInception {
     offsetLine: Int, offsetCol: Int): Int = {
     val source = pos.source
     val computedOffset = source.lineToOffset(pos.line - 1 + offsetLine - 1 )
-    val isMultiLine = source.beginsWith(pos.offset.get, "\"\"\"")
+    val isMultiLine = source.beginsWith(pos.point, "\"\"\"")
 
     val computedCol = 
       if(offsetLine > 1 && isMultiLine) (offsetCol - 1) 
