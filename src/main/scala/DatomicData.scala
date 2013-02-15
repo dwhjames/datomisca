@@ -276,14 +276,22 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     }
 
   def get(keyword: Keyword): Option[DatomicData] =
-    Try { apply(keyword) } .toOption
+    try {
+      Some(apply(keyword))
+    } catch {
+      case _: EntityKeyNotFoundException => None
+    }
 
   def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T =
     reader.read(apply(keyword))
 
   
   def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] =
-    Try { as(keyword) } .toOption
+    try {
+      Some(as(keyword))
+    } catch {
+      case _: EntityKeyNotFoundException => None
+    }
 
   def toMap: Map[Keyword, DatomicData] = {
     import scala.collection.JavaConverters._
