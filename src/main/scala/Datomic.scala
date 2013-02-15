@@ -387,9 +387,6 @@ class TempidNotResolved(id: DId)
 class UnexpectedDatomicTypeException(typeName: String)
   extends DatomicException(s"Datomic Error: unresolved datomic type $typeName")
 
-class EmptyEntityException
-  extends DatomicException("The entity is empty")
-
 class EntityKeyNotFoundException(keyword: Keyword)
   extends DatomicException(s"The keyword $keyword not found in the entity")
 
