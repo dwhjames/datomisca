@@ -21,18 +21,14 @@ import scala.concurrent.Future
 
 
 case class TxReport(
-  dbBefore: DDatabase, 
-  dbAfter: DDatabase, 
-  txData: Seq[DDatom] = Seq(), 
-  tempids: Map[Long with datomic.db.DbId, Long] = Map()
+  dbBefore: DDatabase,
+  dbAfter:  DDatabase,
+  txData:   Seq[DDatom],
+  tempids:  AnyRef
 ) extends TxReportHidden {
 
-  override def resolve(id: DId)(implicit db: DDatabase): DLong = 
-    tempids.get(db.underlying.entid(id.toNative)
-           .asInstanceOf[Long with datomic.db.DbId]) match {
-      case Some(l)  => DLong(l)
-      case None     => throw new TempidNotResolved(id)
-    }
+  override def resolve(id: DId)(implicit db: DDatabase): DLong =
+    resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
   
   def resolve(identified: Identified)(implicit db: DDatabase): DLong = 
     resolve(identified.id)
@@ -40,8 +36,12 @@ case class TxReport(
   def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[DLong] = 
     ids map { resolve(_) }
 
-  def resolveOpt(id: DId)(implicit db: DDatabase): Option[DLong] = 
-    tempids.get(db.underlying.entid(id.toNative).asInstanceOf[Long with datomic.db.DbId]).map( DLong(_) )
+  def resolveOpt(id: DId)(implicit db: DDatabase): Option[DLong] =
+    Option {
+      datomic.Peer.resolveTempid(db.underlying, tempids, id.toNative)
+    } map { id =>
+      DLong(id.asInstanceOf[Long])
+    }
   
   def resolveOpt(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[DLong]] = 
     ids map { resolveOpt(_) }
