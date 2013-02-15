@@ -167,9 +167,9 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
   def since(date: DInstant): DDatabase = since(date.underlying)
 
-  def entid(e: Long): DId = DId(underlying.entid(e).asInstanceOf[Long])
-  def entid(e: DLong): DId = entid(e.underlying)
-  def entid(kw: Keyword): DId = DId(underlying.entid(kw.toNative).asInstanceOf[Long])
+  def entid(e: Long):     DLong = DLong(underlying.entid(e).asInstanceOf[Long])
+  def entid(e: DLong):    DLong = entid(e.underlying)
+  def entid(kw: Keyword): DLong = DLong(underlying.entid(kw.toNative).asInstanceOf[Long])
 
   def ident(e: Integer): Keyword = Keyword(underlying.ident(e).asInstanceOf[clojure.lang.Keyword])
   def ident(kw: Keyword): Keyword = Keyword(underlying.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
