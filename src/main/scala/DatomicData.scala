@@ -122,7 +122,9 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
 
 object DRef {
   def apply(kw: Keyword) = new DRef(Left(kw))
-  def apply(id: DId) = new DRef(Right(id))
+  def apply(id: DId)     = new DRef(Right(id))
+  def apply(id: DLong)   = new DRef(Right(DId(id)))
+  def apply(id: Long)    = new DRef(Right(DId(id)))
 
   object IsKeyword {
     def unapply(ref: DRef): Option[Keyword] = ref.underlying match {
