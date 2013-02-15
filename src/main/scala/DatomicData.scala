@@ -176,22 +176,12 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
   def withData(ops: Seq[Operation]) = {
     import scala.collection.JavaConverters._
-    import scala.collection.JavaConversions._
 
     val datomicOps = ops.map( _.toNative ).toList.asJava
 
     val javaMap: java.util.Map[_, _] = underlying.`with`(datomicOps)
-    
-    val m: Map[Any, Any] = javaMap.toMap.map( t => (t._1.toString, t._2) ) 
 
-    val opt = for( 
-      dbBefore <- m.get(datomic.Connection.DB_BEFORE.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None);
-      dbAfter <- m.get(datomic.Connection.DB_AFTER.toString).asInstanceOf[Option[datomic.db.Db]].map( DDatabase(_) ).orElse(None);
-      txData <- m.get(datomic.Connection.TX_DATA.toString).asInstanceOf[Option[java.util.List[datomic.Datom]]].orElse(None);
-      tempids <- m.get(datomic.Connection.TEMPIDS.toString).asInstanceOf[Option[java.util.Map[Long with datomic.db.DbId, Long]]].orElse(None)
-    ) yield TxReport(dbBefore, dbAfter, txData.map(DDatom(_)(this)).toSeq, tempids.toMap)
-  
-    opt.get
+    Utils.toTxReport(javaMap)(this)
   }
 
   def filter(filterFn: (DDatabase, DDatom) => Boolean): DDatabase = {
