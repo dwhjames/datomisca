@@ -261,12 +261,15 @@ object DDatabase {
 class DEntity(val entity: datomic.Entity) extends DatomicData {
   def toNative = entity
 
-  def touch() = new DEntity(entity.touch())
+  def id: DLong = as[DLong](Namespace.DB / "id")
+
+  def touch() = {
+    entity.touch()
+    this
+  }
 
   def apply(keyword: Keyword): DatomicData =
-    if (entity.keySet.isEmpty)
-      throw new EmptyEntityException
-    else Option {
+    Option {
       entity.get(keyword.toNative)
     } match {
       case None => throw new EntityKeyNotFoundException(keyword)
@@ -274,14 +277,22 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     }
 
   def get(keyword: Keyword): Option[DatomicData] =
-    Try { apply(keyword) } .toOption
+    try {
+      Some(apply(keyword))
+    } catch {
+      case _: EntityKeyNotFoundException => None
+    }
 
   def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T =
     reader.read(apply(keyword))
 
   
   def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] =
-    Try { as(keyword) } .toOption
+    try {
+      Some(as(keyword))
+    } catch {
+      case _: EntityKeyNotFoundException => None
+    }
 
   def toMap: Map[Keyword, DatomicData] = {
     import scala.collection.JavaConverters._
