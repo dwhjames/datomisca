@@ -106,11 +106,39 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
     case Left(kw) => kw.toNative
     case Right(id) => id.toNative
   }
+
+  def asEither = underlying
+
+  def toId = underlying match {
+    case Right(id) => id
+    case _         => throw new DatomicException("DRef was not an Id but a Keyword")
+  }
+
+  def toKeyword = underlying match {
+    case Left(kw)  => kw
+    case _         => throw new DatomicException("DRef was not an Keyword but an DId") 
+  }
 }
 
 object DRef {
   def apply(kw: Keyword) = new DRef(Left(kw))
-  def apply(id: DId) = new DRef(Right(id))
+  def apply(id: DId)     = new DRef(Right(id))
+  def apply(id: DLong)   = new DRef(Right(DId(id)))
+  def apply(id: Long)    = new DRef(Right(DId(id)))
+
+  object IsKeyword {
+    def unapply(ref: DRef): Option[Keyword] = ref.underlying match {
+      case Left(kw) => Some(kw)
+      case _         => None
+    }
+  }
+
+  object IsId {
+    def unapply(ref: DRef): Option[DId] = ref.underlying match {
+      case Right(id) => Some(id)
+      case _         => None
+    }
+  }
 }
 
 trait DId extends DatomicData
@@ -140,6 +168,7 @@ object DId {
   def apply(id: Long) = new FinalId(id)
   def apply(id: DLong) = new FinalId(id.underlying)
 }
+
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {

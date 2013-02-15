@@ -106,8 +106,8 @@ object DatomicParser extends JavaTokenParsers {
 
   def partition: Parser[Partition] = keyword ^? { case kw @ Keyword(name, Some(Namespace.DB.PART)) => Partition(kw) }
   def dref: Parser[DRef] = (keyword | did) ^? {
-    case kw: Keyword => DRef(Left(kw))
-    case did: DId => DRef(Right(did))
+    case kw: Keyword => DRef(kw)
+    case did: DId => DRef(did)
   }
 
   def dset: Parser[DSet] = "[" ~> rep(datomicData) <~ "]" ^^ { l => DSet(l.toSet) }
@@ -247,7 +247,7 @@ object DatomicParser extends JavaTokenParsers {
   }
 
   def drefRestrictedKeyword: Parser[DRef] = keyword ^^ {
-    case kw: Keyword => DRef(Left(kw))
+    case kw: Keyword => DRef(kw)
   }
 
   def fact: Parser[Fact] = did ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
