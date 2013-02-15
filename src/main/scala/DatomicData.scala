@@ -262,7 +262,10 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def id: DLong = as[DLong](Namespace.DB / "id")
 
-  def touch() = new DEntity(entity.touch())
+  def touch() = {
+    entity.touch()
+    this
+  }
 
   def apply(keyword: Keyword): DatomicData =
     if (entity.keySet.isEmpty)
