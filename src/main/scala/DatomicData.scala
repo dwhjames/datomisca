@@ -268,9 +268,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   }
 
   def apply(keyword: Keyword): DatomicData =
-    if (entity.keySet.isEmpty)
-      throw new EmptyEntityException
-    else Option {
+    Option {
       entity.get(keyword.toNative)
     } match {
       case None => throw new EntityKeyNotFoundException(keyword)
