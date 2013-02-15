@@ -97,7 +97,7 @@ case class DBytes(underlying: Array[Byte]) extends DatomicData {
   def toBytes = underlying
 }
 
-case class DRef(val underlying: Either[Keyword, DId]) extends DatomicData {
+case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
   override def toString = underlying match {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
