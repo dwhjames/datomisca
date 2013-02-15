@@ -31,11 +31,13 @@ case class DString(underlying: String) extends DatomicData {
 case class DBoolean(underlying: Boolean) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Boolean
+  def toBoolean = underlying
 }
 
 case class DLong(underlying: Long) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Long
+  def toLong = underlying
 }
 
 /** hidden structure just to be able to manipulate Int but should not be used directly by users 
@@ -44,46 +46,55 @@ case class DLong(underlying: Long) extends DatomicData {
 private[datomisca] case class DInt(underlying: Int) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Integer
+  def toInt = underlying
 }
 
 case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Float
+  def toFloat = underlying
 }
 
 case class DDouble(underlying: Double) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Double
+  def toDouble = underlying
 }
 
 case class DBigInt(underlying: BigInt) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying.underlying
+  def toBigInt = underlying
 }
 
 case class DBigDec(underlying: BigDecimal) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying.underlying
+  def toBigDecimal = underlying
 }
 
 case class DInstant(underlying: java.util.Date) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
+  def toDate = underlying
 }
 
 case class DUuid(underlying: java.util.UUID) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
+  def toUUID = underlying
 }
 
 case class DUri(underlying: java.net.URI) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
+  def toURI = underlying
 }
 
 case class DBytes(underlying: Array[Byte]) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: AnyRef
+  def toBytes = underlying
 }
 
 case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
