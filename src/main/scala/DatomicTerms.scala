@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.language.reflectiveCalls
+
 import scala.util.parsing.input.Positional
 
 

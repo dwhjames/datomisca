@@ -34,7 +34,11 @@ object ApplicationBuild extends Build {
     settings = BuildSettings.buildSettings ++ Seq(
       //logLevel := Level.Debug,
       //ivyLoggingLevel := UpdateLogging.Full,
-      //scalacOptions ++= Seq("-Xlog-implicits"),
+      scalacOptions ++= Seq(
+        //"-Xlog-implicits",
+        //"-deprecation",
+        //"-feature"
+      ),
       fork in Test := true,
       //parallelExecution in Test := false,
       //javaOptions in test += "-Xmx512M -Xmx512m -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=1024M",

@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.language.reflectiveCalls
+
 trait SchemaType[DD <: DatomicData] {
   def keyword: Keyword
 }

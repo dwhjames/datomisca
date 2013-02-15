@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.language.implicitConversions
+
 import scala.util.{Try, Success, Failure}
 
 case class Ref[T](ref: T, id: DId) {

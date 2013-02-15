@@ -1,4 +1,7 @@
 import datomisca._
+
+import scala.language.reflectiveCalls
+
 import scala.concurrent._
 import scala.concurrent.util._
 import scala.concurrent.duration._

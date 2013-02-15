@@ -16,6 +16,9 @@
 
 package datomisca
 
+import scala.language.higherKinds
+import scala.language.implicitConversions
+
 import datomic.ListenableFuture
 
 import scala.concurrent.{Future, Promise, ExecutionContext}
