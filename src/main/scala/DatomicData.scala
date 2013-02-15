@@ -260,6 +260,8 @@ object DDatabase {
 class DEntity(val entity: datomic.Entity) extends DatomicData {
   def toNative = entity
 
+  def id: DLong = as[DLong](Namespace.DB / "id")
+
   def touch() = new DEntity(entity.touch())
 
   def apply(keyword: Keyword): DatomicData =
