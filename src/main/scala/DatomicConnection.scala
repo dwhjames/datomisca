@@ -27,23 +27,23 @@ case class TxReport(
   tempids:  AnyRef
 ) extends TxReportHidden {
 
-  override def resolve(id: DId)(implicit db: DDatabase): DLong =
+  override def resolve(id: DId)(implicit db: DDatabase): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
   
-  def resolve(identified: Identified)(implicit db: DDatabase): DLong = 
+  def resolve(identified: Identified)(implicit db: DDatabase): Long =
     resolve(identified.id)
 
-  def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[DLong] = 
+  def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[Long] =
     ids map { resolve(_) }
 
-  def resolveOpt(id: DId)(implicit db: DDatabase): Option[DLong] =
+  def resolveOpt(id: DId)(implicit db: DDatabase): Option[Long] =
     Option {
       datomic.Peer.resolveTempid(db.underlying, tempids, id.toNative)
     } map { id =>
-      DLong(id.asInstanceOf[Long])
+      id.asInstanceOf[Long]
     }
   
-  def resolveOpt(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[DLong]] = 
+  def resolveOpt(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
 }
 
