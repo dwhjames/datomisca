@@ -71,7 +71,7 @@ object Utils {
     import datomic.Connection._
     import datomic.db.Db
 
-    TxReport(
+    new TxReport(
       dbBefore = DDatabase(
           javaMap.get(DB_BEFORE).asInstanceOf[Db]
         ),

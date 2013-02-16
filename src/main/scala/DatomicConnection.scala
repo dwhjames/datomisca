@@ -20,11 +20,11 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 
-case class TxReport(
-  dbBefore: DDatabase,
-  dbAfter:  DDatabase,
-  txData:   Seq[DDatom],
-  tempids:  AnyRef
+class TxReport(
+  val dbBefore: DDatabase,
+  val dbAfter:  DDatabase,
+  val txData:   Seq[DDatom],
+  private val tempids: AnyRef
 ) extends TxReportHidden {
 
   override def resolve(id: DId)(implicit db: DDatabase): DLong =
