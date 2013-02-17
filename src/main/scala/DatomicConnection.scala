@@ -20,12 +20,11 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 
-case class TxReport(
-  dbBefore: DDatabase,
-  dbAfter:  DDatabase,
-  txData:   Seq[DDatom],
-  tempids:  AnyRef
-) extends TxReportHidden {
+trait TxReport extends TxReportHidden {
+  val dbBefore: DDatabase
+  val dbAfter:  DDatabase
+  val txData:   Seq[DDatom]
+  protected val tempids: AnyRef
 
   override def resolve(id: DId)(implicit db: DDatabase): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
