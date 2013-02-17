@@ -4,27 +4,11 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
-import datomic.Entity
-import datomic.Connection
-import datomic.Database
-import datomic.Peer
-import datomic.Util
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-
-import java.io.Reader
-import java.io.FileReader
-
 import scala.concurrent._
-import scala.concurrent.util._
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
 
 import datomisca._
 import Datomic._
-import DatomicDataImplicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -36,7 +20,7 @@ class DatomicQuery2Spec extends Specification {
   val person = Namespace("person")
 
   def startDB = {
-    println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))
+    println(s"created DB with uri $uri: ${createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
     
@@ -68,10 +52,10 @@ class DatomicQuery2Spec extends Specification {
         query, 
         database, 
         DRef(KW(":person.character/violent"))
-      ).map {
+      ) map {
         case (DLong(e), DString(n)) => 
           val entity = database.entity(e)
-          println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
+          println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
       
       success
@@ -85,11 +69,10 @@ class DatomicQuery2Spec extends Specification {
         [:find ?e :where [?e :person/name]]
       """)
 
-      Datomic.q(q).map{
+      Datomic.q(q) map {
         case DLong(e) => 
           val entity = database.entity(e)
-          println("2 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
-        case _ => failure("unexpected result")
+          println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
 
       success
@@ -105,11 +88,10 @@ class DatomicQuery2Spec extends Specification {
          :in $ [?names ...] 
          :where [?e :person/name ?names]
         ]
-      """), database, DSet(DString("toto"), DString("tata"))).map{
+      """), database, DSet(DString("toto"), DString("tata"))) map {
         case DLong(e) => 
           val entity = database.entity(e)
-          println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
-        case _ => failure("unexpected result")
+          println(s"3 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
 
       success
@@ -133,10 +115,9 @@ class DatomicQuery2Spec extends Specification {
           DSet(DString("toto"), DLong(30L)),
           DSet(DString("tutu"), DLong(54L))
         )
-      ).map{
+      ) map {
         case (DLong(e), DString(n), DLong(a)) => 
-          println("4 - entity: "+ e + " name:"+ n + " - age:" + a)
-        case _ => failure("result not expected")
+          println(s"4 - entity: $e name: $n - age: $a")
       }
 
       success
@@ -152,10 +133,9 @@ class DatomicQuery2Spec extends Specification {
         ]
       """)
 
-      Datomic.q(q).map{
+      Datomic.q(q) map {
         case (DLong(e), DString(n)) => 
-          println("5 - entity: "+ e + " name:"+ n)
-        case _ => failure("result not expected")
+          println(s"5 - entity: $e name: $n")
       }
 
       success
@@ -179,11 +159,10 @@ class DatomicQuery2Spec extends Specification {
         ]
       """)
 
-      Datomic.q(q, database, totoRule).map {
+      Datomic.q(q, database, totoRule) map {
         case (DLong(e), DLong(age)) => 
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
-        case _ => failure("unexpected result")
       }
     }
 
@@ -199,11 +178,10 @@ class DatomicQuery2Spec extends Specification {
         ]
       """)
 
-      Datomic.q(q).map {
+      Datomic.q(q) map {
         case (DLong(e), DString(name)) => 
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
-        case _ => failure("unexpected result")
       }
     }
   }

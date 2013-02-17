@@ -6,27 +6,11 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
-import datomic.Entity
-import datomic.Connection
-import datomic.Database
-import datomic.Peer
-import datomic.Util
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-
-import java.io.Reader
-import java.io.FileReader
-
 import scala.concurrent._
-import scala.concurrent.util._
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
 
 import datomisca._
 import Datomic._
-import DatomicDataImplicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -41,13 +25,13 @@ class DatomicSchemaQuerySpec extends Specification {
   }
 
   val violent = AddIdent(person.character / "violent")
-  val weak = AddIdent(Keyword(person.character, "weak"))
-  val clever = AddIdent(Keyword(person.character, "clever"))
-  val dumb = AddIdent(Keyword(person.character, "dumb"))
+  val weak    = AddIdent(person.character / "weak")
+  val clever  = AddIdent(person.character / "clever")
+  val dumb    = AddIdent(person.character / "dumb")
 
-  val name = Attribute( KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
-  val age = Attribute( KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age")
-  val character = Attribute( KW(":person/character"), SchemaType.ref, Cardinality.many).withDoc("Person's characters")
+  val name      = Attribute(person / "name",      SchemaType.string, Cardinality.one) .withDoc("Person's name")
+  val age       = Attribute(person / "age",       SchemaType.long,   Cardinality.one) .withDoc("Person's age")
+  val character = Attribute(person / "character", SchemaType.ref,    Cardinality.many).withDoc("Person's characters")
 
   val schema = Seq(
     name,
@@ -60,35 +44,33 @@ class DatomicSchemaQuerySpec extends Specification {
   )
 
   def startDB = {
-    println("Creating DB with uri %s: %s".format(uri, createDatabase(uri)))
+    println(s"created DB with uri $uri: ${createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
     
     Await.result(
-      Datomic.transact(schema).flatMap{ tx => 
-        println("Provisioned schema... TX:%s".format(tx))
+      Datomic.transact(schema) flatMap { tx => 
+        println(s"Provisioned schema... TX: $tx")
 
         val id = DId(Partition.USER)
         Datomic.transact(
-          AddEntity(id)(
-            Keyword(person, "name") -> DString("toto"),
-            Keyword(person, "age") -> DLong(30L),
-            Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
+          Entity.add(id)(
+            person / "name"      -> "toto",
+            person / "age"       -> 30L,
+            person / "character" -> Set(weak.ref, dumb.ref)
           ),
-          AddEntity(DId(Partition.USER))(
-            Keyword(person, "name") -> DString("tutu"),
-            Keyword(person, "age") -> DLong(54L),
-            Keyword(person, "character") -> DSet(violent.ref, clever.ref)
+          Entity.add(DId(Partition.USER))(
+            person / "name"      -> "tutu",
+            person / "age"       -> 54L,
+            person / "character" -> Set(violent.ref, clever.ref)
           ),
-          AddEntity(DId(Partition.USER))(
-            Keyword(person, "name") -> DString("tata"),
-            Keyword(person, "age") -> DLong(23L),
-            Keyword(person, "character") -> DSet(weak.ref, clever.ref)
+          Entity.add(DId(Partition.USER))(
+            person / "name"      -> "tata",
+            person / "age"       -> 23L,
+            person / "character" -> Set(weak.ref, clever.ref)
           )
-        ).map{ tx => 
-          println("Provisioned data... TX:%s".format(tx))
-        }.recover{
-          case e => failure(e.getMessage)
+        ) map { tx => 
+          println(s"Provisioned data... TX: $tx")
         }
       },
       Duration("30 seconds")
@@ -117,10 +99,10 @@ class DatomicSchemaQuerySpec extends Specification {
         query, 
         database, 
         DRef(KW(":person.character/violent"))
-      ).map {
+      ) map {
         case (DLong(e), DString(n)) => 
           val entity = database.entity(e)
-          println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
+          println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
       
       success
