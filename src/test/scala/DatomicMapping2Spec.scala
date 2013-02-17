@@ -242,10 +242,10 @@ class DatomicMapping2Spec extends Specification {
                 :where [?e :person/name "toto"]
               ]
             """)).head match {
-              case e: DLong =>
+              case DLong(e) =>
                 val entity = database.entity(e)
                 println(
-                  "dentity age:" + entity.getAs[DLong](person / "age") + 
+                  "dentity age:" + entity.getAs[Long](person / "age") + 
                   " name:" + entity(person / "name") +
                   " map:" + entity.toMap
                 )
@@ -269,7 +269,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :dog/name "medor"]
         ]
       """)).head match {
-        case e: DLong =>
+        case DLong(e) =>
           val entity = database.entity(e)
           DatomicMapping.fromEntity[Dog](entity) must beEqualTo(medor.copy(id=Some(realMedorId)))
         case _ => failure("unexpected result")
@@ -280,7 +280,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :person/name "toto"]
         ]
       """)).head match {
-        case e: DLong =>
+        case DLong(e) =>
           val entity = database.entity(e)
           val realMedor = medor.copy(id=Some(realMedorId))
           val realDoggy1 = doggy1.copy(id=Some(realDoggy1Id))
@@ -307,7 +307,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :person/name "toto2"]
         ]
       """)).head match {
-        case e: DLong =>
+        case DLong(e) =>
           val entity = database.entity(e)
           DatomicMapping.fromEntity[Person3](entity) must beEqualTo(
             toto2.copy(
@@ -326,7 +326,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :person/name "toto"]
         ]
       """)).head match {
-        case e: DLong =>
+        case DLong(e) =>
           val entity = database.entity(e)
           val nameValue = entity.get(PersonSchema.name)
           nameValue must beEqualTo(Some("toto"))

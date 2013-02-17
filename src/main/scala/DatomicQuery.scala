@@ -66,8 +66,8 @@ trait QueryMacros {
     *  ]
     * """)
     *
-    * Datomic.query(q, database, person.character / "violent").map{
-    *   case List(e: DLong, name: DString) =>
+    * Datomic.query(q, database, person.character / "violent") map {
+    *   case List(DLong(e), DString(name)) =>
     *     ...
     * }
     * }}}
@@ -104,8 +104,8 @@ trait QueryMacros {
     *     DSet(DString("toto"), DLong(30L)),
     *     DSet(DString("tutu"), DLong(54L))
     *   )
-    * ).map{
-    *   case (e: DLong, n: DString, a: DLong) => 
+    * ) map {
+    *   case (DLong(e), DString(n), DLong(a)) => 
     *      ...
     * }    
     * }}}
@@ -142,8 +142,8 @@ trait QueryMacros {
     *     DSet(DString("toto"), DLong(30L)),
     *     DSet(DString("tutu"), DLong(54L))
     *   )
-    * ).map{
-    *   case (e: DLong, n: DString, a: DLong) => 
+    * ) map {
+    *   case (DLong(e), DString(n), DLong(a)) => 
     *      ...
     * }    
     * }}}
@@ -170,8 +170,8 @@ trait QueryMacros {
     *   ]
     * """)
     *
-    * Datomic.query(q, database, totoRule).map {
-    *   case (e: DLong, age: DLong) => 
+    * Datomic.query(q, database, totoRule) map {
+    *   case (DLong(e), DLong(age)) => 
     *     ...
     * }
     * }}}
