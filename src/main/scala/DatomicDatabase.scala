@@ -53,9 +53,30 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
   def since(date: DInstant): DDatabase = since(date.underlying)
 
-  def entid(e: Long):     Long = underlying.entid(e).asInstanceOf[Long]
-  def entid(e: DLong):    Long = entid(e.underlying)
-  def entid(kw: Keyword): Long = underlying.entid(kw.toNative).asInstanceOf[Long]
+  /**
+    * @param eid an entity id
+    * @return the entity id
+    * @throws Exception if no entity is found
+    */
+  def entid(eid: Long): Long =
+    Option { underlying.entid(eid) } match {
+      case None      => throw new Exception(s"DDatabase.entid: entity id $eid not found")
+      case Some(eid) => eid.asInstanceOf[Long]
+    }
+
+  def entid(eid: DLong): Long = entid(eid.underlying)
+
+  /** Returns the entity id associated with a symbolic keyword
+    *
+    * @param kw a keyword
+    * @return the entity id
+    * @throws Exception if no entity is found
+    */
+  def entid(kw: Keyword): Long =
+    Option { underlying.entid(kw.toNative) } match {
+      case None      => throw new Exception(s"DDatabase.entid: entity id for keyword $kw not found")
+      case Some(eid) => eid.asInstanceOf[Long]
+    }
 
   /** Returns the symbolic keyword associated with an id
     *
