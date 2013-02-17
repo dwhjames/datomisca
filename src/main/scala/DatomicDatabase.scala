@@ -47,9 +47,17 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       DEntity(entity)
 
 
+  /**
+    * @param date a Date
+    * @return the value of the database as of some date
+    */
   def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
-  def asOf(date: DInstant): DDatabase = asOf(date.underlying)
+  def asOf(date: DInstant):       DDatabase = asOf(date.underlying)
 
+  /**
+    * @param date a Date
+    * @return the value of the database since some date
+    */
   def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
   def since(date: DInstant): DDatabase = since(date.underlying)
 
@@ -98,7 +106,16 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def ident(kw: Keyword): Keyword =
     Keyword(underlying.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
 
-  def withData(ops: Seq[Operation]) = {
+  /** Applies transaction data to the database
+    *
+    * It is as if the data was applied in a
+    * transaction, but the source of the database
+    * is unaffected.
+    *
+    * @param ops a sequence of tranaction data
+    * @return a transaction report
+    */
+  def withData(ops: Seq[Operation]): TxReport = {
     import scala.collection.JavaConverters._
 
     val datomicOps = ops.map( _.toNative ).toList.asJava
@@ -108,6 +125,15 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     Utils.toTxReport(javaMap)(this)
   }
 
+  /** Returns the value of the database containing only Datoms
+    * satisfying the predicate.
+    *
+    * The predicate will be passed the unfiltered db and a Datom.
+    * Chained calls compose the predicate with 'and'.
+    *
+    * @param filterFn a predicate
+    * @return the value of the database satisfying the predicate
+    */
   def filter(filterFn: (DDatabase, DDatom) => Boolean): DDatabase = {
     DDatabase(underlying.filter(
       new datomic.Database.Predicate[datomic.Datom](){
@@ -129,9 +155,13 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     ))
   }
 
-  def touch(id: Long): DEntity = touch(DLong(id))
-  def touch(id: DLong): DEntity = touch(entity(id))
-  def touch(entity: DEntity): DEntity = entity.touch
+  /** Combines `entity()` and `entity.touch()`
+    *
+    * @param eid an entity id
+    * @return a touched entity
+    */
+  def touch(eid: Long):  DEntity = entity(eid).touch()
+  def touch(eid: DLong): DEntity = entity(eid).touch()
 
   def datoms(index: Keyword, components: Keyword*): Seq[DDatom] = {
     //import scala.collection.JavaConverters._
@@ -139,20 +169,54 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => DDatom(d)(this) )
   }
 
+  /** Returns a special database containing all assertions
+    * and retractions across time.
+    *
+    * This special database can be used for `datoms()` and
+    * `indexRange()` calls and queries, but not for `entity()`
+    * or `with()` calls. `asOf()` and `since()` bounds are also
+    * supported. Note that queries will get all of the
+    * additions and retractions, which can be distinguished
+    * by the fifth datom field 'added'
+    * (true for add/assert) `[e a v tx added]`
+    */
   def history = DDatabase(underlying.history)
   
 
+  /**
+    * @return the database id
+    */
   def id: String = underlying.id
+
+  /**
+    * @return true if db has had a filter set with filter(filterFn)
+    */
   def isFiltered: Boolean = underlying.isFiltered
+
+  /**
+    * @return true if this is a special history db
+    */
   def isHistory: Boolean = underlying.isHistory
+
+  /**
+    * @return the t of the most recent transaction reachable via this db value
+    */
   def basisT: Long = underlying.basisT
+
+  /**
+    * the t one beyond the highest reachable via this db value
+    */
   def nextT: Long = underlying.nextT
-  def sinceT: Option[Long] = Option(underlying.sinceT)
 
   /**
     * @return the asOf point
     */
   def asOfT: Option[Long] = Option { underlying.asOfT }
+
+  /**
+    * @return the since point
+    */
+  def sinceT: Option[Long] = Option { underlying.sinceT }
 
   // TODO
   // indexRange
