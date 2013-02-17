@@ -4,27 +4,11 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
-import datomic.Connection
-import datomic.Database
-import datomic.Peer
-import datomic.Util
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-
-import java.io.Reader
-import java.io.FileReader
-
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
 import scala.util.{Try, Success, Failure}
-import java.util.concurrent.TimeUnit._
 
 import datomisca._
-
 import Datomic._
 import DatomicMapping._
 
@@ -34,43 +18,75 @@ class DatomicTxSpec extends Specification {
   import scala.concurrent.ExecutionContext.Implicits.global
 
   val uri = "datomic:mem://DatomicTxSpec"
-  case class Person(name: String, age: Long)
-  case class Dog(name: String, age: Long)
-  case class PersonFriend(name: String, age: Long)
-  case class PersonDog(name: String, age: Long, dog: Ref[Dog])
-  case class PersonDogOpt(name: String, age: Long, dog: Option[Ref[Dog]])
-  case class PersonDogList(name: String, age: Long, dogs: Set[Ref[Dog]])
 
-  case class PersonLike(name: String, age: Long, like: Option[String] = None)
-  case class PersonLikes(name: String, age: Long, likes: Set[String] = Set())
+  case class Person(
+    name: String,
+    age:  Long
+  )
+  case class Dog(
+    name: String,
+    age:  Long
+  )
 
-  object PersonSchema {
-    val name = Attribute( KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name")
-    val age = Attribute( KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age")
-    val friend = Attribute( KW(":person/friend"), SchemaType.ref, Cardinality.one).withDoc("Person's friend")
-    val dog = Attribute( KW(":person/dog"), SchemaType.ref, Cardinality.one).withDoc("Person's dog")
-    val dogs = Attribute( KW(":person/dogs"), SchemaType.ref, Cardinality.many).withDoc("Person's dogs")
-    val like = Attribute( KW(":person/like"), SchemaType.string, Cardinality.one).withDoc("Person's like")
-    val likes = Attribute( KW(":person/likes"), SchemaType.string, Cardinality.many).withDoc("Person's likes")
+  case class PersonFriend(
+    name: String,
+    age:  Long
+  )
 
-    val schema = Seq(name, age, friend, dog, dogs, like, likes)
-  }
+  case class PersonDog(
+    name: String,
+    age:  Long,
+    dog:  Ref[Dog]
+  )
+  case class PersonDogOpt(
+    name: String,
+    age:  Long,
+    dog:  Option[Ref[Dog]]
+  )
+  case class PersonDogList(
+    name: String,
+    age:  Long,
+    dogs: Set[Ref[Dog]]
+  )
 
-  object DogSchema {
-    val name = Attribute( KW(":dog/name"), SchemaType.string, Cardinality.one).withDoc("Dog's name")
-    val age = Attribute( KW(":dog/age"), SchemaType.long, Cardinality.one).withDoc("Dog's age")
-
-    val schema = Seq(name, age)
-  }
+  case class PersonLike(
+    name: String,
+    age:  Long,
+    like: Option[String] = None
+  )
+  case class PersonLikes(
+    name:  String,
+    age:   Long,
+    likes: Set[String] = Set()
+  )
 
   val person = new Namespace("person") {
     val character = Namespace("person.character")
   }
 
-  val dog = Namespace("dog")      
+  val dog = Namespace("dog")  
+
+  object PersonSchema {
+    val name   = Attribute(person / "name",   SchemaType.string, Cardinality.one) .withDoc("Person's name")
+    val age    = Attribute(person / "age",    SchemaType.long,   Cardinality.one) .withDoc("Person's age")
+    val friend = Attribute(person / "friend", SchemaType.ref,    Cardinality.one) .withDoc("Person's friend")
+    val dog    = Attribute(person / "dog",    SchemaType.ref,    Cardinality.one) .withDoc("Person's dog")
+    val dogs   = Attribute(person / "dogs",   SchemaType.ref,    Cardinality.many).withDoc("Person's dogs")
+    val like   = Attribute(person / "like",   SchemaType.string, Cardinality.one) .withDoc("Person's like")
+    val likes  = Attribute(person / "likes",  SchemaType.string, Cardinality.many).withDoc("Person's likes")
+
+    val schema = Seq(name, age, friend, dog, dogs, like, likes)
+  }
+
+  object DogSchema {
+    val name = Attribute(dog / "name", SchemaType.string, Cardinality.one).withDoc("Dog's name")
+    val age  = Attribute(dog / "age",  SchemaType.long,   Cardinality.one).withDoc("Dog's age")
+
+    val schema = Seq(name, age)
+  }
 
   def startDB = {
-    println("Creating DB with uri %s: %s".format(uri, Datomic.createDatabase(uri)))
+    println(s"Creating DB with uri $uri: ${createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
     
@@ -93,7 +109,7 @@ class DatomicTxSpec extends Specification {
 
       implicit val personReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long]
+        PersonSchema.age .read[Long]
       )(Person)
 
       val idToto = DId(Partition.USER)
@@ -103,32 +119,32 @@ class DatomicTxSpec extends Specification {
           person / "name" -> "toto",
           person / "age" -> 30
         )
-      ).flatMap{ tx => 
-        println("Provisioned data... TX:%s".format(tx))
+      ) flatMap { tx => 
+        println(s"Provisioned data... TX: $tx")
 
-        println("Resolved Id for toto: temp(%s) real(%s)".format(idToto.toNative, tx.resolve(idToto)))
+        println(s"Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
 
         val totoId = tx.resolve(idToto)
         Datomic.transact(
           Entity.add( DId(Partition.USER) )(
-            person / "name" -> "tutu",
-            person / "age" -> 54,
+            person / "name"   -> "tutu",
+            person / "age"    -> 54,
             person / "friend" -> totoId
           ),
           Entity.add( DId(Partition.USER) )(
-            person / "name" -> "tata",
-            person / "age" -> 23,
+            person / "name"   -> "tata",
+            person / "age"    -> 23,
             person / "friend" -> totoId
           )
-        ).map{ tx => 
-          println("Provisioned more data... TX:%s".format(tx))
+        ) map { tx => 
+          println(s"Provisioned more data... TX: $tx")
 
           Datomic.q(Query.manual[Args0, Args1]("""
             [ :find ?e 
               :where [ ?e :person/friend ?f ]
                      [ ?f :person/name "toto" ]
             ]              
-          """)).map{
+          """)) map {
             case DLong(e) =>
               val entity = database.entity(e)
               val p @ Person(name, age) = DatomicMapping.fromEntity[Person](entity)
@@ -136,8 +152,6 @@ class DatomicTxSpec extends Specification {
               p
           } must beEqualTo(List(Person("tutu", 54), Person("tata", 23)))  
         }
-      }.recover{
-        case e => failure(e.getMessage)
       }
 
       Await.result(
@@ -161,36 +175,36 @@ class DatomicTxSpec extends Specification {
 
       val toto = Entity.add(idToto)(
         person / "name" -> "toto",
-        person / "age" -> 30
+        person / "age"  -> 30
       )
 
       val fut = Datomic.transact(
         toto
-      ).flatMap{ tx => 
-        println("2 Provisioned data... TX:%s".format(tx))
+      ) flatMap { tx => 
+        println(s"2 Provisioned data... TX: $tx")
 
-        println("2 Resolved Id for toto: temp(%s) real(%s)".format(idToto.toNative, tx.resolve(idToto)))
+        println(s"2 Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
         val totoId = tx.resolve(toto)
         Datomic.transact(
           Entity.add(idTutu)(
-            person / "name" -> "tutu",
-            person / "age" -> 54,
+            person / "name"   -> "tutu",
+            person / "age"    -> 54,
             person / "friend" -> totoId
           ),
           Entity.add(idTata)(
-            person / "name" -> "tata",
-            person / "age" -> 23,
+            person / "name"   -> "tata",
+            person / "age"    -> 23,
             person / "friend" -> totoId
           )
-        ).map{ tx => 
-          println("2 Provisioned more data... TX:%s".format(tx))
+        ) map { tx => 
+          println(s"2 Provisioned more data... TX: $tx")
 
           Datomic.q(Query.manual[Args0, Args1]("""
             [ :find ?e 
               :where [ ?e :person/friend ?f ]
                      [ ?f :person/name "toto" ]
             ]
-          """)).map{
+          """)) map {
             case DLong(e) =>
               val entity = database.entity(e)
               val Person(name, age) = DatomicMapping.fromEntity[Person](entity)
@@ -198,8 +212,6 @@ class DatomicTxSpec extends Specification {
           }
           success
         }
-      }.recover{
-        case e => failure(e.getMessage)
       }
 
       Await.result(
@@ -213,8 +225,8 @@ class DatomicTxSpec extends Specification {
       implicit val conn = Datomic.connect(uri)  
 
       implicit val personDogWriter = (
-        PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Long]
+        PersonSchema.name.write[String] and
+        PersonSchema.age .write[Long]
       )(unlift(Person.unapply))
 
       val toto = Person("toto", 30)
@@ -222,7 +234,7 @@ class DatomicTxSpec extends Specification {
 
       val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
-        person / "age" -> 30
+        person / "age"  -> 30
       )
 
       DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
@@ -233,35 +245,36 @@ class DatomicTxSpec extends Specification {
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
-        DogSchema.age.read[Long]
+        DogSchema.age .read[Long]
       )(Dog)
 
       implicit val dogWriter = (
         DogSchema.name.write[String] and 
-        DogSchema.age.write[Long]
+        DogSchema.age .write[Long]
       )(unlift(Dog.unapply))
 
       implicit val personDogReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long] and
-        PersonSchema.dog.read[Ref[Dog]]
+        PersonSchema.age .read[Long]   and
+        PersonSchema.dog .read[Ref[Dog]]
       )(PersonDog)
 
       implicit val personDogWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Long] and
-        PersonSchema.dog.write[Ref[Dog]]
+        PersonSchema.age .write[Long]   and
+        PersonSchema.dog .write[Ref[Dog]]
       )(unlift(PersonDog.unapply))
 
-      val medor = Dog("medor", 5)
+      val medor   = Dog("medor", 5)
       val medorId = DId(Partition.USER)
-      val toto = PersonDog("toto", 30, Ref(medorId)(medor))
-      val totoId = DId(Partition.USER)
+
+      val toto    = PersonDog("toto", 30, Ref(medorId)(medor))
+      val totoId  = DId(Partition.USER)
 
       val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
-        person / "age" -> 30,
-        person / "dog" -> medorId
+        person / "age"  -> 30,
+        person / "dog"  -> medorId
       )
 
       DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
@@ -269,8 +282,8 @@ class DatomicTxSpec extends Specification {
       val fut = Datomic.transact(
         DatomicMapping.toEntity(totoId)(toto),
         DatomicMapping.toEntity(medorId)(medor)
-      ).map{ tx =>
-        println("2 Provisioned more data... TX:%s".format(tx))
+      ) map { tx =>
+        println(s"2 Provisioned more data... TX: $tx")
         
         tx.resolve(medorId, totoId) match {
           case (medorId, totoId) => 
@@ -278,7 +291,6 @@ class DatomicTxSpec extends Specification {
             val entity = database.entity(totoId)
             val PersonDog(name, age, dog) = DatomicMapping.fromEntity[PersonDog](entity)
             println(s"Found Toto $name $age $dog")
-          case _ => failure("unable to resolve ids")
         }
       }      
 
@@ -294,25 +306,25 @@ class DatomicTxSpec extends Specification {
 
       implicit val personLikeReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long] and
+        PersonSchema.age .read[Long]   and
         PersonSchema.like.readOpt[String]
       )(PersonLike)
 
       implicit val personLikeWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Long] and
+        PersonSchema.age.write[Long]    and
         PersonSchema.like.writeOpt[String]
       )(unlift(PersonLike.unapply))
 
-      val toto = PersonLike("toto", 30, Some("chocolate"))
+      val toto   = PersonLike("toto", 30, Some("chocolate"))
       val totoId = DId(Partition.USER)
 
-      val tutu = PersonLike("tutu", 45, None)
+      val tutu   = PersonLike("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
       val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
-        person / "age" -> 30,
+        person / "age"  -> 30,
         person / "like" -> "chocolate"
       )
 
@@ -321,8 +333,8 @@ class DatomicTxSpec extends Specification {
       val fut = Datomic.transact(
         DatomicMapping.toEntity(totoId)(toto),
         DatomicMapping.toEntity(tutuId)(tutu)
-      ).map{ tx =>
-        println("5 - Provisioned more data... TX:%s".format(tx))
+      ) map { tx =>
+        println(s"5 - Provisioned more data... TX: $tx")
         
         tx.resolve(totoId, tutuId) match {
           case (totoId, tutuId) => 
@@ -335,7 +347,6 @@ class DatomicTxSpec extends Specification {
             val t2 = DatomicMapping.fromEntity[PersonLike](entityTutu)
             println(s"5 - retrieved tutu:$t")
             t2 must beEqualTo(tutu)
-          case _ => failure("unable to resolve ids")
         }
       }      
 
@@ -350,31 +361,31 @@ class DatomicTxSpec extends Specification {
       implicit val conn = Datomic.connect(uri)  
 
       implicit val personLikesReader = (
-        PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long] and
+        PersonSchema.name .read[String] and 
+        PersonSchema.age  .read[Long]   and
         PersonSchema.likes.read[Set[String]]
       )(PersonLikes)
 
       implicit val personLikesWriter = (
-        PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Long] and
+        PersonSchema.name .write[String] and 
+        PersonSchema.age  .write[Long]   and
         PersonSchema.likes.write[Set[String]]
       )(unlift(PersonLikes.unapply))
 
-      val toto = PersonLikes("toto", 30, Set("chocolate", "vanilla"))
+      val toto   = PersonLikes("toto", 30, Set("chocolate", "vanilla"))
       val totoId = DId(Partition.USER)
 
       val totoEntity = Entity.add(totoId)(
-        person / "name" -> "toto",
-        person / "age" -> 30,
+        person / "name"  -> "toto",
+        person / "age"   -> 30,
         person / "likes" -> Set("chocolate", "vanilla")
       )
 
       DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
       val fut = Datomic.transact(
         DatomicMapping.toEntity(totoId)(toto)
-      ).map{ tx =>
-        println("5 - Provisioned more data... TX:%s".format(tx))
+      ) map { tx =>
+        println(s"5 - Provisioned more data... TX: $tx")
         
         val realTotoId = tx.resolve(totoId)
         println(s"6 - totoId:$totoId")
@@ -395,38 +406,39 @@ class DatomicTxSpec extends Specification {
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
-        DogSchema.age.read[Long]
+        DogSchema.age .read[Long]
       )(Dog)
 
       implicit val dogWriter = (
         DogSchema.name.write[String] and 
-        DogSchema.age.write[Long]
+        DogSchema.age .write[Long]
       )(unlift(Dog.unapply))
 
       implicit val personDogOptReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long] and
-        PersonSchema.dog.readOpt[Ref[Dog]]
+        PersonSchema.age .read[Long]   and
+        PersonSchema.dog .readOpt[Ref[Dog]]
       )(PersonDogOpt)
 
       implicit val personDogOptWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Long] and
-        PersonSchema.dog.writeOpt[Ref[Dog]]
+        PersonSchema.age .write[Long]   and
+        PersonSchema.dog .writeOpt[Ref[Dog]]
       )(unlift(PersonDogOpt.unapply))
 
-      val medor = Dog("medor", 5)
+      val medor   = Dog("medor", 5)
       val medorId = DId(Partition.USER)
-      val toto = PersonDogOpt("toto", 30, Some(Ref(medorId)(medor)))
-      val totoId = DId(Partition.USER)
 
-      val tutu = PersonDogOpt("tutu", 45, None)
+      val toto    = PersonDogOpt("toto", 30, Some(Ref(medorId)(medor)))
+      val totoId  = DId(Partition.USER)
+
+      val tutu   = PersonDogOpt("tutu", 45, None)
       val tutuId = DId(Partition.USER)
 
       val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
-        person / "age" -> 30,
-        person / "dog" -> medorId
+        person / "age"  -> 30,
+        person / "dog"  -> medorId
       )
 
       DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
@@ -435,8 +447,8 @@ class DatomicTxSpec extends Specification {
         DatomicMapping.toEntity(totoId)(toto),
         DatomicMapping.toEntity(medorId)(medor),
         DatomicMapping.toEntity(tutuId)(tutu)
-      ).map{ tx =>
-        println("7 - Provisioned more data... TX:%s".format(tx))
+      ) map { tx =>
+        println(s"7 - Provisioned more data... TX: $tx")
         
         val (realMedorId, realTotoId, realTutuId) = tx.resolve(medorId, totoId, tutuId)
         println(s"7 - totoId:$totoId medorId:$medorId")
@@ -464,50 +476,50 @@ class DatomicTxSpec extends Specification {
 
       implicit val dogReader = (
         DogSchema.name.read[String] and 
-        DogSchema.age.read[Long]
+        DogSchema.age .read[Long]
       )(Dog)
 
       implicit val dogWriter = (
         DogSchema.name.write[String] and 
-        DogSchema.age.write[Long]
+        DogSchema.age .write[Long]
       )(unlift(Dog.unapply))
 
       implicit val personDogListReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long] and
+        PersonSchema.age .read[Long]   and  
         PersonSchema.dogs.read[Set[Ref[Dog]]]
       )(PersonDogList)
 
       implicit val personDogListWriter = (
         PersonSchema.name.write[String] and 
-        PersonSchema.age.write[Long] and
+        PersonSchema.age .write[Long]   and
         PersonSchema.dogs.write[Set[Ref[Dog]]]
       )(unlift(PersonDogList.unapply))
 
-      val medor = Dog("medor", 5)
+      val medor   = Dog("medor", 5)
       val medorId = DId(Partition.USER)
 
-      val brutus = Dog("brutus", 3)
+      val brutus   = Dog("brutus", 3)
       val brutusId = DId(Partition.USER)
       
-      val toto = PersonDogList("toto", 30, Set(Ref(medorId)(medor), Ref(brutusId)(brutus)))
+      val toto   = PersonDogList("toto", 30, Set(Ref(medorId)(medor), Ref(brutusId)(brutus)))
       val totoId = DId(Partition.USER)
 
       val totoEntity = Entity.add(totoId)(
         person / "name" -> "toto",
-        person / "age" -> 30,
+        person / "age"  -> 30,
         person / "dogs" -> Set(medorId, brutusId)
       )
 
       DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
-      println("8 - toto:"+toto+" TOTO ENTITY:"+DatomicMapping.toEntity(totoId)(toto))
+      println(s"8 - toto: ${toto} TOTO ENTITY: ${DatomicMapping.toEntity(totoId)(toto)}")
 
       val fut = Datomic.transact(
         DatomicMapping.toEntity(totoId)(toto),
         DatomicMapping.toEntity(medorId)(medor),
         DatomicMapping.toEntity(brutusId)(brutus)
-      ).map{ tx =>
-        println("8 - Provisioned more data... TX:%s".format(tx))
+      ) map { tx =>
+        println(s"8 - Provisioned more data... TX: $tx")
         
         val (realMedorId, realBrutusId, realTotoId) = tx.resolve(medorId, brutusId, totoId)
         val entity = database.entity(realTotoId)
@@ -526,7 +538,7 @@ class DatomicTxSpec extends Specification {
 
       implicit val personReader = (
         PersonSchema.name.read[String] and 
-        PersonSchema.age.read[Long]
+        PersonSchema.age .read[Long]
       )(Person)
 
       val idToto = DId(Partition.USER)
@@ -534,9 +546,9 @@ class DatomicTxSpec extends Specification {
       val fut = Datomic.transact(
         Entity.add(idToto)(
           person / "name" -> "toto",
-          person / "age" -> 30
+          person / "age"  -> 30
         )
-      ).map{ tx => 
+      ) map { tx => 
         val id = tx.resolve(idToto)
         database.entity(id) !== beNull
         

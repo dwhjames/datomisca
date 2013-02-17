@@ -1,11 +1,10 @@
+
 import datomisca._
+import Datomic._
 
 import scala.language.reflectiveCalls
 
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object DatomicBootstrap {
@@ -13,16 +12,16 @@ object DatomicBootstrap {
     val person = new Namespace("person") {
       val character = Namespace("person.character")
     }
-    val violent = AddIdent(Keyword(person.character, "violent"))
-    val weak = AddIdent(Keyword(person.character, "weak"))
-    val clever = AddIdent(Keyword(person.character, "clever"))
-    val dumb = AddIdent(Keyword(person.character, "dumb"))
-    val stupid = AddIdent(Keyword(person.character, "stupid"))
+    val violent = AddIdent(person.character / "violent")
+    val weak    = AddIdent(person.character / "weak")
+    val clever  = AddIdent(person.character / "clever")
+    val dumb    = AddIdent(person.character / "dumb")
+    val stupid  = AddIdent(person.character / "stupid")
 
     val schema = Seq(
-      Attribute( Keyword(Namespace("person"), "name"), SchemaType.string, Cardinality.one).withDoc("Person's name").withFullText(true),
-      Attribute( Keyword(Namespace("person"), "age"), SchemaType.long, Cardinality.one).withDoc("Person's age"),
-      Attribute( Keyword(Namespace("person"), "character"), SchemaType.ref, Cardinality.many).withDoc("Person's characterS"),
+      Attribute(person / "name",      SchemaType.string, Cardinality.one) .withDoc("Person's name").withFullText(true),
+      Attribute(person / "age",       SchemaType.long,   Cardinality.one) .withDoc("Person's age"),
+      Attribute(person / "character", SchemaType.ref,    Cardinality.many).withDoc("Person's characterS"),
       violent,
       weak,
       clever,
@@ -30,25 +29,25 @@ object DatomicBootstrap {
       stupid
     )
 
-    println("created DB with uri %s: %s".format(theUri, Datomic.createDatabase(theUri)))
-    implicit val conn = Datomic.connect(theUri) //"datomic:mem://datomicspec2"
+    println(s"created DB with uri $theUri: ${createDatabase(theUri)}")
+    implicit val conn = connect(theUri)
 
-    Datomic.transact(schema).flatMap{ tx =>
-      Datomic.transact(
-        AddEntity(DId(Partition.USER))(
-          Keyword(person, "name") -> DString("toto"),
-          Keyword(person, "age") -> DLong(30L),
-          Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
+    transact(schema) flatMap { tx =>
+      transact(
+        Entity.add(DId(Partition.USER))(
+          person / "name"      -> "toto",
+          person / "age"       -> 30L,
+          person / "character" -> Set(weak.ref, dumb.ref)
         ),
-        AddEntity(DId(Partition.USER))(
-          Keyword(person, "name") -> DString("tutu"),
-          Keyword(person, "age") -> DLong(54L),
-          Keyword(person, "character") -> DSet(violent.ref, clever.ref)
+        Entity.add(DId(Partition.USER))(
+          person / "name"      -> "tutu",
+          person / "age"       -> 54L,
+          person / "character" -> Set(violent.ref, clever.ref)
         ),
-        AddEntity(DId(Partition.USER))(
-          Keyword(person, "name") -> DString("tata"),
-          Keyword(person, "age") -> DLong(23L),
-          Keyword(person, "character") -> DSet(weak.ref, clever.ref)
+        Entity.add(DId(Partition.USER))(
+          person / "name"      -> "tata",
+          person / "age"       -> 23L,
+          person / "character" -> Set(weak.ref, clever.ref)
         )
       )
     }

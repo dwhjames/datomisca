@@ -5,23 +5,8 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import datomic.Connection
-import datomic.Database
-import datomic.Peer
-import datomic.Util
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-
-import java.io.Reader
-import java.io.FileReader
-
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
 
 import datomisca._
 import Datomic._
@@ -35,7 +20,7 @@ class DatomicSchema2Spec extends Specification {
       val uri = "datomic:mem://DatomicSchema2Spec"
 
       //DatomicBootstrap(uri)
-      println("created DB with uri %s: %s".format(uri, createDatabase(uri)))
+      println(s"created DB with uri $uri: ${createDatabase(uri)}")
 
       implicit val conn = Datomic.connect(uri)
 
@@ -44,54 +29,53 @@ class DatomicSchema2Spec extends Specification {
       }
 
       val violent = AddIdent(person.character / "violent")
-      val weak = AddIdent(Keyword(person.character, "weak"))
-      val clever = AddIdent(Keyword(person.character, "clever"))
-      val dumb = AddIdent(Keyword(person.character, "dumb"))
+      val weak    = AddIdent(person.character / "weak")
+      val clever  = AddIdent(person.character / "clever")
+      val dumb    = AddIdent(person.character / "dumb")
 
       val schema = Seq(
-        Attribute( KW(":person/name"), SchemaType.string, Cardinality.one).withDoc("Person's name"),
-        Attribute( KW(":person/age"), SchemaType.long, Cardinality.one).withDoc("Person's age"),
-        Attribute( KW(":person/character"), SchemaType.ref, Cardinality.many).withDoc("Person's characters"),
+        Attribute(person / "name",      SchemaType.string, Cardinality.one) .withDoc("Person's name"),
+        Attribute(person / "age",       SchemaType.long,   Cardinality.one) .withDoc("Person's age"),
+        Attribute(person / "character", SchemaType.ref,    Cardinality.many).withDoc("Person's characters"),
         violent,
         weak,
         clever,
         dumb
       )
 
-      Await.result(Datomic.transact(schema).flatMap{ tx => 
-        println("Provisioned schema... TX:%s".format(tx))
+      Await.result(Datomic.transact(schema) flatMap { tx =>
+        println(s"Provisioned schema... TX: $tx")
 
         val id = DId(Partition.USER)
         Datomic.transact(
-          AddEntity(id)(
-            Keyword(person, "name") -> DString("toto"),
-            Keyword(person, "age") -> DLong(30L),
-            Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
+          Entity.add(id)(
+            person / "name"      -> "toto",
+            person / "age"       -> 30L,
+            person / "character" -> Set(weak.ref, dumb.ref)
           ),
-          AddEntity(DId(Partition.USER))(
-            Keyword(person, "name") -> DString("tutu"),
-            Keyword(person, "age") -> DLong(54L),
-            Keyword(person, "character") -> DSet(violent.ref, clever.ref)
+          Entity.add(DId(Partition.USER))(
+            person / "name"      -> "tutu",
+            person / "age"       -> 54L,
+            person / "character" -> Set(violent.ref, clever.ref)
           ),
-          AddEntity(DId(Partition.USER))(
-            Keyword(person, "name") -> DString("tata"),
-            Keyword(person, "age") -> DLong(23L),
-            Keyword(person, "character") -> DSet(weak.ref, clever.ref)
+          Entity.add(DId(Partition.USER))(
+            person / "name"      -> "tata",
+            person / "age"       -> 23L,
+            person / "character" -> Set(weak.ref, clever.ref)
           )
-        ).flatMap{ tx => 
-          println("Provisioned data... TX:%s".format(tx))
+        ) flatMap { tx =>
+          println(s"Provisioned data... TX: $tx")
           val totoId = Datomic.q(Query.pure("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-          """)).head.head.asInstanceOf[DLong]
-          //.map {
-          //  case List(totoId: DLong) => 
-          println("TOTO:"+totoId)
+          """)).head.head match { case DLong(l) => l }
+
+          println(s"TOTO: $totoId")
           Datomic.transact(
-            RetractEntity(totoId)
-          ).flatMap{ tx => 
-            println("Retracted data... TX:%s".format(tx))
+            Entity.retract(totoId)
+          ) flatMap { tx =>
+            println(s"Retracted data... TX: $tx")
 
             Datomic.q(Query.pure("""
               [ :find ?e
@@ -99,19 +83,18 @@ class DatomicSchema2Spec extends Specification {
               ]
             """)).isEmpty must beTrue
 
-            println("Provisioned data... TX:%s".format(tx))
+            println(s"Provisioned data... TX: $tx")
             val tutuId = Datomic.q(Query.pure("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
-            """)).head.head.asInstanceOf[DLong]
-            //.map {
-            //  case List(totoId: DLong) => 
-            println("TUTU:"+tutuId)
+            """)).head.head match { case DLong(l) => l }
+
+            println(s"TUTU: $tutuId")
             Datomic.transact(
-              RetractEntity(tutuId)
-            ).map{ tx => 
-              println("Retracted data... TX:%s".format(tx))
+              Entity.retract(tutuId)
+            ) map { tx =>
+              println(s"Retracted data... TX: $tx")
 
               Datomic.q(Query.pure("""
                 [ :find ?e
@@ -119,13 +102,8 @@ class DatomicSchema2Spec extends Specification {
                 ]
               """)).isEmpty must beTrue
             }
-            //}
-                  
           }
-          //}
-        }        
-      }.recover{
-        case e => failure(e.getMessage)
+        }
       },
       Duration("30 seconds"))
     }
