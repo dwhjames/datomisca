@@ -63,7 +63,7 @@ class DatomicQuerySpec extends Specification {
                   [ ?e :person/character :person.character/violent ]
         ]
       """)).collect {
-        case List(e: DLong, n: DString) => 
+        case List(DLong(e), DString(n)) => 
           val entity = database.entity(e)
           println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
       }
@@ -79,7 +79,7 @@ class DatomicQuerySpec extends Specification {
         [:find ?e :where [?e :person/name]]
       """)
       Datomic.q(q).map{
-        case (e: DLong) => 
+        case DLong(e) => 
           val entity = database.entity(e)
           println("2 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
         case _ => failure("unexpected result")
@@ -99,7 +99,7 @@ class DatomicQuerySpec extends Specification {
          :where [?e :person/name ?names]
         ]
       """), database, DSet(DString("toto"), DString("tata"))).map{
-        case (e: DLong) => 
+        case DLong(e) => 
           val entity = database.entity(e)
           println("3 - entity: "+ e + " name:"+ entity.get(person / "name") + " - e:" + entity.get(person / "character"))
         case _ => failure("unexpected result")
@@ -126,7 +126,7 @@ class DatomicQuerySpec extends Specification {
           DSet(DString("tutu"), DLong(54L))
         )
       ).map{
-        case (e: DLong, n: DString, a: DLong) => 
+        case (DLong(e), DString(n), DLong(a)) => 
           println("4 - entity: "+ e + " name:"+ n + " - age:" + a)
         case _ => failure("result not expected")
       }
@@ -144,7 +144,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
       Datomic.q(q).map{
-        case (e: DLong, n: DString) => 
+        case (DLong(e), DString(n)) => 
           println("5 - entity: "+ e + " name:"+ n)
         case _ => failure("result not expected")
       }
@@ -219,9 +219,9 @@ class DatomicQuerySpec extends Specification {
       """)
 
       Datomic.q(q, database, totoRule).map {
-        case (e: DLong, age: DLong) => 
+        case (DLong(e), DLong(age)) => 
           println(s"e: $e - age: $age")
-          age must beEqualTo(DLong(30L))
+          age must beEqualTo(30L)
         case _ => failure("unexpected result")
       }
     }
@@ -239,9 +239,9 @@ class DatomicQuerySpec extends Specification {
       """)
 
       Datomic.q(q).map {
-        case (e: DLong, name: DString) => 
+        case (DLong(e), DString(name)) => 
           println(s"e: $e - name: $name")
-          name must beEqualTo(DString("tutu"))
+          name must beEqualTo("tutu")
         case _ => failure("unexpected result")
       }
     }

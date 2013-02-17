@@ -174,7 +174,7 @@ class DatomicDatabaseSpec extends Specification {
                   DRef(user / "email"), 
                   DString("jdoe@example.com")
                 ).collect{
-                  case e: DLong => 
+                  case DLong(e) => 
                     println("Found e:"+e)
                     database.touch(e)
                 }

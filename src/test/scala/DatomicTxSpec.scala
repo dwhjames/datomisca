@@ -129,7 +129,7 @@ class DatomicTxSpec extends Specification {
                      [ ?f :person/name "toto" ]
             ]              
           """)).map{
-            case e: DLong =>
+            case DLong(e) =>
               val entity = database.entity(e)
               val p @ Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"Found person with name $name and age $age")
@@ -191,7 +191,7 @@ class DatomicTxSpec extends Specification {
                      [ ?f :person/name "toto" ]
             ]
           """)).map{
-            case e: DLong =>
+            case DLong(e) =>
               val entity = database.entity(e)
               val Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"2 Found person with name $name and age $age")
