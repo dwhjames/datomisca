@@ -71,21 +71,21 @@ object Utils {
     import datomic.Connection._
     import datomic.db.Db
 
-    TxReport(
-      dbBefore = DDatabase(
+    new TxReport {
+      override val dbBefore = DDatabase(
           javaMap.get(DB_BEFORE).asInstanceOf[Db]
-        ),
-      dbAfter  = DDatabase(
+        )
+      override val dbAfter  = DDatabase(
           javaMap.get(DB_AFTER).asInstanceOf[Db]
-        ),
-      txData =
+        )
+      override val txData =
         javaMap.get(TX_DATA)
                .asInstanceOf[java.util.List[datomic.Datom]]
                .asScala
                .map(DDatom(_)(database))
-               .toSeq,
-      tempids = javaMap.get(TEMPIDS).asInstanceOf[AnyRef]
-    )
+               .toSeq
+      override protected val tempids = javaMap.get(TEMPIDS).asInstanceOf[AnyRef]
+    }
   }
 
   def queue2Stream[A](queue: java.util.concurrent.BlockingQueue[A]): Stream[Option[A]] = {
