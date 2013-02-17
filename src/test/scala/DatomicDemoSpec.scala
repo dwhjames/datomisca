@@ -108,7 +108,7 @@ class DatomicDemoSpec extends Specification {
                       [ (<= ?a ?age) ]
             ]
           """), database, DLong(40)).map{
-            case (id: DLong, name: DString, age: DLong) => 
+            case (DLong(id), DString(name), DLong(age)) => 
               // can get entity there
               val entity = database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
@@ -125,7 +125,7 @@ class DatomicDemoSpec extends Specification {
                       [ (not= ?a ?age) ]
             ]
           """), database, DLong(35L)).map{
-            case (id: DLong, name: DString, age: DLong) => 
+            case (DLong(id), DString(name), DLong(age)) => 
               // can get entity there
               val entity = database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
@@ -142,7 +142,7 @@ class DatomicDemoSpec extends Specification {
                       [ (== ?a ?age) ]
             ]
           """), database, DLong(35L)).map{
-            case (id: DLong, name: DString, age: DLong) => 
+            case (DLong(id), DString(name), DLong(age)) => 
               // can get entity there
               val entity = database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
@@ -162,9 +162,9 @@ class DatomicDemoSpec extends Specification {
       ) 
 
       (a.toSet, b.toSet, c.toSet) must beEqualTo((
-        Set(DString("toto") -> DLong(30L), DString("tutu") -> DLong(35L)),
-        Set(DString("toto") -> DLong(30L), DString("tata") -> DLong(54L)),
-        Set(DString("tutu") -> DLong(35L))
+        Set("toto" -> 30L, "tutu" -> 35L),
+        Set("toto" -> 30L, "tata" -> 54L),
+        Set("tutu" -> 35L)
       ))
     }
   }

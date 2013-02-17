@@ -116,19 +116,20 @@ class DatomicMappingSpec extends Specification {
   val birthDate = new java.util.Date() 
   val medor = Dog("medor", 5L)
   val medorId = DId(Partition.USER)
-  var realMedorId = DLong(0L)
+  var realMedorId: Long = _
 
   val doggy1 = Dog("doggy1", 5L)
   val doggy1Id = DId(Partition.USER)
-  var realDoggy1Id = DLong(0L)
+  var realDoggy1Id: Long = _
 
   val doggy2 = Dog("doggy2", 5L)
   val doggy2Id = DId(Partition.USER)
-  var realDoggy2Id = DLong(0L)
+  var realDoggy2Id: Long = _
 
   val doggy3 = Dog("doggy3", 5L)
   val doggy3Id = DId(Partition.USER)
-  var realDoggy3Id = DLong(0L)
+  var realDoggy3Id: Long = _
+
 
   "Datomic" should {
     "create entity" in {
@@ -189,10 +190,10 @@ class DatomicMappingSpec extends Specification {
                 :where [?e :person/name "toto"]
               ]
             """)).head match {
-              case e: DLong =>
+              case DLong(e) =>
                 val entity = database.entity(e)
                 println(
-                  "dentity age:" + entity.getAs[DLong](person / "age") + 
+                  "dentity age:" + entity.getAs[Long](person / "age") + 
                   " name:" + entity(person / "name") +
                   " map:" + entity.toMap
                 )
@@ -223,7 +224,7 @@ class DatomicMappingSpec extends Specification {
           :where [?e :person/name "toto"]
         ]
       """)).head match {
-        case e: DLong =>
+        case DLong(e) =>
           val entity = database.entity(e)
           val nameValue = entity.get(PersonSchema.name)
           nameValue must beEqualTo(Some("toto"))
@@ -379,7 +380,7 @@ class DatomicMappingSpec extends Specification {
                 :where [?e :person/name "toto"]
               ]
             """)).head match {
-              case e: DLong =>
+              case DLong(e) =>
                 val entity = database.entity(e)
                 println(
                   "dentity age:" + entity.getAs[DLong](person / "age") + 
@@ -392,7 +393,7 @@ class DatomicMappingSpec extends Specification {
                 p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(Ref(DId(realMedorId))(medor)), Set()))
                 
                 val p2 = DatomicMapping.fromEntity(entity)(personReader2)                
-                p2 must beEqualTo(Person2("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(realMedorId.underlying), Set()))
+                p2 must beEqualTo(Person2("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(realMedorId), Set()))
 
                 DatomicMapping.toEntity(DId(e))(
                   Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), 

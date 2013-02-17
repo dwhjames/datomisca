@@ -207,13 +207,13 @@ case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
 }
 
 trait DDatom extends DatomicData{
-  def id: DLong
-  def attr: Keyword
-  def attrId: DId
-  def value: DatomicData
-  def tx: DLong
-  def added: DBoolean
-  def underlying: datomic.Datom
+  val id:         Long
+  val attr:       Keyword
+  val attrId:     Long
+  val value:      DatomicData
+  val tx:         Long
+  val added:      Boolean
+  val underlying: datomic.Datom
 
   override def toNative = underlying
 
@@ -222,12 +222,12 @@ trait DDatom extends DatomicData{
 
 object DDatom{
   def apply(d: datomic.Datom)(implicit db: DDatabase) = new DDatom{
-    lazy val id = DLong(d.e.asInstanceOf[Long])
+    lazy val id = d.e.asInstanceOf[Long]
     lazy val attr = db.ident(d.a.asInstanceOf[java.lang.Integer])
-    lazy val attrId = DId(DLong(d.a.asInstanceOf[java.lang.Integer].toLong))
+    lazy val attrId = d.a.asInstanceOf[java.lang.Integer].toLong
     lazy val value = Datomic.toDatomicData(d.v)
-    lazy val tx = DLong(d.tx.asInstanceOf[Long])
-    lazy val added = DBoolean(d.added.asInstanceOf[Boolean])
+    lazy val tx = d.tx.asInstanceOf[Long]
+    lazy val added = d.added.asInstanceOf[Boolean]
     lazy val underlying = d
   }
 }

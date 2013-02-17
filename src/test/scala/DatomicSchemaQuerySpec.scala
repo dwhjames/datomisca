@@ -118,7 +118,7 @@ class DatomicSchemaQuerySpec extends Specification {
         database, 
         DRef(KW(":person.character/violent"))
       ).map {
-        case (e: DLong, n: DString) => 
+        case (DLong(e), DString(n)) => 
           val entity = database.entity(e)
           println("1 - entity: "+ e + " name:"+n+ " - e:" + entity.get(person / "character"))
       }

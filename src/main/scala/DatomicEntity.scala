@@ -22,7 +22,7 @@ import scala.util.{Try, Success, Failure}
 class DEntity(val entity: datomic.Entity) extends DatomicData {
   def toNative = entity
 
-  def id: DLong = as[DLong](Namespace.DB / "id")
+  def id: Long = as[Long](Namespace.DB / "id")
 
   def touch() = {
     entity.touch()
