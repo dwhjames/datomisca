@@ -5,23 +5,8 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import datomic.Connection
-import datomic.Database
-import datomic.Peer
-import datomic.Util
-
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-
-import java.io.Reader
-import java.io.FileReader
-
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
 
 import datomisca._
 import Datomic._
@@ -67,7 +52,7 @@ class DatomicDemoSpec extends Specification {
        *  - query 
        */
       val fut = conn.transact(schema).flatMap{ tx => 
-        println("Provisioned schema... TX:%s".format(tx))
+        println(s"Provisioned schema... TX: $tx")
 
         /* AddEntity different syntaxes from most programmatic to macrocompiled using inline variables 
          * POTENTIAL DEMO :
@@ -90,7 +75,7 @@ class DatomicDemoSpec extends Specification {
             :person/age 35
             :person/character [ $weak $dumb ]
           }""")
-        ).map{ tx => 
+        ) map { tx => 
           println("Provisioned data... TX:%s".format(tx))
 
           /* Query demo 
@@ -113,7 +98,6 @@ class DatomicDemoSpec extends Specification {
               val entity = database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
               name -> age
-            case e => throw new RuntimeException("unexpected result")
           }
 
           val l2 = Datomic.q(Query.manual[Args2, Args3]("""
@@ -130,7 +114,6 @@ class DatomicDemoSpec extends Specification {
               val entity = database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
               name -> age
-            case e => throw new RuntimeException("unexpected result")
           }
 
           val l3 = Datomic.q(Query.manual[Args2, Args3]("""
@@ -147,13 +130,10 @@ class DatomicDemoSpec extends Specification {
               val entity = database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
               name -> age
-            case e => throw new RuntimeException("unexpected result")
           }
 
           (l1, l2, l3)
         }
-      }.recover{
-        case e => failure(e.getMessage)
       }
 
       val (a, b, c) = Await.result(
