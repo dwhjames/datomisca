@@ -19,14 +19,33 @@ package datomisca
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
   self => 
 
-  def entity(e: DLong): DEntity = entity(e.underlying)
+  /** Returns the entity for the given entity id
+    *
+    * @param eid an entity id
+    * @return an entity
+    * @throws EntityNotFoundException if there is no such entity
+    */
+  def entity(eid: Long): DEntity =
+    wrapEntity(eid.toString, underlying.entity(eid))
+
+  def entity(e: DLong):   DEntity = entity(e.underlying)
   def entity(e: FinalId): DEntity = entity(e.underlying)
-  def entity(e: Long): DEntity = Option(underlying.entity(e)) match {
-    case None => throw new EntityNotFoundException(DId(e))
-    case Some(entity) => 
-      if(entity.keySet.isEmpty) throw new EntityNotFoundException(DId(e))
-      else DEntity(entity)
-  }
+
+  /** Returns the entity for the given keyword
+    *
+    * @param kw a keyword
+    * @return an entity
+    * @throws EntityNotFoundException if there is no such entity
+    */
+  def entity(kw: Keyword): DEntity =
+    wrapEntity(kw.toString, underlying.entity(kw.toNative))
+
+  private def wrapEntity(id: String, entity: datomic.Entity): DEntity =
+    if (entity.keySet.isEmpty)
+      throw new EntityNotFoundException(id)
+    else
+      DEntity(entity)
+
 
   def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
   def asOf(date: DInstant): DDatabase = asOf(date.underlying)

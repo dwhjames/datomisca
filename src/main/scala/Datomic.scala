@@ -378,7 +378,7 @@ object Datomic
 
 class DatomicException(msg: String) extends Exception(msg)
 
-class EntityNotFoundException(id: DId)
+class EntityNotFoundException(id: String)
   extends DatomicException(s"Datomic Error: entity not found with id($id)")
 
 class TempidNotResolved(id: DId)
