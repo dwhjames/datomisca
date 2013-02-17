@@ -38,8 +38,25 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def entid(e: DLong):    Long = entid(e.underlying)
   def entid(kw: Keyword): Long = underlying.entid(kw.toNative).asInstanceOf[Long]
 
-  def ident(e: Integer): Keyword = Keyword(underlying.ident(e).asInstanceOf[clojure.lang.Keyword])
-  def ident(kw: Keyword): Keyword = Keyword(underlying.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
+  /** Returns the symbolic keyword associated with an id
+    *
+    * @param eid an entity id
+    * @return a keyword
+    * @throws Exception if no keyword is found
+    */
+  def ident(eid: Long): Keyword =
+    Option { underlying.ident(eid) } match {
+      case None     => throw new Exception("DDatabase.ident: keyword not found")
+      case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
+    }
+
+  /** Returns the symbolic keyword
+    *
+    * @param kw a keyword
+    * @return a keyword
+    */
+  def ident(kw: Keyword): Keyword =
+    Keyword(underlying.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
 
   def withData(ops: Seq[Operation]) = {
     import scala.collection.JavaConverters._
