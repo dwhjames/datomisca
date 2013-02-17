@@ -223,8 +223,8 @@ trait DDatom extends DatomicData{
 object DDatom{
   def apply(d: datomic.Datom)(implicit db: DDatabase) = new DDatom{
     lazy val id = d.e.asInstanceOf[Long]
-    lazy val attr = db.ident(d.a.asInstanceOf[java.lang.Integer])
-    lazy val attrId = d.a.asInstanceOf[java.lang.Integer].toLong
+    lazy val attr = db.ident(d.a.asInstanceOf[Integer].toLong)
+    lazy val attrId = d.a.asInstanceOf[Integer].toLong
     lazy val value = Datomic.toDatomicData(d.v)
     lazy val tx = d.tx.asInstanceOf[Long]
     lazy val added = d.added.asInstanceOf[Boolean]
