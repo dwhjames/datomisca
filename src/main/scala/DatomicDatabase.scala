@@ -128,6 +128,11 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def nextT: Long = underlying.nextT
   def sinceT: Option[Long] = Option(underlying.sinceT)
 
+  /**
+    * @return the asOf point
+    */
+  def asOfT: Option[Long] = Option { underlying.asOfT }
+
   // TODO
   // indexRange
   // invoke
