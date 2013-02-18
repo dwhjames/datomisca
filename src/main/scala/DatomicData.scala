@@ -172,9 +172,8 @@ object DId {
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {
-  def toNative: AnyRef = {
-    java.util.Arrays.asList(elements.map(_.toNative).toSeq: _*) 
-  }
+  def toNative: AnyRef =
+    datomic.Util.list(elements.map(_.toNative).toSeq: _*)
 
   override def toString = elements.mkString("[", ", ", "]")
 

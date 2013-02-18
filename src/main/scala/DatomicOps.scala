@@ -30,13 +30,8 @@ case class AddFact(fact: Fact) extends DataFunction with Identified {
   override val func = AddFact.kw
   override val id = fact.id
 
-  def toNative: AnyRef = {
-    val javal = new java.util.ArrayList[AnyRef]
-    javal.addAll(
-      Seq(func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative).asJava
-    )
-    javal
-  }
+  def toNative: AnyRef =
+    datomic.Util.list(func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative)
 }
 
 object AddFact {
@@ -49,13 +44,8 @@ case class RetractFact(fact: Fact) extends DataFunction with Identified {
   override val func = RetractFact.kw
   override val id = fact.id
 
-  def toNative: AnyRef = {
-    val javal = new java.util.ArrayList[AnyRef]
-    javal.addAll(
-      Seq(func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative).asJava
-    )
-    javal
-  }
+  def toNative: AnyRef =
+    datomic.Util.list(func.toNative, fact.id.toNative, fact.attr.toNative, fact.value.toNative)
 }
 
 object RetractFact {
@@ -66,13 +56,8 @@ object RetractFact {
 case class RetractEntity(entId: DLong) extends DataFunction {
   override val func = RetractEntity.kw
 
-  def toNative: AnyRef = {
-    val javal = new java.util.ArrayList[AnyRef]
-    javal.addAll(
-      Seq(func.toNative, entId.toNative).asJava
-    )
-    javal
-  } 
+  def toNative: AnyRef =
+    datomic.Util.list(func.toNative, entId.toNative)
 
   //override def toString = toNative.toString
 }
