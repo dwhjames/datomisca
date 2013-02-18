@@ -110,4 +110,35 @@ case class AddIdent(val ident: Keyword, partition: Partition = Partition.USER) e
 
 }
 
+case class AddDbFunction(val ident: Keyword, params: Seq[String], code: String, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {
+  override lazy val id  = DId(partition)
+  override lazy val ref = DRef(ident)
+  val kw = Keyword("add", Some(Namespace.DB))
+
+  def toNative: AnyRef =
+    datomic.Util.map(
+      Keyword("id", Some(Namespace.DB)).toNative,    id.toNative,
+      Keyword("ident", Some(Namespace.DB)).toNative, ident.toNative,
+      Keyword("fn", Some(Namespace.DB)).toNative,    datomic.Peer.function(
+        datomic.Util.map(
+          Keyword("lang").toNative,   "clojure",
+          Keyword("params").toNative, datomic.Util.list(params: _*),
+          Keyword("code").toNative,   code
+        )
+      )
+    )
+
+  override def toString = toNative.toString
+}
+
+object AddDbFunction {
+  def apply(kw: Keyword)(params: String*)(code: String) = new AddDbFunction(kw, params, code)
+}
+
+case class InvokeTxFunction(fn: Keyword, args: DatomicData*) extends Operation {
+  def toNative: AnyRef =
+    datomic.Util.list(
+      (fn +: args).map(_.toNative): _*
+    )
+}
 
