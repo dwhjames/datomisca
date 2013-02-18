@@ -88,10 +88,7 @@ case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends P
 
   def toNative: AnyRef = {
     import scala.collection.JavaConverters._
-    (
-      props.map{case (k, v) => (k.toNative, v.toNative)} +
-      (Keyword("id", Namespace.DB).toNative -> id.toNative)
-    ).asJava
+    props.map{case (k, v) => (k.toNative, v.toNative)}.asJava
   }
 
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
