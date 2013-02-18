@@ -4,7 +4,7 @@ import Keys._
 object BuildSettings {
   val buildName = "datomisca"
   val buildOrganization = "pellucidanalytics"
-  val buildVersion      = "0.1-SNAPSHOT"
+  val buildVersion      = "0.1"
   val buildScalaVersion = "2.10.0"
 
   val buildSettings = Defaults.defaultSettings ++ Seq (
