@@ -55,14 +55,18 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
       case _: EntityKeyNotFoundException => None
     }
 
-  def toMap: Map[Keyword, DatomicData] = {
+  def keySet: Set[Keyword] = {
     import scala.collection.JavaConverters._
 
-    entity.keySet.asScala.view.map{ x: Any =>
-      val key = x.asInstanceOf[clojure.lang.Keyword]
-      (Keyword(key) -> Datomic.toDatomicData(entity.get(key)))
-    }.toMap
+    entity.keySet.asScala.view.map{ key: Any =>
+      Keyword(key.asInstanceOf[clojure.lang.Keyword])
+    }.toSet
   }
+
+  def toMap: Map[Keyword, DatomicData] =
+    keySet.view.map{ key: Keyword =>
+      (key -> apply(key))
+    }.toMap
 
   /* extension with attributes */
   /*def as[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])
