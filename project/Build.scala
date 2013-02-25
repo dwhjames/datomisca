@@ -2,15 +2,17 @@ import sbt._
 import Keys._
 
 object BuildSettings {
-  val buildName = "datomisca"
-  val buildOrganization = "pellucidanalytics"
-  val buildVersion      = "0.2-SNAPSHOT"
-  val buildScalaVersion = "2.10.0"
+  val buildName              = "datomisca"
+  val buildOrganization      = "pellucidanalytics"
+  val buildVersion           = "0.2-SNAPSHOT"
+  val buildScalaVersion      = "2.10.0"
 
+  val datomicVersion         = "0.8.3814"
+ 
   val buildSettings = Defaults.defaultSettings ++ Seq (
-    organization := buildOrganization,
-    version      := buildVersion,
-    scalaVersion := buildScalaVersion
+    organization    := buildOrganization,
+    version         := buildVersion,
+    scalaVersion    := buildScalaVersion
   )
 }
 
@@ -45,8 +47,7 @@ object ApplicationBuild extends Build {
       resolvers ++= typesafeRepo ++ datomicRepo,
       //credentials += datomicCredentials,
       libraryDependencies ++= Seq(
-        "com.datomic" % "datomic-free" % "0.8.3731" % "provided" exclude("org.slf4j", "slf4j-nop"),
-        "org.scala-lang" % "scala-compiler" % "2.10.0",
+        "com.datomic" % "datomic-free" % BuildSettings.datomicVersion % "provided" exclude("org.slf4j", "slf4j-nop"),        "org.scala-lang" % "scala-compiler" % "2.10.0",
         "org.specs2" %% "specs2" % "1.13" % "test",
         "junit" % "junit" % "4.8" % "test"
       ),
