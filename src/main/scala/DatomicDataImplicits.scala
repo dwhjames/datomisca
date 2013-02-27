@@ -68,14 +68,16 @@ trait DDReaderImplicits {
       dd2t.read(dd)
     }*/
 
-  implicit val DatomicData2String:  DDReader[DatomicData, String]         = DDReader(_.asInstanceOf[DString] .underlying)
-  implicit val DatomicData2Long:    DDReader[DatomicData, Long]           = DDReader(_.asInstanceOf[DLong]   .underlying)
-  implicit val DatomicData2Boolean: DDReader[DatomicData, Boolean]        = DDReader(_.asInstanceOf[DBoolean].underlying)
-  implicit val DatomicData2Float:   DDReader[DatomicData, Float]          = DDReader(_.asInstanceOf[DFloat]  .underlying)
-  implicit val DatomicData2Double:  DDReader[DatomicData, Double]         = DDReader(_.asInstanceOf[DDouble] .underlying)
-  implicit val DatomicData2BigInt:  DDReader[DatomicData, BigInt]         = DDReader(_.asInstanceOf[DBigInt] .underlying)
-  implicit val DatomicData2BigDec:  DDReader[DatomicData, BigDecimal]     = DDReader(_.asInstanceOf[DBigDec] .underlying)
-  implicit val DatomicData2Date:    DDReader[DatomicData, java.util.Date] = DDReader(_.asInstanceOf[DInstant].underlying)
+  implicit val DatomicData2String:      DDReader[DatomicData, String]               = DDReader(_.asInstanceOf[DString] .underlying)
+  implicit val DatomicData2Long:        DDReader[DatomicData, Long]                 = DDReader(_.asInstanceOf[DLong]   .underlying)
+  implicit val DatomicData2Boolean:     DDReader[DatomicData, Boolean]              = DDReader(_.asInstanceOf[DBoolean].underlying)
+  implicit val DatomicData2Float:       DDReader[DatomicData, Float]                = DDReader(_.asInstanceOf[DFloat]  .underlying)
+  implicit val DatomicData2Double:      DDReader[DatomicData, Double]               = DDReader(_.asInstanceOf[DDouble] .underlying)
+  implicit val DatomicData2BigInt:      DDReader[DatomicData, BigInt]               = DDReader(_.asInstanceOf[DBigInt] .underlying)
+  implicit val DatomicData2BigDec:      DDReader[DatomicData, BigDecimal]           = DDReader(_.asInstanceOf[DBigDec] .underlying)
+  implicit val DatomicData2BigIntJava:  DDReader[DatomicData, java.math.BigInteger] = DDReader(_.asInstanceOf[DBigInt] .underlying.underlying)
+  implicit val DatomicData2BigDecJava:  DDReader[DatomicData, java.math.BigDecimal] = DDReader(_.asInstanceOf[DBigDec] .underlying.underlying)
+  implicit val DatomicData2Date:        DDReader[DatomicData, java.util.Date]       = DDReader(_.asInstanceOf[DInstant].underlying)
 
   /*implicit val DRefDDReader: DDReader[DatomicData, DRef] = DDReader{ dd: DatomicData => dd match {
     case s: DRef => s
@@ -98,17 +100,19 @@ trait DDWriterImplicits{
     case _ => throw new RuntimeException("couldn't convert")
   }}*/
 
-  implicit val String2DStringWrites   = DDWriter[DString, String]              ( (s: String)                    => DString(s) )
-  implicit val Long2DLongWrites       = DDWriter[DLong, Long]                  ( (l: Long)                      => DLong(l) )
-  implicit val Int2DIntWrites         = DDWriter[DInt, Int]                    ( (l: Int)                       => DInt(l) )
-  implicit val Boolean2DBooleanWrites = DDWriter[DBoolean, Boolean]            ( (b: Boolean)                   => DBoolean(b) )
-  implicit val Float2DFloatWrites     = DDWriter[DFloat, Float]                ( (b: Float)                     => DFloat(b) )
-  implicit val Double2DDoubleWrites   = DDWriter[DDouble, Double]              ( (b: Double)                    => DDouble(b) )
-  implicit val Date2DDateWrites       = DDWriter[DInstant, java.util.Date]     ( (d: java.util.Date)            => DInstant(d) )
-  implicit val BigInt2DBigIntWrites   = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger)      => DBigInt(i) )
-  implicit val BigDec2DBigDecWrites   = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal)      => DBigDec(i) )
-  implicit val Ref2DReferenceable     = DDWriter[DRef, Referenceable]          ( (referenceable: Referenceable) => referenceable.ref )
-  implicit val DRef2DRefWrites        = DDWriter[DRef, DRef]                   ( (d: DRef) => d )
+  implicit val String2DStringWrites     = DDWriter[DString, String]              ( (s: String)                    => DString(s) )
+  implicit val Long2DLongWrites         = DDWriter[DLong, Long]                  ( (l: Long)                      => DLong(l) )
+  implicit val Int2DIntWrites           = DDWriter[DInt, Int]                    ( (l: Int)                       => DInt(l) )
+  implicit val Boolean2DBooleanWrites   = DDWriter[DBoolean, Boolean]            ( (b: Boolean)                   => DBoolean(b) )
+  implicit val Float2DFloatWrites       = DDWriter[DFloat, Float]                ( (b: Float)                     => DFloat(b) )
+  implicit val Double2DDoubleWrites     = DDWriter[DDouble, Double]              ( (b: Double)                    => DDouble(b) )
+  implicit val Date2DDateWrites         = DDWriter[DInstant, java.util.Date]     ( (d: java.util.Date)            => DInstant(d) )
+  implicit val JavaBigInt2DBigIntWrites = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger)      => DBigInt(i) )
+  implicit val JavaBigDec2DBigDecWrites = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal)      => DBigDec(i) )
+  implicit val BigInt2DBigIntWrites     = DDWriter[DBigInt, BigInt]              ( (i: BigInt)                    => DBigInt(i) )
+  implicit val BigDec2DBigDecWrites     = DDWriter[DBigDec, BigDecimal]          ( (i: BigDecimal)                => DBigDec(i) )
+  implicit val Ref2DReferenceable       = DDWriter[DRef, Referenceable]          ( (referenceable: Referenceable) => referenceable.ref )
+  implicit val DRef2DRefWrites          = DDWriter[DRef, DRef]                   ( (d: DRef) => d )
   //implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
 
   implicit def DD2DStringWrites  = DDWriter[DatomicData, DString] (_.asInstanceOf[DString])
@@ -144,8 +148,10 @@ trait DD2WriterImplicits {
   implicit val FloatDD2Writes         = DD2Writer[Float]               ( (b: Float)                     => DFloat(b) )
   implicit val DoubleDD2Writes        = DD2Writer[Double]              ( (b: Double)                    => DDouble(b) )
   implicit val DateDD2Writes          = DD2Writer[java.util.Date]      ( (d: java.util.Date)            => DInstant(d) )
-  implicit val BigIntDD2Writes        = DD2Writer[java.math.BigInteger]( (i: java.math.BigInteger)      => DBigInt(i) )
-  implicit val BigDecDD2Writes        = DD2Writer[java.math.BigDecimal]( (i: java.math.BigDecimal)      => DBigDec(i) )
+  implicit val JavaBigIntDD2Writes    = DD2Writer[java.math.BigInteger]( (i: java.math.BigInteger)      => DBigInt(i) )
+  implicit val JavaBigDecDD2Writes    = DD2Writer[java.math.BigDecimal]( (i: java.math.BigDecimal)      => DBigDec(i) )
+  implicit val BigIntDD2Writes        = DD2Writer[BigInt]              ( (i: BigInt)                    => DBigInt(i) )
+  implicit val BigDecDD2Writes        = DD2Writer[BigDecimal]          ( (i: BigDecimal)                => DBigDec(i) )
   implicit val ReferenceableDD2Writes = DD2Writer[Referenceable]       ( (referenceable: Referenceable) => referenceable.ref )
 
 }
