@@ -147,7 +147,8 @@ object DatomicMapping
     } }*/
 
   implicit def attributeOps[DD <: DatomicData, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
-    
+
+  implicit class toSchemaDEntityOps(override val entity: DEntity) extends SchemaDEntityOps 
 }
 
 trait EntityReaderImplicits {
