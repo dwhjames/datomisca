@@ -182,7 +182,33 @@ class DatomicQuerySpec extends Specification {
       """) must beEqualTo(alias) 
     }
 
-    "8 - query with rule alias" in {
+    "8 - parse fct call in rule alias" in {
+      val alias = DRuleAliases(
+        Seq(DRuleAlias(
+          "region", 
+          Seq(Var("c"), Var("r")),
+          Seq(
+            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
+            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
+            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
+            RuleAliasCall("rule", Seq(Var("b"), Const(DLong(12)))),
+            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
+          )
+        ))
+      )
+
+      Query.rules("""
+        [ [ [region ?c ?r]
+           [?c :community/neighborhood ?n]
+           [?n :neighborhood/district ?d]
+           [?d :district/region ?re]
+           (rule ?b 12)
+           [?re :db/ident ?r] 
+        ] ]
+      """) must beEqualTo(alias) 
+    }    
+
+    "9 - query with rule alias" in {
       implicit val conn = Datomic.connect(uri)
       
       val totoRule = Query.rules("""
@@ -207,7 +233,7 @@ class DatomicQuerySpec extends Specification {
       }
     }
 
-    "9 - query with with" in {
+    "10 - query with with" in {
       implicit val conn = Datomic.connect(uri)
       
       val q = Query.manual[Args0, Args2]("""
