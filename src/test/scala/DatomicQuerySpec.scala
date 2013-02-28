@@ -278,4 +278,20 @@ class DatomicQuerySpec extends Specification {
       """) must beEqualTo(alias) 
     }  
   }
+
+  "12 - passing database when no :in" in {
+
+      implicit val conn = Datomic.connect(uri)
+
+      val q = Query(""" 
+        [:find ?e :where [?e :person/name]]
+      """)
+      Datomic.q(q, database) map {
+        case DLong(e) => 
+          val entity = database.entity(e)
+          println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
+      }
+
+      success
+    }
 }

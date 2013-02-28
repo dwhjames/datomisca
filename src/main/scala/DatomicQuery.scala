@@ -326,7 +326,7 @@ trait QueryExecutorAuto extends DD2WriterImplicits{
 
   def q[R](query: TypedQueryAuto0[R], db: DDatabase)(
     implicit outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq())(db, outConv)
 
   def q[A, R](query: TypedQueryAuto1[A, R], a: A)(
     implicit db: DDatabase, 
