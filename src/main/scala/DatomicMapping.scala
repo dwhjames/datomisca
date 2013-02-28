@@ -228,25 +228,25 @@ trait Attribute2EntityReaderImplicits {
       }
     }
 
-  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit dd2dd: DD2DDReader[DD], dd2dest: DD2ScalaReader[DD, A]) = 
+  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit ddr: DDReader[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityOne.type, A] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
         EntityReader[A]{ e: DEntity => 
           val dd = e.as[DD](attr.ident)
-          dd2dest.read(dd)
+          ddr.read(dd)
         }
       }
     }  
 
 
-  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit dd2dd: DD2DDReader[DD], dd2dest: DD2ScalaReader[DD, A]) = 
+  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit ddr: DDReader[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
           val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
           
           value.toSet map { e =>
-            dd2dest.read(dd2dd.read(e))
+            ddr.read(e.as[DD])            
           }
         }
       }
