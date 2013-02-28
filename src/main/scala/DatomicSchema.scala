@@ -17,6 +17,7 @@
 package datomisca
 
 import scala.language.reflectiveCalls
+import scala.util.{Try, Success, Failure}
 
 trait SchemaType[DD <: DatomicData] {
   def keyword: Keyword
@@ -393,4 +394,49 @@ trait DatomicSchemaQueryFacilities {
 object SchemaFact extends DatomicSchemaFactFacilities
 
 object SchemaEntity extends DatomicSchemaEntityFacilities
+
+trait SchemaDEntityOps{
+  def entity: DEntity
+
+  def get[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
+    Try { attrC.convert(attr).read(entity) }.toOption
+  }
+
+  def tryGet[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
+    Try { attrC.convert(attr).read(entity) }
+  }
+
+  def getRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
+    tryGet(attr).toOption
+  }
+
+  def getRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
+    tryGet(attr).toOption
+  }
+
+  def tryGetRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
+    tryGet(attr)
+  }
+
+  def tryGetRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
+    tryGet(attr)
+  }
+
+  def get[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
+    tryGet(attr).toOption
+  }
+
+  def tryGet[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
+    Try { attrC.convert(attr).read(entity) }
+  }
+
+  def get[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
+    tryGet(attr).toOption
+  }
+
+  def tryGet[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
+    Try { attrC.convert(attr).read(entity) }
+  }
+
+}
 
