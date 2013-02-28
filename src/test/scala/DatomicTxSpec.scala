@@ -556,6 +556,28 @@ class DatomicTxSpec extends Specification {
         Datomic.resolveEntity(tx, DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
       }
     }
+
+    "10 - get txReport map/toString" in {
+      implicit val conn = Datomic.connect(uri)  
+
+      implicit val personReader = (
+        PersonSchema.name.read[String] and 
+        PersonSchema.age .read[Long]
+      )(Person)
+
+      val idToto = DId(Partition.USER)
+
+      val fut = Datomic.transact(
+        Entity.add(idToto)(
+          person / "name" -> "toto",
+          person / "age"  -> 30
+        )
+      ) map { tx => 
+        val id = tx.resolve(idToto)
+        
+        println(tx.toString)
+      }
+    }
   }
 
 }

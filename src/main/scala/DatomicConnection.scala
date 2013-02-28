@@ -44,6 +44,18 @@ trait TxReport extends TxReportHidden {
   
   def resolveOpt(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
+
+  lazy val idMap: Map[Long, Long] = {
+    import scala.collection.JavaConverters._
+    tempids.asInstanceOf[java.util.Map[Long, Long]].asScala.toMap
+  }
+  
+  override def toString = s"""TxReport{ 
+    dbBefore: ${dbBefore.basisT}, 
+    dbAfter: ${dbAfter.basisT}, 
+    txData: $txData,
+    tempids: $idMap
+  }"""
 }
 
 trait Connection {

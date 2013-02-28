@@ -217,7 +217,7 @@ trait DDatom extends DatomicData{
 
   override def toNative = underlying
 
-  override def toString = "[%s %s %s %s %s]".format(id, attr, underlying, tx, added)
+  override def toString = "Datom(e[%s] a[%s] v[%s] tx[%s] added[%s])".format(id, attr, value, tx, added)
 }
 
 object DDatom{
