@@ -112,7 +112,7 @@ object DatomicParser extends JavaTokenParsers {
 
   def dset: Parser[DSet] = "[" ~> rep(datomicData) <~ "]" ^^ { l => DSet(l.toSet) }
 
-  def druletmp: Parser[(String, Seq[Var])] = "[" ~> functionLiteral ~ rep(variable) <~ "]" ^^ { 
+  def druletmp: Parser[(String, Seq[Var])] = ("[" | "(") ~> functionLiteral ~ rep(variable) <~ ("]" | ")") ^^ { 
     case name ~ vars => ( name, vars ) }
   def drulealias: Parser[DRuleAlias] = "[" ~> druletmp ~ rep(rule) <~ "]" ^^ {
     case ( name, outputs ) ~ (rules: Seq[_]) => DRuleAlias(name, outputs, rules)
