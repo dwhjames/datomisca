@@ -175,13 +175,11 @@ class DatomicMappingSpec extends Specification {
             )
           ).map{ tx => 
             println(s"Provisioned data... TX: $tx")
-            tx.resolve(medorId, doggy1Id, doggy2Id, doggy3Id) match{
-              case (medorId, doggy1Id, doggy2Id, doggy3Id) => 
-                realMedorId  = medorId
-                realDoggy1Id = doggy1Id
-                realDoggy2Id = doggy2Id
-                realDoggy3Id = doggy3Id
-            }
+            realMedorId  = tx.resolve(medorId)
+            realDoggy1Id = tx.resolve(doggy1Id)
+            realDoggy2Id = tx.resolve(doggy2Id)
+            realDoggy3Id = tx.resolve(doggy3Id)
+
 
             Datomic.q(Query.manual[Args0, Args1]("""
               [ :find ?e 
@@ -357,13 +355,10 @@ class DatomicMappingSpec extends Specification {
             )
           ).map{ tx => 
             println(s"Provisioned data... TX: $tx")
-            tx.resolve(medorId, doggy1Id, doggy2Id, doggy3Id) match{
-              case (medorId, doggy1Id, doggy2Id, doggy3Id) => 
-                realMedorId  = medorId
-                realDoggy1Id = doggy1Id
-                realDoggy2Id = doggy2Id
-                realDoggy3Id = doggy3Id
-            }
+            realMedorId  = tx.resolve(medorId)
+            realDoggy1Id = tx.resolve(doggy1Id)
+            realDoggy2Id = tx.resolve(doggy2Id)
+            realDoggy3Id = tx.resolve(doggy3Id)
 
             Datomic.q(Query.manual[Args0, Args1]("""
               [ :find ?e 
@@ -428,11 +423,8 @@ class DatomicMappingSpec extends Specification {
             )
           ).map{ tx => 
             println(s"Provisioned data... TX: $tx")
-            tx.resolve(medorId, doggy1Id) match{
-              case (medorId, doggy1Id) => 
-                realMedorId  = medorId
-                realDoggy1Id = doggy1Id
-            }
+            realMedorId  = tx.resolve(medorId)
+            realDoggy1Id = tx.resolve(doggy1Id)
 
             DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(wrongDogReader) must throwA[datomisca.EntityKeyNotFoundException] 
             DatomicMapping.fromEntity[Dog](database.entity(realMedorId))(wrongDogReader orElse dogReader) should beEqualTo(Dog("medor", 5L))

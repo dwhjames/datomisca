@@ -212,15 +212,12 @@ class DatomicMapping2Spec extends Specification {
             )
           ) map { tx => 
             println(s"Provisioned data... TX: $tx")
-            tx.resolve(totoId, toto2Id, medorId, doggy1Id, doggy2Id, doggy3Id) match {
-              case (totoId, toto2Id, medorId, doggy1Id, doggy2Id, doggy3Id) => 
-                realTotoId   = totoId
-                realToto2Id  = toto2Id
-                realMedorId  = medorId
-                realDoggy1Id = doggy1Id
-                realDoggy2Id = doggy2Id
-                realDoggy3Id = doggy3Id
-            }
+            realTotoId   = tx.resolve(totoId)
+            realToto2Id  = tx.resolve(toto2Id)
+            realMedorId  = tx.resolve(medorId)
+            realDoggy1Id = tx.resolve(doggy1Id)
+            realDoggy2Id = tx.resolve(doggy2Id)
+            realDoggy3Id = tx.resolve(doggy3Id)
 
             Datomic.q(Query.manual[Args0, Args1]("""
               [ :find ?e 
