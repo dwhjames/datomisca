@@ -172,9 +172,8 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityOne.type, Ref[A]] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Ref[A]] = {
         EntityReader[Ref[A]]{ e: DEntity => 
-          val subent = e.as[DEntity](attr.ident)
-          val id = subent.as[DLong](Keyword("id", Namespace.DB))
-          Ref(DId(id))(er.read(subent))
+          val subent = e(attr.ident).asInstanceOf[DEntity]
+          Ref(DId(subent.id))(er.read(subent))
         }
       }
     }  
@@ -183,13 +182,12 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[A]]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Ref[A]]] = {
         EntityReader[Set[Ref[A]]]{ e: DEntity => 
-          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
-          value.toSet map { 
-            case subent: DEntity => 
-              val id = subent.as[DLong](Keyword("id", Namespace.DB))
-              Ref(DId(id))(er.read(subent))
-            case _ => throw new RuntimeException("found an object not being a DEntity")
-          }
+          e.get(attr.ident) map { case DSet(elems) =>
+            elems map {
+              case subent: DEntity => Ref(DId(subent.id))(er.read(subent))
+              case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
+            }
+          } getOrElse (Set.empty)
         }
       }
     }
@@ -198,8 +196,7 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityOne.type, Long] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Long] = {
         EntityReader[Long]{ e: DEntity => 
-          val subent = e.as[DEntity](attr.ident)
-          subent.as[Long](Namespace.DB / "id")
+          e(attr.ident).asInstanceOf[DEntity].id
         }
       }
     }  
@@ -208,7 +205,7 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityOne.type, A] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[A] = {
         EntityReader[A]{ e: DEntity => 
-          val subent = e.as[DEntity](attr.ident)
+          val subent = e(attr.ident).asInstanceOf[DEntity]
           er.read(subent)
         }
       }
@@ -218,12 +215,12 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Long]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Long]] = {
         EntityReader[Set[Long]]{ e: DEntity => 
-          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
-          value.toSet map { 
-            case subent: DEntity => 
-              subent.as[Long](Namespace.DB / "id")
-            case _ => throw new RuntimeException("found an object not being a DEntity")
-          }
+          e.get(attr.ident) map { case DSet(elems) =>
+            elems map {
+              case subent: DEntity => subent.id
+              case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
+            }
+          } getOrElse (Set.empty)
         }
       }
     }
@@ -232,7 +229,7 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DD, CardinalityOne.type, A] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
         EntityReader[A]{ e: DEntity => 
-          val dd = e.as[DD](attr.ident)
+          val dd = e(attr.ident).asInstanceOf[DD]
           ddr.read(dd)
         }
       }
@@ -243,11 +240,9 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
-          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
-          
-          value.toSet map { e =>
-            ddr.read(e.as[DD])            
-          }
+          e.get(attr.ident) map { case DSet(elems) =>
+            elems map { elem => ddr.read(elem.asInstanceOf[DD]) }
+          } getOrElse (Set.empty)
         }
       }
     }
@@ -256,13 +251,12 @@ trait Attribute2EntityReaderImplicits {
     new Attribute2EntityReader[DRef, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
-          val value = e.getAs[DSet](attr.ident).getOrElse(DSet())
-
-          value.toSet map {
-            case subent: DEntity =>
-              er.read(subent)
-            case _ => throw new EntityMappingException("found a DatomicData not being a DEntity")
-          }
+          e.get(attr.ident) map { case DSet(elems) =>
+            elems map {
+              case subent: DEntity => er.read(subent)
+              case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
+            }
+          } getOrElse (Set.empty)
         }
       }
     }
