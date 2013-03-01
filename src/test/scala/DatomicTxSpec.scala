@@ -284,14 +284,11 @@ class DatomicTxSpec extends Specification {
         DatomicMapping.toEntity(medorId)(medor)
       ) map { tx =>
         println(s"2 Provisioned more data... TX: $tx")
-        
-        tx.resolve(medorId, totoId) match {
-          case (medorId, totoId) => 
-            println(s"4 totoId:$totoId medorId:$medorId")
-            val entity = database.entity(totoId)
-            val PersonDog(name, age, dog) = DatomicMapping.fromEntity[PersonDog](entity)
-            println(s"Found Toto $name $age $dog")
-        }
+        val txIds = tx.tempidMap
+        println(s"4 totoId:${txIds(totoId)} medorId:${txIds(medorId)}")
+        val entity = database.entity(txIds(totoId))
+        val PersonDog(name, age, dog) = DatomicMapping.fromEntity[PersonDog](entity)
+        println(s"Found Toto $name $age $dog")
       }      
 
       Await.result(
@@ -335,19 +332,16 @@ class DatomicTxSpec extends Specification {
         DatomicMapping.toEntity(tutuId)(tutu)
       ) map { tx =>
         println(s"5 - Provisioned more data... TX: $tx")
-        
-        tx.resolve(totoId, tutuId) match {
-          case (totoId, tutuId) => 
-            println(s"5 - totoId:$totoId tutuId:$tutuId")
-            val entityToto = database.entity(totoId)
-            val t1 = DatomicMapping.fromEntity[PersonLike](entityToto)
-            println(s"5 - retrieved toto:$t")
-            t1.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
-            val entityTutu = database.entity(tutuId)
-            val t2 = DatomicMapping.fromEntity[PersonLike](entityTutu)
-            println(s"5 - retrieved tutu:$t")
-            t2 must beEqualTo(tutu)
-        }
+        val txIds = tx.tempidMap
+        println(s"5 - totoId:${txIds(totoId)} tutuId:${txIds(tutuId)}")
+        val entityToto = database.entity(txIds(totoId))
+        val t1 = DatomicMapping.fromEntity[PersonLike](entityToto)
+        println(s"5 - retrieved toto:$t")
+        t1.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
+        val entityTutu = database.entity(txIds(tutuId))
+        val t2 = DatomicMapping.fromEntity[PersonLike](entityTutu)
+        println(s"5 - retrieved tutu:$t")
+        t2 must beEqualTo(tutu)
       }      
 
       Await.result(
@@ -450,7 +444,7 @@ class DatomicTxSpec extends Specification {
       ) map { tx =>
         println(s"7 - Provisioned more data... TX: $tx")
         
-        val (realMedorId, realTotoId, realTutuId) = tx.resolve(medorId, totoId, tutuId)
+        val Seq(realMedorId, realTotoId, realTutuId) = Seq(medorId, totoId, tutuId) map tx.resolve
         println(s"7 - totoId:$totoId medorId:$medorId")
         val entityToto = database.entity(realTotoId)
         val t1 = DatomicMapping.fromEntity[PersonDogOpt](entityToto)
@@ -521,7 +515,7 @@ class DatomicTxSpec extends Specification {
       ) map { tx =>
         println(s"8 - Provisioned more data... TX: $tx")
         
-        val (realMedorId, realBrutusId, realTotoId) = tx.resolve(medorId, brutusId, totoId)
+        val Seq(realMedorId, realBrutusId, realTotoId) = Seq(medorId, brutusId, totoId) map tx.resolve
         val entity = database.entity(realTotoId)
         val t = DatomicMapping.fromEntity[PersonDogList](entity)
         t must beEqualTo(PersonDogList("toto", 30, Set(Ref(DId(realMedorId))(medor), Ref(DId(realBrutusId))(brutus))))
