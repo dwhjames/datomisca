@@ -28,7 +28,7 @@ trait DDReaderImplicits {
   implicit def Datomicdata2DD[DD <: DatomicData]  = DDReader[DatomicData, DD](_.asInstanceOf[DD])
 
   implicit val ReadDRef:    DDReader[DRef,    DRef]    = DDReader( dd => dd )
-  implicit val ReadDEntity: DDReader[DEntity, DEntity] = DDReader( dd => dd )
+  //implicit val ReadDEntity: DDReader[DEntity, DEntity] = DDReader( dd => dd )
 
   implicit val DatomicData2String:      DDReader[DatomicData, String]      = DDReader(_.asInstanceOf[DString] .underlying)
   implicit val DatomicData2Boolean:     DDReader[DatomicData, Boolean]     = DDReader(_.asInstanceOf[DBoolean].underlying)
@@ -43,7 +43,6 @@ trait DDReaderImplicits {
   implicit val DatomicData2UUID:        DDReader[DatomicData, UUID]        = DDReader(_.asInstanceOf[DUuid]   .underlying)
   implicit val DatomicData2URI:         DDReader[DatomicData, URI]         = DDReader(_.asInstanceOf[DUri]    .underlying)
   implicit val DatomicData2Bytes:       DDReader[DatomicData, Array[Byte]] = DDReader(_.asInstanceOf[DBytes]  .underlying)
-
 
   implicit val DString2String:          DDReader[DString,  String]      = DDReader(_.underlying)
   implicit val DBoolean2Boolean:        DDReader[DBoolean, Boolean]     = DDReader(_.underlying)
@@ -98,18 +97,25 @@ trait DDWriterImplicits{
   implicit val URI2DatomicData     = DDWriter[DatomicData, URI]         ((u: URI)         => DUri(u))
   implicit val Bytes2DatomicData   = DDWriter[DatomicData, Array[Byte]] ((a: Array[Byte]) => DBytes(a))
 
-  implicit val Referenceable2DatomicData = DDWriter[DatomicData, Referenceable] ((r: Referenceable) => r.ref)
-//implicit val DRef2DatomicData          = DDWriter[DatomicData, DRef]          ((d: DRef) => d)
+  implicit def Referenceable2DatomicData[A <: Referenceable] = DDWriter[DatomicData, A]{ (a: A) => a.ref }
+  //implicit val DRef2DatomicData          = DDWriter[DatomicData, DRef]          ((d: DRef) => d)
 
   implicit def DDatomicData[DD <: DatomicData] = DDWriter[DatomicData, DD]( dd => dd.asInstanceOf[DD] )
   
-  implicit def DD2RefWrites             = DDWriter[DatomicData, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
-  implicit def DRef2RefWrites           = DDWriter[DRef, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
+  implicit def DD2RefWrites[C, A](implicit witness: C <:< Ref[A]) = 
+    DDWriter[DatomicData, C]{ (ref: C) => DRef(witness(ref).id) }
 
-  implicit def DD2SetWrites[A](implicit ddw: DDWriter[DatomicData, A]) =
-    DDWriter[DatomicData, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
+  implicit def DRef2RefWrites[C, A](implicit witness: C <:< Ref[A]) = 
+    DDWriter[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
 
-  implicit def DSet2SetWrites[A](implicit ddw: DDWriter[DatomicData, A]) =
-    DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
+  implicit def DD2SetWrites[C, A](implicit witness: C <:< Traversable[A], ddw: DDWriter[DatomicData, A]) =
+    DDWriter[DatomicData, C]{ (l: C) => 
+      DSet(witness(l).map{ (a: A) => Datomic.toDatomic(a)(ddw) }.toSet) 
+    }
+
+  implicit def DSet2SetWrites[C, A](implicit witness: C <:< Traversable[A], ddw: DDWriter[DatomicData, A]) =
+    DDWriter[DSet, C]{ (l: C) => 
+      DSet(witness(l).map{ (a: A) => Datomic.toDatomic(a)(ddw) }.toSet) 
+    }
 
 }

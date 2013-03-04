@@ -27,7 +27,7 @@ object DDReader extends DDReaderImplicits {
   }
 }
 
-trait DDWriter[DD <: DatomicData, -A] {
+trait DDWriter[DD <: DatomicData, A] {
   def write(a: A): DD
 }
 
