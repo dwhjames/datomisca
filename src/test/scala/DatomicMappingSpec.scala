@@ -222,37 +222,29 @@ class DatomicMappingSpec extends Specification {
       """)).head match {
         case DLong(e) =>
           val entity = database.entity(e)
-          val nameValue = entity.get(PersonSchema.name)
-          nameValue must beEqualTo(Some("toto"))
 
-          val nameValue2 = entity.as[String](person / "name")
-          nameValue2 must beEqualTo("toto")
+          entity(PersonSchema.name) must beEqualTo("toto")
 
-          val ageValue2 = entity.get(PersonSchema.age)
-          ageValue2 must beEqualTo(Some(30))
+          entity.get(PersonSchema.name) must beEqualTo(Some("toto"))
 
-          val ageValue3 = entity.tryGet(PersonSchema.age)
-          ageValue3 must beEqualTo(Success(30))
+          entity.as[String](person / "name") must beEqualTo("toto")
 
-          val ageValue4 = entity.as[Long](person / "age")
-          ageValue4 must beEqualTo(30)
+          entity.get(PersonSchema.age) must beEqualTo(Some(30))
+
+          entity.as[Long](person / "age") must beEqualTo(30)
 
           val characters = entity.get(PersonSchema.characters)
           val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
-          val birthValue2 = entity.as[java.util.Date](person / "birth")
-          birthValue2 must beEqualTo(birthDate)
+          entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
 
-          val birthValue3 = entity.get(PersonSchema.birth)
-          birthValue3 must beEqualTo(Some(birthDate))
+          entity.get(PersonSchema.birth) must beEqualTo(Some(birthDate))
 
           val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-          val dogValue = entity.getRef[Dog](PersonSchema.dog)
-          dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
+          entity.getRef[Dog](PersonSchema.dog) must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
 
-          val dogValue2 = entity.get(PersonSchema.dogRef)
-          dogValue2 must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
+          entity.get(PersonSchema.dogRef) must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
 
           val doggiesValue = entity.get(PersonSchema.doggies)
           doggiesValue must beEqualTo(Some(Set(

@@ -398,45 +398,53 @@ object SchemaEntity extends DatomicSchemaEntityFacilities
 trait SchemaDEntityOps{
   def entity: DEntity
 
-  def get[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
-    Try { attrC.convert(attr).read(entity) }.toOption
-  }
+  def apply[DD <: DatomicData, Card <: Cardinality, T]
+           (attr: Attribute[DD, Card])
+           (implicit attrC: Attribute2EntityReader[DD, Card, T])
+           : T =
+    attrC.convert(attr).read(entity)
 
-  def tryGet[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
-    Try { attrC.convert(attr).read(entity) }
-  }
+  def get[DD <: DatomicData, Card <: Cardinality, T]
+         (attr: Attribute[DD, Card])
+         (implicit attrC: Attribute2EntityReader[DD, Card, T])
+         : Option[T] =
+    Try { apply(attr) } .toOption
 
-  def getRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
-    tryGet(attr).toOption
-  }
+  def getRef[T]
+            (attr: Attribute[DRef, CardinalityOne.type])
+            (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]])
+            : Option[Ref[T]] =
+    Try { attrC.convert(attr).read(entity) } .toOption
 
-  def getRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
-    tryGet(attr).toOption
-  }
+  def getRefs[T]
+             (attr: Attribute[DRef, CardinalityMany.type])
+             (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
+             : Option[Set[Ref[T]]] =
+    Try { attrC.convert(attr).read(entity) } .toOption
 
-  def tryGetRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
-    tryGet(attr)
-  }
+  def apply[T]
+           (attr: RefAttribute[T])
+           (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]])
+           : Ref[T] =
+    attrC.convert(attr).read(entity)
 
-  def tryGetRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
-    tryGet(attr)
-  }
+  def get[T]
+         (attr: RefAttribute[T])
+         (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]])
+         : Option[Ref[T]] =
+    Try { apply(attr) } .toOption
 
-  def get[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
-    tryGet(attr).toOption
-  }
+  def apply[T]
+           (attr: ManyRefAttribute[T])
+           (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
+           : Set[Ref[T]] =
+    attrC.convert(attr).read(entity)
 
-  def tryGet[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
-    Try { attrC.convert(attr).read(entity) }
-  }
-
-  def get[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
-    tryGet(attr).toOption
-  }
-
-  def tryGet[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
-    Try { attrC.convert(attr).read(entity) }
-  }
+  def get[T]
+         (attr: ManyRefAttribute[T])
+         (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
+         : Option[Set[Ref[T]]] =
+    Try { apply(attr) } .toOption
 
 }
 
