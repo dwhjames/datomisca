@@ -290,17 +290,6 @@ sealed trait Props {
     step(this)
   }
 
-  def get[DD <: DatomicData, Card <: Cardinality, A](attr: Attribute[DD, Card])
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Option[A] = {
-    def step(cur: Props): Option[A] = {
-      cur match {
-        case PropsLink(head, tail, ac) => if(head._1 == attr) Some(head._2.asInstanceOf[A]) else step(tail)
-        case PropsNil => None
-      }
-    }
-    step(this)
-  }
-
   def ++(other: Props): Props = {
     def step(cur: Props): Props = {
       cur match {
