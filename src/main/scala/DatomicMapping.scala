@@ -282,7 +282,7 @@ trait PartialAddEntityWriterImplicits {
 
 trait Attribute2PartialAddEntityWriterImplicits {
 
-  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Dest](implicit ddw: DDWriter[DatomicData, Dest]) = 
+  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Dest](implicit ddw: DDWriter[DD, Dest]) = 
     new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Dest] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Dest] = {
         PartialAddEntityWriter[Dest]{ d: Dest => 
@@ -292,7 +292,7 @@ trait Attribute2PartialAddEntityWriterImplicits {
     }  
 
 
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Dest](implicit ddw: DDWriter[DatomicData, Set[Dest]]) = 
+  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Dest](implicit ddw: DDWriter[DSet, Set[Dest]]) = 
     new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Dest]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Dest]] = {
         PartialAddEntityWriter[Set[Dest]]{ d: Set[Dest] => 

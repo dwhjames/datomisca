@@ -64,6 +64,27 @@ trait DDReaderImplicits {
 
 trait DDWriterImplicits{
 
+  implicit val String2DString   = DDWriter[DString,  String]        ((s: String)      => DString(s))
+  implicit val Boolean2DBoolean = DDWriter[DBoolean, Boolean]       ((b: Boolean)     => DBoolean(b))
+  implicit val Long2DLong       = DDWriter[DLong,    Long]          ((l: Long)        => DLong(l))
+  implicit val Int2DLong        = DDWriter[DLong,    Int]           ((l: Int)         => DLong(l))
+  implicit val Short2DLong      = DDWriter[DLong,    Short]         ((s: Short)       => DLong(s))
+  implicit val Char2DLong       = DDWriter[DLong,    Char]          ((c: Char)        => DLong(c))
+  implicit val Byte2DLong       = DDWriter[DLong,    Byte]          ((b: Byte)        => DLong(b))
+  implicit val Float2DFloat     = DDWriter[DFloat,   Float]         ((b: Float)       => DFloat(b))
+  implicit val Double2DDouble   = DDWriter[DDouble,  Double]        ((b: Double)      => DDouble(b))
+  implicit val JBigInt2DBigInt  = DDWriter[DBigInt,  JBigInt]       ((i: JBigInt)     => DBigInt(i))
+  implicit val JBigDec2DBigDec  = DDWriter[DBigDec,  JBigDecimal]   ((i: JBigDecimal) => DBigDec(i))
+  implicit val BigInt2DBigInt   = DDWriter[DBigInt,  BigInt]        ((i: BigInt)      => DBigInt(i))
+  implicit val BigDec2DBigDec   = DDWriter[DBigDec,  BigDecimal]    ((i: BigDecimal)  => DBigDec(i))
+  implicit val Date2DDate       = DDWriter[DInstant, Date]          ((d: Date)        => DInstant(d))
+  implicit val UUID2DUuid       = DDWriter[DUuid,    UUID]          ((u: UUID)        => DUuid(u))
+  implicit val URI2DUri         = DDWriter[DUri,     URI]           ((u: URI)         => DUri(u))
+  implicit val Bytes2DBytes     = DDWriter[DBytes,   Array[Byte]]   ((a: Array[Byte]) => DBytes(a))
+
+  implicit val Referenceable2DRef = DDWriter[DRef,     Referenceable] ((r: Referenceable) => r.ref)
+  implicit val WriteDRef          = DDWriter[DRef,     DRef]          ((d: DRef)          => d)
+
   implicit val String2DatomicData  = DDWriter[DatomicData, String]      ((s: String)      => DString(s))
   implicit val Boolean2DatomicData = DDWriter[DatomicData, Boolean]     ((b: Boolean)     => DBoolean(b))
   implicit val Long2DatomicData    = DDWriter[DatomicData, Long]        ((l: Long)        => DLong(l))
@@ -83,14 +104,23 @@ trait DDWriterImplicits{
   implicit val Bytes2DatomicData   = DDWriter[DatomicData, Array[Byte]] ((a: Array[Byte]) => DBytes(a))
 
   implicit def Referenceable2DatomicData[A <: Referenceable] = DDWriter[DatomicData, A]{ (a: A) => a.ref }
+  //implicit val DRef2DatomicData          = DDWriter[DatomicData, DRef]          ((d: DRef) => d)
 
   implicit def DDatomicData[DD <: DatomicData] = DDWriter[DatomicData, DD]( dd => dd.asInstanceOf[DD] )
   
   implicit def DD2RefWrites[C, A](implicit witness: C <:< Ref[A]) = 
     DDWriter[DatomicData, C]{ (ref: C) => DRef(witness(ref).id) }
 
+  implicit def DRef2RefWrites[C, A](implicit witness: C <:< Ref[A]) = 
+    DDWriter[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
+
   implicit def DD2SetWrites[C, A](implicit witness: C <:< Traversable[A], ddw: DDWriter[DatomicData, A]) =
     DDWriter[DatomicData, C]{ (l: C) => 
+      DSet(witness(l).map{ (a: A) => Datomic.toDatomic(a)(ddw) }.toSet) 
+    }
+
+  implicit def DSet2SetWrites[C, A](implicit witness: C <:< Traversable[A], ddw: DDWriter[DatomicData, A]) =
+    DDWriter[DSet, C]{ (l: C) => 
       DSet(witness(l).map{ (a: A) => Datomic.toDatomic(a)(ddw) }.toSet) 
     }
 
