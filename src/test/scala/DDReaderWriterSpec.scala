@@ -96,9 +96,15 @@ class DDReaderWriterSpec extends Specification {
     "write Scala types as DatomicData" in {
       toDatomic("string") must beAnInstanceOf[DString]
       toDatomic(true)     must beAnInstanceOf[DBoolean]
-      toDatomic(1L)       must beAnInstanceOf[DLong]
-      toDatomic(1.0f)     must beAnInstanceOf[DFloat]
-      toDatomic(1.0)      must beAnInstanceOf[DDouble]
+
+      toDatomic(Long .MinValue) must beAnInstanceOf[DLong]
+      toDatomic(Int  .MinValue) must beAnInstanceOf[DLong]
+      toDatomic(Short.MinValue) must beAnInstanceOf[DLong]
+      toDatomic(Char .MinValue) must beAnInstanceOf[DLong]
+      toDatomic(Byte .MinValue) must beAnInstanceOf[DLong]
+
+      toDatomic(1.0f) must beAnInstanceOf[DFloat]
+      toDatomic(1.0)  must beAnInstanceOf[DDouble]
 
       toDatomic(BigInt(1))            must beAnInstanceOf[DBigInt]
       toDatomic(BigInt(1).bigInteger) must beAnInstanceOf[DBigInt]
