@@ -40,15 +40,6 @@ case class DLong(underlying: Long) extends DatomicData {
   def toLong = underlying
 }
 
-/** hidden structure just to be able to manipulate Int but should not be used directly by users 
-  * and not used in datomic at all 
-  */
-private[datomisca] case class DInt(underlying: Int) extends DatomicData {
-  override def toString = underlying.toString
-  def toNative: AnyRef = underlying: java.lang.Integer
-  def toInt = underlying
-}
-
 case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Float
@@ -172,9 +163,8 @@ object DId {
 
 /** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
 class DSet(elements: Set[DatomicData]) extends DatomicData {
-  def toNative: AnyRef = {
-    java.util.Arrays.asList(elements.map(_.toNative).toSeq: _*) 
-  }
+  def toNative: AnyRef =
+    datomic.Util.list(elements.map(_.toNative).toSeq: _*)
 
   override def toString = elements.mkString("[", ", ", "]")
 

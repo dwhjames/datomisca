@@ -25,8 +25,8 @@ class DatomicMappingSpec extends Specification {
     age:        Long,
     birth:      java.util.Date,
     characters: Set[DRef],
-    dog:        Option[Ref[Dog]] = None,
-    doggies:    Set[Ref[Dog]]
+    dog:        Option[IdView[Dog]] = None,
+    doggies:    Set[IdView[Dog]]
   )
 
   case class Person2(
@@ -59,10 +59,7 @@ class DatomicMappingSpec extends Specification {
     val characters  = Attribute(person / "characters",  SchemaType.ref,     Cardinality.many).withDoc("Person's characters")
     val specialChar = Attribute(person / "specialChar", SchemaType.ref,     Cardinality.one) .withDoc("Person's Special character")
     val dog         = Attribute(person / "dog",         SchemaType.ref,     Cardinality.one) .withDoc("Person's dog")
-
-    val dogRef = RefAttribute[Dog]( person / "dog").withDoc("Person's dog")
-
-    val doggies = ManyRefAttribute[Dog]( person / "doggies").withDoc("Person's doggies")
+    val doggies     = Attribute( person / "doggies",    SchemaType.ref,     Cardinality.many).withDoc("Person's doggies")
 
     val schema = Seq(name, age, birth, characters, specialChar, dog, doggies)
   }
@@ -90,8 +87,8 @@ class DatomicMappingSpec extends Specification {
     PersonSchema.age       .read[Long]           and
     PersonSchema.birth     .read[java.util.Date] and
     PersonSchema.characters.read[Set[DRef]]      and
-    PersonSchema.dog       .readOpt[Ref[Dog]]    and
-    PersonSchema.doggies   .read[Set[Ref[Dog]]]
+    PersonSchema.dog       .readOpt[IdView[Dog]]    and
+    PersonSchema.doggies   .read[Set[IdView[Dog]]]
   )(Person)
 
   val personReader2 = (
@@ -108,8 +105,8 @@ class DatomicMappingSpec extends Specification {
     PersonSchema.age       .write[Long]           and
     PersonSchema.birth     .write[java.util.Date] and
     PersonSchema.characters.write[Set[DRef]]      and
-    PersonSchema.dog       .writeOpt[Ref[Dog]]    and
-    PersonSchema.doggies   .write[Set[Ref[Dog]]]
+    PersonSchema.dog       .writeOpt[IdView[Dog]]    and
+    PersonSchema.doggies   .write[Set[IdView[Dog]]]
   )(unlift(Person.unapply))
 
   val birthDate = new java.util.Date() 
@@ -197,8 +194,8 @@ class DatomicMappingSpec extends Specification {
                 val Person(name, age, birth, characters, dog, doggies) = p
                 p must beEqualTo(
                   Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), 
-                    Some(Ref(DId(realMedorId))(medor)), 
-                    Set(Ref(DId(realDoggy1Id))(doggy1), Ref(DId(realDoggy2Id))(doggy2), Ref(DId(realDoggy3Id))(doggy3))
+                    Some(IdView(realMedorId)(medor)), 
+                    Set(IdView(realDoggy1Id)(doggy1), IdView(realDoggy2Id)(doggy2), IdView(realDoggy3Id)(doggy3))
                   )
                 )
                 println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
@@ -242,15 +239,13 @@ class DatomicMappingSpec extends Specification {
 
           val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-          entity.getRef[Dog](PersonSchema.dog) must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
+          entity.getIdView[Dog](PersonSchema.dog) must beEqualTo(Some(IdView(realMedorId)(medor)))
 
-          entity.get(PersonSchema.dogRef) must beEqualTo(Some(Ref(DId(realMedorId))(medor)))
-
-          val doggiesValue = entity.get(PersonSchema.doggies)
+          val doggiesValue = entity.getIdViews[Dog](PersonSchema.doggies)
           doggiesValue must beEqualTo(Some(Set(
-            Ref(DId(realDoggy1Id))(doggy1),
-            Ref(DId(realDoggy2Id))(doggy2),
-            Ref(DId(realDoggy3Id))(doggy3)
+            IdView(realDoggy1Id)(doggy1),
+            IdView(realDoggy2Id)(doggy2),
+            IdView(realDoggy3Id)(doggy3)
           )))
 
           val writer = PersonSchema.specialChar.write[DRef]
@@ -296,9 +291,6 @@ class DatomicMappingSpec extends Specification {
           (PersonSchema.characters -> Set(violent, weak))
 
       println(s"Props: $props")
-      //val c = attr2PartialAddToEntityWriterOne[DLong,Long]
-      val ageValue = props.get(PersonSchema.age)
-      ageValue must beEqualTo(Some(45))
 
       val ent = SchemaEntity.add(id)(props) 
       ent.toString must beEqualTo(AddEntity( 
@@ -367,14 +359,14 @@ class DatomicMappingSpec extends Specification {
                 val p = DatomicMapping.fromEntity(entity)(personReader)                
                 val Person(name, age, birth, characters, dog, doggies) = p
                 println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
-                p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(Ref(DId(realMedorId))(medor)), Set()))
+                p must beEqualTo(Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(IdView(realMedorId)(medor)), Set()))
                 
                 val p2 = DatomicMapping.fromEntity(entity)(personReader2)                
                 p2 must beEqualTo(Person2("toto", 30L, birthDate, Set(violent.ref, weak.ref), Some(realMedorId), Set()))
 
                 DatomicMapping.toEntity(DId(e))(
                   Person("toto", 30L, birthDate, Set(violent.ref, weak.ref), 
-                    Some(Ref(DId(realMedorId))(medor)), Set())
+                    Some(IdView(realMedorId)(medor)), Set())
                 ).toMap.get(PersonSchema.doggies.ident) must beEqualTo(None)                
 
             }
@@ -389,7 +381,7 @@ class DatomicMappingSpec extends Specification {
       println(s"created DB with uri $uri: ${createDatabase(uri)}")
       implicit val conn = Datomic.connect(uri)
 
-      val rd  = PersonSchema.dog.read[Ref[DEntity]]
+      val rd  = PersonSchema.dog.read[IdView[DEntity]]
       val rd2 = PersonSchema.dog.read[DRef]
       val rd3 = PersonSchema.dog.read[Long]
 
