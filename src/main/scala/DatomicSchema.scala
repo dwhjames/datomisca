@@ -217,50 +217,6 @@ case class RawAttribute[DD <: DatomicData, Card <: Cardinality](
 }
 
 
-
-case class RefAttribute[T](
-  override val ident: Keyword,
-  override val doc: Option[String] = None,
-  override val unique: Option[Unique] = None,
-  override val index: Option[Boolean] = None,
-  override val fulltext: Option[Boolean] = None,
-  override val isComponent: Option[Boolean] = None,
-  override val noHistory: Option[Boolean] = None
-) extends Attribute[DRef, CardinalityOne.type]{
-  
-  override val valueType = SchemaType.ref
-  override val cardinality = CardinalityOne
-
-  def withDoc(str: String) = copy[T]( doc = Some(str) )
-  def withUnique(u: Unique) = copy[T]( unique = Some(u) )
-  def withIndex(b: Boolean) = copy[T]( index = Some(b) )
-  def withFullText(b: Boolean) = copy[T]( fulltext = Some(b) )
-  def withIsComponent(b: Boolean) = copy[T]( isComponent = Some(b) )
-  def withNoHistory(b: Boolean) = copy[T]( noHistory = Some(b) )
-}
-
-case class ManyRefAttribute[T](
-  override val ident: Keyword,
-  override val doc: Option[String] = None,
-  override val unique: Option[Unique] = None,
-  override val index: Option[Boolean] = None,
-  override val fulltext: Option[Boolean] = None,
-  override val isComponent: Option[Boolean] = None,
-  override val noHistory: Option[Boolean] = None
-) extends Attribute[DRef, CardinalityMany.type] {
-
-  override val valueType = SchemaType.ref
-  override val cardinality = CardinalityMany
-
-  def withDoc(str: String) = copy[T]( doc = Some(str) )
-  def withUnique(u: Unique) = copy[T]( unique = Some(u) )
-  def withIndex(b: Boolean) = copy[T]( index = Some(b) )
-  def withFullText(b: Boolean) = copy[T]( fulltext = Some(b) )
-  def withIsComponent(b: Boolean) = copy[T]( isComponent = Some(b) )
-  def withNoHistory(b: Boolean) = copy[T]( noHistory = Some(b) )
-}
-
-
 sealed trait Props {
   def convert: PartialAddEntity
 
@@ -410,30 +366,6 @@ trait SchemaDEntityOps{
              (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
              : Option[Set[Ref[T]]] =
     Try { attrC.convert(attr).read(entity) } .toOption
-
-  def apply[T]
-           (attr: RefAttribute[T])
-           (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]])
-           : Ref[T] =
-    attrC.convert(attr).read(entity)
-
-  def get[T]
-         (attr: RefAttribute[T])
-         (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]])
-         : Option[Ref[T]] =
-    Try { apply(attr) } .toOption
-
-  def apply[T]
-           (attr: ManyRefAttribute[T])
-           (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
-           : Set[Ref[T]] =
-    attrC.convert(attr).read(entity)
-
-  def get[T]
-         (attr: ManyRefAttribute[T])
-         (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
-         : Option[Set[Ref[T]]] =
-    Try { apply(attr) } .toOption
 
 }
 
