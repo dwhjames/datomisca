@@ -212,15 +212,12 @@ class DatomicMapping2Spec extends Specification {
             )
           ) map { tx => 
             println(s"Provisioned data... TX: $tx")
-            tx.resolve(totoId, toto2Id, medorId, doggy1Id, doggy2Id, doggy3Id) match {
-              case (totoId, toto2Id, medorId, doggy1Id, doggy2Id, doggy3Id) => 
-                realTotoId   = totoId
-                realToto2Id  = toto2Id
-                realMedorId  = medorId
-                realDoggy1Id = doggy1Id
-                realDoggy2Id = doggy2Id
-                realDoggy3Id = doggy3Id
-            }
+            realTotoId   = tx.resolve(totoId)
+            realToto2Id  = tx.resolve(toto2Id)
+            realMedorId  = tx.resolve(medorId)
+            realDoggy1Id = tx.resolve(doggy1Id)
+            realDoggy2Id = tx.resolve(doggy2Id)
+            realDoggy3Id = tx.resolve(doggy3Id)
 
             Datomic.q(Query.manual[Args0, Args1]("""
               [ :find ?e 
@@ -312,31 +309,27 @@ class DatomicMapping2Spec extends Specification {
       """)).head match {
         case DLong(e) =>
           val entity = database.entity(e)
-          val nameValue = entity.get(PersonSchema.name)
-          nameValue must beEqualTo(Some("toto"))
 
-          val nameValue2 = entity.as[String](person / "name")
-          nameValue2 must beEqualTo("toto")
+          entity(PersonSchema.name) must beEqualTo("toto")
 
-          val ageValue4 = entity.as[Long](person / "age")
-          ageValue4 must beEqualTo(30)
+          entity.get(PersonSchema.name) must beEqualTo(Some("toto"))
+
+          entity.as[String](person / "name") must beEqualTo("toto")
+
+          entity.as[Long](person / "age") must beEqualTo(30)
 
           val characters = entity.get(PersonSchema.characters)
           val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
-          val birthValue2 = entity.as[java.util.Date](person / "birth")
-          birthValue2 must beEqualTo(birthDate)
+          entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
 
-          val birthValue3 = entity.get(PersonSchema.birth)
-          birthValue3 must beEqualTo(Some(birthDate))
+          entity.get(PersonSchema.birth) must beEqualTo(Some(birthDate))
 
           val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-          val dogValue = entity.getRef[Dog](PersonSchema.dog)
-          dogValue must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
+          entity.getRef[Dog](PersonSchema.dog) must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
 
-          val dogValue2 = entity.get(PersonSchema.dogRef)
-          dogValue2 must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
+          entity.get(PersonSchema.dogRef) must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
 
           val doggiesValue = entity.get(PersonSchema.doggies)
           doggiesValue must beEqualTo(Some(Set(
