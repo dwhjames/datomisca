@@ -52,10 +52,7 @@ class DatomicMapping2Spec extends Specification {
     val characters  = Attribute(person / "characters",  SchemaType.ref,     Cardinality.many).withDoc("Person's characters")
     val specialChar = Attribute(person / "specialChar", SchemaType.ref,     Cardinality.one) .withDoc("Person's Special character")
     val dog         = Attribute(person / "dog",         SchemaType.ref,     Cardinality.one) .withDoc("Person's dog")
-    
-    val dogRef = RefAttribute[Dog]( person / "dog").withDoc("Person's dog")
-
-    val doggies =  ManyRefAttribute[Dog]( person / "doggies").withDoc("Person's doggies")
+    val doggies     = Attribute(person / "doggies",     SchemaType.ref,     Cardinality.many).withDoc("Person's doggies")
 
     val schema = Seq(name, age, birth, characters, specialChar, dog, doggies)
   }
@@ -327,15 +324,13 @@ class DatomicMapping2Spec extends Specification {
 
           val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-          entity.getRef[Dog](PersonSchema.dog) must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
+          entity.getIdView[Dog](PersonSchema.dog) must beEqualTo(Some(IdView(realMedorId)(medor.copy(id=Some(realMedorId)))))
 
-          entity.get(PersonSchema.dogRef) must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
-
-          val doggiesValue = entity.get(PersonSchema.doggies)
+          val doggiesValue = entity.getIdViews[Dog](PersonSchema.doggies)
           doggiesValue must beEqualTo(Some(Set(
-            Ref(DId(realDoggy1Id))(doggy1.copy(id=Some(realDoggy1Id))),
-            Ref(DId(realDoggy2Id))(doggy2.copy(id=Some(realDoggy2Id))),
-            Ref(DId(realDoggy3Id))(doggy3.copy(id=Some(realDoggy3Id)))
+            IdView(realDoggy1Id)(doggy1.copy(id=Some(realDoggy1Id))),
+            IdView(realDoggy2Id)(doggy2.copy(id=Some(realDoggy2Id))),
+            IdView(realDoggy3Id)(doggy3.copy(id=Some(realDoggy3Id)))
           )))
 
           val writer = PersonSchema.specialChar.write[DRef]
