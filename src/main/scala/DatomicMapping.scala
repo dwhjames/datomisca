@@ -20,12 +20,12 @@ import scala.language.implicitConversions
 
 import scala.util.{Try, Success, Failure}
 
-case class Ref[T](ref: T, id: DId) {
-  override def toString = s"Ref($id)($ref)"
+case class IdView[T](t: T, id: Long) {
+  override def toString = s"IdView($id)($t)"
 }
 
-object Ref {
-  def apply[T](theId: DId)(t: T) = new Ref[T](t, theId)
+object IdView {
+  def apply[T](id: Long)(t: T) = new IdView[T](t, id)
 }
 
 sealed trait EntityMapper[A]
@@ -169,22 +169,22 @@ trait EntityReaderImplicits {
 trait Attribute2EntityReaderImplicits {
   
   implicit def attr2EntityReaderOneRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) =
-    new Attribute2EntityReader[DRef, CardinalityOne.type, Ref[A]] {
-      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Ref[A]] = {
-        EntityReader[Ref[A]]{ e: DEntity => 
+    new Attribute2EntityReader[DRef, CardinalityOne.type, IdView[A]] {
+      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[IdView[A]] = {
+        EntityReader[IdView[A]]{ e: DEntity =>
           val subent = e(attr.ident).asInstanceOf[DEntity]
-          Ref(DId(subent.id))(er.read(subent))
+          IdView(subent.id)(er.read(subent))
         }
       }
     }  
 
   implicit def attr2EntityReaderManyRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) = 
-    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[A]]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Ref[A]]] = {
-        EntityReader[Set[Ref[A]]]{ e: DEntity => 
+    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[IdView[A]]] {
+      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[IdView[A]]] = {
+        EntityReader[Set[IdView[A]]]{ e: DEntity =>
           e.get(attr.ident) map { case DSet(elems) =>
             elems map {
-              case subent: DEntity => Ref(DId(subent.id))(er.read(subent))
+              case subent: DEntity => IdView(subent.id)(er.read(subent))
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
             }
           } getOrElse (Set.empty)
