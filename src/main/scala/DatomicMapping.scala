@@ -282,22 +282,22 @@ trait PartialAddEntityWriterImplicits {
 
 trait Attribute2PartialAddEntityWriterImplicits {
 
-  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Dest](implicit ddw: DDWriter[DD, Dest]) = 
-    new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Dest] {
-      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Dest] = {
-        PartialAddEntityWriter[Dest]{ d: Dest => 
-          PartialAddEntity( Map( attr.ident -> ddw.write(d) ) )
+  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit ddw: DDWriter[DD, Source]) =
+    new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Source] {
+      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Source] = {
+        PartialAddEntityWriter[Source]{ s: Source =>
+          PartialAddEntity( Map( attr.ident -> ddw.write(s) ) )
         }
       }
     }  
 
 
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Dest](implicit ddw: DDWriter[DSet, Set[Dest]]) = 
-    new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Dest]] {
-      def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Dest]] = {
-        PartialAddEntityWriter[Set[Dest]]{ d: Set[Dest] => 
-          if(d.isEmpty) PartialAddEntity( Map() )              
-          else PartialAddEntity( Map( attr.ident -> ddw.write(d) ) )              
+  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit ddw: DDWriter[DSet, Set[Source]]) =
+    new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Source]] {
+      def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Source]] = {
+        PartialAddEntityWriter[Set[Source]]{ s: Set[Source] =>
+          if (s.isEmpty) PartialAddEntity( Map.empty )
+          else PartialAddEntity( Map( attr.ident -> ddw.write(s) ) )
         }
       }
     }
