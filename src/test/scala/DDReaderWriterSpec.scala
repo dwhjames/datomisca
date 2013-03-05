@@ -47,10 +47,7 @@ class DDReaderWriterSpec extends Specification {
       (DDouble(1.0)     .asInstanceOf[DatomicData]).as[Double]
 
       (DBigInt(BigInt(1))    .asInstanceOf[DatomicData]).as[BigInt]
-      (DBigInt(BigInt(1))    .asInstanceOf[DatomicData]).as[JBigInt]
-
       (DBigDec(BigDecimal(1)).asInstanceOf[DatomicData]).as[BigDecimal]
-      (DBigDec(BigDecimal(1)).asInstanceOf[DatomicData]).as[JBigDecimal]
 
       (DInstant(new Date).asInstanceOf[DatomicData]).as[Date]
 

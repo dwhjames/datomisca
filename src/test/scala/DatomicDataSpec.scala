@@ -22,21 +22,5 @@ class DatomicDataSpec extends Specification {
         case _ => failure
       }
     }
-
-    "read/write BigDecimal" in {
-      val bigdec = BigDecimal("123456789.12345789")
-      val javabigdec = new java.math.BigDecimal("123456789.12345789")
-
-      Datomic.fromDatomic[BigDecimal](Datomic.toDatomic(bigdec)) must beEqualTo(bigdec)
-      Datomic.fromDatomic[java.math.BigDecimal](Datomic.toDatomic(javabigdec)) must beEqualTo(javabigdec)
-    }
-
-    "read/write BigInt" in {
-      val bigint = BigInt("12345678912345789")
-      val javabigdec = new java.math.BigInteger("12345678912345789")
-
-      Datomic.fromDatomic[BigInt](Datomic.toDatomic(bigint)) must beEqualTo(bigint)
-      Datomic.fromDatomic[java.math.BigInteger](Datomic.toDatomic(javabigdec)) must beEqualTo(javabigdec)
-    }
   }
 }
