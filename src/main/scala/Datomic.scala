@@ -228,9 +228,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     * val s: Long = Datomic.fromDatomic(DLong(5L))
     * }}}
     */
-  def fromDatomic[T] = new {
-    def apply[DD <: DatomicData](dd: DD)(implicit ddr: DDReader[DD, T]): T = ddr.read(dd)
-  }
+  def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit ddr: DDReader[DD, T]): T = ddr.read(dd)
 
   def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): DEntity = {
     tx.resolveOpt(id) match {

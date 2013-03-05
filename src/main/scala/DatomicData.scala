@@ -40,15 +40,6 @@ case class DLong(underlying: Long) extends DatomicData {
   def toLong = underlying
 }
 
-/** hidden structure just to be able to manipulate Int but should not be used directly by users 
-  * and not used in datomic at all 
-  */
-private[datomisca] case class DInt(underlying: Int) extends DatomicData {
-  override def toString = underlying.toString
-  def toNative: AnyRef = underlying: java.lang.Integer
-  def toInt = underlying
-}
-
 case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Float

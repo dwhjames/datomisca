@@ -384,9 +384,6 @@ class DatomicMapping2Spec extends Specification {
           //(PersonSchema.doggies -> Set(doggy1, doggy2, doggy3))
 
       println(s"Props: $props")
-      //val c = attr2PartialAddToEntityWriterOne[DLong,Long]
-      val ageValue = props.get(PersonSchema.age)
-      ageValue must beEqualTo(Some(45))
 
       val ent = SchemaEntity.add(id)(props) 
       ent.toString must beEqualTo(AddEntity( 
