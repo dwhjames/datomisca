@@ -104,10 +104,10 @@ trait DDWriterImplicits{
 
   implicit def DDatomicData[DD <: DatomicData] = DDWriter[DatomicData, DD]( dd => dd.asInstanceOf[DD] )
   
-  implicit def DD2RefWrites[C, A](implicit witness: C <:< Ref[A]) = 
+  implicit def DD2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
     DDWriter[DatomicData, C]{ (ref: C) => DRef(witness(ref).id) }
 
-  implicit def DRef2RefWrites[C, A](implicit witness: C <:< Ref[A]) = 
+  implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
     DDWriter[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
 
   implicit def DD2SetWrites[C, A](implicit witness: C <:< Traversable[A], ddw: DDWriter[DatomicData, A]) =

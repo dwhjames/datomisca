@@ -355,16 +355,16 @@ trait SchemaDEntityOps{
          : Option[T] =
     Try { apply(attr) } .toOption
 
-  def getRef[T]
+  def getIdView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
-            (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]])
-            : Option[Ref[T]] =
+            (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, IdView[T]])
+            : Option[IdView[T]] =
     Try { attrC.convert(attr).read(entity) } .toOption
 
-  def getRefs[T]
+  def getIdViews[T]
              (attr: Attribute[DRef, CardinalityMany.type])
-             (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]])
-             : Option[Set[Ref[T]]] =
+             (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[IdView[T]]])
+             : Option[Set[IdView[T]]] =
     Try { attrC.convert(attr).read(entity) } .toOption
 
 }

@@ -324,13 +324,13 @@ class DatomicMapping2Spec extends Specification {
 
           val dogValue0 = entity.getAs[DEntity](person / "dog")
 
-          entity.getRef[Dog](PersonSchema.dog) must beEqualTo(Some(Ref(DId(realMedorId))(medor.copy(id=Some(realMedorId)))))
+          entity.getIdView[Dog](PersonSchema.dog) must beEqualTo(Some(IdView(realMedorId)(medor.copy(id=Some(realMedorId)))))
 
           val doggiesValue = entity.get(PersonSchema.doggies)
           doggiesValue must beEqualTo(Some(Set(
-            Ref(DId(realDoggy1Id))(doggy1.copy(id=Some(realDoggy1Id))),
-            Ref(DId(realDoggy2Id))(doggy2.copy(id=Some(realDoggy2Id))),
-            Ref(DId(realDoggy3Id))(doggy3.copy(id=Some(realDoggy3Id)))
+            IdView(realDoggy1Id)(doggy1.copy(id=Some(realDoggy1Id))),
+            IdView(realDoggy2Id)(doggy2.copy(id=Some(realDoggy2Id))),
+            IdView(realDoggy3Id)(doggy3.copy(id=Some(realDoggy3Id)))
           )))
 
           val writer = PersonSchema.specialChar.write[DRef]
