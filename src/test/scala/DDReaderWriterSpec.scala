@@ -60,6 +60,28 @@ class DDReaderWriterSpec extends Specification {
       success
     }
 
+    "read subtypes of DatomicData as its underlying Scala type" in {
+
+      DString("string").as[String]
+      DBoolean(true)   .as[Boolean]
+      DLong(1L)        .as[Long]
+      DFloat(1.0f)     .as[Float]
+      DDouble(1.0)     .as[Double]
+
+      DBigInt(BigInt(1))    .as[BigInt]
+      DBigDec(BigDecimal(1)).as[BigDecimal]
+
+      DInstant(new Date).as[Date]
+
+      DUuid(UUID.randomUUID()).as[UUID]
+
+      DUri(new URI("urn:isbn:096139210x")).as[URI]
+
+      DBytes(Array(Byte.MinValue)).as[Array[Byte]]
+
+      success
+    }
+
     "catch bad conversions" in {
       { DString("string").as[DLong] } must throwA[ClassCastException]
       success
@@ -116,6 +138,75 @@ class DDReaderWriterSpec extends Specification {
       toDatomic(new URI("urn:isbn:096139210x")) must beAnInstanceOf[DUri]
 
       toDatomic(Array(Byte.MinValue)) must beAnInstanceOf[DBytes]
+
+      success
+    }
+  }
+
+  import DatomicMapping._
+
+  val ns = Namespace("test")
+  val attrstring  = Attribute(ns / "string",  SchemaType.string,  Cardinality.one)
+  val attrboolean = Attribute(ns / "boolean", SchemaType.boolean, Cardinality.one)
+  val attrlong    = Attribute(ns / "long",    SchemaType.long,    Cardinality.one)
+  val attrbigint  = Attribute(ns / "bigint",  SchemaType.bigint,  Cardinality.one)
+  val attrfloat   = Attribute(ns / "float",   SchemaType.float,   Cardinality.one)
+  val attrdouble  = Attribute(ns / "double",  SchemaType.double,  Cardinality.one)
+  val attrbigdec  = Attribute(ns / "bigdec",  SchemaType.bigdec,  Cardinality.one)
+  val attrinstant = Attribute(ns / "instant", SchemaType.instant, Cardinality.one)
+  val attruuid    = Attribute(ns / "uuid",    SchemaType.uuid,    Cardinality.one)
+  val attruri     = Attribute(ns / "uri",     SchemaType.uri,     Cardinality.one)
+  val attrbytes   = Attribute(ns / "bytes",   SchemaType.bytes,   Cardinality.one)
+
+  "DDReader" should {
+
+    "uniquely determine the Scala type from the DatomicData type of an attribute" in {
+
+      val entity = DEntity(null)
+
+      /*
+       * we simply need the following code to compile to test that
+       * DDReader uniquely determines the output type
+       * the collection of implicit DDReaders must combine to give
+       * a function, not a relation from DatomicData to Scala types
+       */
+      {
+        val string: String     = entity(attrstring)
+        val boolean: Boolean   = entity(attrboolean)
+        val long: Long         = entity(attrlong)
+        val bigint: BigInt     = entity(attrbigint)
+        val float: Float       = entity(attrfloat)
+        val double: Double     = entity(attrdouble)
+        val bigdec: BigDecimal = entity(attrbigdec)
+        val instant: Date      = entity(attrinstant)
+        val uuid: UUID         = entity(attruuid)
+        val uri: URI           = entity(attruri)
+        val bytes: Array[Byte] = entity(attrbytes)
+      } must throwA[NullPointerException]
+
+      success
+    }
+  }
+
+  "DDWriter" should {
+
+    "support Scala types when asserting schema supported facts" in {
+      val id = 1L
+
+      /*
+       * we simply need the following code to compile
+       */
+      SchemaFact.add(id)(attrstring  -> "str")
+      SchemaFact.add(id)(attrboolean -> true)
+      SchemaFact.add(id)(attrlong    -> 1L)
+      SchemaFact.add(id)(attrbigint  -> BigInt(1))
+      SchemaFact.add(id)(attrfloat   -> 1.0f)
+      SchemaFact.add(id)(attrdouble  -> 1.0)
+      SchemaFact.add(id)(attrbigdec  -> BigDecimal(1))
+      SchemaFact.add(id)(attrinstant -> new Date)
+      SchemaFact.add(id)(attruuid    -> UUID.randomUUID())
+      SchemaFact.add(id)(attruri     -> new URI("urn:isbn:096139210x"))
+      SchemaFact.add(id)(attrbytes   -> Array(Byte.MinValue))
 
       success
     }
