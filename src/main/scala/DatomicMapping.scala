@@ -225,7 +225,7 @@ trait Attribute2EntityReaderImplicits {
       }
     }
 
-  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit ddr: DDReader[DD, A]) = 
+  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit ddr: DDReaderMono[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityOne.type, A] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
         EntityReader[A]{ e: DEntity => 
@@ -236,7 +236,7 @@ trait Attribute2EntityReaderImplicits {
     }  
 
 
-  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit ddr: DDReader[DD, A]) = 
+  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit ddr: DDReaderMono[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
@@ -282,7 +282,7 @@ trait PartialAddEntityWriterImplicits {
 
 trait Attribute2PartialAddEntityWriterImplicits {
 
-  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit ddw: DDWriter[DD, Source]) =
+  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit ddw: DDWriterEpi[DD, Source]) =
     new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Source] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Source] = {
         PartialAddEntityWriter[Source]{ s: Source =>
@@ -292,7 +292,7 @@ trait Attribute2PartialAddEntityWriterImplicits {
     }  
 
 
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit ddw: DDWriter[DSet, Set[Source]]) =
+  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit ddw: DDWriterEpi[DSet, Set[Source]]) =
     new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Source]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Source]] = {
         PartialAddEntityWriter[Set[Source]]{ s: Set[Source] =>
