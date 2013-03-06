@@ -71,8 +71,8 @@ trait FromDatomicImplicits {
   implicit val DLong2Char:              FromDatomic[DLong,    Short]          = FromDatomic(_.underlying.toShort)
   implicit val DLong2Short:             FromDatomic[DLong,    Char]           = FromDatomic(_.underlying.toChar)
   implicit val DLong2Byte:              FromDatomic[DLong,    Byte]           = FromDatomic(_.underlying.toByte)
-  implicit val DBigInt2JBigInt:         FromDatomicInj[DBigInt,  JBigInt]     = FromDatomicInj(_.underlying.underlying)
-  implicit val DBigDec2JBigDec:         FromDatomicInj[DBigDec,  JBigDecimal] = FromDatomicInj(_.underlying.underlying)
+  implicit val DBigInt2JBigInt:         FromDatomic[DBigInt,  JBigInt]        = FromDatomic(_.underlying.underlying)
+  implicit val DBigDec2JBigDec:         FromDatomic[DBigDec,  JBigDecimal]    = FromDatomic(_.underlying.underlying)
 
   implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
 
