@@ -13,27 +13,101 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package datomisca
 
- package datomisca
-
-/** DatomicData to Scala reader specific */
-trait DDReader[DD <: DatomicData, A] {
-  def read(dd: DD): A
+/** Injective form of DatomicData to Scala converter :
+  * - 1 DD => 1 Scala type
+  * - used when precise type inference by compiler
+  */
+private[datomisca] trait FromDatomicInj[DD <: DatomicData, A] {
+  def from(dd: DD): A
 }
 
-object DDReader extends DDReaderImplicits {
-  def apply[DD <: DatomicData, A](f: DD => A) = new DDReader[DD, A]{
-    def read(dd: DD): A = f(dd)
+private[datomisca] object FromDatomicInj extends FromDatomicInjImplicits {
+  def apply[DD <: DatomicData, A](f: DD => A) = new FromDatomicInj[DD, A]{
+    def from(dd: DD): A = f(dd)
   }
 }
 
-trait DDWriter[DD <: DatomicData, A] {
-  def write(a: A): DD
+
+/** Surjective for DatomicData to Scala converter :
+  * - n DD => 1 Scala type
+  */
+trait FromDatomic[DD <: DatomicData, A] {
+  def from(dd: DD): A
 }
 
-object DDWriter extends DDWriterImplicits{
-  def apply[DD <: DatomicData, A](f: A => DD) = new DDWriter[DD, A] {
-    def write(a: A) = f(a)
+object FromDatomic extends FromDatomicImplicits {
+  def apply[DD <: DatomicData, A](f: DD => A) = new FromDatomic[DD, A]{
+    def from(dd: DD): A = f(dd)
   }
+}
+
+/** Generic DatomicData to Scala type 
+  * Multi-valued "function" (not real function actually) 
+  * which inverse is surjective ToDatomic or ToDatomicCast
+  * 1 DatomicData -> n Scala type
+  */
+trait FromDatomicCast[A] {
+  def from(dd: DatomicData): A
+}
+
+object FromDatomicCast extends FromDatomicCastImplicits {
+  def apply[A](f: DatomicData => A) = new FromDatomicCast[A] {
+    def from(dd: DatomicData): A = f(dd)
+  }
+}
+
+/** Injective form of Scala to Specific DatomicData converters
+  * 1 Scala type => 1 DD
+  */
+trait ToDatomicInj[DD <: DatomicData, A] {
+  def to(a: A): DD
+}
+
+object ToDatomicInj extends ToDatomicInjImplicits {
+  def apply[DD <: DatomicData, A](f: A => DD) = new ToDatomicInj[DD, A] {
+    def to(a: A) = f(a)
+  }
+}
+
+/** Surjective form of Scala to Specific DatomicData converters
+  * n Scala type => 1 DD
+  */
+trait ToDatomic[DD <: DatomicData, A] {
+  def to(a: A): DD
+}
+
+object ToDatomic extends ToDatomicImplicits{
+  def apply[DD <: DatomicData, A](f: A => DD) = new ToDatomic[DD, A] {
+    def to(a: A) = f(a)
+  }
+}
+
+/** Scala type to Generic DatomicData (surjective)
+  * n Scala type -> DatomicData
+  */
+trait ToDatomicCast[A] {
+  def to(a: A): DatomicData
+}
+
+object ToDatomicCast extends ToDatomicCastImplicits {
+  def apply[A](f: A => DatomicData) = new ToDatomicCast[A] {
+    def to(a: A): DatomicData = f(a)
+  }
+}
+
+
+trait DatomicBij[DD <: DatomicData, A] extends FromDatomicInj[DD, A] with ToDatomicInj[DD, A]
+
+object DatomicBij {
+  def apply[DD <: DatomicData, A](fdat: FromDatomicInj[DD, A], tdat: ToDatomicInj[DD, A]) = 
+    new DatomicBij[DD, A]{
+      def from(dd: DD): A = fdat.from(dd)
+      def to(a: A): DD    = tdat.to(a)
+    }
+
+  implicit def datomicBij[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A], tdat: ToDatomicInj[DD, A]) = 
+    DatomicBij.apply(fdat, tdat)
 }
 
