@@ -1,35 +1,33 @@
 
 import datomisca._
 import Datomic._
+import DatomicMapping._
 
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
 
-object Person {
+object PersonSchema {
   // Namespaces definition to be reused in Schema
-  val person = new Namespace("person") {
-    val character = Namespace("person.character")
-  }      
-
+  object ns {
+    val person = new Namespace("person") {
+      val character = Namespace("person.character")
+    }
+  }
   // Attributes
-  val name = Attribute( person / "name", SchemaType.string, Cardinality.one).withDoc("Person's name")
-  val age = Attribute( person / "age", SchemaType.long, Cardinality.one).withDoc("Person's name")
-  val birth = Attribute( person / "birth", SchemaType.instant, Cardinality.one).withDoc("Person's birth date")
-  val characters =  Attribute( person / "characters", SchemaType.ref, Cardinality.many).withDoc("Person's characterS")
+  val name       = Attribute(ns.person / "name",       SchemaType.string,  Cardinality.one) .withDoc("The name of a person")
+  val age        = Attribute(ns.person / "age",        SchemaType.long,    Cardinality.one) .withDoc("The age of a person")
+  val birth      = Attribute(ns.person / "birth",      SchemaType.instant, Cardinality.one) .withDoc("The birth date of a person")
+  val characters = Attribute(ns.person / "characters", SchemaType.ref,     Cardinality.many).withDoc("The characteristics of a person")
 
   // Characters enumerated values
-  val violent = AddIdent(person.character / "violent")
-  val weak = AddIdent(person.character / "weak")
-  val clever = AddIdent(person.character / "clever")
-  val dumb = AddIdent(person.character / "dumb")
-  val stupid = AddIdent(person.character / "stupid")
+  val violent = AddIdent(ns.person.character / "violent")
+  val weak    = AddIdent(ns.person.character / "weak")
+  val clever  = AddIdent(ns.person.character / "clever")
+  val dumb    = AddIdent(ns.person.character / "dumb")
+  val stupid  = AddIdent(ns.person.character / "stupid")
 
   // Schema
-  val schema = Seq(
+  val txData = Seq(
     name, age, birth, characters,
     violent, weak, clever, dumb, stupid
   )
@@ -58,23 +56,22 @@ object GettingStarted {
     Datomic.createDatabase(uri)
 
     // Loads Schema
-    val res = Datomic.transact(Person.schema).flatMap{ _ =>
+    val res = Datomic.transact(PersonSchema.txData) flatMap { _ =>
       // John temporary ID
       val johnId = DId(Partition.USER)
       // John person entity
-      val john = Entity.add(johnId)(
-        Person.person / "name"       -> "John",
-        Person.person / "age"        -> 35L,
-        Person.person / "birth"      -> new java.util.Date(),
+      val john = SchemaEntity.add(johnId)(Props() +
+        (PersonSchema.name       -> "John") +
+        (PersonSchema.age        -> 35L) +
+        (PersonSchema.birth      -> new java.util.Date()) +
         // Please note that we use Datomic References here
-        Person.person / "characters" -> Set( Person.violent.ref, Person.clever.ref )
+        (PersonSchema.characters -> Set( PersonSchema.violent.ref, PersonSchema.clever.ref ))
       )
 
       // creates an entity
       Datomic.transact(john).map{ tx =>
-        val realJohnId = tx.resolve(johnId)
 
-        println(s"Real JohnId: $realJohnId")            
+        println(s"Real JohnId: ${tx.resolve(johnId)}")
 
         val queryFindByName = Query("""
           [ :find ?e ?age
@@ -86,17 +83,17 @@ object GettingStarted {
 
         val results = Datomic.q(queryFindByName, database, DString("John"))
         println(results)
-        results.headOption.map{ 
-          case (e: DLong, age: DLong) =>
+        results.headOption map {
+          case (DLong(eid), _) =>
             // retrieves again the entity directly by its ID
-            val entity = database.entity(e)
+            val entity = database.entity(eid)
 
-            val johnName = entity.as[String](Person.person / "name")
-            val johnAge = entity.as[Long](Person.person / "age")   
-            valbo johnBirth = entity.as[java.util.Date](Person.person / "birth")   
-            val johnCharacters = entity.as[Set[DRef]](Person.person / "characters") 
+            val johnName       = entity(PersonSchema.name)
+            val johnAge        = entity(PersonSchema.age)
+            val johnBirth      = entity(PersonSchema.birth)
+            val johnCharacters = entity.read[Set[DRef]](PersonSchema.characters)
 
-            println(s"john: $johnName $johnAge $johnBirth $johnCharacters")            
+            println(s"John's -\n\tname:\t$johnName\n\tage:\t$johnAge\n\tbirth:\t$johnBirth\n\tcharacteristics:\t$johnCharacters")            
         }
       }
 
