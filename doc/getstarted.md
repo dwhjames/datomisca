@@ -24,6 +24,7 @@ You can add that in your `build.sbt` or `Build.scala depending on your choice.
 resolvers ++= Seq(
   // to get Datomisca
   "datomisca-repo snapshots" at "https://github.com/pellucidanalytics/datomisca-repo/raw/master/snapshots",
+  "datomisca-repo releases"  at "https://github.com/pellucidanalytics/datomisca-repo/raw/master/releases",
   // to get Datomic free (for pro, you must put in your own repo or local)
   "clojars" at "https://clojars.org/repo"
 )
@@ -106,7 +107,7 @@ Don't use Int as Datomic doesn't provide `Int` attribute type
 ```scala
 object PersonSchema {
   // Namespaces definition to be reused in Schema
-  val ns = {
+  object ns {
     val person = new Namespace("person") {
       val character = Namespace("person.character")
     }

@@ -155,9 +155,9 @@ val person = new Namespace("person") {
 }
 
 val violent = AddIdent(person.character / "violent")
-val weak    = AddIdent(Keyword(person.character, "weak"))
-val clever  = AddIdent(Keyword(person.character, "clever"))
-val dumb    = AddIdent(Keyword(person.character, "dumb"))
+val weak    = AddIdent(person.character / "weak")
+val clever  = AddIdent(person.character / "clever")
+val dumb    = AddIdent(person.character / "dumb")
 
 val name = Attribute( 
   person / "name", 
@@ -170,7 +170,7 @@ val age = Attribute(
   Cardinality.one).withDoc("Person's age")
 
 val characters = Attribute( 
-  person / "character"), 
+  person / "character",
   SchemaType.ref, 
   Cardinality.many).withDoc("Person's characters")
 
@@ -301,4 +301,13 @@ DatomicMapping.toEntity(DId(Partition.USER))(
 val entity = database.entity(realEntityId)
 val p = DatomicMapping.fromEntity[Person](entity)
 
+val name  = entity(PersonSchema.name)
+val age   = entity(PersonSchema.age)
+val birth = entity(PersonSchema.birth)
+
+assert(
+  (p.name  == name) &&
+  (p.age   == age)  &&
+  (p.birth == birth)
+)
 ```
