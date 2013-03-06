@@ -12,9 +12,9 @@ import java.util.{Date, UUID}
 import java.net.URI
 
 @RunWith(classOf[JUnitRunner])
-class DDReaderWriterSpec extends Specification {
+class ToFromDatomicSpec extends Specification {
 
-  "DDReader" can {
+  "FromDatomicCast" can {
 
     "read DatomicData as itself" in {
 
@@ -89,7 +89,7 @@ class DDReaderWriterSpec extends Specification {
 
   }
 
-  "DDWriter" can {
+  "ToDatomicCast" can {
 
     "write DatomicData as itself" in {
       toDatomic(DString("string")) must beAnInstanceOf[DString]
@@ -158,7 +158,7 @@ class DDReaderWriterSpec extends Specification {
   val attruri     = Attribute(ns / "uri",     SchemaType.uri,     Cardinality.one)
   val attrbytes   = Attribute(ns / "bytes",   SchemaType.bytes,   Cardinality.one)
 
-  "DDReader" should {
+  "FromDatomicInj" should {
 
     "uniquely determine the Scala type from the DatomicData type of an attribute" in {
 
@@ -186,19 +186,62 @@ class DDReaderWriterSpec extends Specification {
 
       success
     }
+  }
+
+  "FromDatomic" should {
+    import DatomicMapping._
 
     "cast to a specific Scala type from the DatomicData type of an attribute" in {
-      import DatomicMapping._
 
       val entity = DEntity(null)
 
       {
-        val int: Int = entity.read[Int](attrlong)
+        // core
+        val string:  String      = entity.read[String]     (attrstring)
+        val boolean: Boolean     = entity.read[Boolean]    (attrboolean)
+        val long:    Long        = entity.read[Long]       (attrlong)
+        val bigint:  BigInt      = entity.read[BigInt]     (attrbigint)
+        val float:   Float       = entity.read[Float]      (attrfloat)
+        val double:  Double      = entity.read[Double]     (attrdouble)
+        val bigdec:  BigDecimal  = entity.read[BigDecimal] (attrbigdec)
+        val instant: Date        = entity.read[Date]       (attrinstant)
+        val uuid:    UUID        = entity.read[UUID]       (attruuid)
+        val uri:     URI         = entity.read[URI]        (attruri)
+        val bytes:   Array[Byte] = entity.read[Array[Byte]](attrbytes)
+
+        // extensions
+        val int:   Int   = entity.read[Int]  (attrlong)
+        val short: Short = entity.read[Short](attrlong)
+        val char:  Char  = entity.read[Char] (attrlong)
+        val byte:  Byte  = entity.read[Byte] (attrlong)
+
+        val jbigint: JBigInt     = entity.read[JBigInt]    (attrbigint)
+        val jbigdec: JBigDecimal = entity.read[JBigDecimal](attrbigdec)
+      } must throwA[NullPointerException]
+    }
+
+    "read the specific DatomicData type of an attribute" in {
+
+      val entity = DEntity(null)
+
+      {
+        // core
+        val string:  DString  = entity.read(attrstring)
+        val boolean: DBoolean = entity.read(attrboolean)
+        val long:    DLong    = entity.read(attrlong)
+        val bigint:  DBigInt  = entity.read(attrbigint)
+        val float:   DFloat   = entity.read(attrfloat)
+        val double:  DDouble  = entity.read(attrdouble)
+        val bigdec:  DBigDec  = entity.read(attrbigdec)
+        val instant: DInstant = entity.read(attrinstant)
+        val uuid:    DUuid    = entity.read(attruuid)
+        val uri:     DUri     = entity.read(attruri)
+        val bytes:   DBytes   = entity.read(attrbytes)
       } must throwA[NullPointerException]
     }
   }
 
-  "DDWriter" should {
+  "ToDatomic" should {
 
     "support Scala types when asserting schema supported facts" in {
       val id = 1L
@@ -206,6 +249,7 @@ class DDReaderWriterSpec extends Specification {
       /*
        * we simply need the following code to compile
        */
+      // core
       SchemaFact.add(id)(attrstring  -> "str")
       SchemaFact.add(id)(attrboolean -> true)
       SchemaFact.add(id)(attrlong    -> 1L)
@@ -217,6 +261,15 @@ class DDReaderWriterSpec extends Specification {
       SchemaFact.add(id)(attruuid    -> UUID.randomUUID())
       SchemaFact.add(id)(attruri     -> new URI("urn:isbn:096139210x"))
       SchemaFact.add(id)(attrbytes   -> Array(Byte.MinValue))
+
+      // extensions
+      SchemaFact.add(id)(attrlong -> Int.MinValue)
+      SchemaFact.add(id)(attrlong -> Short.MinValue)
+      SchemaFact.add(id)(attrlong -> Char.MinValue)
+      SchemaFact.add(id)(attrlong -> Byte.MinValue)
+
+      SchemaFact.add(id)(attrbigint -> BigInt(1).bigInteger)
+      SchemaFact.add(id)(attrbigdec -> BigDecimal(1).bigDecimal)
 
       success
     }
