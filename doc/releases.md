@@ -7,12 +7,12 @@ title: Releases
 
 ## <a name="release-0.2">Version 0.2 (2013/03/03)</a>
 
-_v0.2_ is a huge technical release not much changing functional scope but bringing massive API/code cleaning and internal mechanism improvement.
+_v0.2_ is an important technical release bringing massive API cleaning & internal mechanism improvement.
 
-### Main Points
+### Main Enhancements
 
-- Complete rewrite of Datomic to Scala type conversion mechanism based on pure math concepts to make cirstal clear and more robust.
-- Huge API refactoring and simplification
-- Global code cleaning
+- **Complete rewrite of Datomic to Scala type conversion mechanism** to make it theoretically purer & very robust.
+- **Huge API refactoring & simplification**
+- **Global code cleaning**
 
 
