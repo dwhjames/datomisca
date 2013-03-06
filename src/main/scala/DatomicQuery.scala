@@ -319,7 +319,7 @@ trait QueryExecutorInOut extends DatomicQueryHidden {
   // .. others are in DatomicQueryHidden
 }
 
-trait QueryExecutorAuto extends DDWriterMultiImplicits{
+trait QueryExecutorAuto extends ToDatomicCastImplicits{
   def q[R](query: TypedQueryAuto0[R])(
     implicit outConv: DatomicDataToArgs[R], db: DDatabase
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq())(db, outConv)
@@ -330,33 +330,33 @@ trait QueryExecutorAuto extends DDWriterMultiImplicits{
 
   def q[A, R](query: TypedQueryAuto1[A, R], a: A)(
     implicit db: DDatabase, 
-             ddwa: DDWriterMulti[A],
+             tdata: ToDatomicCast[A],
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(ddwa.write(a).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative))(db, outConv)
 
   def q[A, B, R](query: TypedQueryAuto2[A, B, R], a: A, b: B)(
     implicit db: DDatabase, 
-             ddwa: DDWriterMulti[A], ddwb: DDWriterMulti[B], 
+             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(ddwa.write(a).toNative, ddwb.write(b).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative))(db, outConv)
 
   def q[A, B, C, R](query: TypedQueryAuto3[A, B, C, R], a: A, b: B, c: C)(
     implicit db: DDatabase, 
-             ddwa: DDWriterMulti[A], ddwb: DDWriterMulti[B], ddwc: DDWriterMulti[C], 
+             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(ddwa.write(a).toNative, ddwb.write(b).toNative, ddwc.write(c).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative))(db, outConv)
 
   def q[A, B, C, D, R](query: TypedQueryAuto4[A, B, C, D, R], a: A, b: B, c: C, d:D)(
     implicit db: DDatabase, 
-             ddwa: DDWriterMulti[A], ddwb: DDWriterMulti[B], ddwc: DDWriterMulti[C], ddwd: DDWriterMulti[D], 
+             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(ddwa.write(a).toNative, ddwb.write(b).toNative, ddwc.write(c).toNative, ddwd.write(d).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative))(db, outConv)
 
   def q[A, B, C, D, E, R](query: TypedQueryAuto5[A, B, C, D, E, R], a: A, b: B, c: C, d:D, e:E)(
     implicit db: DDatabase, 
-             ddwa: DDWriterMulti[A], ddwb: DDWriterMulti[B], ddwc: DDWriterMulti[C], ddwd: DDWriterMulti[D], ddwe: DDWriterMulti[E], 
+             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], tdate: ToDatomicCast[E], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(ddwa.write(a).toNative, ddwb.write(b).toNative, ddwc.write(c).toNative, ddwd.write(d).toNative, ddwe.write(e).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative, tdate.to(e).toNative))(db, outConv)
 
 }
 

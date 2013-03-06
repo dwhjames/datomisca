@@ -199,7 +199,7 @@ trait DatomicTypeWrapper {
   import scala.language.implicitConversions
 
   /** implicit converters to simplify conversion from Scala Types to Datomic Type */
-  implicit def toDWrapper[T](t: T)(implicit ddw: DDWriterMulti[T]): DWrapper = DWrapperImpl(Datomic.toDatomic(t)(ddw))
+  implicit def toDWrapper[T](t: T)(implicit td: ToDatomicCast[T]): DWrapper = DWrapperImpl(Datomic.toDatomic(t)(td))
 
   trait DWrapper extends NotNull
   private[datomisca] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
@@ -218,7 +218,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     * val l: DLong = Datomic.toDatomic("5L")
     * }}}
     */
-  def toDatomic[T](t: T)(implicit ddw: DDWriterMulti[T]): DatomicData = ddw.write(t)
+  def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): DatomicData = tdc.to(t)
   
   /** converts a DatomicData to a type given there is the right [[DDReader]] in the scope 
     *
@@ -228,7 +228,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     * val s: Long = Datomic.fromDatomic(DLong(5L))
     * }}}
     */
-  def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit ddr: DDReaderMono[DD, T]): T = ddr.read(dd)
+  def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
 
   def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): DEntity = {
     tx.resolveOpt(id) match {
