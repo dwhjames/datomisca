@@ -20,7 +20,7 @@ import scala.util.{Try, Success, Failure}
 
 /* DATOMIC TYPES */
 trait DatomicData extends Nativeable {
-  def as[A](implicit reader: DDReader[DatomicData, A]) = reader.read(this)
+  def as[A](implicit reader: DatomicDataReader[A]) = reader.read(this)
 }
 
 case class DString(underlying: String) extends DatomicData {

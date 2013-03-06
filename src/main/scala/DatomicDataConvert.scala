@@ -16,6 +16,16 @@
 
  package datomisca
 
+ trait DatomicDataReader[A] {
+ 	def read(dd: DatomicData): A
+ }
+
+ object DatomicDataReader extends DatomicDataReaderImplicits {
+ 	def apply[A](f: DatomicData => A) = new DatomicDataReader[A] {
+ 		def read(dd: DatomicData): A = f(dd)
+ 	}
+ }
+
 /** DatomicData to Scala reader specific */
 trait DDReader[DD <: DatomicData, A] {
   def read(dd: DD): A
@@ -24,6 +34,26 @@ trait DDReader[DD <: DatomicData, A] {
 object DDReader extends DDReaderImplicits {
   def apply[DD <: DatomicData, A](f: DD => A) = new DDReader[DD, A]{
     def read(dd: DD): A = f(dd)
+  }
+}
+
+trait DatomicDataWriter[A] {
+  def write(a: A): DatomicData
+}
+
+object DatomicDataWriter extends DatomicDataWriterImplicits{
+  def apply[A](f: A => DatomicData) = new DatomicDataWriter[A] {
+    def write(a: A): DatomicData = f(a)
+  }
+}
+
+trait DDWriterCore[DD <: DatomicData, A] {
+  def write(a: A): DD
+}
+
+object DDWriterCore extends DDWriterCoreImplicits {
+  def apply[DD <: DatomicData, A](f: A => DD) = new DDWriterCore[DD, A] {
+    def write(a: A) = f(a)
   }
 }
 
