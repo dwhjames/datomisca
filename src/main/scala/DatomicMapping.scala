@@ -94,6 +94,11 @@ trait Attribute2EntityReader[DD <: DatomicData, Card <: Cardinality, Dest] {
 
 object Attribute2EntityReader extends Attribute2EntityReaderImplicits
 
+trait Attribute2EntityReaderCast[DD <: DatomicData, Card <: Cardinality, T] {
+  def convert(attr: Attribute[DD, Card]): EntityReader[T]
+}
+
+object Attribute2EntityReaderCast extends Attribute2EntityReaderCastImplicits
 
 trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): PartialAddEntityWriter[Dest]
@@ -126,6 +131,7 @@ object DatomicMapping
   extends CombinatorImplicits 
   with EntityReaderImplicits 
   with Attribute2EntityReaderImplicits
+  with Attribute2EntityReaderCastImplicits
   with PartialAddEntityWriterImplicits
   with Attribute2PartialAddEntityWriterImplicits
 {
@@ -142,8 +148,8 @@ object DatomicMapping
 
   def writeIdOpt(partition: Partition = Partition.USER) = 
     PartialAddEntityWriter[Option[Long]] { a => a match {
-      case None => attr2PartialAddEntityWriterOne.convert(ID).write(DId(partition))
-      case Some(a) => attr2PartialAddEntityWriterOne.convert(ID).write(a)
+      case None => attr2PartialAddEntityWriterOne.convert(ID).to(DId(partition))
+      case Some(a) => attr2PartialAddEntityWriterOne.convert(ID).to(a)
     } }*/
 
   implicit def attributeOps[DD <: DatomicData, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
@@ -164,6 +170,31 @@ trait EntityReaderImplicits {
   }
 
   implicit val DEntityReader: EntityReader[DEntity] = EntityReader{ e: DEntity => e }
+}
+
+trait Attribute2EntityReaderCastImplicits {
+
+  implicit def attr2EntityReaderOneCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
+      new Attribute2EntityReaderCast[DD, CardinalityOne.type, A] {
+        def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
+          EntityReader[A]{ e: DEntity =>
+            val dd = e(attr.ident).asInstanceOf[DD]
+            fdat.from(dd)
+          }
+        }
+      }
+
+  implicit def attr2EntityReaderManyCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
+  new Attribute2EntityReaderCast[DD, CardinalityMany.type, Set[A]] {
+    def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
+      EntityReader[Set[A]]{ e: DEntity => 
+        e.get(attr.ident) map { case DSet(elems) =>
+          elems map { elem => fdat.from(elem.asInstanceOf[DD]) }
+        } getOrElse (Set.empty)
+      }
+    }
+  }
+
 }
 
 trait Attribute2EntityReaderImplicits {
@@ -225,23 +256,22 @@ trait Attribute2EntityReaderImplicits {
       }
     }
 
-  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit ddr: DDReader[DD, A]) = 
+  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityOne.type, A] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
         EntityReader[A]{ e: DEntity => 
           val dd = e(attr.ident).asInstanceOf[DD]
-          ddr.read(dd)
+          fdat.from(dd)
         }
       }
     }  
 
-
-  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit ddr: DDReader[DD, A]) = 
+  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
         EntityReader[Set[A]]{ e: DEntity => 
           e.get(attr.ident) map { case DSet(elems) =>
-            elems map { elem => ddr.read(elem.asInstanceOf[DD]) }
+            elems map { elem => fdat.from(elem.asInstanceOf[DD]) }
           } getOrElse (Set.empty)
         }
       }
@@ -282,22 +312,22 @@ trait PartialAddEntityWriterImplicits {
 
 trait Attribute2PartialAddEntityWriterImplicits {
 
-  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit ddw: DDWriter[DD, Source]) =
+  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit tdat: ToDatomic[DD, Source]) =
     new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Source] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Source] = {
         PartialAddEntityWriter[Source]{ s: Source =>
-          PartialAddEntity( Map( attr.ident -> ddw.write(s) ) )
+          PartialAddEntity( Map( attr.ident -> tdat.to(s) ) )
         }
       }
     }  
 
 
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit ddw: DDWriter[DSet, Set[Source]]) =
+  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit tdat: ToDatomic[DSet, Set[Source]]) =
     new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Source]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Source]] = {
         PartialAddEntityWriter[Set[Source]]{ s: Set[Source] =>
           if (s.isEmpty) PartialAddEntity( Map.empty )
-          else PartialAddEntity( Map( attr.ident -> ddw.write(s) ) )
+          else PartialAddEntity( Map( attr.ident -> tdat.to(s) ) )
         }
       }
     }

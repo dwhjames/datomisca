@@ -44,11 +44,11 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
       case _: EntityKeyNotFoundException => None
     }
 
-  def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T =
-    reader.read(apply(keyword))
+  def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
+    fdat.from(apply(keyword))
 
   
-  def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] =
+  def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] =
     try {
       Some(as(keyword))
     } catch {
