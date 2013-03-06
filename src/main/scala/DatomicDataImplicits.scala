@@ -30,7 +30,10 @@ object DatomicDataImplicits
 trait DDReaderMultiImplicits {
   implicit def Datomicdata2DD[DD <: DatomicData] = DDReaderMulti[DD](_.asInstanceOf[DD])
 
-  implicit val DatomicData2String:  DDReaderMulti[String]      = DDReaderMulti(_.asInstanceOf[DString] .underlying)
+  implicit def DDReaderMono2DDReaderMulti[DD <: DatomicData, A](implicit ddr: DDReaderMono[DD, A]) = 
+    DDReaderMulti{ (dd: DatomicData) => ddr.read(dd.asInstanceOf[DD]) }
+
+  /*implicit val DatomicData2String:  DDReaderMulti[String]      = DDReaderMulti(_.asInstanceOf[DString] .underlying)
   implicit val DatomicData2Boolean: DDReaderMulti[Boolean]     = DDReaderMulti(_.asInstanceOf[DBoolean].underlying)
   implicit val DatomicData2Long:    DDReaderMulti[Long]        = DDReaderMulti(_.asInstanceOf[DLong]   .underlying)
   implicit val DatomicData2Float:   DDReaderMulti[Float]       = DDReaderMulti(_.asInstanceOf[DFloat]  .underlying)
@@ -41,7 +44,7 @@ trait DDReaderMultiImplicits {
   implicit val DatomicData2UUID:    DDReaderMulti[UUID]        = DDReaderMulti(_.asInstanceOf[DUuid]   .underlying)
   implicit val DatomicData2URI:     DDReaderMulti[URI]         = DDReaderMulti(_.asInstanceOf[DUri]    .underlying)
   implicit val DatomicData2Bytes:   DDReaderMulti[Array[Byte]] = DDReaderMulti(_.asInstanceOf[DBytes]  .underlying)
-
+*/
   implicit def DatomicData2DSetTyped[T](implicit reader: DDReaderMulti[T]): DDReaderMulti[Set[T]] =
     DDReaderMulti(_.asInstanceOf[DSet].toSet.map( reader.read(_) ))
 }
