@@ -355,6 +355,34 @@ trait SchemaDEntityOps{
          : Option[T] =
     Try { apply(attr) } .toOption
 
+  def read[T] = new {
+    def apply[DD <: DatomicData, Card <: Cardinality]
+             (attr: Attribute[DD, Card])
+             (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
+             : T =
+    attrC.convert(attr).read(entity)
+  }
+
+  def read[DD <: DatomicData, Card <: Cardinality]
+          (attr: Attribute[DD, Card])
+          (implicit attrC: Attribute2EntityReaderCast[DD, Card, DD])
+          : DD =
+    read[DD](attr)
+
+  def readOpt[T] = new {
+    def apply[DD <: DatomicData, Card <: Cardinality]
+             (attr: Attribute[DD, Card])
+             (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
+             : Option[T] =
+    Try { read[T](attr) } .toOption
+  }
+
+  def readOpt[DD <: DatomicData, Card <: Cardinality]
+             (attr: Attribute[DD, Card])
+             (implicit attrC: Attribute2EntityReaderCast[DD, Card, DD])
+             : Option[DD] =
+    Try { read[DD](attr) } .toOption
+
   def getIdView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
             (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, IdView[T]])
