@@ -64,11 +64,14 @@ trait FromDatomicImplicits {
       (implicit fd: FromDatomicInj[DD, T]): FromDatomic[DD, T] = 
       FromDatomic[DD, T](fd.from(_))
 
-  implicit val DLong2Int:               FromDatomic[DLong,    Int]         = FromDatomic(_.underlying.toInt)
-  implicit val DLong2Char:              FromDatomic[DLong,    Char]        = FromDatomic(_.underlying.toChar)
-  implicit val DLong2Byte:              FromDatomic[DLong,    Byte]        = FromDatomic(_.underlying.toByte)
+  implicit val DLong2Int:               FromDatomic[DLong,    Int]            = FromDatomic(_.underlying.toInt)
+  implicit val DLong2Char:              FromDatomic[DLong,    Short]          = FromDatomic(_.underlying.toShort)
+  implicit val DLong2Short:             FromDatomic[DLong,    Char]           = FromDatomic(_.underlying.toChar)
+  implicit val DLong2Byte:              FromDatomic[DLong,    Byte]           = FromDatomic(_.underlying.toByte)
+  implicit val DBigInt2JBigInt:         FromDatomicInj[DBigInt,  JBigInt]     = FromDatomicInj(_.underlying.underlying)
+  implicit val DBigDec2JBigDec:         FromDatomicInj[DBigDec,  JBigDecimal] = FromDatomicInj(_.underlying.underlying)
 
-  implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD](_.asInstanceOf[DD])
+  implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
 
   implicit def DD2DSetTyped[DD <: DatomicData, T](implicit fdat: FromDatomicCast[T]): FromDatomic[DD, Set[T]] =
     FromDatomic(_.asInstanceOf[DSet].toSet.map( fdat.from(_) ))
@@ -128,7 +131,7 @@ trait ToDatomicImplicits {
 
   implicit def Referenceable2DRef[A <: Referenceable] = ToDatomic[DRef, A]{ (a: A) => a.ref }
 
-  implicit def DDatomicData[DD <: DatomicData] = ToDatomic[DD, DD]( dd => dd.asInstanceOf[DD] )
+  implicit def DDatomicData[DD <: DatomicData] = ToDatomic[DD, DD]( dd => dd )
 
   implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
     ToDatomic[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
