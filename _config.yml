@@ -6,6 +6,8 @@ markdown: redcarpet
 navigation:
 - title: Home
   url: index.html
+- title: Releases
+  url: doc/releases.html
 - title: Philosophy
   url: doc/philosophy.html
 - title: Features in Detail
