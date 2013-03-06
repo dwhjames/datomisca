@@ -5,8 +5,8 @@ title: Datomisca by Pellucid & Zenexity
 
 # <span style="color:#777">Embrace [Datomic](http://www.datomic.com) the Scala way</span>
 
-> **!!!News!!!** 2013/03/03 : [v0.2](doc/releases.html#release-0.2) released
-<br/>
+#### **News:** 2013/03/03 : [v0.2](doc/releases.html#release-0.2) released
+
 > For the impatient, head directly to [Getting Started](doc/getstarted.html)
 
 ## The philosophy of Datomisca in a nutshell
