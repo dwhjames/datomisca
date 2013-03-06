@@ -31,9 +31,11 @@ resolvers ++= Seq(
 
 ## #2 Add dependencies
 
+> Last stable version is 0.2
+
 ```scala
 libraryDependencies ++= Seq(
-  "pellucidanalytics" %% "datomisca" % "0.1-SNAPSHOT",
+  "pellucidanalytics" %% "datomisca" % "0.2",
   "com.datomic" % "datomic-free" % "0.8.3789"
 )
 ```
