@@ -55,8 +55,11 @@ private[datomisca] trait FromDatomicInjImplicits {
 
 }
 
-/** Surjective for DatomicData to Scala converter :
-  * - n DD => 1 Scala type
+/**
+  * A multi-valued function, or relation, from DD => T,
+  * So the type T is no longer uniquely determined by DD.
+  * For example, DLong maps to DLong, Long, Int, Short,
+  * Char, and Byte.
   */
 trait FromDatomicImplicits {
 
@@ -77,10 +80,11 @@ trait FromDatomicImplicits {
     FromDatomic(_.asInstanceOf[DSet].toSet.map( fdat.from(_) ))
 }
 
-/** Generic DatomicData to Scala type 
-  * Multi-valued "function" (not real function actually) 
-  * which inverse is surjective ToDatomic or ToDatomicCast
-  * 1 DatomicData -> n Scala type
+/**
+  * FromDatomicCast fixes the source type
+  * of FromDatomic as DatomicData
+  * Trivially, is a multi-valued function
+  * from DatomicData => T
   */
 trait FromDatomicCastImplicits {
   implicit def FromDatomic2FromDatomicCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
@@ -114,8 +118,11 @@ trait ToDatomicInjImplicits {
 
 }
 
-/** Scala to Specific DatomicData to Scala tor epimorphic (surjective)
-  * n Scala type => 1 DD
+/**
+  * ToDatomic extends ToDatomicInj by widening the domain
+  * and also destroying the injectivity property
+  * (both Long and Int map to DLong)
+  * But it is still a function (unlike FromDatomic)
   */
 trait ToDatomicImplicits {
   implicit def ToDatomicInj2ToDatomic[DD <: DatomicData, T]
@@ -143,6 +150,9 @@ trait ToDatomicImplicits {
 
 }
 
+/**
+  * ToDatomicCast fixes the return type of ToDatomic as DatomicData
+  */
 trait ToDatomicCastImplicits {
   implicit def DDWriter2ToDatomicCast[DD <: DatomicData, A](implicit tdat: ToDatomic[DD, A]) = 
     ToDatomicCast[A] { (a: A) => tdat.to(a): DatomicData }
