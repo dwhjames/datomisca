@@ -186,6 +186,16 @@ class DDReaderWriterSpec extends Specification {
 
       success
     }
+
+    "cast to a specific Scala type from the DatomicData type of an attribute" in {
+      import DatomicMapping._
+
+      val entity = DEntity(null)
+
+      {
+        val int: Int = entity.read[Int](attrlong)
+      } must throwA[NullPointerException]
+    }
   }
 
   "DDWriter" should {

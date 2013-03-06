@@ -94,6 +94,11 @@ trait Attribute2EntityReader[DD <: DatomicData, Card <: Cardinality, Dest] {
 
 object Attribute2EntityReader extends Attribute2EntityReaderImplicits
 
+trait Attribute2EntityReaderCast[DD <: DatomicData, Card <: Cardinality, T] {
+  def convert(attr: Attribute[DD, Card]): EntityReader[T]
+}
+
+object Attribute2EntityReaderCast extends Attribute2EntityReaderCastImplicits
 
 trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): PartialAddEntityWriter[Dest]
@@ -126,6 +131,7 @@ object DatomicMapping
   extends CombinatorImplicits 
   with EntityReaderImplicits 
   with Attribute2EntityReaderImplicits
+  with Attribute2EntityReaderCastImplicits
   with PartialAddEntityWriterImplicits
   with Attribute2PartialAddEntityWriterImplicits
 {
@@ -164,6 +170,31 @@ trait EntityReaderImplicits {
   }
 
   implicit val DEntityReader: EntityReader[DEntity] = EntityReader{ e: DEntity => e }
+}
+
+trait Attribute2EntityReaderCastImplicits {
+
+  implicit def attr2EntityReaderOneCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
+      new Attribute2EntityReaderCast[DD, CardinalityOne.type, A] {
+        def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] = {
+          EntityReader[A]{ e: DEntity =>
+            val dd = e(attr.ident).asInstanceOf[DD]
+            fdat.from(dd)
+          }
+        }
+      }
+
+  implicit def attr2EntityReaderManyCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
+  new Attribute2EntityReaderCast[DD, CardinalityMany.type, Set[A]] {
+    def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] = {
+      EntityReader[Set[A]]{ e: DEntity => 
+        e.get(attr.ident) map { case DSet(elems) =>
+          elems map { elem => fdat.from(elem.asInstanceOf[DD]) }
+        } getOrElse (Set.empty)
+      }
+    }
+  }
+
 }
 
 trait Attribute2EntityReaderImplicits {
@@ -234,7 +265,6 @@ trait Attribute2EntityReaderImplicits {
         }
       }
     }  
-
 
   implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
     new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
