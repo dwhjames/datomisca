@@ -172,9 +172,8 @@ class DSet(elements: Set[DatomicData]) extends DatomicData {
 }
 
 object DSet {
-  def apply(set: Set[DatomicData] = Set()) = new DSet(set)
-  def apply(dd: DatomicData) = new DSet(Set(dd))
-  def apply(dd: DatomicData, dds: DatomicData *) = new DSet(Set(dd) ++ dds)
+  def apply[DD <: DatomicData](set: Set[DD] = Set.empty) = new DSet(set map (_.asInstanceOf[DatomicData]))
+  def apply(dds: DatomicData*) = new DSet(dds.toSet)
 
   def unapply(dset: DSet): Option[Set[DatomicData]] = Some(dset.toSet)
 }
