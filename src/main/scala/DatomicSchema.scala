@@ -348,7 +348,11 @@ trait SchemaDEntityOps{
          (attr: Attribute[DD, Card])
          (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
          : Option[T] =
-    Try { apply(attr) } .toOption
+    try {
+      Some(apply(attr))
+    } catch {
+      case ex: EntityKeyNotFoundException => None
+    }
 
   def read[T] = new {
     def apply[DD <: DatomicData, Card <: Cardinality]
@@ -369,26 +373,37 @@ trait SchemaDEntityOps{
              (attr: Attribute[DD, Card])
              (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
              : Option[T] =
-    Try { read[T](attr) } .toOption
+    try {
+      Some(read[T](attr))
+    } catch {
+      case ex: EntityKeyNotFoundException => None
+    }
   }
 
   def readOpt[DD <: DatomicData, Card <: Cardinality]
              (attr: Attribute[DD, Card])
              (implicit attrC: Attribute2EntityReaderCast[DD, Card, DD])
              : Option[DD] =
-    Try { read[DD](attr) } .toOption
+    readOpt[DD](attr)
 
   def getIdView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
             (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
             : Option[IdView[T]] =
-    Try { attrC.convert(attr).read(entity) } .toOption
+    try {
+      Some(attrC.convert(attr).read(entity))
+    } catch {
+      case ex: EntityKeyNotFoundException => None
+    }
 
   def getIdViews[T]
              (attr: Attribute[DRef, CardinalityMany.type])
              (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
              : Option[Set[IdView[T]]] =
-    Try { attrC.convert(attr).read(entity) } .toOption
-
+    try {
+      Some(attrC.convert(attr).read(entity))
+    } catch {
+      case ex: EntityKeyNotFoundException => None
+    }
 }
 
