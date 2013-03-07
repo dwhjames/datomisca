@@ -385,13 +385,13 @@ trait SchemaDEntityOps{
 
   def getIdView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
-            (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, IdView[T]])
+            (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
             : Option[IdView[T]] =
     Try { attrC.convert(attr).read(entity) } .toOption
 
   def getIdViews[T]
              (attr: Attribute[DRef, CardinalityMany.type])
-             (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[IdView[T]]])
+             (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
              : Option[Set[IdView[T]]] =
     Try { attrC.convert(attr).read(entity) } .toOption
 

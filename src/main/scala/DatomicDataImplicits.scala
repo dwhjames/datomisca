@@ -39,8 +39,6 @@ object DatomicDataImplicits
   */
 private[datomisca] trait FromDatomicInjImplicits {
 
-  implicit val ReadDRef:                FromDatomicInj[DRef,     DRef]        = FromDatomicInj( dd => dd )
-
   implicit val DString2String:          FromDatomicInj[DString,  String]      = FromDatomicInj(_.underlying)
   implicit val DBoolean2Boolean:        FromDatomicInj[DBoolean, Boolean]     = FromDatomicInj(_.underlying)
   implicit val DLong2Long:              FromDatomicInj[DLong,    Long]        = FromDatomicInj(_.underlying)

@@ -230,7 +230,7 @@ class DatomicMappingSpec extends Specification {
 
           entity.as[Long](person / "age") must beEqualTo(30)
 
-          val characters = entity.get(PersonSchema.characters)
+          val characters  = entity(PersonSchema.characters)
           val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
           entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
