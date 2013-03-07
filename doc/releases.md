@@ -9,7 +9,7 @@ You can find the code of our releases tagged in [Github](https://github.com/pell
 
 ## <a name="release-0.2">Version 0.2 (2013/03/03)</a>
 
-_v0.2_ is an important technical release bringing massive API cleaning & internal mechanism improvement.
+> _v0.2_ is an important technical release bringing massive API cleaning & internal mechanism improvement.
 
 ### Main Enhancements
 
@@ -17,7 +17,7 @@ _v0.2_ is an important technical release bringing massive API cleaning & interna
 - **Huge API refactoring & simplification**
 - **Global code cleaning**
 
-## Technical environment
+### Technical environment
 
 _v0.2_ has been tested against [Datomic v0.8.3814](http://downloads.datomic.com/free.html)
 
