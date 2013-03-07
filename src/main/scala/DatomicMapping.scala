@@ -244,7 +244,14 @@ trait Attribute2EntityReaderCastImplicits {
         }
     }
 
-  implicit def attr2EntityReaderOneRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) =
+  /*
+   * we need to have an entity reader for type A in scope
+   * we can read the ref value of an attribute as an entity
+   * and then use the entity reader to interpet it. we
+   * return the result of the entity reader along with the
+   * id of the transformed entity in an IdView
+   */
+  implicit def attr2EntityReaderOneIdView[A](implicit er: EntityReader[A]) =
     new Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[A]] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[IdView[A]] =
         EntityReader { entity =>
@@ -252,8 +259,8 @@ trait Attribute2EntityReaderCastImplicits {
           IdView(subent.id)(er.read(subent))
         }
     }  
-
-  implicit def attr2EntityReaderManyRef[A](implicit witness: A <:!< DRef, er: EntityReader[A]) =
+  // similarly for multi-valued attributes
+  implicit def attr2EntityReaderManyIdView[A](implicit er: EntityReader[A]) =
     new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[A]]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[IdView[A]]] =
         EntityReader { entity =>

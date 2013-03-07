@@ -112,18 +112,6 @@ trait TxReportQueue {
   }
 }
 
-sealed class <:!<[A, B] extends NotNull
-
-trait LowerPriorityImplicits {
-  /** do not call explicitly! */
-  implicit def sub[A, B >: A]: <:!<[A, B] = sys.error("should not be called")
-}
-
-object <:!< extends LowerPriorityImplicits {
-  /** do not call explicitly! */
-  implicit def nsub[A, B]: <:!<[A, B] = new <:!<[A, B]
-}
-
 /**
  * Combination operator
  */
