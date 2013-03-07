@@ -88,11 +88,11 @@ object PartialAddEntityWriter extends PartialAddEntityWriterImplicits {
   }
 }
 
-trait Attribute2EntityReader[DD <: DatomicData, Card <: Cardinality, Dest] {
-  def convert(attr: Attribute[DD, Card]): EntityReader[Dest]
+trait Attribute2EntityReaderInj[DD <: DatomicData, Card <: Cardinality, T] {
+  def convert(attr: Attribute[DD, Card]): EntityReader[T]
 }
 
-object Attribute2EntityReader extends Attribute2EntityReaderImplicits
+object Attribute2EntityReaderInj extends Attribute2EntityReaderInjImplicits
 
 trait Attribute2EntityReaderCast[DD <: DatomicData, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card]): EntityReader[T]
@@ -132,7 +132,7 @@ class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, C
 object DatomicMapping 
   extends CombinatorImplicits 
   with EntityReaderImplicits 
-  with Attribute2EntityReaderImplicits
+  with Attribute2EntityReaderInjImplicits
   with Attribute2EntityReaderCastImplicits
   with PartialAddEntityWriterImplicits
   with Attribute2PartialAddEntityWriterImplicits
@@ -268,16 +268,22 @@ trait Attribute2EntityReaderCastImplicits {
 
 }
 
-trait Attribute2EntityReaderImplicits {
+trait Attribute2EntityReaderInjImplicits {
 
+  /*
+   * The values of reference attributes may be other entities,
+   * or they may be idents. We have to be conservative and
+   * return DatomicData so that the user can determine the
+   * precise type.
+   */
   implicit val attr2EntityReaderDRef2DD =
-    new Attribute2EntityReader[DRef, CardinalityOne.type, DatomicData] {
+    new Attribute2EntityReaderInj[DRef, CardinalityOne.type, DatomicData] {
       def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[DatomicData] =
         EntityReader { entity => entity(attr.ident) }
     }
-
+  // similarly for multi-valued attributes
   implicit val attr2EntityReaderManyDRef2DD =
-    new Attribute2EntityReader[DRef, CardinalityMany.type, Set[DatomicData]] {
+    new Attribute2EntityReaderInj[DRef, CardinalityMany.type, Set[DatomicData]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[DatomicData]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DSet(elems) => elems } getOrElse (Set.empty)
@@ -290,7 +296,7 @@ trait Attribute2EntityReaderImplicits {
    * the result type A
    */
   implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
-    new Attribute2EntityReader[DD, CardinalityOne.type, A] {
+    new Attribute2EntityReaderInj[DD, CardinalityOne.type, A] {
       def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] =
         EntityReader { entity =>
           val dd = entity(attr.ident).asInstanceOf[DD]
@@ -299,7 +305,7 @@ trait Attribute2EntityReaderImplicits {
     }  
   // similarly for multi-valued attributes
   implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
-    new Attribute2EntityReader[DD, CardinalityMany.type, Set[A]] {
+    new Attribute2EntityReaderInj[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DSet(elems) =>

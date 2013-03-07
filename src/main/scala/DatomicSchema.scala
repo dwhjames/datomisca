@@ -345,13 +345,13 @@ trait SchemaDEntityOps{
 
   def apply[DD <: DatomicData, Card <: Cardinality, T]
            (attr: Attribute[DD, Card])
-           (implicit attrC: Attribute2EntityReader[DD, Card, T])
+           (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
            : T =
     attrC.convert(attr).read(entity)
 
   def get[DD <: DatomicData, Card <: Cardinality, T]
          (attr: Attribute[DD, Card])
-         (implicit attrC: Attribute2EntityReader[DD, Card, T])
+         (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
          : Option[T] =
     Try { apply(attr) } .toOption
 
