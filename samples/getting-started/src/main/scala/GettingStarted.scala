@@ -6,6 +6,8 @@ import DatomicMapping._
 import scala.concurrent._
 import scala.concurrent.duration.Duration
 
+import java.util.{Date => JDate}
+
 object PersonSchema {
   // Namespaces definition to be reused in Schema
   object ns {
@@ -14,22 +16,22 @@ object PersonSchema {
     }
   }
   // Attributes
-  val name       = Attribute(ns.person / "name",       SchemaType.string,  Cardinality.one) .withDoc("The name of a person")
-  val age        = Attribute(ns.person / "age",        SchemaType.long,    Cardinality.one) .withDoc("The age of a person")
-  val birth      = Attribute(ns.person / "birth",      SchemaType.instant, Cardinality.one) .withDoc("The birth date of a person")
-  val characters = Attribute(ns.person / "characters", SchemaType.ref,     Cardinality.many).withDoc("The characteristics of a person")
+  val name      = Attribute(ns.person / "name",   SchemaType.string,  Cardinality.one) .withDoc("The name of a person")
+  val age       = Attribute(ns.person / "age",    SchemaType.long,    Cardinality.one) .withDoc("The age of a person")
+  val birth     = Attribute(ns.person / "birth",  SchemaType.instant, Cardinality.one) .withDoc("The birth date of a person")
+  val interests = Attribute(ns.person / "traits", SchemaType.ref,     Cardinality.many).withDoc("The interests of a person")
 
   // Characters enumerated values
-  val violent = AddIdent(ns.person.character / "violent")
-  val weak    = AddIdent(ns.person.character / "weak")
-  val clever  = AddIdent(ns.person.character / "clever")
-  val dumb    = AddIdent(ns.person.character / "dumb")
-  val stupid  = AddIdent(ns.person.character / "stupid")
+  val cooking = AddIdent(ns.person.character / "cooking")
+  val sports  = AddIdent(ns.person.character / "sports")
+  val travel  = AddIdent(ns.person.character / "travel")
+  val movies  = AddIdent(ns.person.character / "movies")
+  val books   = AddIdent(ns.person.character / "books")
 
   // Schema
   val txData = Seq(
-    name, age, birth, characters,
-    violent, weak, clever, dumb, stupid
+    name, age, birth, interests,
+    cooking, sports, travel, movies, books
   )
 
 }
@@ -57,46 +59,75 @@ object GettingStarted {
 
     // Loads Schema
     val res = Datomic.transact(PersonSchema.txData) flatMap { _ =>
-      // John temporary ID
+
+      // An temporary identity for a new entity for 'Jane'
+      val janeId = DId(Partition.USER)
+      // A person entity for 'Jane'
+      val jane = Entity.add(janeId)(
+        PersonSchema.name.ident        -> "Jane",
+        PersonSchema.ns.person / "age" -> 30,
+        KW(":person/birth")            -> new JDate,
+        // Please note that we use Datomic References here
+        PersonSchema.interests.ident -> Set( PersonSchema.movies.ref, PersonSchema.books.ref )
+      )
+
+      // An temporary identity for a new entity for 'John'
       val johnId = DId(Partition.USER)
-      // John person entity
+      // A person entity for 'John'
       val john = SchemaEntity.add(johnId)(Props() +
         (PersonSchema.name       -> "John") +
-        (PersonSchema.age        -> 35L) +
-        (PersonSchema.birth      -> new java.util.Date()) +
+        (PersonSchema.age        -> 31) +
+        (PersonSchema.birth      -> new JDate) +
         // Please note that we use Datomic References here
-        (PersonSchema.characters -> Set( PersonSchema.violent.ref, PersonSchema.clever.ref ))
+        (PersonSchema.interests -> Set( PersonSchema.sports.ref, PersonSchema.travel.ref ))
       )
 
       // creates an entity
-      Datomic.transact(john).map{ tx =>
+      Datomic.transact(jane, john) map { tx =>
 
-        println(s"Real JohnId: ${tx.resolve(johnId)}")
+        println(s"Temporary identity for Jane: $janeId")
+        println(s"Temporary identity for John: $johnId")
+        println()
+        println(s"Persisted identity for Jane: ${tx.resolve(janeId)}")
+        println(s"Persisted identity for John: ${tx.resolve(johnId)}")
 
         val queryFindByName = Query("""
-          [ :find ?e ?age
-            :in $ ?name
-            :where [?e :person/name ?name]
-                   [?e :person/age ?age]
+          [
+            :find ?e ?name ?age ?birth
+            :in $ ?limit
+            :where
+              [?e :person/name  ?name]
+              [?e :person/age   ?age]
+              [?e :person/birth ?birth]
+              [(< ?age ?limit)]
           ]
         """)
 
-        val results = Datomic.q(queryFindByName, database, DString("John"))
+        val results = Datomic.q(queryFindByName, database, DLong(32)) sortBy (_._3.as[Long])
         println(results)
-        results.headOption map {
-          case (DLong(eid), _) =>
+        results map {
+          case (DLong(eid), DString(qname), DLong(qage), DInstant(qbirth)) =>
             // retrieves again the entity directly by its ID
             val entity = database.entity(eid)
 
-            val johnName       = entity(PersonSchema.name)
-            val johnAge        = entity(PersonSchema.age)
-            val johnBirth      = entity(PersonSchema.birth)
-            val johnCharacters = entity.read[Set[DRef]](PersonSchema.characters)
+            val name      = entity(PersonSchema.name)
+            assert(qname == name)
 
-            println(s"John's -\n\tname:\t$johnName\n\tage:\t$johnAge\n\tbirth:\t$johnBirth\n\tcharacteristics:\t$johnCharacters")            
+            val Some(age) = entity.get(PersonSchema.age)
+            assert(qage == age)
+
+            val birth     = entity.as[JDate](KW(":person/birth"))
+            assert(qbirth == birth)
+
+            val interests = entity.read[Set[DRef]](PersonSchema.interests)
+            assert(interests.size == 2)
+
+            println(s"""$name's
+            |  age:       $age
+            |  birth:     $birth
+            |  interests: $interests""".stripMargin)
         }
       }
-
     }
 
     Await.result(res, Duration("2 seconds"))
