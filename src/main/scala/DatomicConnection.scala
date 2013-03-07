@@ -32,7 +32,7 @@ trait TxReport {
   def resolve(identified: Identified): Long =
     resolve(identified.id)
 
-  def resolve(ids: Seq[DId]): Seq[Long] =
+  def resolve(ids: DId*): Seq[Long] =
     ids map { resolve(_) }
 
   def resolveOpt(id: DId): Option[Long] =
@@ -42,7 +42,7 @@ trait TxReport {
       id.asInstanceOf[Long]
     }
   
-  def resolveOpt(ids: Seq[DId]): Seq[Option[Long]] =
+  def resolveOpt(ids: DId*): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
 
   lazy val tempidMap = new Map[DId, Long] {
