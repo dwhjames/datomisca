@@ -4,7 +4,7 @@ import Keys._
 object BuildSettings {
   val buildName              = "datomisca"
   val buildOrganization      = "pellucidanalytics"
-  val buildVersion           = "0.2-SNAPSHOT"
+  val buildVersion           = "0.3-SNAPSHOT"
   val buildScalaVersion      = "2.10.0"
 
   val datomicVersion         = "0.8.3814"
