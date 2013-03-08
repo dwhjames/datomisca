@@ -29,7 +29,7 @@ trait TxReport {
   def resolve(id: DId): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
   
-  def resolve(identified: Identified): Long =
+  def resolve(identified: TempIdentified): Long =
     resolve(identified.id)
 
   def resolve(ids: Seq[DId]): Seq[Long] =

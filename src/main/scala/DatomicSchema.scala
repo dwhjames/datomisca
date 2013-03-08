@@ -114,8 +114,8 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Identified with Term with Namespaceable {
-  def ident: Keyword
+sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Term with Namespaceable with KeywordIdentified {
+  override def ident: Keyword
   def valueType: SchemaType[DD]
   def cardinality: Card
   def doc: Option[String] = None
@@ -126,9 +126,9 @@ sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation
   def noHistory: Option[Boolean] = None
 
   // using partiton :db.part/db
-  override lazy val id = DId(Partition.DB)
-  override lazy val name = ident.name
-  override lazy val ns = ident.ns
+  val id = DId(Partition.DB)
+  override val name = ident.name
+  override val ns = ident.ns
 
   lazy val toAddOps: AddEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
@@ -307,7 +307,7 @@ trait DatomicSchemaFactFacilities extends DatomicTypeWrapper {
 
   /** retract based on Schema attributes 
     */
-  def retract[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
+  def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
@@ -316,12 +316,7 @@ trait DatomicSchemaFactFacilities extends DatomicTypeWrapper {
   }
   def retract[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
-    retract(DId(id))(prop)(attrC)
-  }
-
-  def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
-    retract(DId(DLong(id)))(prop)(attrC)
+    retract(id.underlying)(prop)(attrC)
   }
 }
 
@@ -345,13 +340,13 @@ trait SchemaDEntityOps{
 
   def apply[DD <: DatomicData, Card <: Cardinality, T]
            (attr: Attribute[DD, Card])
-           (implicit attrC: Attribute2EntityReader[DD, Card, T])
+           (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
            : T =
     attrC.convert(attr).read(entity)
 
   def get[DD <: DatomicData, Card <: Cardinality, T]
          (attr: Attribute[DD, Card])
-         (implicit attrC: Attribute2EntityReader[DD, Card, T])
+         (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
          : Option[T] =
     Try { apply(attr) } .toOption
 
@@ -385,13 +380,13 @@ trait SchemaDEntityOps{
 
   def getIdView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
-            (implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, IdView[T]])
+            (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
             : Option[IdView[T]] =
     Try { attrC.convert(attr).read(entity) } .toOption
 
   def getIdViews[T]
              (attr: Attribute[DRef, CardinalityMany.type])
-             (implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[IdView[T]]])
+             (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
              : Option[Set[IdView[T]]] =
     Try { attrC.convert(attr).read(entity) } .toOption
 

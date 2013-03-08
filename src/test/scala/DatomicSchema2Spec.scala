@@ -51,17 +51,17 @@ class DatomicSchema2Spec extends Specification {
           Entity.add(id)(
             person / "name"      -> "toto",
             person / "age"       -> 30L,
-            person / "character" -> Set(weak.ref, dumb.ref)
+            person / "character" -> Set(weak, dumb)
           ),
           Entity.add(DId(Partition.USER))(
             person / "name"      -> "tutu",
             person / "age"       -> 54L,
-            person / "character" -> Set(violent.ref, clever.ref)
+            person / "character" -> Set(violent, clever)
           ),
           Entity.add(DId(Partition.USER))(
             person / "name"      -> "tata",
             person / "age"       -> 23L,
-            person / "character" -> Set(weak.ref, clever.ref)
+            person / "character" -> Set(weak, clever)
           )
         ) flatMap { tx =>
           println(s"Provisioned data... TX: $tx")

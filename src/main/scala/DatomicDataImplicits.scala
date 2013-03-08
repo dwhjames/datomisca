@@ -39,8 +39,6 @@ object DatomicDataImplicits
   */
 private[datomisca] trait FromDatomicInjImplicits {
 
-  implicit val ReadDRef:                FromDatomicInj[DRef,     DRef]        = FromDatomicInj( dd => dd )
-
   implicit val DString2String:          FromDatomicInj[DString,  String]      = FromDatomicInj(_.underlying)
   implicit val DBoolean2Boolean:        FromDatomicInj[DBoolean, Boolean]     = FromDatomicInj(_.underlying)
   implicit val DLong2Long:              FromDatomicInj[DLong,    Long]        = FromDatomicInj(_.underlying)
@@ -136,7 +134,11 @@ trait ToDatomicImplicits {
   implicit val JBigInt2DBigInt  = ToDatomic[DBigInt,  JBigInt]     ((i: JBigInt)     => DBigInt(i))
   implicit val JBigDec2DBigDec  = ToDatomic[DBigDec,  JBigDecimal] ((i: JBigDecimal) => DBigDec(i))
 
-  implicit def Referenceable2DRef[A <: Referenceable] = ToDatomic[DRef, A]{ (a: A) => a.ref }
+  implicit val DId2DRef = ToDatomic[DRef, DId] { (id: DId) => DRef(id) }
+
+  implicit def KeywordIdentified2DRef[T <: KeywordIdentified] = ToDatomic[DRef, T] { (x: T) => DRef(x.ident) }
+  implicit def TempIdentified2DRef   [T <: TempIdentified]    = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
+  implicit def FinalIdentified2DRef  [T <: FinalIdentified]   = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
 
   implicit def DDatomicData[DD <: DatomicData] = ToDatomic[DD, DD]( dd => dd )
 

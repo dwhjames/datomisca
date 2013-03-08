@@ -230,7 +230,7 @@ class DatomicMappingSpec extends Specification {
 
           entity.as[Long](person / "age") must beEqualTo(30)
 
-          val characters = entity.get(PersonSchema.characters)
+          val characters  = entity(PersonSchema.characters)
           val characters2 = entity.getAs[Set[DRef]](person / "characters")
 
           entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
@@ -265,8 +265,11 @@ class DatomicMappingSpec extends Specification {
       val a = SchemaFact.add(id)( PersonSchema.name -> "toto" )
       a must beEqualTo(AddFact( id, person / "name", DString("toto") ))
 
+      /* FIX
+       * TempId doesn’t make sense for retract
       val r = SchemaFact.retract(id)( PersonSchema.name -> "toto" )
       r must beEqualTo(RetractFact( id, person / "name", DString("toto") ))      
+      */
 
       val e = SchemaEntity.add(id)(Props() +
         (PersonSchema.name       -> "toto") +
