@@ -374,25 +374,28 @@ trait SchemaDEntityOps{
     }
   }
 
-
-  def getIdView[T]
+  def idView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
             (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
-            : Option[IdView[T]] =
-    try {
-      Some(attrC.convert(attr).read(entity))
-    } catch {
-      case ex: EntityKeyNotFoundException => None
-    }
+            : IdView[T] =
+    read[IdView[T]](attr)
 
-  def getIdViews[T]
+  def getIdView[T]
+               (attr: Attribute[DRef, CardinalityOne.type])
+               (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
+               : Option[IdView[T]] =
+    readOpt[IdView[T]](attr)
+
+  def idViews[T]
              (attr: Attribute[DRef, CardinalityMany.type])
              (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
-             : Option[Set[IdView[T]]] =
-    try {
-      Some(attrC.convert(attr).read(entity))
-    } catch {
-      case ex: EntityKeyNotFoundException => None
-    }
+             : Set[IdView[T]] =
+    read[Set[IdView[T]]](attr)
+
+  def getIdViews[T]
+                (attr: Attribute[DRef, CardinalityMany.type])
+                (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
+                : Option[Set[IdView[T]]] =
+    readOpt[Set[IdView[T]]](attr)
 }
 
