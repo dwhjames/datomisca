@@ -338,12 +338,25 @@ object SchemaEntity extends DatomicSchemaEntityFacilities
 trait SchemaDEntityOps{
   def entity: DEntity
 
+  /**
+    * Get the value of the entity's attribute.
+    *
+    * The return type is inferred automatically as the implicit
+    * ensures there is a unique return type for the Datomic
+    * data type specified by the attribute.
+    *
+    * @return the value of the attribute for this entity
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
   def apply[DD <: DatomicData, Card <: Cardinality, T]
            (attr: Attribute[DD, Card])
            (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
            : T =
     attrC.convert(attr).read(entity)
 
+  /**
+    * An optional version of apply
+    */
   def get[DD <: DatomicData, Card <: Cardinality, T]
          (attr: Attribute[DD, Card])
          (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
@@ -354,6 +367,16 @@ trait SchemaDEntityOps{
       case ex: EntityKeyNotFoundException => None
     }
 
+  /**
+    * Get the value of the entity's attribute.
+    *
+    * The return type must be explicitly specified, and the
+    * implicit ensures that it is a valid pairing with the
+    * Datomic data type specified by the attribute.
+    *
+    * @return the value of the attribute for this entity
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
   def read[T] = new {
     def apply[DD <: DatomicData, Card <: Cardinality]
              (attr: Attribute[DD, Card])
@@ -362,6 +385,9 @@ trait SchemaDEntityOps{
     attrC.convert(attr).read(entity)
   }
 
+  /**
+    * An optional version of read
+    */
   def readOpt[T] = new {
     def apply[DD <: DatomicData, Card <: Cardinality]
              (attr: Attribute[DD, Card])
@@ -374,24 +400,40 @@ trait SchemaDEntityOps{
     }
   }
 
+  /**
+    *
+    * @return the IdView of the entity referenced by the given attribute
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
   def idView[T]
             (attr: Attribute[DRef, CardinalityOne.type])
             (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
             : IdView[T] =
     read[IdView[T]](attr)
 
+  /**
+    * An optional version of idView
+    */
   def getIdView[T]
                (attr: Attribute[DRef, CardinalityOne.type])
                (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
                : Option[IdView[T]] =
     readOpt[IdView[T]](attr)
 
+  /**
+    *
+    * @return the set of IdViews of the entities referenced by the given attribute
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
   def idViews[T]
              (attr: Attribute[DRef, CardinalityMany.type])
              (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
              : Set[IdView[T]] =
     read[Set[IdView[T]]](attr)
 
+  /**
+    * An optional version of idViews
+    */
   def getIdViews[T]
                 (attr: Attribute[DRef, CardinalityMany.type])
                 (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
