@@ -215,17 +215,17 @@ class ToFromDatomicSpec extends Specification {
 
       {
         // core
-        val string:  DString  = entity.read(attrstring)
-        val boolean: DBoolean = entity.read(attrboolean)
-        val long:    DLong    = entity.read(attrlong)
-        val bigint:  DBigInt  = entity.read(attrbigint)
-        val float:   DFloat   = entity.read(attrfloat)
-        val double:  DDouble  = entity.read(attrdouble)
-        val bigdec:  DBigDec  = entity.read(attrbigdec)
-        val instant: DInstant = entity.read(attrinstant)
-        val uuid:    DUuid    = entity.read(attruuid)
-        val uri:     DUri     = entity.read(attruri)
-        val bytes:   DBytes   = entity.read(attrbytes)
+        val string  = entity.read[DString](attrstring)
+        val boolean = entity.read[DBoolean](attrboolean)
+        val long    = entity.read[DLong](attrlong)
+        val bigint  = entity.read[DBigInt](attrbigint)
+        val float   = entity.read[DFloat](attrfloat)
+        val double  = entity.read[DDouble](attrdouble)
+        val bigdec  = entity.read[DBigDec](attrbigdec)
+        val instant = entity.read[DInstant](attrinstant)
+        val uuid    = entity.read[DUuid](attruuid)
+        val uri     = entity.read[DUri](attruri)
+        val bytes   = entity.read[DBytes](attrbytes)
       } must throwA[NullPointerException]
 
       success
