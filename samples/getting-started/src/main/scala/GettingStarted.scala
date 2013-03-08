@@ -115,7 +115,7 @@ object GettingStarted {
         // a raw keyword
         KW(":person/birth")            -> new JDate,
         // The set of references to the 'interests' idents
-        PersonSchema.interests.ident -> Set( PersonSchema.movies.ref, PersonSchema.books.ref )
+        PersonSchema.interests.ident -> Set( PersonSchema.movies, PersonSchema.books )
       )
 
       // Another temporary identity for a new entity for 'John'
@@ -133,7 +133,7 @@ object GettingStarted {
         (PersonSchema.age        -> 31) +
         (PersonSchema.birth      -> new JDate) +
         // Please note that we use Datomic References here
-        (PersonSchema.interests -> Set( PersonSchema.sports.ref, PersonSchema.travel.ref ))
+        (PersonSchema.interests -> Set( PersonSchema.sports, PersonSchema.travel ))
       )
 
       // tranasact the transaction data for the jane and john entities
