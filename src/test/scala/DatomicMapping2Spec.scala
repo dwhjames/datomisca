@@ -347,11 +347,14 @@ class DatomicMapping2Spec extends Specification {
 
       val id = DId(Partition.USER)
       
+      /* FIX
+       * Temp id doesn’t make sense for retract
       val a = SchemaFact.retract(id)( PersonSchema.name -> "toto" )
       a must beEqualTo(RetractFact( id, person / "name", DString("toto") ))
 
       val r = SchemaFact.retract(id)( PersonSchema.name -> "toto" )
       r must beEqualTo(RetractFact( id, person / "name", DString("toto") ))      
+      */
 
       val e = SchemaEntity.add(id)(Props() +
         (PersonSchema.name       -> "toto") +

@@ -259,9 +259,15 @@ object DatomicParser extends JavaTokenParsers {
     case kw: Keyword => DRef(kw)
   }
 
-  def fact: Parser[Fact] = did ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
+  def factWithTempId: Parser[Fact] = did ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
     case id ~ kw ~ dd => Fact(id, kw, dd)
   }
+
+  def factWithFinalId: Parser[Fact] = datomicLong ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
+    case id ~ kw ~ dd => Fact(DId(id), kw, dd)
+  }
+
+  def fact: Parser[Fact] = factWithTempId | factWithFinalId
 
   def factParsing: Parser[FactParsing] = (parsingExpr | didParsing) ~ keyword ~ (parsingExpr | drefRestrictedKeyword | datomicData) ^^ {
     case (dd: DIdParsing) ~ kw ~ value => (Right(dd), kw, value)
@@ -278,7 +284,7 @@ object DatomicParser extends JavaTokenParsers {
   def add: Parser[AddFact] = brackets(addKeyword ~> fact) ^^ { fact => AddFact(fact) }
   def addParsing: Parser[AddFactParsing] = brackets(addKeyword ~> factParsing) ^^ { fact => AddFactParsing(fact) }
 
-  def retract: Parser[RetractFact] = brackets(retractKeyword ~> fact) ^^ { fact => RetractFact(fact) }
+  def retract: Parser[RetractFact] = brackets(retractKeyword ~> factWithFinalId) ^^ { fact => RetractFact(fact.id.asInstanceOf[FinalId].underlying, fact) }
   def retractParsing: Parser[RetractFactParsing] = brackets(retractKeyword ~> factParsing) ^^ { fact => RetractFactParsing(fact) }
 
   def retractEntity: Parser[RetractEntity] = brackets(retractEntityKeyword ~> datomicLong) ^^ { 
