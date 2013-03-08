@@ -30,30 +30,19 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   }
 
   def apply(keyword: Keyword): DatomicData =
-    Option {
-      entity.get(keyword.toNative)
-    } match {
-      case None => throw new EntityKeyNotFoundException(keyword)
-      case Some(value) => Datomic.toDatomicData(value)
-    }
+    get(keyword) getOrElse { throw new EntityKeyNotFoundException(keyword) }
 
   def get(keyword: Keyword): Option[DatomicData] =
-    try {
-      Some(apply(keyword))
-    } catch {
-      case _: EntityKeyNotFoundException => None
-    }
+    Option {
+      entity.get(keyword.toNative)
+    } map (Datomic.toDatomicData(_))
 
   def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
     fdat.from(apply(keyword))
 
   
   def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] =
-    try {
-      Some(as(keyword))
-    } catch {
-      case _: EntityKeyNotFoundException => None
-    }
+    get(keyword) map (fdat.from(_))
 
   def keySet: Set[Keyword] = {
     import scala.collection.JavaConverters._
