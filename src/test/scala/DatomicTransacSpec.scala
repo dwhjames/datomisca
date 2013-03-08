@@ -40,7 +40,7 @@ class DatomicTransacSpec extends Specification {
       val person1 = Entity.add( DId(Partition.USER) )(
         person / "name"      -> "bob",
         person / "age"       -> 30L,
-        person / "character" -> Set( violent.ref, weak.ref )
+        person / "character" -> Set(violent, weak)
       )
 
       implicit val conn = Datomic.connect(uri)
