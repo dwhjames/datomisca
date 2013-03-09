@@ -107,14 +107,13 @@ case class AddIdent(ident: Keyword, partition: Partition = Partition.USER) exten
   override def toString = toNative.toString
 }
 
-case class AddDbFunction(val ident: Keyword, params: Seq[String], code: String, partition: Partition = Partition.USER) extends Operation with Identified with Referenceable {
-  override lazy val id  = DId(partition)
-  override lazy val ref = DRef(ident)
+case class AddDbFunction(val ident: Keyword, params: Seq[String], code: String, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
+  lazy val ref = DRef(ident)
   val kw = Keyword("add", Some(Namespace.DB))
 
   def toNative: AnyRef =
     datomic.Util.map(
-      Keyword("id", Some(Namespace.DB)).toNative,    id.toNative,
+      Keyword("id", Some(Namespace.DB)).toNative,    DId(partition).toNative,
       Keyword("ident", Some(Namespace.DB)).toNative, ident.toNative,
       Keyword("fn", Some(Namespace.DB)).toNative,    datomic.Peer.function(
         datomic.Util.map(

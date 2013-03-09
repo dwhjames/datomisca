@@ -66,18 +66,18 @@ object AccountsTxData {
   import AccountsSchema._
   val issuer = SchemaEntity.add(DId(Partition.USER))(Props() +
     (name       -> "Issuer") +
-    (balance    -> BigDecimal(0).bigDecimal) +
-    (minBalance -> BigDecimal(-1000).bigDecimal)
+    (balance    -> BigDecimal(0)) +
+    (minBalance -> BigDecimal(-1000))
   )
   val bob = SchemaEntity.add(DId(Partition.USER))(Props() +
     (name       -> "Bob") +
-    (balance    -> BigDecimal(0).bigDecimal) +
-    (minBalance -> BigDecimal(0).bigDecimal)
+    (balance    -> BigDecimal(0)) +
+    (minBalance -> BigDecimal(0))
   )
   val alice = SchemaEntity.add(DId(Partition.USER))(Props() +
     (name       -> "Alice") +
-    (balance    -> BigDecimal(0).bigDecimal) +
-    (minBalance -> BigDecimal(0).bigDecimal)
+    (balance    -> BigDecimal(0)) +
+    (minBalance -> BigDecimal(0))
   )
   val sampleTxData = Seq(issuer, bob, alice)
 
@@ -89,7 +89,7 @@ object AccountsTxData {
         KW(":db/doc") -> note,
         from.ident    -> fromAcc,
         to.ident      -> toAcc,
-        amount.ident  -> transAmount.bigDecimal
+        amount.ident  -> transAmount
       )
     )
   }
