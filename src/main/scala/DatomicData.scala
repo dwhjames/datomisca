@@ -20,7 +20,7 @@ import scala.util.{Try, Success, Failure}
 
 /* DATOMIC TYPES */
 trait DatomicData extends Nativeable {
-  def as[A](implicit reader: DDReader[DatomicData, A]) = reader.read(this)
+  def as[A](implicit fdat: FromDatomicCast[A]) = fdat.from(this)
 }
 
 case class DString(underlying: String) extends DatomicData {
@@ -38,15 +38,6 @@ case class DLong(underlying: Long) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Long
   def toLong = underlying
-}
-
-/** hidden structure just to be able to manipulate Int but should not be used directly by users 
-  * and not used in datomic at all 
-  */
-private[datomisca] case class DInt(underlying: Int) extends DatomicData {
-  override def toString = underlying.toString
-  def toNative: AnyRef = underlying: java.lang.Integer
-  def toInt = underlying
 }
 
 case class DFloat(underlying: Float) extends DatomicData {
@@ -181,9 +172,8 @@ class DSet(elements: Set[DatomicData]) extends DatomicData {
 }
 
 object DSet {
-  def apply(set: Set[DatomicData] = Set()) = new DSet(set)
-  def apply(dd: DatomicData) = new DSet(Set(dd))
-  def apply(dd: DatomicData, dds: DatomicData *) = new DSet(Set(dd) ++ dds)
+  def apply[DD <: DatomicData](set: Set[DD] = Set.empty) = new DSet(set map (_.asInstanceOf[DatomicData]))
+  def apply(dds: DatomicData*) = new DSet(dds.toSet)
 
   def unapply(dset: DSet): Option[Set[DatomicData]] = Some(dset.toSet)
 }
@@ -216,7 +206,7 @@ trait DDatom extends DatomicData{
 
   override def toNative = underlying
 
-  override def toString = "[%s %s %s %s %s]".format(id, attr, underlying, tx, added)
+  override def toString = "Datom(e[%s] a[%s] v[%s] tx[%s] added[%s])".format(id, attr, value, tx, added)
 }
 
 object DDatom{

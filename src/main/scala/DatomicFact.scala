@@ -82,22 +82,6 @@ trait FactOps extends DatomicTypeWrapper {
     * {{{[:db/retract entity-id attribute value]}}}
     * 
     * {{{
-    * val totoName = Datomic.Fact.retract(DId(Partition.USER))( person / "name" -> "toto")
-    * }}}
-    * 
-    * @param id the targeted [[DId]]
-    * @param prop a tuple ([[Keyword]], value)<br/>
-    *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef 
-    *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
-    */
-  def retract(id: DId)(prop: (Keyword, DWrapper)) = RetractFact(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
-
-  /** Creates a single Retract operation targeting a given [[DId]]
-    * 
-    * In Clojure, this is equivalent to:
-    * {{{[:db/retract entity-id attribute value]}}}
-    * 
-    * {{{
     * val totoName = Datomic.Fact.retract(DLong(3L))( person / "name" -> "toto")
     * }}}
     * 
@@ -106,23 +90,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef 
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract(id: DLong)(prop: (Keyword, DWrapper)) = RetractFact(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
-
-  /*
- * Copyright 2012 Pellucid and Zenexity
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+  def retract(id: DLong)(prop: (Keyword, DWrapper)) = RetractFact(id.underlying, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Retract operation targeting a given [[datomisca.DId]]
     * 
@@ -138,7 +106,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef 
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract(id: Long)(prop: (Keyword, DWrapper)) = RetractFact(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract(id: Long)(prop: (Keyword, DWrapper)) = RetractFact(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Helper: creates a special AddToEntity for creating a new Partition
     *
@@ -168,7 +136,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * 
     * @param id the DLong of a targeted real [[DId]]
     */
-  def retract(id: DLong) = RetractEntity(id)
+  def retract(id: DLong) = RetractEntity(id.underlying)
 
   /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
     * 
@@ -181,7 +149,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * 
     * @param id the long of a targeted real [[DId]]
     */
-  def retract(id: Long) = RetractEntity(DLong(id))
+  def retract(id: Long) = RetractEntity(id)
 
   /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
     * 
@@ -194,7 +162,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * 
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     */
-  def retract(id: FinalId) = RetractEntity(DLong(id.underlying))
+  def retract(id: FinalId) = RetractEntity(id.underlying)
 
   /** Creates a Multiple-"Add" targeting a single [[DId]]
     * 
@@ -218,22 +186,6 @@ trait EntityOps extends DatomicTypeWrapper {
     */
   def add(id: DId)(props: (Keyword, DWrapper)*) = 
     AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
-
-  /*
- * Copyright 2012 Pellucid and Zenexity
- * 
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
   /** Creates a Multiple-"Add" targeting a single [[datomisca.DId]] from a simple Map[[[datomisca.Keyword]], [[datomisca.DatomicData]]]
     * 

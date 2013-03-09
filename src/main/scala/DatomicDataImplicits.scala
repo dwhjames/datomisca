@@ -16,136 +16,148 @@
 
 package datomisca
 
-object DatomicDataImplicits 
-  extends DD2ScalaReaderImplicits 
-  with DD2DDReaderImplicits
-  with DDReaderImplicits
-  with DDWriterImplicits
+import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
+import java.util.{Date, UUID}
+import java.net.URI
 
+object DatomicDataImplicits
+  extends FromDatomicCastImplicits
+  with    FromDatomicImplicits
+  with    FromDatomicInjImplicits
+  with    ToDatomicCastImplicits
+  with    ToDatomicImplicits
+  with    ToDatomicInjImplicits
 
-trait DD2ScalaReaderImplicits {
-  implicit val DString2String     = DD2ScalaReader{ s: DString  => s.underlying }
-  implicit val DLong2Long         = DD2ScalaReader{ s: DLong    => s.underlying }
-  implicit val DBoolean2Boolean   = DD2ScalaReader{ s: DBoolean => s.underlying }
-  implicit val DFloat2Float       = DD2ScalaReader{ s: DFloat   => s.underlying }
-  implicit val DDouble2Double     = DD2ScalaReader{ s: DDouble  => s.underlying }
-  implicit val DBigInt2BigInteger = DD2ScalaReader{ s: DBigInt  => s.underlying }
-  implicit val DBigDec2BigDecimal = DD2ScalaReader{ s: DBigDec  => s.underlying }
-  implicit val DInstant2Date      = DD2ScalaReader{ s: DInstant => s.underlying }
+/**
+  * Think of FromDatomicInj[DD, T] as a type-level function: DD => T
+  * The implicits here construct a multi-parameter type class,
+  * and there is a functional dependency from DD to T: DD uniquely
+  * determines T. In fact, this is an injective function, as there
+  * is at most one FromDatomicInj for each DatomicData subtype, and each
+  * map to distinct Scala/Java types. As a consequence, its inverse
+  * is a partial function.
+  */
+private[datomisca] trait FromDatomicInjImplicits {
 
-  implicit val DRef2DRef = DD2ScalaReader{ s: DRef => s }
-  implicit val DEntity2DEntity = DD2ScalaReader{ s: DEntity => s }
-
-  //implicit val DString2DString = DD2ScalaReader{ s: DString => s }
-  //implicit val DInstant2DInstant = DD2ScalaReader{ s: DInstant => s }
-  //implicit def DD2DD[DD <: DatomicData] = DD2ScalaReader{ d: DD => d: DD }
-}
-
-trait DD2DDReaderImplicits {
-  
-  implicit def DSet2T[DD <: DatomicData, T]
-    (implicit dd2dd: DD2DDReader[DD], dd2t: DD2ScalaReader[DD, T]): DD2ScalaReader[DSet, Set[T]] = {
-    DD2ScalaReader{ ds: DSet => ds.toSet.map( e => dd2t.read(dd2dd.read(e)) ) }
-  }
-
-  implicit val DatomicData2DString  = DD2DDReader(_.asInstanceOf[DString])
-  implicit val DatomicData2DLong    = DD2DDReader(_.asInstanceOf[DLong])
-  implicit val DatomicData2DBoolean = DD2DDReader(_.asInstanceOf[DBoolean])
-  implicit val DatomicData2DFloat   = DD2DDReader(_.asInstanceOf[DFloat])
-  implicit val DatomicData2DDouble  = DD2DDReader(_.asInstanceOf[DDouble])
-  implicit val DatomicData2DBigInt  = DD2DDReader(_.asInstanceOf[DBigInt])
-  implicit val DatomicData2DBigDec  = DD2DDReader(_.asInstanceOf[DBigDec])
-  implicit val DatomicData2DInstant = DD2DDReader(_.asInstanceOf[DInstant])
-  implicit val DatomicData2DEntity  = DD2DDReader(_.asInstanceOf[DEntity])
-  implicit val DatomicData2DSet     = DD2DDReader(_.asInstanceOf[DSet])
-  implicit val DatomicData2DRef     = DD2DDReader(_.asInstanceOf[DRef])
-}
-
-trait DDReaderImplicits {
-  implicit def Datomicdata2DD[DD <: DatomicData](implicit dd2dd: DD2DDReader[DD]): DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd2dd.read(dd) }
-  /*implicit def genericDDReader[A](implicit dd2t: DD2ScalaReader[DatomicData, A]): DDReader[DatomicData, A] = 
-    DDReader{ dd: DatomicData =>
-      dd2t.read(dd)
-    }*/
-
-  implicit val DatomicData2String:  DDReader[DatomicData, String]         = DDReader(_.asInstanceOf[DString] .underlying)
-  implicit val DatomicData2Long:    DDReader[DatomicData, Long]           = DDReader(_.asInstanceOf[DLong]   .underlying)
-  implicit val DatomicData2Boolean: DDReader[DatomicData, Boolean]        = DDReader(_.asInstanceOf[DBoolean].underlying)
-  implicit val DatomicData2Float:   DDReader[DatomicData, Float]          = DDReader(_.asInstanceOf[DFloat]  .underlying)
-  implicit val DatomicData2Double:  DDReader[DatomicData, Double]         = DDReader(_.asInstanceOf[DDouble] .underlying)
-  implicit val DatomicData2BigInt:  DDReader[DatomicData, BigInt]         = DDReader(_.asInstanceOf[DBigInt] .underlying)
-  implicit val DatomicData2BigDec:  DDReader[DatomicData, BigDecimal]     = DDReader(_.asInstanceOf[DBigDec] .underlying)
-  implicit val DatomicData2Date:    DDReader[DatomicData, java.util.Date] = DDReader(_.asInstanceOf[DInstant].underlying)
-
-  /*implicit val DRefDDReader: DDReader[DatomicData, DRef] = DDReader{ dd: DatomicData => dd match {
-    case s: DRef => s
-    case _ => throw new RuntimeException("expected DRef to convert to DRef")
-  }}
-
-  implicit val DEntityDDReader: DDReader[DatomicData, DEntity] = DDReader{ dd: DatomicData => dd match { 
-    case s: DEntity => s
-    case _ => throw new RuntimeException("expected DEntity to convert to DEntity")
-  }}*/
-
-  implicit def DatomicData2DSetTyped[T](implicit reader: DDReader[DatomicData, T]): DDReader[DatomicData, Set[T]] =
-    DDReader(_.asInstanceOf[DSet].toSet.map( reader.read(_) ))
-}
-
-trait DDWriterImplicits{
-
-  /*implicit def DatomicData2DD[DD <: DatomicData]: DDReader[DatomicData, DD] = DDReader{ dd: DatomicData => dd match { 
-    case s: DD => s
-    case _ => throw new RuntimeException("couldn't convert")
-  }}*/
-
-  implicit val String2DStringWrites   = DDWriter[DString, String]              ( (s: String)                    => DString(s) )
-  implicit val Long2DLongWrites       = DDWriter[DLong, Long]                  ( (l: Long)                      => DLong(l) )
-  implicit val Int2DIntWrites         = DDWriter[DInt, Int]                    ( (l: Int)                       => DInt(l) )
-  implicit val Boolean2DBooleanWrites = DDWriter[DBoolean, Boolean]            ( (b: Boolean)                   => DBoolean(b) )
-  implicit val Float2DFloatWrites     = DDWriter[DFloat, Float]                ( (b: Float)                     => DFloat(b) )
-  implicit val Double2DDoubleWrites   = DDWriter[DDouble, Double]              ( (b: Double)                    => DDouble(b) )
-  implicit val Date2DDateWrites       = DDWriter[DInstant, java.util.Date]     ( (d: java.util.Date)            => DInstant(d) )
-  implicit val BigInt2DBigIntWrites   = DDWriter[DBigInt, java.math.BigInteger]( (i: java.math.BigInteger)      => DBigInt(i) )
-  implicit val BigDec2DBigDecWrites   = DDWriter[DBigDec, java.math.BigDecimal]( (i: java.math.BigDecimal)      => DBigDec(i) )
-  implicit val Ref2DReferenceable     = DDWriter[DRef, Referenceable]          ( (referenceable: Referenceable) => referenceable.ref )
-  implicit val DRef2DRefWrites        = DDWriter[DRef, DRef]                   ( (d: DRef) => d )
-  //implicit def DDatomicData[DD <: DatomicData] = DDWriter[DD, DD]( dd => dd )
-
-  implicit def DD2DStringWrites  = DDWriter[DatomicData, DString] (_.asInstanceOf[DString])
-  implicit def DD2DLongWrites    = DDWriter[DatomicData, DLong]   (_.asInstanceOf[DLong])
-  implicit def DD2DBooleanWrites = DDWriter[DatomicData, DBoolean](_.asInstanceOf[DBoolean])
-  implicit def DD2DFloatWrites   = DDWriter[DatomicData, DFloat]  (_.asInstanceOf[DFloat])
-  implicit def DD2DDoubleWrites  = DDWriter[DatomicData, DDouble] (_.asInstanceOf[DDouble])
-  implicit def DD2DInstantWrites = DDWriter[DatomicData, DInstant](_.asInstanceOf[DInstant])
-  implicit def DD2DBigIntWrites  = DDWriter[DatomicData, DBigInt] (_.asInstanceOf[DBigInt])
-  implicit def DD2DBigDecWrites  = DDWriter[DatomicData, DBigDec] (_.asInstanceOf[DBigDec])
-  implicit def DD2DRefWrites     = DDWriter[DatomicData, DRef]    (_.asInstanceOf[DRef])
-  implicit def DD2DSetWrites     = DDWriter[DatomicData, DSet]    (_.asInstanceOf[DSet])
-  implicit def DD2TempIdWrites   = DDWriter[DatomicData, TempId]  (_.asInstanceOf[TempId])
-  implicit def DD2FinalIdWrites  = DDWriter[DatomicData, FinalId] (_.asInstanceOf[FinalId])
-  implicit def DD2DEntityWrites  = DDWriter[DatomicData, DEntity] (_.asInstanceOf[DEntity])
-  implicit def DRefWrites        = DDWriter[DRef, Ref[_]]( (ref: Ref[_]) => DRef(ref.id) )
-
-  implicit def DSetWrites[A](implicit ddw: DDWriter[DatomicData, A]) =
-    DDWriter[DSet, Traversable[A]]{ (l: Traversable[A]) => DSet(l.map{ a => Datomic.toDatomic(a)(ddw) }.toSet) }
-
-  //implicit def ddIdentity = DDWriter[DatomicData, DatomicData]{ dd => dd }
+  implicit val DString2String:          FromDatomicInj[DString,  String]      = FromDatomicInj(_.underlying)
+  implicit val DBoolean2Boolean:        FromDatomicInj[DBoolean, Boolean]     = FromDatomicInj(_.underlying)
+  implicit val DLong2Long:              FromDatomicInj[DLong,    Long]        = FromDatomicInj(_.underlying)
+  implicit val DFloat2Float:            FromDatomicInj[DFloat,   Float]       = FromDatomicInj(_.underlying)
+  implicit val DDouble2Double:          FromDatomicInj[DDouble,  Double]      = FromDatomicInj(_.underlying)
+  implicit val DBigInt2BigInt:          FromDatomicInj[DBigInt,  BigInt]      = FromDatomicInj(_.underlying)
+  implicit val DBigDec2BigDec:          FromDatomicInj[DBigDec,  BigDecimal]  = FromDatomicInj(_.underlying)
+  implicit val DInstant2Date:           FromDatomicInj[DInstant, Date]        = FromDatomicInj(_.underlying)
+  implicit val DUuid2UUID:              FromDatomicInj[DUuid,    UUID]        = FromDatomicInj(_.underlying)
+  implicit val DUri2URI:                FromDatomicInj[DUri,     URI]         = FromDatomicInj(_.underlying)
+  implicit val DBytes2Bytes:            FromDatomicInj[DBytes,   Array[Byte]] = FromDatomicInj(_.underlying)
 
 }
 
-trait DD2WriterImplicits {
+/**
+  * A multi-valued function, or relation, from DD => T,
+  * So the type T is no longer uniquely determined by DD.
+  * For example, DLong maps to DLong, Long, Int, Short,
+  * Char, and Byte.
+  */
+trait FromDatomicImplicits {
 
-  implicit def ddIdentity = DD2Writer[DatomicData]{ dd => dd }
+  implicit def FromDatomicInj2FromDatomic[DD <: DatomicData, T]
+      (implicit fd: FromDatomicInj[DD, T]): FromDatomic[DD, T] = 
+      FromDatomic[DD, T](fd.from(_))
 
-  implicit val StringDD2Writes        = DD2Writer[String]              ( (s: String)                    => DString(s) )
-  implicit val LongDD2Writes          = DD2Writer[Long]                ( (l: Long)                      => DLong(l) )
-  implicit val IntDD2Writes           = DD2Writer[Int]                 ( (l: Int)                       => DInt(l) )
-  implicit val BooleanDD2Writes       = DD2Writer[Boolean]             ( (b: Boolean)                   => DBoolean(b) )
-  implicit val FloatDD2Writes         = DD2Writer[Float]               ( (b: Float)                     => DFloat(b) )
-  implicit val DoubleDD2Writes        = DD2Writer[Double]              ( (b: Double)                    => DDouble(b) )
-  implicit val DateDD2Writes          = DD2Writer[java.util.Date]      ( (d: java.util.Date)            => DInstant(d) )
-  implicit val BigIntDD2Writes        = DD2Writer[java.math.BigInteger]( (i: java.math.BigInteger)      => DBigInt(i) )
-  implicit val BigDecDD2Writes        = DD2Writer[java.math.BigDecimal]( (i: java.math.BigDecimal)      => DBigDec(i) )
-  implicit val ReferenceableDD2Writes = DD2Writer[Referenceable]       ( (referenceable: Referenceable) => referenceable.ref )
+  implicit val DLong2Int:               FromDatomic[DLong,    Int]            = FromDatomic(_.underlying.toInt)
+  implicit val DLong2Char:              FromDatomic[DLong,    Short]          = FromDatomic(_.underlying.toShort)
+  implicit val DLong2Short:             FromDatomic[DLong,    Char]           = FromDatomic(_.underlying.toChar)
+  implicit val DLong2Byte:              FromDatomic[DLong,    Byte]           = FromDatomic(_.underlying.toByte)
+  implicit val DBigInt2JBigInt:         FromDatomic[DBigInt,  JBigInt]        = FromDatomic(_.underlying.underlying)
+  implicit val DBigDec2JBigDec:         FromDatomic[DBigDec,  JBigDecimal]    = FromDatomic(_.underlying.underlying)
+
+  implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
+
+  implicit def DD2DSetTyped[DD <: DatomicData, T](implicit fdat: FromDatomicCast[T]): FromDatomic[DD, Set[T]] =
+    FromDatomic(_.asInstanceOf[DSet].toSet.map( fdat.from(_) ))
+}
+
+/**
+  * FromDatomicCast fixes the source type
+  * of FromDatomic as DatomicData
+  * Trivially, is a multi-valued function
+  * from DatomicData => T
+  */
+trait FromDatomicCastImplicits {
+  implicit def FromDatomic2FromDatomicCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
+    FromDatomicCast{ (dd: DatomicData) => fdat.from(dd.asInstanceOf[DD]) }
+}
+
+
+/**
+  * Think of ToDatomicInj[DD, T] as a type-level function: T => DD
+  * The implicits here construct a multi-parameter type class,
+  * and there is a functional dependency from T to DD: T uniquely
+  * determines DD.  In fact, this is an injective function, as there
+  * is at most one ToDatomicInj for any Scala type, and each
+  * map to distinct DatomicData subtypes. As a consequence, its inverse
+  * is a partial function.
+  */
+trait ToDatomicInjImplicits {
+  implicit val String2DString   = ToDatomicInj[DString,  String]      ((s: String)      => DString(s))
+  implicit val Boolean2DBoolean = ToDatomicInj[DBoolean, Boolean]     ((b: Boolean)     => DBoolean(b))
+  implicit val Long2DLong       = ToDatomicInj[DLong,    Long]        ((l: Long)        => DLong(l))
+  implicit val Float2DFloat     = ToDatomicInj[DFloat,   Float]       ((b: Float)       => DFloat(b))
+  implicit val Double2DDouble   = ToDatomicInj[DDouble,  Double]      ((b: Double)      => DDouble(b))
+  implicit val BigInt2DBigInt   = ToDatomicInj[DBigInt,  BigInt]      ((i: BigInt)      => DBigInt(i))
+  implicit val BigDec2DBigDec   = ToDatomicInj[DBigDec,  BigDecimal]  ((i: BigDecimal)  => DBigDec(i))
+  implicit val Date2DDate       = ToDatomicInj[DInstant, Date]        ((d: Date)        => DInstant(d))
+  implicit val UUID2DUuid       = ToDatomicInj[DUuid,    UUID]        ((u: UUID)        => DUuid(u))
+  implicit val URI2DUri         = ToDatomicInj[DUri,     URI]         ((u: URI)         => DUri(u))
+  implicit val Bytes2DBytes     = ToDatomicInj[DBytes,   Array[Byte]] ((a: Array[Byte]) => DBytes(a))
+
+  implicit val WriteDRef        = ToDatomicInj[DRef,     DRef]        ((d: DRef)        => d)
 
 }
+
+/**
+  * ToDatomic extends ToDatomicInj by widening the domain
+  * and also destroying the injectivity property
+  * (both Long and Int map to DLong)
+  * But it is still a function (unlike FromDatomic)
+  */
+trait ToDatomicImplicits {
+  implicit def ToDatomicInj2ToDatomic[DD <: DatomicData, T]
+      (implicit tdat: ToDatomicInj[DD, T]): ToDatomic[DD, T] = 
+      ToDatomic[DD, T](tdat.to(_))
+
+  implicit val Int2DLong        = ToDatomic[DLong,    Int]         ((l: Int)         => DLong(l))
+  implicit val Short2DLong      = ToDatomic[DLong,    Short]       ((s: Short)       => DLong(s))
+  implicit val Char2DLong       = ToDatomic[DLong,    Char]        ((c: Char)        => DLong(c))
+  implicit val Byte2DLong       = ToDatomic[DLong,    Byte]        ((b: Byte)        => DLong(b))
+  implicit val JBigInt2DBigInt  = ToDatomic[DBigInt,  JBigInt]     ((i: JBigInt)     => DBigInt(i))
+  implicit val JBigDec2DBigDec  = ToDatomic[DBigDec,  JBigDecimal] ((i: JBigDecimal) => DBigDec(i))
+
+  implicit val DId2DRef = ToDatomic[DRef, DId] { (id: DId) => DRef(id) }
+
+  implicit def KeywordIdentified2DRef[T <: KeywordIdentified] = ToDatomic[DRef, T] { (x: T) => DRef(x.ident) }
+  implicit def TempIdentified2DRef   [T <: TempIdentified]    = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
+  implicit def FinalIdentified2DRef  [T <: FinalIdentified]   = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
+
+  implicit def DDatomicData[DD <: DatomicData] = ToDatomic[DD, DD]( dd => dd )
+
+  implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
+    ToDatomic[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
+
+  implicit def DSet2SetWrites[C, A](implicit witness: C <:< Traversable[A], tdat: ToDatomicCast[A]) =
+    ToDatomic[DSet, C]{ (l: C) => 
+      DSet(witness(l).map{ (a: A) => Datomic.toDatomic(a)(tdat) }.toSet) 
+    }
+
+}
+
+/**
+  * ToDatomicCast fixes the return type of ToDatomic as DatomicData
+  */
+trait ToDatomicCastImplicits {
+  implicit def DDWriter2ToDatomicCast[DD <: DatomicData, A](implicit tdat: ToDatomic[DD, A]) = 
+    ToDatomicCast[A] { (a: A) => tdat.to(a): DatomicData }
+}
+
+

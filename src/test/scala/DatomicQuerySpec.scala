@@ -226,5 +226,72 @@ class DatomicQuerySpec extends Specification {
       }
     }
 
+    "10 - parse fct call in rule alias" in {
+      val alias = DRuleAliases(
+        Seq(DRuleAlias(
+          "region", 
+          Seq(Var("c"), Var("r")),
+          Seq(
+            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
+            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
+            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
+            RuleAliasCall("rule", Seq(Var("b"), Const(DLong(12)))),
+            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
+          )
+        ))
+      )
+
+      Query.rules("""
+        [ [ [region ?c ?r]
+           [?c :community/neighborhood ?n]
+           [?n :neighborhood/district ?d]
+           [?d :district/region ?re]
+           (rule ?b 12)
+           [?re :db/ident ?r] 
+        ] ]
+      """) must beEqualTo(alias) 
+    }  
+
+    "11 - parse fct call in rule alias" in {
+      val alias = DRuleAliases(
+        Seq(DRuleAlias(
+          "region", 
+          Seq(Var("c"), Var("r")),
+          Seq(
+            DataRule(ImplicitDS, Var("c"), Keyword( "neighborhood", Some(Namespace("community"))), Var("n") ),
+            DataRule(ImplicitDS, Var("n"), Keyword( "district", Some(Namespace("neighborhood"))), Var("d") ),
+            DataRule(ImplicitDS, Var("d"), Keyword( "region", Some(Namespace("district"))), Var("re") ),
+            RuleAliasCall("rule", Seq(Var("b"), Const(DLong(12)))),
+            DataRule(ImplicitDS, Var("re"), Keyword( "ident", Some(Namespace("db"))), Var("r") )
+          )
+        ))
+      )
+
+      Query.rules("""
+        [ [ (region ?c ?r)
+           [?c :community/neighborhood ?n]
+           [?n :neighborhood/district ?d]
+           [?d :district/region ?re]
+           (rule ?b 12)
+           [?re :db/ident ?r] 
+        ] ]
+      """) must beEqualTo(alias) 
+    }  
   }
+
+  "12 - passing database when no :in" in {
+
+      implicit val conn = Datomic.connect(uri)
+
+      val q = Query(""" 
+        [:find ?e :where [?e :person/name]]
+      """)
+      Datomic.q(q, database) map {
+        case DLong(e) => 
+          val entity = database.entity(e)
+          println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
+      }
+
+      success
+    }
 }

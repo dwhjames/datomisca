@@ -86,12 +86,16 @@ case object ImplicitDS extends DataSource {
   def name = ""
 }
 
-trait Identified {
+trait TempIdentified {
   def id: DId
 }
 
-trait Referenceable {
-  def ref: DRef
+trait FinalIdentified {
+  def id: Long
+}
+
+trait KeywordIdentified {
+  def ident: Keyword
 }
 
 case class Partition(keyword: Keyword) {

@@ -30,85 +30,32 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   }
 
   def apply(keyword: Keyword): DatomicData =
-    Option {
-      entity.get(keyword.toNative)
-    } match {
-      case None => throw new EntityKeyNotFoundException(keyword)
-      case Some(value) => Datomic.toDatomicData(value)
-    }
+    get(keyword) getOrElse { throw new EntityKeyNotFoundException(keyword) }
 
   def get(keyword: Keyword): Option[DatomicData] =
-    try {
-      Some(apply(keyword))
-    } catch {
-      case _: EntityKeyNotFoundException => None
-    }
+    Option {
+      entity.get(keyword.toNative)
+    } map (Datomic.toDatomicData(_))
 
-  def as[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): T =
-    reader.read(apply(keyword))
+  def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
+    fdat.from(apply(keyword))
 
   
-  def getAs[T](keyword: Keyword)(implicit reader: DDReader[DatomicData, T]): Option[T] =
-    try {
-      Some(as(keyword))
-    } catch {
-      case _: EntityKeyNotFoundException => None
-    }
+  def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] =
+    get(keyword) map (fdat.from(_))
 
-  def toMap: Map[Keyword, DatomicData] = {
+  def keySet: Set[Keyword] = {
     import scala.collection.JavaConverters._
 
-    entity.keySet.asScala.view.map{ x: Any =>
-      val key = x.asInstanceOf[clojure.lang.Keyword]
-      (Keyword(key) -> Datomic.toDatomicData(entity.get(key)))
+    entity.keySet.asScala.view.map{ key: Any =>
+      Keyword(key.asInstanceOf[clojure.lang.Keyword])
+    }.toSet
+  }
+
+  def toMap: Map[Keyword, DatomicData] =
+    keySet.view.map{ key: Keyword =>
+      (key -> apply(key))
     }.toMap
-  }
-
-  /* extension with attributes */
-  /*def as[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])
-  (implicit dd2dd: DD2DDReader[DD], dd2t: DD2ScalaReader[DD, T]): T = {
-    dd2t.read(dd2dd.read(apply(attr.ident)))
-  }*/
-
-  def get[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Option[T] = {
-    Try { attrC.convert(attr).read(this) }.toOption
-  }
-
-  def tryGet[DD <: DatomicData, Card <: Cardinality, T](attr: Attribute[DD, Card])(implicit attrC: Attribute2EntityReader[DD, Card, T]): Try[T] = {
-    Try { attrC.convert(attr).read(this) }
-  }
-
-  def getRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
-    tryGet(attr).toOption
-  }
-
-  def getRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
-    tryGet(attr).toOption
-  }
-
-  def tryGetRef[T](attr: Attribute[DRef, CardinalityOne.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
-    tryGet(attr)
-  }
-
-  def tryGetRefs[T](attr: Attribute[DRef, CardinalityMany.type])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
-    tryGet(attr)
-  }
-
-  def get[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Option[Ref[T]] = {
-    tryGet(attr).toOption
-  }
-
-  def tryGet[T](attr: RefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityOne.type, Ref[T]]): Try[Ref[T]] = {
-    Try { attrC.convert(attr).read(this) }
-  }
-
-  def get[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Option[Set[Ref[T]]] = {
-    tryGet(attr).toOption
-  }
-
-  def tryGet[T](attr: ManyRefAttribute[T])(implicit attrC: Attribute2EntityReader[DRef, CardinalityMany.type, Set[Ref[T]]]): Try[Set[Ref[T]]] = {
-    Try { attrC.convert(attr).read(this) }
-  }
 
 }
 

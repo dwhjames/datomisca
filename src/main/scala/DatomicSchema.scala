@@ -17,6 +17,7 @@
 package datomisca
 
 import scala.language.reflectiveCalls
+import scala.util.{Try, Success, Failure}
 
 trait SchemaType[DD <: DatomicData] {
   def keyword: Keyword
@@ -113,8 +114,8 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Identified with Term with Namespaceable {
-  def ident: Keyword
+sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Term with Namespaceable with KeywordIdentified {
+  override def ident: Keyword
   def valueType: SchemaType[DD]
   def cardinality: Card
   def doc: Option[String] = None
@@ -125,9 +126,9 @@ sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation
   def noHistory: Option[Boolean] = None
 
   // using partiton :db.part/db
-  override lazy val id = DId(Partition.DB)
-  override lazy val name = ident.name
-  override lazy val ns = ident.ns
+  val id = DId(Partition.DB)
+  override val name = ident.name
+  override val ns = ident.ns
 
   lazy val toAddOps: AddEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
@@ -216,50 +217,6 @@ case class RawAttribute[DD <: DatomicData, Card <: Cardinality](
 }
 
 
-
-case class RefAttribute[T](
-  override val ident: Keyword,
-  override val doc: Option[String] = None,
-  override val unique: Option[Unique] = None,
-  override val index: Option[Boolean] = None,
-  override val fulltext: Option[Boolean] = None,
-  override val isComponent: Option[Boolean] = None,
-  override val noHistory: Option[Boolean] = None
-) extends Attribute[DRef, CardinalityOne.type]{
-  
-  override val valueType = SchemaType.ref
-  override val cardinality = CardinalityOne
-
-  def withDoc(str: String) = copy[T]( doc = Some(str) )
-  def withUnique(u: Unique) = copy[T]( unique = Some(u) )
-  def withIndex(b: Boolean) = copy[T]( index = Some(b) )
-  def withFullText(b: Boolean) = copy[T]( fulltext = Some(b) )
-  def withIsComponent(b: Boolean) = copy[T]( isComponent = Some(b) )
-  def withNoHistory(b: Boolean) = copy[T]( noHistory = Some(b) )
-}
-
-case class ManyRefAttribute[T](
-  override val ident: Keyword,
-  override val doc: Option[String] = None,
-  override val unique: Option[Unique] = None,
-  override val index: Option[Boolean] = None,
-  override val fulltext: Option[Boolean] = None,
-  override val isComponent: Option[Boolean] = None,
-  override val noHistory: Option[Boolean] = None
-) extends Attribute[DRef, CardinalityMany.type] {
-
-  override val valueType = SchemaType.ref
-  override val cardinality = CardinalityMany
-
-  def withDoc(str: String) = copy[T]( doc = Some(str) )
-  def withUnique(u: Unique) = copy[T]( unique = Some(u) )
-  def withIndex(b: Boolean) = copy[T]( index = Some(b) )
-  def withFullText(b: Boolean) = copy[T]( fulltext = Some(b) )
-  def withIsComponent(b: Boolean) = copy[T]( isComponent = Some(b) )
-  def withNoHistory(b: Boolean) = copy[T]( noHistory = Some(b) )
-}
-
-
 sealed trait Props {
   def convert: PartialAddEntity
 
@@ -286,17 +243,6 @@ sealed trait Props {
       }
     }
 
-    step(this)
-  }
-
-  def get[DD <: DatomicData, Card <: Cardinality, A](attr: Attribute[DD, Card])
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Option[A] = {
-    def step(cur: Props): Option[A] = {
-      cur match {
-        case PropsLink(head, tail, ac) => if(head._1 == attr) Some(head._2.asInstanceOf[A]) else step(tail)
-        case PropsNil => None
-      }
-    }
     step(this)
   }
 
@@ -361,7 +307,7 @@ trait DatomicSchemaFactFacilities extends DatomicTypeWrapper {
 
   /** retract based on Schema attributes 
     */
-  def retract[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
+  def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
@@ -370,12 +316,7 @@ trait DatomicSchemaFactFacilities extends DatomicTypeWrapper {
   }
   def retract[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
-    retract(DId(id))(prop)(attrC)
-  }
-
-  def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
-    retract(DId(DLong(id)))(prop)(attrC)
+    retract(id.underlying)(prop)(attrC)
   }
 }
 
@@ -393,4 +334,110 @@ trait DatomicSchemaQueryFacilities {
 object SchemaFact extends DatomicSchemaFactFacilities
 
 object SchemaEntity extends DatomicSchemaEntityFacilities
+
+trait SchemaDEntityOps{
+  def entity: DEntity
+
+  /**
+    * Get the value of the entity's attribute.
+    *
+    * The return type is inferred automatically as the implicit
+    * ensures there is a unique return type for the Datomic
+    * data type specified by the attribute.
+    *
+    * @return the value of the attribute for this entity
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
+  def apply[DD <: DatomicData, Card <: Cardinality, T]
+           (attr: Attribute[DD, Card])
+           (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
+           : T =
+    attrC.convert(attr).read(entity)
+
+  /**
+    * An optional version of apply
+    */
+  def get[DD <: DatomicData, Card <: Cardinality, T]
+         (attr: Attribute[DD, Card])
+         (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
+         : Option[T] =
+    try {
+      Some(apply(attr))
+    } catch {
+      case ex: EntityKeyNotFoundException => None
+    }
+
+  /**
+    * Get the value of the entity's attribute.
+    *
+    * The return type must be explicitly specified, and the
+    * implicit ensures that it is a valid pairing with the
+    * Datomic data type specified by the attribute.
+    *
+    * @return the value of the attribute for this entity
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
+  def read[T] = new {
+    def apply[DD <: DatomicData, Card <: Cardinality]
+             (attr: Attribute[DD, Card])
+             (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
+             : T =
+    attrC.convert(attr).read(entity)
+  }
+
+  /**
+    * An optional version of read
+    */
+  def readOpt[T] = new {
+    def apply[DD <: DatomicData, Card <: Cardinality]
+             (attr: Attribute[DD, Card])
+             (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
+             : Option[T] =
+    try {
+      Some(read[T](attr))
+    } catch {
+      case ex: EntityKeyNotFoundException => None
+    }
+  }
+
+  /**
+    *
+    * @return the IdView of the entity referenced by the given attribute
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
+  def idView[T]
+            (attr: Attribute[DRef, CardinalityOne.type])
+            (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
+            : IdView[T] =
+    read[IdView[T]](attr)
+
+  /**
+    * An optional version of idView
+    */
+  def getIdView[T]
+               (attr: Attribute[DRef, CardinalityOne.type])
+               (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
+               : Option[IdView[T]] =
+    readOpt[IdView[T]](attr)
+
+  /**
+    *
+    * @return the set of IdViews of the entities referenced by the given attribute
+    * @throws EntityKeyNotFoundException when the attribute does not exist
+    */
+  def idViews[T]
+             (attr: Attribute[DRef, CardinalityMany.type])
+             (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
+             : Set[IdView[T]] =
+    read[Set[IdView[T]]](attr)
+
+  /**
+    * An optional version of idViews
+    */
+  def getIdViews[T]
+                (attr: Attribute[DRef, CardinalityMany.type])
+                (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
+                : Option[Set[IdView[T]]] =
+    readOpt[Set[IdView[T]]](attr)
+}
 

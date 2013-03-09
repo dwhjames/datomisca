@@ -20,30 +20,44 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 
-trait TxReport extends TxReportHidden {
+trait TxReport {
   val dbBefore: DDatabase
   val dbAfter:  DDatabase
   val txData:   Seq[DDatom]
   protected val tempids: AnyRef
 
-  override def resolve(id: DId)(implicit db: DDatabase): Long =
+  def resolve(id: DId): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
   
-  def resolve(identified: Identified)(implicit db: DDatabase): Long =
+  def resolve(identified: TempIdentified): Long =
     resolve(identified.id)
 
-  def resolve(ids: Seq[DId])(implicit db: DDatabase): Seq[Long] =
+  def resolve(ids: DId*): Seq[Long] =
     ids map { resolve(_) }
 
-  def resolveOpt(id: DId)(implicit db: DDatabase): Option[Long] =
+  def resolveOpt(id: DId): Option[Long] =
     Option {
-      datomic.Peer.resolveTempid(db.underlying, tempids, id.toNative)
+      datomic.Peer.resolveTempid(dbAfter.underlying, tempids, id.toNative)
     } map { id =>
       id.asInstanceOf[Long]
     }
   
-  def resolveOpt(ids: Seq[DId])(implicit db: DDatabase): Seq[Option[Long]] =
+  def resolveOpt(ids: DId*): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
+
+  lazy val tempidMap = new Map[DId, Long] {
+    override def get(tempId: DId) = resolveOpt(tempId)
+    override def iterator = throw new UnsupportedOperationException
+    override def +[T >: Long](kv: (DId, T)) = throw new UnsupportedOperationException
+    override def -(k: DId) = throw new UnsupportedOperationException
+  }
+  
+  override def toString = s"""TxReport{ 
+    dbBefore: ${dbBefore.basisT}, 
+    dbAfter: ${dbAfter.basisT}, 
+    txData: $txData,
+    tempids: $tempids
+  }"""
 }
 
 trait Connection {

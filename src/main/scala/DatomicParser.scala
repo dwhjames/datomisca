@@ -93,13 +93,22 @@ object DatomicParser extends JavaTokenParsers {
   val operator: Parser[String] = """(\+|-|\*|/|not=|==|=|<=|>=|<|>)""".r
   //val operator: Parser[String] = "+" | "-" | "*" | "/" | "==" | "<=" | ">=" | "<" | ">"
 
-  def datomicString: Parser[DString] = "\"" ~> stringContent <~ "\"" ^^ { DString(_) }
+  def wrap[T](left: String, parser: Parser[T], right: String): Parser[T] = left ~> parser <~ right
+
+  def parens[T](parser:   Parser[T]): Parser[T] = wrap("(", parser, ")")
+  def brackets[T](parser: Parser[T]): Parser[T] = wrap("[", parser, "]")
+  def braces[T](parser:   Parser[T]): Parser[T] = wrap("{", parser, "}")
+  def dquotes[T](parser:  Parser[T]): Parser[T] = wrap("\"", parser, "\"")
+
+  def parensOrBrackets[T](parser: Parser[T]): Parser[T] = parens(parser) | brackets(parser)
+
+  def datomicString: Parser[DString] = dquotes(stringContent) ^^ { DString(_) }
   def datomicLong: Parser[DLong] = noDecimal ^^ { (s: String) => DLong(s.toLong) }
   def datomicFloat: Parser[DFloat] = decimalMandatory ^^ {  (s: String) => DFloat(s.toFloat) }
   //def datomicDouble: Parser[DDouble] = floatingPointNumber ^^ { (s: String) => DDouble(s.toDouble) }
   def datomicBoolean: Parser[DBoolean] = ("true" | "false") ^^ {  (s: String) => DBoolean(s.toBoolean) }
 
-  def did: Parser[DId] = "#db/id" ~> "[" ~> (partition ~ opt(negNoDecimal)) <~ "]" ^^ { 
+  def did: Parser[DId] = "#db/id" ~> brackets(partition ~ opt(negNoDecimal)) ^^ { 
     case part ~ Some(negid) => DId(part, negid.toLong) 
     case part ~ None => DId(part) 
   }
@@ -110,14 +119,14 @@ object DatomicParser extends JavaTokenParsers {
     case did: DId => DRef(did)
   }
 
-  def dset: Parser[DSet] = "[" ~> rep(datomicData) <~ "]" ^^ { l => DSet(l.toSet) }
+  def dset: Parser[DSet] = brackets(rep(datomicData)) ^^ { l => DSet(l.toSet) }
 
-  def druletmp: Parser[(String, Seq[Var])] = "[" ~> functionLiteral ~ rep(variable) <~ "]" ^^ { 
+  def druletmp: Parser[(String, Seq[Var])] = parensOrBrackets(functionLiteral ~ rep(variable)) ^^ { 
     case name ~ vars => ( name, vars ) }
-  def drulealias: Parser[DRuleAlias] = "[" ~> druletmp ~ rep(rule) <~ "]" ^^ {
+  def drulealias: Parser[DRuleAlias] = brackets(druletmp ~ rep(rule)) ^^ {
     case ( name, outputs ) ~ (rules: Seq[_]) => DRuleAlias(name, outputs, rules)
   }
-  def drulealiases: Parser[DRuleAliases] = "[" ~> rep(drulealias) <~ "]" ^^ { DRuleAliases(_) }
+  def drulealiases: Parser[DRuleAliases] = brackets(rep(drulealias)) ^^ { DRuleAliases(_) }
 
   def datomicData: Parser[DatomicData] = dset | did | dref | datomicBoolean | datomicString | datomicFloat | datomicLong
 
@@ -174,30 +183,30 @@ object DatomicParser extends JavaTokenParsers {
   def dpredicate: Parser[DPredicate] = (operator | functionLiteral) ^^ { DPredicate(_) }
 
   def scalarBinding: Parser[ScalarBinding] = (variable | empty) ^^ { ScalarBinding(_) }
-  def tupleBinding: Parser[TupleBinding] = "[" ~> rep(variable | empty) <~ "]" ^^ { TupleBinding(_) }
-  def collectionBinding: Parser[CollectionBinding] = "[" ~> (variable | empty) <~ "..." ~ "]" ^^ { CollectionBinding(_) }
-  def relationBinding: Parser[RelationBinding] = "[[" ~> rep(variable | empty) <~ "]]" ^^ { RelationBinding(_) }
+  def tupleBinding: Parser[TupleBinding] = brackets(rep(variable | empty)) ^^ { TupleBinding(_) }
+  def collectionBinding: Parser[CollectionBinding] = brackets((variable | empty) <~ "...") ^^ { CollectionBinding(_) }
+  def relationBinding: Parser[RelationBinding] = wrap("[[", rep(variable | empty), "]]") ^^ { RelationBinding(_) }
 
   def binding = tupleBinding | scalarBinding | relationBinding | collectionBinding
 
-  def functionAloneExpression: Parser[DFunction ~ Seq[Term]] = "(" ~> dfunction ~ rep(term) <~ ")"
+  def functionAloneExpression: Parser[DFunction ~ Seq[Term]] = parens(dfunction ~ rep(term))
 
   def functionExpression: Parser[FunctionExpression] = functionAloneExpression ~ binding ^^ {
     case ((df: DFunction) ~ (args: Seq[Term])) ~ (binding: Binding) => FunctionExpression(df, args, binding)
   }
 
-  def predicateExpression: Parser[PredicateExpression] = "(" ~> dpredicate ~ rep(term) <~ ")" ^^ {
+  def predicateExpression: Parser[PredicateExpression] = parens(dpredicate ~ rep(term)) ^^ {
     case (df: DPredicate) ~ (args: Seq[_]) => PredicateExpression(df, args)
   }
 
   def expression: Parser[Expression] = functionExpression | predicateExpression
   def expressionRule: Parser[ExpressionRule] = expression ^^ { ExpressionRule(_) }
 
-  def ruleAliasCall: Parser[RuleAliasCall] = "(" ~> functionLiteral ~ rep(term) <~ ")" ^^ {
+  def ruleAliasCall: Parser[RuleAliasCall] = parens(functionLiteral ~ rep(term)) ^^ {
     case (name: String) ~ (args: Seq[Term]) => RuleAliasCall(name, args)
   }
   // RULES
-  def rule: Parser[Rule] = positioned(("[" ~> (dataRuleParsing | expressionRule) <~ "]") | ruleAliasCall)
+  def rule: Parser[Rule] = positioned(brackets(dataRuleParsing | expressionRule) | ruleAliasCall)
 
   // WHERE
   def where: Parser[Where] = positioned(":where" ~> rep(rule) ^^ { Where(_) })
@@ -218,7 +227,7 @@ object DatomicParser extends JavaTokenParsers {
   def wizz: Parser[With] = positioned(":with" ~> rep(variable) ^^ { With(_) })
 
   // QUERY
-  def query: Parser[PureQuery] = "[" ~> find ~ opt(wizz) ~ opt(in) ~ where <~ "]" ^^ { 
+  def query: Parser[PureQuery] = brackets(find ~ opt(wizz) ~ opt(in) ~ where) ^^ { 
     case find ~ wizz ~ in ~ where => PureQuery(find, wizz, in, where) 
   }
 
@@ -229,7 +238,7 @@ object DatomicParser extends JavaTokenParsers {
     case se: ScalaExpr => Left(se)
   }
 
-  def dSetParsing: Parser[DSetParsing] = "[" ~> rep(eitherScalaExprOrDatomicData) <~ "]" ^^ { DSetParsing(_) } 
+  def dSetParsing: Parser[DSetParsing] = brackets(rep(eitherScalaExprOrDatomicData)) ^^ { DSetParsing(_) } 
 
   def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSetParsing
 
@@ -242,7 +251,7 @@ object DatomicParser extends JavaTokenParsers {
   }
 
 
-  def didParsing: Parser[DIdParsing] = "#db/id" ~> "[" ~> (partition ~ opt(negNoDecimal)) <~ "]" ^^ { 
+  def didParsing: Parser[DIdParsing] = "#db/id" ~> brackets(partition ~ opt(negNoDecimal)) ^^ { 
     case part ~ negid => DIdParsing(part, negid.map(_.toLong)) 
   }
 
@@ -250,9 +259,15 @@ object DatomicParser extends JavaTokenParsers {
     case kw: Keyword => DRef(kw)
   }
 
-  def fact: Parser[Fact] = did ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
+  def factWithTempId: Parser[Fact] = did ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
     case id ~ kw ~ dd => Fact(id, kw, dd)
   }
+
+  def factWithFinalId: Parser[Fact] = datomicLong ~ keyword ~ (drefRestrictedKeyword | datomicData) ^^ {
+    case id ~ kw ~ dd => Fact(DId(id), kw, dd)
+  }
+
+  def fact: Parser[Fact] = factWithTempId | factWithFinalId
 
   def factParsing: Parser[FactParsing] = (parsingExpr | didParsing) ~ keyword ~ (parsingExpr | drefRestrictedKeyword | datomicData) ^^ {
     case (dd: DIdParsing) ~ kw ~ value => (Right(dd), kw, value)
@@ -266,25 +281,25 @@ object DatomicParser extends JavaTokenParsers {
   def retractKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("retract", Some(Namespace.DB)) => kw } 
   def retractEntityKeyword: Parser[Keyword] = keyword ^? { case kw @ Keyword("retractEntity", Some(Namespace.DB)) => kw } 
 
-  def add: Parser[AddFact] = "[" ~> addKeyword ~> fact <~ "]" ^^ { fact => AddFact(fact) }
-  def addParsing: Parser[AddFactParsing] = "[" ~> addKeyword ~> factParsing <~ "]" ^^ { fact => AddFactParsing(fact) }
+  def add: Parser[AddFact] = brackets(addKeyword ~> fact) ^^ { fact => AddFact(fact) }
+  def addParsing: Parser[AddFactParsing] = brackets(addKeyword ~> factParsing) ^^ { fact => AddFactParsing(fact) }
 
-  def retract: Parser[RetractFact] = "[" ~> retractKeyword ~> fact <~ "]" ^^ { fact => RetractFact(fact) }
-  def retractParsing: Parser[RetractFactParsing] = "[" ~> retractKeyword ~> factParsing <~ "]" ^^ { fact => RetractFactParsing(fact) }
+  def retract: Parser[RetractFact] = brackets(retractKeyword ~> factWithFinalId) ^^ { fact => RetractFact(fact.id.asInstanceOf[FinalId].underlying, fact) }
+  def retractParsing: Parser[RetractFactParsing] = brackets(retractKeyword ~> factParsing) ^^ { fact => RetractFactParsing(fact) }
 
-  def retractEntity: Parser[RetractEntity] = "[" ~> retractEntityKeyword ~> datomicLong <~ "]" ^^ { 
+  def retractEntity: Parser[RetractEntity] = brackets(retractEntityKeyword ~> datomicLong) ^^ { 
     case entid: DLong => RetractEntity(entid) 
   }
-  def retractEntityParsing: Parser[RetractEntityParsing] = "[" ~> retractEntityKeyword ~> (parsingExpr | datomicLong) <~ "]" ^^ { 
+  def retractEntityParsing: Parser[RetractEntityParsing] = brackets(retractEntityKeyword ~> (parsingExpr | datomicLong)) ^^ { 
     case entid: DLong => RetractEntityParsing(Right(entid)) 
     case se: ParsingExpr => RetractEntityParsing(Left(se)) 
   }
 
-  def addEntity: Parser[AddEntity] = "{" ~> ensureHasIdKeyword(rep(attribute)) <~ "}"
-  def addEntityParsing: Parser[AddEntityParsing] = "{" ~> rep(attributeParsing) <~ "}" ^^ { t => AddEntityParsing(t.toMap) }
+  def addEntity: Parser[AddEntity] = braces(ensureHasIdKeyword(rep(attribute)))
+  def addEntityParsing: Parser[AddEntityParsing] = braces(rep(attributeParsing)) ^^ { t => AddEntityParsing(t.toMap) }
 
-  def opsParsing: Parser[Seq[OpParsing]] = "[" ~> rep(addParsing | retractParsing | retractEntityParsing | addEntityParsing) <~ "]"
-  def ops: Parser[Seq[Operation]] = rep("[" ~> rep(add | retract | retractEntity | addEntity) <~ "]") ^^ {
+  def opsParsing: Parser[Seq[OpParsing]] = brackets(rep(addParsing | retractParsing | retractEntityParsing | addEntityParsing))
+  def ops: Parser[Seq[Operation]] = rep(brackets(rep(add | retract | retractEntity | addEntity))) ^^ {
     case l: Seq[Seq[Operation]] => l.flatten
   }
 
