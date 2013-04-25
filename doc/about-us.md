@@ -5,7 +5,7 @@ title: About Us
 
 # About Us
 
-The Datomisca project is sponsored by [Pellucid Analytics](http://www.pellucidanalytics.com) and developed by [Zenexity](http://www.zenexity.com).
+The Datomisca project is sponsored by [Pellucid Analytics](http://www.pellucid.com) and developed by [Zenexity](http://www.zenexity.com).
 
 You can contact us on [Datomisca Google Group](https://groups.google.com/forum/?fromgroups#!forum/datomisca)
 
