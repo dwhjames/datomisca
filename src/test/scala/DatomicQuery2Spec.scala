@@ -69,7 +69,7 @@ class DatomicQuery2Spec extends Specification {
         [:find ?e :where [?e :person/name]]
       """)
 
-      Datomic.q(q) map {
+      Datomic.q(q, database) map {
         case DLong(e) => 
           val entity = database.entity(e)
           println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
@@ -133,7 +133,7 @@ class DatomicQuery2Spec extends Specification {
         ]
       """)
 
-      Datomic.q(q) map {
+      Datomic.q(q, database) map {
         case (DLong(e), DString(n)) => 
           println(s"5 - entity: $e name: $n")
       }
@@ -178,7 +178,7 @@ class DatomicQuery2Spec extends Specification {
         ]
       """)
 
-      Datomic.q(q) map {
+      Datomic.q(q, database) map {
         case (DLong(e), DString(name)) => 
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
