@@ -552,7 +552,7 @@ class DatomicTxSpec extends Specification {
         database.entity(id) !== beNull
         
         database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
-        Datomic.resolveEntity(tx, DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
+        tx.resolveEntity(DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
       }
     }
 

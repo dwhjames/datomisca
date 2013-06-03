@@ -45,6 +45,9 @@ trait TxReport {
   def resolveOpt(ids: DId*): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
 
+  def resolveEntity(id: DId): DEntity =
+    dbAfter.entity(resolve(id))
+
   lazy val tempidMap = new Map[DId, Long] {
     override def get(tempId: DId) = resolveOpt(tempId)
     override def iterator = throw new UnsupportedOperationException

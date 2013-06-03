@@ -230,13 +230,6 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     */
   def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
 
-  def resolveEntity(tx: TxReport, id: DId)(implicit db: DDatabase): DEntity = {
-    tx.resolveOpt(id) match {
-      case None    => throw new TempidNotResolved(id)
-      case Some(e) => db.entity(e)
-    }
-  }
-
   /** Converts any data to a Datomic Data (or not if not possible) */
   def toDatomicData(v: Any): DatomicData = v match {
     case s: String => DString(s)
