@@ -19,11 +19,11 @@ package datomisca
   * - 1 DD => 1 Scala type
   * - used when precise type inference by compiler
   */
-private[datomisca] trait FromDatomicInj[DD <: DatomicData, A] {
+trait FromDatomicInj[DD <: DatomicData, A] {
   def from(dd: DD): A
 }
 
-private[datomisca] object FromDatomicInj extends FromDatomicInjImplicits {
+object FromDatomicInj extends FromDatomicInjImplicits {
   def apply[DD <: DatomicData, A](f: DD => A) = new FromDatomicInj[DD, A]{
     def from(dd: DD): A = f(dd)
   }
