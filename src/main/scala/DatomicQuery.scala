@@ -182,15 +182,11 @@ trait QueryMacros {
 case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query {
   self =>
 
-  private[datomisca] def prepare[InArgs <: Args](in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
+  private[datomisca] def prepare[InArgs <: Args](in: InArgs): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     val qser = self.toString
-    val args = {
-      val args = in.toSeq
-      if(args.isEmpty) Seq(db.toNative)
-      else args
-    }
+    val args = in.toSeq
 
     //println("QSER:"+qser+ " - args:"+args)
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
@@ -209,7 +205,7 @@ case class TypedQueryInOut[InArgs <: Args, OutArgs <: Args](query: PureQuery) ex
   override def in = query.in
   override def where = query.where
 
-  private[datomisca] def prepare[T]()(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], tf: ToFunction[InArgs, List[T]]) = {
+  private[datomisca] def prepare[T]()(implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], tf: ToFunction[InArgs, List[T]]) = {
     new DatomicExecutor {
       type F[_] = tf.F[List[T]]
       def execute = tf.convert(
@@ -239,17 +235,13 @@ case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends 
 
 /* DATOMIC QUERY */
 object QueryExecutor {
-  private[datomisca] def directQuery[InArgs <: Args](q: Query, in: InArgs)(implicit db: DDatabase): List[List[DatomicData]] = {
+  private[datomisca] def directQuery[InArgs <: Args](q: Query, in: InArgs): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     // serializes query
     val qser = q.toString
 
-    val args = {
-      val args = in.toSeq
-      if(args.isEmpty) Seq(db.toNative)
-      else args
-    }
+    val args = in.toSeq
 
     //println("QSER:"+qser+ " - args:"+args)
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
@@ -259,18 +251,14 @@ object QueryExecutor {
     }    
   }
 
-  private[datomisca] def directQueryInOut[InArgs <: Args, OutArgs <: Args](q: Query, in: InArgs)(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
+  private[datomisca] def directQueryInOut[InArgs <: Args, OutArgs <: Args](q: Query, in: InArgs)(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
 
     // serializes query
     val qser = q.toString
 
-    val args = {
-      val args = in.toSeq
-      if(args.isEmpty) Seq(db.toNative)
-      else args
-    }
+    val args = in.toSeq
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
@@ -281,7 +269,7 @@ object QueryExecutor {
     listOfTry.foldLeft(Nil: List[OutArgs]){ (acc, e) => acc :+ e }
   }
 
-  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[Object])(implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
+  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[Object])(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
 
@@ -290,10 +278,7 @@ object QueryExecutor {
 
     //println("QSER:"+qser)
 
-    val args = {
-      if(in.isEmpty) Seq(db.toNative)
-      else in
-    }
+    val args = in
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
     
@@ -306,15 +291,15 @@ object QueryExecutor {
 }
 
 trait QueryExecutorPure {
-  def q[InArgs <: Args](query: PureQuery, in: InArgs = Args0())(implicit db: DDatabase) = 
-    QueryExecutor.directQuery(query, in)(db)
+  def q[InArgs <: Args](query: PureQuery, in: InArgs) = 
+    QueryExecutor.directQuery(query, in)
 }
 
 trait QueryExecutorInOut extends DatomicQueryHidden {
   @deprecated("use this one only on purpose", "")
   def q[OutArgs <: Args, T](query: TypedQueryInOut[Args0, OutArgs])(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = query.prepare[T]()(db, outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = query.prepare[T]()(outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
 
   // .. others are in DatomicQueryHidden
 }
@@ -322,41 +307,36 @@ trait QueryExecutorInOut extends DatomicQueryHidden {
 trait QueryExecutorAuto extends ToDatomicCastImplicits{
   def q[R](query: TypedQueryAuto0[R])(
     implicit outConv: DatomicDataToArgs[R], db: DDatabase
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq())(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)
 
   def q[R](query: TypedQueryAuto0[R], db: DDatabase)(
     implicit outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq())(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)
 
   def q[A, R](query: TypedQueryAuto1[A, R], a: A)(
-    implicit db: DDatabase, 
-             tdata: ToDatomicCast[A],
+    implicit tdata: ToDatomicCast[A],
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative))(outConv)
 
   def q[A, B, R](query: TypedQueryAuto2[A, B, R], a: A, b: B)(
-    implicit db: DDatabase, 
-             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative))(outConv)
 
   def q[A, B, C, R](query: TypedQueryAuto3[A, B, C, R], a: A, b: B, c: C)(
-    implicit db: DDatabase, 
-             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative))(outConv)
 
   def q[A, B, C, D, R](query: TypedQueryAuto4[A, B, C, D, R], a: A, b: B, c: C, d:D)(
-    implicit db: DDatabase, 
-             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative))(outConv)
 
   def q[A, B, C, D, E, R](query: TypedQueryAuto5[A, B, C, D, E, R], a: A, b: B, c: C, d:D, e:E)(
-    implicit db: DDatabase, 
-             tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], tdate: ToDatomicCast[E], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], tdate: ToDatomicCast[E], 
              outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative, tdate.to(e).toNative))(db, outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative, tdate.to(e).toNative))(outConv)
 
 }
 
