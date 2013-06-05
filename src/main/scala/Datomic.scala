@@ -69,7 +69,7 @@ trait DatomicPeer {
     * database.transact(...)
     * }}}
     */
-  implicit def database(implicit conn: Connection) = conn.database
+  def database(implicit conn: Connection) = conn.database
 
   /** Creates a new database using uri 
     * @param uri the Uri of the DB 

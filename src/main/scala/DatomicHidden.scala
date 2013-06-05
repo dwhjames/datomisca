@@ -18,92 +18,92 @@ package datomisca
 
 trait DatomicQueryHidden {
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args1, OutArgs], d1: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF1[List[T]]).execute(d1)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF1[List[T]]).execute(d1)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args2, OutArgs], d1: DatomicData, d2: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF2[List[T]]).execute(d1, d2)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF2[List[T]]).execute(d1, d2)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args3, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF3[List[T]]).execute(d1, d2, d3)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF3[List[T]]).execute(d1, d2, d3)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args4, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF4[List[T]]).execute(d1, d2, d3, d4)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF4[List[T]]).execute(d1, d2, d3, d4)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args5, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF5[List[T]]).execute(d1, d2, d3, d4, d5)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF5[List[T]]).execute(d1, d2, d3, d4, d5)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args6, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF6[List[T]]).execute(d1, d2, d3, d4, d5, d6)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF6[List[T]]).execute(d1, d2, d3, d4, d5, d6)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args7, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF7[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF7[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args8, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF8[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF8[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args9, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF9[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF9[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args10, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF10[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF10[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args11, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF11[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF11[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args12, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF12[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF12[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args13, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF13[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF13[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args14, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF14[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF14[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args15, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF15[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF15[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15)
 
   def q[OutArgs <: Args, T](q: TypedQueryInOut[Args16, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF16[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF16[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16)
 
  def q[OutArgs <: Args, T](q: TypedQueryInOut[Args17, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData, d17: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF17[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF17[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17)
 
  def q[OutArgs <: Args, T](q: TypedQueryInOut[Args18, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData, d17: DatomicData, d18: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF18[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF18[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18)
 
  def q[OutArgs <: Args, T](q: TypedQueryInOut[Args19, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData, d17: DatomicData, d18: DatomicData, d19: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF19[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF19[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19)
 
  def q[OutArgs <: Args, T](q: TypedQueryInOut[Args20, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData, d17: DatomicData, d18: DatomicData, d19: DatomicData, d20: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF20[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF20[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20)
 
  def q[OutArgs <: Args, T](q: TypedQueryInOut[Args21, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData, d17: DatomicData, d18: DatomicData, d19: DatomicData, d20: DatomicData, d21: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF21[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF21[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21)
 
  def q[OutArgs <: Args, T](q: TypedQueryInOut[Args22, OutArgs], d1: DatomicData, d2: DatomicData, d3: DatomicData, d4: DatomicData, d5: DatomicData, d6: DatomicData, d7: DatomicData, d8: DatomicData, d9: DatomicData, d10: DatomicData, d11: DatomicData, d12: DatomicData, d13: DatomicData, d14: DatomicData, d15: DatomicData, d16: DatomicData, d17: DatomicData, d18: DatomicData, d19: DatomicData, d20: DatomicData, d21: DatomicData, d22: DatomicData)(
-    implicit db: DDatabase, outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = q.prepare[T]()(db, outConv, ott, ArgsImplicits.toF22[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21, d22)
+    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
+  ) = q.prepare[T]()(outConv, ott, ArgsImplicits.toF22[List[T]]).execute(d1, d2, d3, d4, d5, d6, d7, d8, d9, d10, d11, d12, d13, d14, d15, d16, d17, d18, d19, d20, d21, d22)
 
 }
 
