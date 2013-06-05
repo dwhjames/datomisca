@@ -281,17 +281,51 @@ class DatomicQuerySpec extends Specification {
 
   "12 - passing database when no :in" in {
 
-      implicit val conn = Datomic.connect(uri)
+    implicit val conn = Datomic.connect(uri)
 
-      val q = Query("""
-        [:find ?e :where [?e :person/name]]
-      """)
-      Datomic.q(q, database) map {
-        case DLong(e) =>
-          val entity = database.entity(e)
-          println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
-      }
-
-      success
+    val q = Query("""
+      [:find ?e :where [?e :person/name]]
+    """)
+    Datomic.q(q, database) map {
+      case DLong(e) =>
+        val entity = database.entity(e)
+        println(s"12 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
     }
+
+    success
+  }
+
+  "13 - passing datasource when no :in" in {
+
+    implicit val conn = Datomic.connect(uri)
+
+    val q = Query("""
+      [:find ?firstname ?lastname :where [?firstname ?lastname]]
+    """)
+    Datomic.q(q, DSet(DSet(DString("John"), DString("Smith")))) map {
+      case (DString(firstname), DString(lastname)) =>
+        firstname must beEqualTo("John")
+        lastname must beEqualTo("Smith")
+        println(s"13 - firstname: $firstname lastname: $lastname")
+    }
+
+    success
+  }
+
+  "14 - passing datasource with :in" in {
+
+    implicit val conn = Datomic.connect(uri)
+
+    val q = Query("""
+      [:find ?firstname ?lastname :in $ :where [?firstname ?lastname]]
+    """)
+    Datomic.q(q, DSet(DSet(DString("John"), DString("Smith")))) map {
+      case (DString(firstname), DString(lastname)) =>
+        firstname must beEqualTo("John")
+        lastname must beEqualTo("Smith")
+        println(s"14 - firstname: $firstname lastname: $lastname")
+    }
+
+    success
+  }
 }

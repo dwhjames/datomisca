@@ -234,13 +234,14 @@ case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends 
 
 /* DATOMIC QUERY */
 object QueryExecutor {
-  private[datomisca] def directQuery[InArgs <: Args](q: Query, db: DDatabase, in: InArgs): List[List[DatomicData]] = {
+
+  private[datomisca] def directQuery[InArgs <: Args](q: Query, in: InArgs): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     // serializes query
     val qser = q.toString
 
-    val args = db.toNative +: in.toSeq
+    val args = in.toSeq
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
 
@@ -289,8 +290,11 @@ object QueryExecutor {
 }
 
 trait QueryExecutorPure {
-  def q[InArgs <: Args](query: PureQuery, db: DDatabase, in: InArgs = Args0()) =
-    QueryExecutor.directQuery(query, db, in)
+  def q(query: PureQuery, dataSource: DatomicData) =
+    QueryExecutor.directQuery(query, Args1(dataSource))
+
+  def q[InArgs <: Args](query: PureQuery, in: InArgs) =
+    QueryExecutor.directQuery(query, in)
 }
 
 trait QueryExecutorInOut extends DatomicQueryHidden {
@@ -307,9 +311,9 @@ trait QueryExecutorAuto extends ToDatomicCastImplicits{
     implicit outConv: DatomicDataToArgs[R], db: DDatabase
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)*/
 
-  def q[R](query: TypedQueryAuto0[R], db: DDatabase)(
+  def q[R](query: TypedQueryAuto0[R], dataSource: DatomicData)(
     implicit outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db.toNative))(outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(dataSource.toNative))(outConv)
 
   def q[A, R](query: TypedQueryAuto1[A, R], a: A)(
     implicit tdata: ToDatomicCast[A],
