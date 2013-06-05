@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Pellucid and Zenexity
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,19 +49,19 @@ object Query extends QueryMacros {
 trait QueryMacros {
   /** Creates a macro-based compile-time pure query from a String (only syntax validation is performed).<br/>
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
-    * 
+    *
     *     - A [[PureQuery]] is the low-level query AST provided in the Scala API.
     *     - [[TypedQuery]] is based on it.
     *     - When a [[PureQuery]] is executed, it returns a `List[List[DatomicData]].
     *     - All returned types are [[DatomicData]].
-    * 
+    *
     * {{{
     * // creates a query
     * val q = Datomic.Query.pure("""
-    *  [ 
+    *  [
     *    :find ?e ?name
     *    :in $ ?char
-    *    :where  [ ?e :person/name ?name ] 
+    *    :where  [ ?e :person/name ?name ]
     *            [ ?e :person/character ?char ]
     *  ]
     * """)
@@ -84,12 +84,12 @@ trait QueryMacros {
     *    - creates a TypedQueryN[DatomicData, ...M-times, TupleN[DatomicData, ...N-times]]
     *
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
-    * 
+    *
     * When a [[TypedQuery]] is executed, it returns a `List[TupleN[DatomicData, DatomicData, ...]]` where X corresponds
     * to the number of output parameters
     *
     * {{{
-    * val q = Datomic.Query.auto(""" 
+    * val q = Datomic.Query.auto("""
     *   [
     *    :find ?e ?name ?age
     *    :in $ [[?name ?age]]
@@ -99,35 +99,35 @@ trait QueryMacros {
     * """)
     *
     * Datomic.q(
-    *   q, database, 
+    *   q, database,
     *   DSet(
     *     DSet(DString("toto"), DLong(30L)),
     *     DSet(DString("tutu"), DLong(54L))
     *   )
     * ) map {
-    *   case (DLong(e), DString(n), DLong(a)) => 
+    *   case (DLong(e), DString(n), DLong(a)) =>
     *      ...
-    * }    
+    * }
     * }}}
     */
   def auto(q: String) = macro DatomicQueryMacro.autoTypedQueryImpl
   def apply(q: String) = macro DatomicQueryMacro.autoTypedQueryImpl
-  
+
   /** Creates a macro-based compile-time typed query from a String:
     *    - syntax validation is performed.
     *    - type validation (for the time being, number of input/output args, later much more)
     *
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
-    * 
+    *
     * A ``TypedQuery[InArgs, OutArgs] takes 2 type parameters:
     *     - InArgs <: Args defining the number of input args
     *     - OutArgs <: args defining the number of output args
-    * 
+    *
     * When a [[TypedQuery]] is executed, it returns a `List[TupleX[DatomicData, DatomicData, ...]]` where X corresponds
     * to the number of output parameters
     *
     * {{{
-    * val q = Datomic.Query.manual[Args2, Args3](""" 
+    * val q = Datomic.Query.manual[Args2, Args3]("""
     *   [
     *    :find ?e ?name ?age
     *    :in $ [[?name ?age]]
@@ -137,18 +137,18 @@ trait QueryMacros {
     * """)
     *
     * Datomic.q(
-    *   q, database, 
+    *   q, database,
     *   DSet(
     *     DSet(DString("toto"), DLong(30L)),
     *     DSet(DString("tutu"), DLong(54L))
     *   )
     * ) map {
-    *   case (DLong(e), DString(n), DLong(a)) => 
+    *   case (DLong(e), DString(n), DLong(a)) =>
     *      ...
-    * }    
+    * }
     * }}}
     */
-  def manual[A <: Args, B <: Args](q: String): TypedQueryInOut[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]    
+  def manual[A <: Args, B <: Args](q: String): TypedQueryInOut[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
 
 
   //def typedQuery[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
@@ -171,7 +171,7 @@ trait QueryMacros {
     * """)
     *
     * Datomic.query(q, database, totoRule) map {
-    *   case (DLong(e), DLong(age)) => 
+    *   case (DLong(e), DLong(age)) =>
     *     ...
     * }
     * }}}
@@ -188,18 +188,17 @@ case class PureQuery(override val find: Find, override val wizz: Option[With] = 
     val qser = self.toString
     val args = in.toSeq
 
-    //println("QSER:"+qser+ " - args:"+args)
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-    
+
     results.map { fields =>
       fields.map { field => Datomic.toDatomicData(field) }
-    }    
+    }
   }
-  
+
 }
 
 case class TypedQueryInOut[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends Query {
-  self => 
+  self =>
   override def find = query.find
   override def wizz = query.wizz
   override def in = query.in
@@ -235,20 +234,19 @@ case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends 
 
 /* DATOMIC QUERY */
 object QueryExecutor {
-  private[datomisca] def directQuery[InArgs <: Args](q: Query, in: InArgs): List[List[DatomicData]] = {
+  private[datomisca] def directQuery[InArgs <: Args](q: Query, db: DDatabase, in: InArgs): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     // serializes query
     val qser = q.toString
 
-    val args = in.toSeq
+    val args = db.toNative +: in.toSeq
 
-    //println("QSER:"+qser+ " - args:"+args)
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-    
+
     results.map { fields =>
       fields.map { field => Datomic.toDatomicData(field) }
-    }    
+    }
   }
 
   private[datomisca] def directQueryInOut[InArgs <: Args, OutArgs <: Args](q: Query, in: InArgs)(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
@@ -261,7 +259,7 @@ object QueryExecutor {
     val args = in.toSeq
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-    
+
     val listOfTry = results.map { fields =>
       outConv.toArgs(fields.map { field => Datomic.toDatomicData(field) })
     }
@@ -281,7 +279,7 @@ object QueryExecutor {
     val args = in
 
     val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-    
+
     val listOfTry = results.map { fields =>
       outConv.toArgs(fields.map { field => Datomic.toDatomicData(field) })
     }
@@ -291,27 +289,27 @@ object QueryExecutor {
 }
 
 trait QueryExecutorPure {
-  def q[InArgs <: Args](query: PureQuery, in: InArgs) = 
-    QueryExecutor.directQuery(query, in)
+  def q[InArgs <: Args](query: PureQuery, db: DDatabase, in: InArgs = Args0()) =
+    QueryExecutor.directQuery(query, db, in)
 }
 
 trait QueryExecutorInOut extends DatomicQueryHidden {
   @deprecated("use this one only on purpose", "")
-  def q[OutArgs <: Args, T](query: TypedQueryInOut[Args0, OutArgs])(
+  def q[OutArgs <: Args, T](query: TypedQueryInOut[Args0, OutArgs], db: DDatabase)(
     implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = query.prepare[T]()(outConv, ott, ArgsImplicits.toF0[List[T]]).execute()
+  ) = TypedQueryInOut[Args1, OutArgs](query.query).prepare[T]()(outConv, ott, ArgsImplicits.toF1[List[T]]).execute(db)
 
   // .. others are in DatomicQueryHidden
 }
 
 trait QueryExecutorAuto extends ToDatomicCastImplicits{
-  def q[R](query: TypedQueryAuto0[R])(
+  /*def q[R](query: TypedQueryAuto0[R])(
     implicit outConv: DatomicDataToArgs[R], db: DDatabase
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)*/
 
   def q[R](query: TypedQueryAuto0[R], db: DDatabase)(
     implicit outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)
+  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db.toNative))(outConv)
 
   def q[A, R](query: TypedQueryAuto1[A, R], a: A)(
     implicit tdata: ToDatomicCast[A],
@@ -319,22 +317,22 @@ trait QueryExecutorAuto extends ToDatomicCastImplicits{
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative))(outConv)
 
   def q[A, B, R](query: TypedQueryAuto2[A, B, R], a: A, b: B)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B],
              outConv: DatomicDataToArgs[R]
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative))(outConv)
 
   def q[A, B, C, R](query: TypedQueryAuto3[A, B, C, R], a: A, b: B, c: C)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C],
              outConv: DatomicDataToArgs[R]
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative))(outConv)
 
   def q[A, B, C, D, R](query: TypedQueryAuto4[A, B, C, D, R], a: A, b: B, c: C, d:D)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D],
              outConv: DatomicDataToArgs[R]
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative))(outConv)
 
   def q[A, B, C, D, E, R](query: TypedQueryAuto5[A, B, C, D, E, R], a: A, b: B, c: C, d:D, e:E)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], tdate: ToDatomicCast[E], 
+    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], tdate: ToDatomicCast[E],
              outConv: DatomicDataToArgs[R]
   ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative, tdate.to(e).toNative))(outConv)
 
@@ -342,8 +340,8 @@ trait QueryExecutorAuto extends ToDatomicCastImplicits{
 
 
 /**
- * Converts a function In => Out into another function 
- * that returns Out but takes other input parameters 
+ * Converts a function In => Out into another function
+ * that returns Out but takes other input parameters
  * built from In
  */
 trait ToFunction[In <: Args, Out] {

@@ -59,7 +59,7 @@ class DatomicTransacSpec extends Specification {
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
-      """)).map {
+      """), database).map {
         case List(DLong(e), DString(n)) => 
         println(s"PART ${datomic.Peer.part(e.underlying).getClass}")
         val entity = database.entity(e)

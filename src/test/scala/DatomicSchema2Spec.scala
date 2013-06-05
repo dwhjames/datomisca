@@ -69,7 +69,7 @@ class DatomicSchema2Spec extends Specification {
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-          """)).head.head match { case DLong(l) => l }
+          """), database).head.head match { case DLong(l) => l }
 
           println(s"TOTO: $totoId")
           Datomic.transact(
@@ -81,14 +81,14 @@ class DatomicSchema2Spec extends Specification {
               [ :find ?e
                 :where  [ ?e :person/name "toto" ] 
               ]
-            """)).isEmpty must beTrue
+            """), database).isEmpty must beTrue
 
             println(s"Provisioned data... TX: $tx")
             val tutuId = Datomic.q(Query.pure("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
-            """)).head.head match { case DLong(l) => l }
+            """), database).head.head match { case DLong(l) => l }
 
             println(s"TUTU: $tutuId")
             Datomic.transact(
@@ -100,7 +100,7 @@ class DatomicSchema2Spec extends Specification {
                 [ :find ?e
                   :where  [ ?e :person/name "tutu" ] 
                 ]
-              """)).isEmpty must beTrue
+              """), database).isEmpty must beTrue
             }
           }
         }

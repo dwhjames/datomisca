@@ -70,7 +70,7 @@ class DatomicSchemaSpec extends Specification {
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-        """)) map {
+        """), database) map {
           case List(DLong(totoId)) => 
             Datomic.transact(
               Entity.retract(totoId)
@@ -81,7 +81,7 @@ class DatomicSchemaSpec extends Specification {
                 [ :find ?e
                   :where  [ ?e :person/name "toto" ] 
                 ]
-              """)).isEmpty must beTrue
+              """), database).isEmpty must beTrue
             }
         }
       }

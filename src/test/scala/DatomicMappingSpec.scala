@@ -182,7 +182,7 @@ class DatomicMappingSpec extends Specification {
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
-            """)).head match {
+            """), database).head match {
               case DLong(e) =>
                 val entity = database.entity(e)
                 println(
@@ -216,7 +216,7 @@ class DatomicMappingSpec extends Specification {
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]
-      """)).head match {
+      """), database).head match {
         case DLong(e) =>
           val entity = database.entity(e)
 
@@ -351,7 +351,7 @@ class DatomicMappingSpec extends Specification {
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
-            """)).head match {
+            """), database).head match {
               case DLong(e) =>
                 val entity = database.entity(e)
                 println(
