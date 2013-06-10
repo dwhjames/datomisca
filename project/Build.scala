@@ -7,7 +7,7 @@ object BuildSettings {
   val buildVersion           = "0.3-SNAPSHOT"
   val buildScalaVersion      = "2.10.0"
 
-  val datomicVersion         = "0.8.3814"
+  val datomicVersion         = "0.8.3993"
  
   val buildSettings = Defaults.defaultSettings ++ Seq (
     organization    := buildOrganization,

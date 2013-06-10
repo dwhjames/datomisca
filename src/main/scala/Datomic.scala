@@ -378,7 +378,7 @@ class TempidNotResolved(id: DId)
 class UnexpectedDatomicTypeException(typeName: String)
   extends DatomicException(s"Datomic Error: unresolved datomic type $typeName")
 
-class EntityKeyNotFoundException(keyword: Keyword)
+class EntityKeyNotFoundException(keyword: String)
   extends DatomicException(s"The keyword $keyword not found in the entity")
 
 class EntityMappingException(msg: String)
