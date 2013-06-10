@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Pellucid and Zenexity
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,7 @@ import scala.util.control.NonFatal
 
 
 /**
- * Just shamefully copying scala ExecutionContext implementation based on ForkJoinPool 
+ * Just shamefully copying scala ExecutionContext implementation based on ForkJoinPool
  * and simplifying it a bit for my purpose ;)
  */
 class CustomExecutionContext(reporter: Throwable => Unit, min: Option[Int], num: Option[Int], max: Option[Int]) extends ExecutionContextExecutor {
@@ -34,7 +34,7 @@ class CustomExecutionContext(reporter: Throwable => Unit, min: Option[Int], num:
   lazy val executorService: ExecutorService = createExecutorService
 
   // Implement BlockContext on FJP threads
-  class DefaultThreadFactory(daemonic: Boolean) extends ThreadFactory with ForkJoinPool.ForkJoinWorkerThreadFactory { 
+  class DefaultThreadFactory(daemonic: Boolean) extends ThreadFactory with ForkJoinPool.ForkJoinWorkerThreadFactory {
     def wire[T <: Thread](thread: T): T = {
       thread.setDaemon(daemonic)
       //Potentially set things like uncaught exception handler, name etc
@@ -66,14 +66,14 @@ class CustomExecutionContext(reporter: Throwable => Unit, min: Option[Int], num:
 
     lazy val desiredParallelism = {
       range(
-        min.getOrElse(0), 
-        num.getOrElse(Runtime.getRuntime.availableProcessors), 
+        min.getOrElse(0),
+        num.getOrElse(Runtime.getRuntime.availableProcessors),
         max.getOrElse(Runtime.getRuntime.availableProcessors)
-      ) 
+      )
     }
 
     val threadFactory = new DefaultThreadFactory(daemonic = true)
-    
+
     try {
       new ForkJoinPool(
         desiredParallelism,
@@ -108,7 +108,7 @@ class CustomExecutionContext(reporter: Throwable => Unit, min: Option[Int], num:
           }).fork
         case _ => fj.execute(runnable)
       }
-    case generic => 
+    case generic =>
       generic execute runnable
   }}
 

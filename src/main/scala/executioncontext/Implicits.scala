@@ -5,7 +5,7 @@ import java.util.concurrent.ExecutorService
 /**
  * DefaultImplicits to import when using play2-async-nio outside Play2 to have implicit ExecutionContext and ExecutorService
  *
- * {{{import play2.tools.file.DefaultImplicits._}}}
+ * {{{import datomisca.executioncontext.ExecutionContextHelper._}}}
  */ 
 object ExecutionContextHelper extends Context
 

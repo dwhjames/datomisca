@@ -74,22 +74,23 @@ object GettingStarted {
    */
   import datomisca.executioncontext.ExecutionContextHelper._
 
+  /*
+   * Datomic URI definition
+   * This defines an in-memory database
+   * named 'datomisca-getting-started'
+   */
+  val uri = "datomic:mem://datomisca-getting-started"
+
+  // create the database
+  Datomic.createDatabase(uri)
+
+  /*
+   * Get a connection to the database
+   * and make it implicit in scope
+   */
+  implicit val conn = Datomic.connect(uri)
+
   def main(args: Array[String]) {
-    /*
-     * Datomic URI definition
-     * This defines an in-memory database
-     * named 'datomisca-getting-started'
-     */
-    val uri = "datomic:mem://datomisca-getting-started"
-
-    // create the database
-    Datomic.createDatabase(uri)
-
-    /*
-     * Get a connection to the database
-     * and make it implicit in scope
-     */
-    implicit val conn = Datomic.connect(uri)
 
     // transact the schema, which returns a future
     val fut = Datomic.transact(PersonSchema.txData) flatMap { _ =>
@@ -229,6 +230,8 @@ object GettingStarted {
 
     // await the result of the future
     Await.result(fut, Duration("2 seconds"))
+
+    Datomic.shutdown(true)
 
     // IF RUNNING FROM SBT RUNTIME : 
     // without this, in SBT, if you run the program 2x, it fails

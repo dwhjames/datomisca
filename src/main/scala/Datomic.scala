@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Pellucid and Zenexity
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,7 +33,7 @@ import dmacros._
 
 /** Regroups most basic [[http://docs.datomic.com/javadoc/datomic/Peer.html datomic.Peer]] functions.
   *
-  * The most important is `connect(uri: String)` which builds a [[Connection]] 
+  * The most important is `connect(uri: String)` which builds a [[Connection]]
   * being the entry point for all operations on DB.
   *
   * ''Actually, you need an implicit [[Connection]] in your scope in order to be
@@ -71,24 +71,35 @@ trait DatomicPeer {
     */
   def database(implicit conn: Connection) = conn.database
 
-  /** Creates a new database using uri 
-    * @param uri the Uri of the DB 
+  /** Creates a new database using uri
+    * @param uri the Uri of the DB
     * @return true/false for success
     */
   def createDatabase(uri: String): Boolean = datomic.Peer.createDatabase(uri)
 
-  /** Deletes an existing database using uri 
+  /** Deletes an existing database using uri
     * @param uri the URI of the DB
     * @return true/false for success
     */
   def deleteDatabase(uri: String): Boolean = datomic.Peer.deleteDatabase(uri)
 
-  /** Renames an existing database using uri 
+  /** Renames an existing database using uri
     * @param uri the URI of the DB
     * @param newName the new name
     * @return true/false for success
     */
   def renameDatabase(uri: String, newName: String): Boolean = datomic.Peer.renameDatabase(uri, newName)
+
+  /** Shutdown all Peer resources.
+    * Copied from Datomic Javadoc: This method should be called as part of clean
+    * shutdown of a JVM process.
+    * Will release all Connections, and, if shutdownClojure is true, will release
+    * Clojure resources. Programs written in Clojure can set shutdownClojure to
+    * false if they manage Clojure resources (e.g. agents) outside of Datomic;
+    * programs written in other JVM languages should typically set shutdownClojure
+    * to true.
+    */
+  def shutdown(shutdownClojure: Boolean): Unit = datomic.Peer.shutdown(shutdownClojure)
 }
 
 
@@ -167,10 +178,10 @@ trait DatomicTransactor {
     * @param ex the implicit [[scala.concurrent.ExecutionContext]]
     * @return A future of Transaction Report
     */
-  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)  
+  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
   /** Applies a sequence of operations to current database without applying the transaction.
-    * 
+    *
     * It's is as if the data was applied in a transaction but the database is unaffected.
     * This is the same as Java `database.with(...)` taking into account `with` is a reserved word in Scala.
     *
@@ -209,7 +220,7 @@ trait DatomicTypeWrapper {
 /** Provides all Datomic Scala specific facilities
   */
 trait DatomicFacilities extends DatomicTypeWrapper{
-  
+
   /** Converts any value to a DatomicData given there is the right [[DDWriter]] in the scope
     *
     * {{{
@@ -219,8 +230,8 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     * }}}
     */
   def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): DatomicData = tdc.to(t)
-  
-  /** converts a DatomicData to a type given there is the right [[DDReader]] in the scope 
+
+  /** converts a DatomicData to a type given there is the right [[DDReader]] in the scope
     *
     * {{{
     * import Datomic._ // brings all DDReader/DDWriter
@@ -247,7 +258,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     case u: java.net.URI => DUri(u)
     case kw: clojure.lang.Keyword => DRef(Keyword(kw.getName, Namespace(kw.getNamespace)))
     case e: datomic.Entity => DEntity(e)
-    case coll: java.util.Collection[_] => 
+    case coll: java.util.Collection[_] =>
       import scala.collection.JavaConversions._
       DSet(coll.toSet.map{dd: Any => toDatomicData(dd)})
 
@@ -274,7 +285,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     */
   def set(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].underlying}.toSet)
 
-  /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity) 
+  /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
     * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated
     * at runtime'''
     *
@@ -311,11 +322,11 @@ trait DatomicFacilities extends DatomicTypeWrapper{
   def parseOps(q: String): Try[Seq[Operation]] = DatomicParser.parseOpSafe(q) match {
     case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
       Failure(new RuntimeException(s"Couldn't parse operations[msg:$msg, line:$offsetLine, col:$offsetCol]"))
-    case Right(ops) => 
+    case Right(ops) =>
       Success(ops)
   }
 
-  /** Macro-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity) 
+  /** Macro-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
     * compiled from a Clojure String extended with Scala variables.
     *
     * You can then directly copy some Clojure code in a String and get it compiled.
@@ -352,7 +363,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
 /** Main object containing:
   *    - all Datomic basic functions (Peer, Transactor)
   *    - all Scala basic functions
-  *    - all Scala high-level functions (macro, typed ops) 
+  *    - all Scala high-level functions (macro, typed ops)
   *    - all implicit DDReader/DDWriter
   *
   *
@@ -360,11 +371,11 @@ trait DatomicFacilities extends DatomicTypeWrapper{
   * import Datomic._ // brings all DDReader/DDWriter
   * }}}
   */
-object Datomic 
-  extends DatomicPeer 
-  with DatomicTransactor 
-  with DatomicFacilities 
-  with DatomicQueryExecutor 
+object Datomic
+  extends DatomicPeer
+  with DatomicTransactor
+  with DatomicFacilities
+  with DatomicQueryExecutor
   with DatomicTypeWrapper
 
 class DatomicException(msg: String) extends Exception(msg)

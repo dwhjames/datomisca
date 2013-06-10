@@ -206,8 +206,8 @@ object Accounts {
         entity.as[DEntity](kw).as[DString](name.ident)
       println(
         entity.toMap +
-        (from.ident -> getName(entity, from.ident)) +
-        (to.ident   -> getName(entity, to.ident))
+        (from.ident.toString -> getName(entity, from.ident)) +
+        (to.ident.toString   -> getName(entity, to.ident))
       )
     }
 

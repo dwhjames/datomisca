@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Pellucid and Zenexity
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,7 +28,7 @@ trait TxReport {
 
   def resolve(id: DId): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
-  
+
   def resolve(identified: TempIdentified): Long =
     resolve(identified.id)
 
@@ -41,7 +41,7 @@ trait TxReport {
     } map { id =>
       id.asInstanceOf[Long]
     }
-  
+
   def resolveOpt(ids: DId*): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
 
@@ -54,10 +54,10 @@ trait TxReport {
     override def +[T >: Long](kv: (DId, T)) = throw new UnsupportedOperationException
     override def -(k: DId) = throw new UnsupportedOperationException
   }
-  
-  override def toString = s"""TxReport{ 
-    dbBefore: ${dbBefore.basisT}, 
-    dbAfter: ${dbAfter.basisT}, 
+
+  override def toString = s"""TxReport{
+    dbBefore: ${dbBefore.basisT},
+    dbAfter: ${dbAfter.basisT},
     txData: $txData,
     tempids: $tempids
   }"""
@@ -75,7 +75,7 @@ trait Connection {
     val datomicOps = ops.map( _.toNative ).asJava
 
     val future = Utils.bridgeDatomicFuture(connection.transactAsync(datomicOps))
-    
+
     future.flatMap{ javaMap: java.util.Map[_, _] =>
       Future(Utils.toTxReport(javaMap)(database))
     }
@@ -96,6 +96,15 @@ trait Connection {
 
   def gcStorage(olderThan: java.util.Date): Unit = connection.gcStorage(olderThan)
 
+  /** Request the release of resources associated with this connection.
+    * Copied from Datomic Javadoc: Method returns immediately, resources will be
+    * released asynchronously. This method should only be called when the entire
+    * process is no longer interested in the connection. Note that Datomic
+    * connections do not adhere to an acquire/use/release pattern.
+    * They are thread-safe, cached, and long lived. Many processes
+    * (e.g. application servers) will never call release.
+    */
+  def release(): Unit = connection.release()
 }
 
 object Connection {
