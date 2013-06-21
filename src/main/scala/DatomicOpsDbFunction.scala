@@ -93,7 +93,7 @@ object InvokeTxFunction {
   def apply(fn: Keyword)(arg: DatomicData, args: DatomicData*) = new InvokeTxFunction(fn, Seq(arg) ++ args)
 
   def apply[A:ToDatomicCast, B:ToDatomicCast](fn: TypedAddDbFunction2[A,B])(a:A, b:B) = {
-    new InvokeTxFunction(fn.ident, Seq(implicitly[ToDatomicCast[A]].to(a), implicitly[ToDatomicCast[B]].to(b)))
+    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b)))
   }
 
   def apply[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast](fn: TypedAddDbFunction3[A,B,C])(a:A, b:B, c:C) = {
