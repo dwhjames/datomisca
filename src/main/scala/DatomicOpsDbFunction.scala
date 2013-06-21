@@ -20,7 +20,15 @@ import scala.language.reflectiveCalls
 
 import scala.collection.JavaConverters._
 
-case class AddDbFunction(val ident: Keyword, lang: String, params: Seq[String], code: String, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
+case class AddDbFunction(
+    val ident: Keyword,
+    lang:      String,
+    params:    Seq[String],
+    code:      String,
+    imports:   String    = "",
+    requires:  String    = "",
+    partition: Partition = Partition.USER
+) extends Operation with KeywordIdentified {
   lazy val ref = DRef(ident)
   val kw = Keyword("add", Some(Namespace.DB))
 
@@ -30,9 +38,11 @@ case class AddDbFunction(val ident: Keyword, lang: String, params: Seq[String], 
       Keyword("ident", Some(Namespace.DB)).toNative, ident.toNative,
       Keyword("fn", Some(Namespace.DB)).toNative,    datomic.Peer.function(
         datomic.Util.map(
-          Keyword("lang").toNative,   lang,
-          Keyword("params").toNative, datomic.Util.list(params: _*),
-          Keyword("code").toNative,   code
+          Keyword("lang").toNative,     lang,
+          Keyword("imports").toNative,  datomic.Util.read(imports),
+          Keyword("requires").toNative, datomic.Util.read(requires),
+          Keyword("params").toNative,   datomic.Util.list(params: _*),
+          Keyword("code").toNative,     code
         )
       )
     )
