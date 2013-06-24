@@ -20,7 +20,7 @@ import scala.language.reflectiveCalls
 
 import scala.collection.JavaConverters._
 
-case class AddDbFunction(
+class AddDbFunction(
     val ident: Keyword,
     lang:      String,
     params:    Seq[String],
@@ -58,19 +58,23 @@ abstract class TypedAddDbFunction(fn: AddDbFunction) extends Operation with Keyw
   def toNative: AnyRef = fn.toNative
 }
 
-case class TypedAddDbFunction0(fn: AddDbFunction) extends TypedAddDbFunction(fn)
-case class TypedAddDbFunction1[A:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
-case class TypedAddDbFunction2[A:ToDatomicCast, B:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
-case class TypedAddDbFunction3[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
-case class TypedAddDbFunction4[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
-case class TypedAddDbFunction5[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast, E:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
-case class TypedAddDbFunction6[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast, E:ToDatomicCast, F:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction0(fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction1[A:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction2[A:ToDatomicCast, B:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction3[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction4[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction5[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast, E:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+class TypedAddDbFunction6[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast, E:ToDatomicCast, F:ToDatomicCast](fn: AddDbFunction) extends TypedAddDbFunction(fn)
 
 /*
  * Construct a vanila database function.
  */
 object AddDbFunction {
-  def apply(kw: Keyword)(params: String*)(lang: String)(code: => String) = new AddDbFunction(kw, lang, params, code)
+  def apply(kw: Keyword, partition: Partition = Partition.USER)
+           (params: String*)
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new AddDbFunction(kw, lang, params, code, imports, requires, partition)
 }
 
 /*
@@ -80,33 +84,43 @@ object AddDbFunction {
  * the remaining arguments.
  */
 object AddTxFunction {
-  def apply(kw: Keyword)(params: String*)(lang: String)(code: => String) = new AddDbFunction(kw, lang, params, code)
+  def apply(kw: Keyword, partition: Partition = Partition.USER)
+           (params: String*)
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new AddDbFunction(kw, lang, params, code, imports, requires, partition)
 
-  def typed(kw: Keyword)(param: String)(lang: String)(code: => String) =
-    TypedAddDbFunction0(
+  def typed(kw: Keyword)
+           (param: String)
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction0(
       new AddDbFunction(kw, lang, Seq(param), code))
 
   def typed[A : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String)
-           (lang: String)(code: => String) =
-    TypedAddDbFunction1[A](
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction1[A](
       new AddDbFunction(kw, lang, Seq(param1, param2), code))
 
   def typed[A : ToDatomicCast,
             B : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String)
-           (lang: String)(code: => String) =
-    TypedAddDbFunction2[A, B](new AddDbFunction(kw, lang, Seq(param1, param2, param3), code))
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction2[A, B](new AddDbFunction(kw, lang, Seq(param1, param2, param3), code))
 
   def typed[A : ToDatomicCast,
             B : ToDatomicCast,
             C : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String)
-           (lang: String)(code: => String) =
-    TypedAddDbFunction3[A, B, C](
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction3[A, B, C](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4), code))
 
   def typed[A : ToDatomicCast,
@@ -115,8 +129,9 @@ object AddTxFunction {
             D : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String, param5: String)
-           (lang: String)(code: => String) =
-    TypedAddDbFunction4[A, B, C, D](
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction4[A, B, C, D](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5), code))
 
   def typed[A : ToDatomicCast,
@@ -126,8 +141,9 @@ object AddTxFunction {
             E : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String, param5: String, param6: String)
-           (lang: String)(code: => String) =
-    TypedAddDbFunction5[A, B, C, D, E](
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction5[A, B, C, D, E](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5, param6), code))
 
   def typed[A : ToDatomicCast,
@@ -138,8 +154,9 @@ object AddTxFunction {
             F : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String, param5: String, param6: String, param7: String)
-           (lang: String)(code: => String) =
-    TypedAddDbFunction6[A, B, C, D, E, F](
+           (lang: String, imports: String = "", requires: String = "")
+           (code: String) =
+    new TypedAddDbFunction6[A, B, C, D, E, F](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5, param6, param7), code))
 }
 
