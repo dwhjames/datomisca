@@ -23,7 +23,7 @@ class DatomicDbFunctionSpec extends Specification {
       object Data {
         val foo = AddIdent(KW(":foo"))
 
-        val addDocFn = AddDbFunction(KW(":add-doc"))("db", "e", "doc")("java") {
+        val addDocFn = AddTxFunction(KW(":add-doc"))("db", "e", "doc")("java") {
           """
           return list(list(":db/add", e, ":db/doc", doc));
           """
@@ -91,7 +91,7 @@ class DatomicDbFunctionSpec extends Specification {
                        .withDoc("The receiving account")
 
 
-        val creditFn = AddDbFunction(fn / "credit") ("db", "id", "amount") ("clojure") {
+        val creditFn = AddTxFunction(fn / "credit") ("db", "id", "amount") ("clojure") {
           """
           (let [ e           (datomic.api/entity db id)
                  min-balance (:account/min-balance e 0)
@@ -101,7 +101,7 @@ class DatomicDbFunctionSpec extends Specification {
                    (throw (Exception. "Insufficient funds"))))
           """
         }
-        val transferFn = AddDbFunction(fn / "transfer") ("db", "from", "to", "amount") ("clojure") {
+        val transferFn = AddTxFunction(fn / "transfer") ("db", "from", "to", "amount") ("clojure") {
           """
           [
             [:fn/credit from (- amount)]
@@ -247,7 +247,7 @@ class DatomicDbFunctionSpec extends Specification {
       object Data {
         val foo = AddIdent(KW(":foo"))
 
-        val addDocFn = AddDbFunction.typed[AddIdent, String](KW(":add-doc"))("db", "e", "doc")("java") {
+        val addDocFn = AddTxFunction.typed[AddIdent, String](KW(":add-doc"))("db", "e", "doc")("java") {
           """
           return list(list(":db/add", e, ":db/doc", doc));
           """

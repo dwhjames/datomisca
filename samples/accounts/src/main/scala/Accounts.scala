@@ -33,7 +33,7 @@ object AccountsSchema {
                  .withDoc("The receiving account")
 
 
-  val creditFn = AddDbFunction(fn / "credit") ("db", "id", "amount") ("clojure") {
+  val creditFn = AddTxFunction(fn / "credit") ("db", "id", "amount") ("clojure") {
     """
     (let [ e           (datomic.api/entity db id)
            min-balance (:account/min-balance e 0)
@@ -43,7 +43,7 @@ object AccountsSchema {
              (throw (Exception. "Insufficient funds"))))
     """
   }
-  val transferFn = AddDbFunction(fn / "transfer") ("db", "from", "to", "amount") ("clojure") {
+  val transferFn = AddTxFunction(fn / "transfer") ("db", "from", "to", "amount") ("clojure") {
     """
     [
       [:fn/credit from (- amount)]
