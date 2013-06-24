@@ -105,24 +105,81 @@ class InvokeTxFunction(
 object InvokeTxFunction {
   def apply(fn: Keyword)(args: DatomicData*) = new InvokeTxFunction(fn, args)
 
-  def apply[A:ToDatomicCast, B:ToDatomicCast](fn: TypedAddDbFunction2[A,B])(a:A, b:B) = {
-    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b)))
-  }
+  def apply(fn: TypedAddDbFunction0)() =
+    new InvokeTxFunction(fn.ident, Seq.empty)
 
-  def apply[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast](fn: TypedAddDbFunction3[A,B,C])(a:A, b:B, c:C) = {
-    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b), Datomic.toDatomic(c)))
-  }
+  def apply[A : ToDatomicCast](fn: TypedAddDbFunction1[A])(a: A) =
+    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a)))
 
-  def apply[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast](fn: TypedAddDbFunction4[A,B,C,D])(a:A, b:B, c:C, d:D) = {
-    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b), Datomic.toDatomic(c), Datomic.toDatomic(d)))
-  }
+  def apply[A : ToDatomicCast,
+            B : ToDatomicCast]
+           (fn: TypedAddDbFunction2[A, B])
+           (a: A, b: B) =
+    new InvokeTxFunction(
+      fn.ident,
+      Seq(
+        Datomic.toDatomic(a),
+        Datomic.toDatomic(b)))
 
-  def apply[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast, E:ToDatomicCast](fn: TypedAddDbFunction5[A,B,C,D,E])(a:A, b:B, c:C, d:D, e:E) = {
-    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b), Datomic.toDatomic(c), Datomic.toDatomic(d), Datomic.toDatomic(e)))
-  }
+  def apply[A : ToDatomicCast,
+            B : ToDatomicCast,
+            C : ToDatomicCast]
+           (fn: TypedAddDbFunction3[A, B, C])
+           (a: A, b: B, c: C) =
+    new InvokeTxFunction(
+      fn.ident,
+      Seq(
+        Datomic.toDatomic(a),
+        Datomic.toDatomic(b),
+        Datomic.toDatomic(c)))
 
-  def apply[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:ToDatomicCast, E:ToDatomicCast, F:ToDatomicCast](fn: TypedAddDbFunction6[A,B,C,D,E,F])(a:A, b:B, c:C, d:D, e:E, f:F) = {
-    new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b), Datomic.toDatomic(c), Datomic.toDatomic(d), Datomic.toDatomic(e), Datomic.toDatomic(f)))
-  }
+  def apply[A : ToDatomicCast,
+            B : ToDatomicCast,
+            C : ToDatomicCast,
+            D : ToDatomicCast]
+           (fn: TypedAddDbFunction4[A, B, C, D])
+           (a: A, b: B, c: C, d: D) =
+    new InvokeTxFunction(
+      fn.ident,
+      Seq(
+        Datomic.toDatomic(a),
+        Datomic.toDatomic(b),
+        Datomic.toDatomic(c),
+        Datomic.toDatomic(d)))
+
+  def apply[A : ToDatomicCast,
+            B : ToDatomicCast,
+            C : ToDatomicCast,
+            D : ToDatomicCast,
+            E : ToDatomicCast]
+           (fn: TypedAddDbFunction5[A, B, C, D, E])
+           (a: A, b: B, c: C, d: D, e: E) =
+    new InvokeTxFunction(
+      fn.ident,
+      Seq(
+        Datomic.toDatomic(a),
+        Datomic.toDatomic(b),
+        Datomic.toDatomic(c),
+        Datomic.toDatomic(d),
+        Datomic.toDatomic(e)))
+
+  def apply[A : ToDatomicCast,
+            B : ToDatomicCast,
+            C : ToDatomicCast,
+            D : ToDatomicCast,
+            E : ToDatomicCast,
+            F : ToDatomicCast]
+           (fn: TypedAddDbFunction6[A, B, C, D, E, F])
+           (a: A, b: B, c: C, d: D, e: E, f: F) =
+    new InvokeTxFunction(
+      fn.ident,
+      Seq(
+        Datomic.toDatomic(a),
+        Datomic.toDatomic(b),
+        Datomic.toDatomic(c),
+        Datomic.toDatomic(d),
+        Datomic.toDatomic(e),
+        Datomic.toDatomic(f)))
+
 }
 
