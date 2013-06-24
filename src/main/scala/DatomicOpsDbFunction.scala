@@ -91,7 +91,10 @@ object AddDbFunction {
     TypedAddDbFunction6[A, B, C, D, E, F](new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5, param6, param7), code))
 }
 
-case class InvokeTxFunction(fn: Keyword, args: Seq[DatomicData] = Seq()) extends Operation {
+class InvokeTxFunction(
+    fn:   Keyword,
+    args: Seq[DatomicData]
+) extends Operation {
   def toNative: AnyRef = {
     datomic.Util.list(
       (fn +: args).map(_.toNative): _*
@@ -100,7 +103,7 @@ case class InvokeTxFunction(fn: Keyword, args: Seq[DatomicData] = Seq()) extends
 }
 
 object InvokeTxFunction {
-  def apply(fn: Keyword)(arg: DatomicData, args: DatomicData*) = new InvokeTxFunction(fn, Seq(arg) ++ args)
+  def apply(fn: Keyword)(args: DatomicData*) = new InvokeTxFunction(fn, args)
 
   def apply[A:ToDatomicCast, B:ToDatomicCast](fn: TypedAddDbFunction2[A,B])(a:A, b:B) = {
     new InvokeTxFunction(fn.ident, Seq(Datomic.toDatomic(a), Datomic.toDatomic(b)))
