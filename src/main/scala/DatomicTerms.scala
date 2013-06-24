@@ -35,6 +35,7 @@ object Namespace {
     val INSTALL = Namespace("db.install")
     val UNIQUE = Namespace("db.unique")
     val FN = Namespace("db.fn")
+    val EXCISE = Namespace("db.excise")
   } 
 }
 

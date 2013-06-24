@@ -14,5 +14,5 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "pellucidanalytics" %% "datomisca" % "0.3-SNAPSHOT",
-  "com.datomic" % "datomic-free" % "0.8.3993"
+  "com.datomic" % "datomic-free" % "0.8.4007"
 )
