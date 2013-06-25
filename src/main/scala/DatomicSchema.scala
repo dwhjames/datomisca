@@ -114,16 +114,24 @@ object Unique {
   val identity = Unique(Keyword(Namespace.DB.UNIQUE, "identity"))
 }
 
-sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation with Term with Namespaceable with KeywordIdentified {
-  override def ident: Keyword
-  def valueType: SchemaType[DD]
-  def cardinality: Card
-  def doc: Option[String] = None
-  def unique: Option[Unique] = None
-  def index: Option[Boolean] = None
-  def fulltext: Option[Boolean] = None
-  def isComponent: Option[Boolean] = None
-  def noHistory: Option[Boolean] = None
+case class Attribute[DD <: DatomicData, Card <: Cardinality](
+    override val ident: Keyword,
+    valueType:   SchemaType[DD],
+    cardinality: Card,
+    doc:         Option[String]  = None,
+    unique:      Option[Unique]  = None,
+    index:       Option[Boolean] = None,
+    fulltext:    Option[Boolean] = None,
+    isComponent: Option[Boolean] = None,
+    noHistory:   Option[Boolean] = None
+) extends Operation with Term with Namespaceable with KeywordIdentified {
+
+  def withDoc(str: String)        = copy( doc = Some(str) )
+  def withUnique(u: Unique)       = copy( unique = Some(u) )
+  def withIndex(b: Boolean)       = copy( index = Some(b) )
+  def withFullText(b: Boolean)    = copy( fulltext = Some(b) )
+  def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
+  def withNoHistory(b: Boolean)   = copy( noHistory = Some(b) )
 
   // using partiton :db.part/db
   val id = DId(Partition.DB)
@@ -171,18 +179,6 @@ sealed trait Attribute[DD <: DatomicData, Card <: Cardinality] extends Operation
 } 
 
 object Attribute {
-  def apply[DD <: DatomicData, Card <: Cardinality](
-    ident: Keyword,
-    valueType: SchemaType[DD],
-    cardinality: Card,
-    doc: Option[String] = None,
-    unique: Option[Unique] = None,
-    index: Option[Boolean] = None,
-    fulltext: Option[Boolean] = None,
-    isComponent: Option[Boolean] = None,
-    noHistory: Option[Boolean] = None
-  ) = new RawAttribute(ident, valueType, cardinality, doc, unique, index, fulltext, isComponent, noHistory)
-
   val id = Keyword(Namespace.DB, "id")
   val ident = Keyword(Namespace.DB, "ident")
   val valueType = Keyword(Namespace.DB, "valueType")
@@ -194,26 +190,6 @@ object Attribute {
   val isComponent = Keyword(Namespace.DB, "isComponent")
   val noHistory = Keyword(Namespace.DB, "noHistory")
   val installAttr = Keyword(Namespace.DB.INSTALL, "_attribute")
-}
-
-case class RawAttribute[DD <: DatomicData, Card <: Cardinality](
-  override val ident: Keyword,
-  override val valueType: SchemaType[DD],
-  override val cardinality: Card,
-  override val doc: Option[String] = None,
-  override val unique: Option[Unique] = None,
-  override val index: Option[Boolean] = None,
-  override val fulltext: Option[Boolean] = None,
-  override val isComponent: Option[Boolean] = None,
-  override val noHistory: Option[Boolean] = None
-) extends Attribute[DD, Card] {
-  def withDoc(str: String) = copy( doc = Some(str) )
-  def withUnique(u: Unique) = copy( unique = Some(u) )
-  def withIndex(b: Boolean) = copy( index = Some(b) )
-  def withFullText(b: Boolean) = copy( fulltext = Some(b) )
-  def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
-  def withNoHistory(b: Boolean) = copy( noHistory = Some(b) )
-
 }
 
 
