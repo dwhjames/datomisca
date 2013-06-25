@@ -176,7 +176,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * }}}
     *
     * {{{
-    * val toto = Datomic.Entity.add(DId(excisionId.USER))(
+    * val toto = Datomic.Entity.add(DId(Partition.USER))(
     *   person / "name" -> "toto",
     *   person / "age" -> 30L
     * )
