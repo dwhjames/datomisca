@@ -21,7 +21,7 @@ import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
 
 case class ExciseEntity(
-  id: Long, partition: Partition = Partition.USER, attrs: Set[Keyword] = Set(),
+  id: Long, excisionId: TempId = DId(Partition.USER), attrs: Set[Keyword] = Set(),
   before: Option[Either[java.util.Date, Long]] = None
 ) extends Operation with FinalIdentified {
   def before(d: java.util.Date) = this.copy(before = Some(Left(d)))
@@ -29,7 +29,7 @@ case class ExciseEntity(
 
   lazy val props = {
     var m: Map[Keyword, DatomicData] = Map(
-      Keyword("id", Namespace.DB) -> DId(partition),
+      Keyword("id", Namespace.DB) -> excisionId,
       Keyword("excise", Namespace.DB) -> FinalId(id)
     )
 
@@ -52,7 +52,7 @@ case class ExciseEntity(
 }
 
 case class ExciseAttr(
-  attr: Keyword, partition: Partition = Partition.USER, 
+  attr: Keyword, excisionId: TempId = DId(Partition.USER),
   before: Option[Either[java.util.Date, Long]]
 ) extends Operation {
   def before(d: java.util.Date) = this.copy(before = Some(Left(d)))
@@ -62,19 +62,19 @@ case class ExciseAttr(
     before match {
       case None => // BE CAREFUL it excises All Values of An Attribute
         datomic.Util.map(
-          Keyword("id", Namespace.DB).toNative, DId(Partition.USER).toNative,
+          Keyword("id", Namespace.DB).toNative, excisionId.toNative,
           Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative
         )
       case Some(Left(d)) =>
         datomic.Util.map(
-          Keyword("id", Namespace.DB).toNative, DId(Partition.USER).toNative,
+          Keyword("id", Namespace.DB).toNative, excisionId.toNative,
           Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative,
           Keyword("before", Namespace.DB.EXCISE).toNative, DInstant(d).toNative
         )
 
       case Some(Right(tx)) =>
         datomic.Util.map(
-          Keyword("id", Namespace.DB).toNative, DId(Partition.USER).toNative,
+          Keyword("id", Namespace.DB).toNative, excisionId.toNative,
           Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative,
           Keyword("beforeT", Namespace.DB.EXCISE).toNative, DLong(tx).toNative
         )

@@ -34,7 +34,7 @@ trait FactOps extends DatomicTypeWrapper {
     * {{{[:db/add entity-id attribute value]}}}
     *
     * {{{
-    * val totoName = Datomic.Fact.add(DId(Partition.USER))( person / "name" -> "toto")
+    * val totoName = Datomic.Fact.add(DId(excisionId.USER))( person / "name" -> "toto")
     * }}}
     *
     * @param id the targeted [[DId]]
@@ -176,7 +176,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * }}}
     *
     * {{{
-    * val toto = Datomic.Entity.add(DId(Partition.USER))(
+    * val toto = Datomic.Entity.add(DId(excisionId.USER))(
     *   person / "name" -> "toto",
     *   person / "age" -> 30L
     * )
@@ -199,7 +199,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * }}}
     *
     * {{{
-    * val toto = Datomic.Entity.add(DId(Partition.USER), Map(
+    * val toto = Datomic.Entity.add(DId(excisionId.USER), Map(
     *   person / "name" -> DString("toto"),
     *   person / "age" -> DLong(30L)
     * ))
@@ -247,7 +247,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * val dumb = AddIdent(Keyword(person.character, "dumb"))
     *
     * Datomic.Entity.add("""{
-    *   :db/id \${DId(Partition.USER)}
+    *   :db/id \${DId(excisionId.USER)}
     *   :person/name \$name
     *   :person/age 30
     *   :person/character [ \$weak \$dumb ]
@@ -261,77 +261,88 @@ trait EntityOps extends DatomicTypeWrapper {
 
   /** Create operations to excise partialy an entity
     * @param id the targeted [[DId]] which must be a [[Long]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity 
     * @param attr attribute to excised from entity (partial excision)
     */
-  def excise(id: Long, partition: Partition, attrs: Keyword*) = ExciseEntity(id, partition, attrs.toSet)
+  def excise(id: Long, excisionId: TempId, attrs: Keyword*) = ExciseEntity(id, excisionId, attrs.toSet)
+  def excise(id: Long, attrs: Keyword*) = ExciseEntity(id = id, attrs = attrs.toSet)
 
   /** Create operations to excise a full entity
     * @param id the targeted [[DId]] which must be a [[Long]] or [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     */
-  def excise(id: Long, partition: Partition) = ExciseEntity(id, partition)
+  def excise(id: Long, excisionId: TempId) = ExciseEntity(id, excisionId)
+  def excise(id: Long) = ExciseEntity(id)
 
   /** Create operations to excise entity restricting excision to datoms created before a tx
     * @param id the targeted [[DId]] which must be a [[Long]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param before the transaction id before which datoms excision is limited
     */
-  def excise(id: Long, partition: Partition, before: Long) = ExciseEntity(id, partition, Set(), Some(Right(before)))
+  def excise(id: Long, excisionId: TempId, before: Long) = ExciseEntity(id=id, excisionId=excisionId, before=Some(Right(before)))
+  def excise(id: Long, before: Long) = ExciseEntity(id=id, before=Some(Right(before)))
 
   /** Create operations to excise entity restricting excision to datoms created before a date
     * @param id the targeted [[DId]] which must be a [[Long]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param before the instant before which datoms excision is limited
     */
-  def excise(id: Long, partition: Partition, before: java.util.Date) = ExciseEntity(id, partition, Set(), Some(Left(before)))
+  def excise(id: Long, excisionId: TempId, before: java.util.Date) = ExciseEntity(id=id, excisionId=excisionId, before=Some(Left(before)))
+  def excise(id: Long, before: java.util.Date) = ExciseEntity(id=id, before=Some(Left(before)))
 
   /** Create operations to excise partialy an entity
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param attr attribute to excised from entity (partial excision)
     */
-  def excise(id: FinalId, partition: Partition, attrs: Keyword*) = ExciseEntity(id.underlying, partition, attrs.toSet)
+  def excise(id: FinalId, excisionId: TempId, attrs: Keyword*) = ExciseEntity(id.underlying, excisionId, attrs.toSet)
+  def excise(id: FinalId, attrs: Keyword*) = ExciseEntity(id=id.underlying, attrs=attrs.toSet)
 
   /** Create operations to excise a full entity
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     */
-  def excise(id: FinalId, partition: Partition) = ExciseEntity(id.underlying, partition)
+  def excise(id: FinalId, excisionId: TempId) = ExciseEntity(id.underlying, excisionId)
+  def excise(id: FinalId) = ExciseEntity(id=id.underlying)
 
   /** Create operations to excise entity restricting excision to datoms created before a transaction
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param before the transaction before which datoms excision is limited
     */
-  def excise(id: FinalId, partition: Partition, before: Long) = ExciseEntity(id.underlying, partition, Set(), Some(Right(before)))
+  def excise(id: FinalId, excisionId: TempId, before: Long) = ExciseEntity(id=id.underlying, excisionId=excisionId, before=Some(Right(before)))
+  def excise(id: FinalId, before: Long) = ExciseEntity(id=id.underlying, before=Some(Right(before)))
 
   /** Create operations to excise entity restricting excision to datoms created before a date
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param before the instant before which datoms excision is limited
     */
-  def excise(id: FinalId, partition: Partition, before: java.util.Date) = ExciseEntity(id.underlying, partition, Set(), Some(Left(before)))
+  def excise(id: FinalId, excisionId: TempId, before: java.util.Date) = ExciseEntity(id=id.underlying, excisionId=excisionId, before=Some(Left(before)))
+  def excise(id: FinalId, before: java.util.Date) = ExciseEntity(id=id.underlying, before=Some(Left(before)))
 
   /** Create operations to excise all attributes restricting to datoms created before a date
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param before the instant before which datoms excision is limited
     */
-  def exciseAttr(attr: Keyword, partition: Partition, before: java.util.Date) = ExciseAttr(attr, partition, Some(Left(before)))
+  def exciseAttr(attr: Keyword, excisionId: TempId, before: java.util.Date) = ExciseAttr(attr=attr, excisionId=excisionId, before=Some(Left(before)))
+  def exciseAttr(attr: Keyword, before: java.util.Date) = ExciseAttr(attr=attr, before=Some(Left(before)))
 
   /** Create operations to excise all attributes restricting to datoms created before a transaction
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     * @param before the transaction before which datoms excision is limited
     */
-  def exciseAttr(attr: Keyword, partition: Partition, before: Long) = ExciseAttr(attr, partition, Some(Right(before)))
+  def exciseAttr(attr: Keyword, excisionId: TempId, before: Long) = ExciseAttr(attr=attr, excisionId=excisionId, before=Some(Right(before)))
+  def exciseAttr(attr: Keyword, before: Long) = ExciseAttr(attr=attr, before=Some(Right(before)))
 
 
   /** WARNING: this removes ALL values of this attribute
     * Creates operations to excise all attributes restricting to datoms created before a transaction
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param partition the partition in which the entity is stored
+    * @param excisionId the temporary ID of the excision entity
     */
-  def exciseAttr(attr: Keyword, partition: Partition) = ExciseAttr(attr, partition, None)
+  def exciseAttr(attr: Keyword, excisionId: TempId) = ExciseAttr(attr=attr, excisionId=excisionId, before=None)
+  def exciseAttr(attr: Keyword) = ExciseAttr(attr=attr, before=None)
 }
