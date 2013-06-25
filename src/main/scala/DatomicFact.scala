@@ -34,7 +34,7 @@ trait FactOps extends DatomicTypeWrapper {
     * {{{[:db/add entity-id attribute value]}}}
     *
     * {{{
-    * val totoName = Datomic.Fact.add(DId(excisionId.USER))( person / "name" -> "toto")
+    * val totoName = Datomic.Fact.add(DId(Partition.USER))( person / "name" -> "toto")
     * }}}
     *
     * @param id the targeted [[DId]]
@@ -199,7 +199,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * }}}
     *
     * {{{
-    * val toto = Datomic.Entity.add(DId(excisionId.USER), Map(
+    * val toto = Datomic.Entity.add(DId(Partition.USER), Map(
     *   person / "name" -> DString("toto"),
     *   person / "age" -> DLong(30L)
     * ))
@@ -247,7 +247,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * val dumb = AddIdent(Keyword(person.character, "dumb"))
     *
     * Datomic.Entity.add("""{
-    *   :db/id \${DId(excisionId.USER)}
+    *   :db/id \${DId(Partition.USER)}
     *   :person/name \$name
     *   :person/age 30
     *   :person/character [ \$weak \$dumb ]
