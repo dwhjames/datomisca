@@ -53,18 +53,26 @@ case class ExciseEntity(
 
 case class ExciseAttr(
   attr: Keyword, partition: Partition = Partition.USER, 
-  before: Either[java.util.Date, Long]
+  before: Option[Either[java.util.Date, Long]]
 ) extends Operation {
+  def before(d: java.util.Date) = this.copy(before = Some(Left(d)))
+  def before(tx: Long) = this.copy(before = Some(Right(tx)))
+
   lazy val props =
     before match {
-      case Left(d) =>
+      case None => // BE CAREFUL it excises All Values of An Attribute
+        datomic.Util.map(
+          Keyword("id", Namespace.DB).toNative, DId(Partition.USER).toNative,
+          Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative
+        )
+      case Some(Left(d)) =>
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, DId(Partition.USER).toNative,
           Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative,
           Keyword("before", Namespace.DB.EXCISE).toNative, DInstant(d).toNative
         )
 
-      case Right(tx) =>
+      case Some(Right(tx)) =>
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, DId(Partition.USER).toNative,
           Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative,

@@ -318,12 +318,20 @@ trait EntityOps extends DatomicTypeWrapper {
     * @param partition the partition in which the entity is stored
     * @param before the instant before which datoms excision is limited
     */
-  def exciseAttr(attr: Keyword, partition: Partition, before: java.util.Date) = ExciseAttr(attr, partition, Left(before))
+  def exciseAttr(attr: Keyword, partition: Partition, before: java.util.Date) = ExciseAttr(attr, partition, Some(Left(before)))
 
   /** Create operations to excise all attributes restricting to datoms created before a transaction
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param partition the partition in which the entity is stored
     * @param before the transaction before which datoms excision is limited
     */
-  def exciseAttr(attr: Keyword, partition: Partition, before: Long) = ExciseAttr(attr, partition, Right(before))
+  def exciseAttr(attr: Keyword, partition: Partition, before: Long) = ExciseAttr(attr, partition, Some(Right(before)))
+
+
+  /** WARNING: this removes ALL values of this attribute
+    * Creates operations to excise all attributes restricting to datoms created before a transaction
+    * @param id the targeted [[DId]] which must be a [[FinalId]]
+    * @param partition the partition in which the entity is stored
+    */
+  def exciseAttr(attr: Keyword, partition: Partition) = ExciseAttr(attr, partition, None)
 }

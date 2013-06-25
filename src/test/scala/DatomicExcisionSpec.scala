@@ -286,5 +286,39 @@ class DatomicExcisionSpec extends Specification {
         Duration("3 seconds")
       )
     }
+
+    "attribute excision ALL" in {
+      implicit val conn = Datomic.connect(uri)
+
+      val basisT = database.basisT
+
+      val query = Query("""
+        [ :find ?e
+          :in $ ?name
+          :where  [ ?e :person/name ?name ]
+        ]
+      """)
+
+      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+
+      val maybeRes = Datomic.transact(
+        Entity.exciseAttr( person / "age", Partition.USER)
+      ).map{ tx =>
+        val toto = tx.dbAfter.entity(e)
+        println(s"toto ${toto.id} excised:"+toto.toMap)
+
+        Datomic.q(Query("""
+          [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
+        """), database, DLong(e)).head match {
+          case DLong(ent) => println("found excision entity:"+ent); success
+        }
+
+      }
+
+      Await.result(
+        maybeRes,
+        Duration("3 seconds")
+      )
+    }
   }
 }
