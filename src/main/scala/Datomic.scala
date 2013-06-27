@@ -210,10 +210,9 @@ trait DatomicTypeWrapper {
   import scala.language.implicitConversions
 
   /** implicit converters to simplify conversion from Scala Types to Datomic Type */
-  implicit def toDWrapper[T](t: T)(implicit td: ToDatomicCast[T]): DWrapper = DWrapperImpl(Datomic.toDatomic(t)(td))
+  implicit def toDWrapper[T](t: T)(implicit td: ToDatomicCast[T]): DWrapper = new DWrapper(Datomic.toDatomic(t)(td))
 
-  trait DWrapper extends NotNull
-  private[datomisca] case class DWrapperImpl(underlying: DatomicData) extends DWrapper
+  class DWrapper(val underlying: DatomicData)
 
 }
 
@@ -283,7 +282,7 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     *
     * @param partition the partition to create
     */
-  def coll(dw: DWrapper*) = DColl(dw.map(_.asInstanceOf[DWrapperImpl].underlying))
+  def coll(dw: DWrapper*) = DColl(dw.map(_.underlying))
 
   /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
     * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated
