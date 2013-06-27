@@ -47,7 +47,7 @@ class DatomicSyntaxSugarSpec extends Specification {
         AddEntity(id)(
           Keyword(person, "name")      -> DString("toto"),
           Keyword(person, "age")       -> DLong(30L),
-          Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
+          Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
         ).toString
       )
 
@@ -59,7 +59,7 @@ class DatomicSyntaxSugarSpec extends Specification {
         AddEntity(id)(
           Keyword(person, "name")      -> DString("toto"),
           Keyword(person, "age")       -> DLong(30L),
-          Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
+          Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
         ).toString
       )
 
@@ -72,7 +72,7 @@ class DatomicSyntaxSugarSpec extends Specification {
         AddEntity(id)(
           Keyword(person, "name")      -> DString("toto"),
           Keyword(person, "age")       -> DLong(30L),
-          Keyword(person, "character") -> DSet(weak.ref, dumb.ref)
+          Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
         ).toString
       )
 

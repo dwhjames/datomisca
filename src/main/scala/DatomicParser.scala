@@ -29,7 +29,7 @@ case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
 /** technical structures used by parsing */
 sealed trait ParsingExpr
 case class ScalaExpr(expr: String) extends ParsingExpr
-case class DSetParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
+case class DCollParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
 
 case class DIdParsing(partition: Partition, id: Option[Long] = None)
 
@@ -119,7 +119,7 @@ object DatomicParser extends JavaTokenParsers {
     case did: DId => DRef(did)
   }
 
-  def dset: Parser[DSet] = brackets(rep(datomicData)) ^^ { l => DSet(l.toSet) }
+  def dset: Parser[DColl] = brackets(rep(datomicData)) ^^ { l => new DColl(l) }
 
   def druletmp: Parser[(String, Seq[Var])] = parensOrBrackets(functionLiteral ~ rep(variable)) ^^ { 
     case name ~ vars => ( name, vars ) }
@@ -238,7 +238,7 @@ object DatomicParser extends JavaTokenParsers {
     case se: ScalaExpr => Left(se)
   }
 
-  def dSetParsing: Parser[DSetParsing] = brackets(rep(eitherScalaExprOrDatomicData)) ^^ { DSetParsing(_) } 
+  def dSetParsing: Parser[DCollParsing] = brackets(rep(eitherScalaExprOrDatomicData)) ^^ { DCollParsing(_) } 
 
   def parsingExpr: Parser[ParsingExpr] = scalaExpr | dSetParsing
 

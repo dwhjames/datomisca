@@ -259,8 +259,8 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     case kw: clojure.lang.Keyword => DRef(Keyword(kw.getName, Namespace(kw.getNamespace)))
     case e: datomic.Entity => DEntity(e)
     case coll: java.util.Collection[_] =>
-      import scala.collection.JavaConversions._
-      DSet(coll.toSet.map{dd: Any => toDatomicData(dd)})
+      import scala.collection.JavaConverters._
+      new DColl(coll.asScala.map(toDatomicData(_)))
 
     //DRef(DId(e.get(Keyword("id", Namespace.DB).toNative).asInstanceOf[Long]))
     // REF???
@@ -275,15 +275,15 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     */
   def KW(q: String): Keyword = macro DatomicQueryMacro.KWImpl
 
-  /** Helper: creates a [[DSet]] from simple types using DWrapper implicit conversion
+  /** Helper: creates a [[DColl]] from simple types using DWrapper implicit conversion
     *
     * {{{
-    * val addPartOp = Datomic.set("toto", 3L, "tata")
+    * val addPartOp = Datomic.coll("toto", 3L, "tata")
     * }}}
     *
     * @param partition the partition to create
     */
-  def set(dw: DWrapper*) = DSet(dw.map{t: DWrapper => t.asInstanceOf[DWrapperImpl].underlying}.toSet)
+  def coll(dw: DWrapper*) = DColl(dw.map(_.asInstanceOf[DWrapperImpl].underlying))
 
   /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
     * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated

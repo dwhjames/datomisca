@@ -88,7 +88,7 @@ class DatomicQuery2Spec extends Specification {
          :in $ [?names ...]
          :where [?e :person/name ?names]
         ]
-      """), database, DSet(DString("toto"), DString("tata"))) map {
+      """), database, Datomic.coll("toto", "tata")) map {
         case DLong(e) =>
           val entity = database.entity(e)
           println(s"3 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
@@ -111,9 +111,9 @@ class DatomicQuery2Spec extends Specification {
 
       Datomic.q(
         q, database,
-        DSet(
-          DSet(DString("toto"), DLong(30L)),
-          DSet(DString("tutu"), DLong(54L))
+        DColl(
+          Datomic.coll("toto", 30L),
+          Datomic.coll("tutu", 54L)
         )
       ) map {
         case (DLong(e), DString(n), DLong(a)) =>

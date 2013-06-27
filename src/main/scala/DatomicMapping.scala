@@ -189,8 +189,8 @@ trait Attribute2EntityReaderCastImplicits {
   new Attribute2EntityReaderCast[DD, CardinalityMany.type, Set[A]] {
     def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] =
       EntityReader { entity =>
-        entity.get(attr.ident) map { case DSet(elems) =>
-          elems map { elem => fdat.from(elem.asInstanceOf[DD]) }
+        entity.get(attr.ident) map { case DColl(elems) =>
+          elems.map { elem => fdat.from(elem.asInstanceOf[DD]) } .toSet
         } getOrElse (Set.empty)
       }
   }
@@ -208,11 +208,11 @@ trait Attribute2EntityReaderCastImplicits {
     new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[Long]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Long]] =
         EntityReader { entity =>
-          entity.get(attr.ident) map { case DSet(elems) =>
-            elems map {
+          entity.get(attr.ident) map { case DColl(elems) =>
+            elems.map {
               case subent: DEntity => subent.id
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
-            }
+            } .toSet
           } getOrElse (Set.empty)
         }
     }
@@ -235,11 +235,11 @@ trait Attribute2EntityReaderCastImplicits {
     new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] =
         EntityReader { entity =>
-          entity.get(attr.ident) map { case DSet(elems) =>
-            elems map {
+          entity.get(attr.ident) map { case DColl(elems) =>
+            elems.map {
               case subent: DEntity => er.read(subent)
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
-            }
+            } .toSet
           } getOrElse (Set.empty)
         }
     }
@@ -264,11 +264,11 @@ trait Attribute2EntityReaderCastImplicits {
     new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[A]]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[IdView[A]]] =
         EntityReader { entity =>
-          entity.get(attr.ident) map { case DSet(elems) =>
-            elems map {
+          entity.get(attr.ident) map { case DColl(elems) =>
+            elems.map {
               case subent: DEntity => IdView(subent.id)(er.read(subent))
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
-            }
+            } .toSet
           } getOrElse (Set.empty)
         }
     }
@@ -293,7 +293,7 @@ trait Attribute2EntityReaderInjImplicits {
     new Attribute2EntityReaderInj[DRef, CardinalityMany.type, Set[DatomicData]] {
       def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[DatomicData]] =
         EntityReader { entity =>
-          entity.get(attr.ident) map { case DSet(elems) => elems } getOrElse (Set.empty)
+          entity.get(attr.ident) map { case DColl(elems) => elems.toSet } getOrElse (Set.empty)
         }
     }
 
@@ -315,8 +315,8 @@ trait Attribute2EntityReaderInjImplicits {
     new Attribute2EntityReaderInj[DD, CardinalityMany.type, Set[A]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] =
         EntityReader { entity =>
-          entity.get(attr.ident) map { case DSet(elems) =>
-            elems map { elem => fdat.from(elem.asInstanceOf[DD]) }
+          entity.get(attr.ident) map { case DColl(elems) =>
+            elems.map { elem => fdat.from(elem.asInstanceOf[DD]) } .toSet
           } getOrElse (Set.empty)
         }
     }
@@ -352,7 +352,7 @@ trait Attribute2PartialAddEntityWriterImplicits {
     }  
 
 
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit tdat: ToDatomic[DSet, Set[Source]]) =
+  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit tdat: ToDatomic[DColl, Set[Source]]) =
     new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Source]] {
       def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Source]] = {
         PartialAddEntityWriter[Set[Source]]{ s: Set[Source] =>
