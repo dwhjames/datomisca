@@ -248,6 +248,8 @@ object MovieGraph {
     // await the result of the future
     Await.result(fut, Duration("2 seconds"))
 
+    Datomic.shutdown(true)
+
     // IF RUNNING FROM SBT RUNTIME : 
     // without this, in SBT, if you run the program 2x, it fails
     // with weird cache exception linked to the way SBT manages

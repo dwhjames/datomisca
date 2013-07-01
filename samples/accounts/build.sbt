@@ -4,7 +4,7 @@ organization := "pellucidanalytics"
 
 version := "0.3-SNAPSHOT"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.1"
 
 fork in test := true
 
@@ -16,5 +16,5 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "pellucidanalytics" %% "datomisca" % "0.3-SNAPSHOT",
-  "com.datomic" % "datomic-free" % "0.8.3993"
+  "com.datomic" % "datomic-free" % "0.8.4007"
 )
