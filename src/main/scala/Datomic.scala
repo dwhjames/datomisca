@@ -256,7 +256,8 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     case d: java.util.Date => DInstant(d)
     case u: java.util.UUID => DUuid(u)
     case u: java.net.URI => DUri(u)
-    case kw: clojure.lang.Keyword => DRef(Keyword(kw.getName, Namespace(kw.getNamespace)))
+    case kw: clojure.lang.Keyword => 
+      DRef(Keyword(kw.getName, Option(kw.getNamespace).map(Namespace(_))))
     case e: datomic.Entity => DEntity(e)
     case coll: java.util.Collection[_] =>
       import scala.collection.JavaConversions._

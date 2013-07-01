@@ -33,7 +33,7 @@ object AccountsSchema {
                  .withDoc("The receiving account")
 
 
-  val creditFn = AddDbFunction(fn / "credit") ("db", "id", "amount") {
+  val creditFn = AddTxFunction(fn / "credit") ("db", "id", "amount") ("clojure") {
     """
     (let [ e           (datomic.api/entity db id)
            min-balance (:account/min-balance e 0)
@@ -43,7 +43,7 @@ object AccountsSchema {
              (throw (Exception. "Insufficient funds"))))
     """
   }
-  val transferFn = AddDbFunction(fn / "transfer") ("db", "from", "to", "amount") {
+  val transferFn = AddTxFunction(fn / "transfer") ("db", "from", "to", "amount") ("clojure") {
     """
     [
       [:fn/credit from (- amount)]
@@ -84,7 +84,7 @@ object AccountsTxData {
   def transfer(fromAcc: DLong, toAcc: DLong, transAmount: BigDecimal, note: String): Seq[Operation] = {
     val txId = DId(Partition.TX)
     Seq(
-      InvokeTxFunction(transferFn.ident, fromAcc, toAcc, DBigDec(transAmount)),
+      InvokeTxFunction(transferFn.ident)(fromAcc, toAcc, DBigDec(transAmount)),
       Entity.add(txId)(
         KW(":db/doc") -> note,
         from.ident    -> fromAcc,
@@ -95,7 +95,7 @@ object AccountsTxData {
   }
 
   def credit(toAcc: DLong, amount: BigDecimal): Operation =
-    InvokeTxFunction(creditFn.ident, toAcc, DBigDec(amount))
+    InvokeTxFunction(creditFn.ident)(toAcc, DBigDec(amount))
 }
 
 object AccountsQueries {
@@ -247,6 +247,8 @@ object Accounts {
         println("A transaction to transfer 71 from Alice to Bob should fail.")
         println(s"It failed with the message ${ex.getMessage}")
     }
+
+    Datomic.shutdown(true)
 
     // IF RUNNING FROM SBT RUNTIME :
     // without this, in SBT, if you run the program 2x, it fails
