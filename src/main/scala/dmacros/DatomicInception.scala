@@ -61,7 +61,7 @@ trait DatomicInception {
         }))
         case DBigInt(v) => Apply(Ident(newTermName("DBigInt")), List(Literal(Constant(v))))
         case DBigDec(v) => Apply(Ident(newTermName("DBigDec")), List(Literal(Constant(v))))
-        case DSet(elts) => Apply(Ident(newTermName("DSet")), elts.map(incept(_)).toList)
+        case DColl(elts) => Apply(Ident(newTermName("DColl")), elts.map(incept(_)).toList)
         case id: DId => id match{
           case FinalId(v) => Apply(Ident(newTermName("FinalId")), List(Literal(Constant(v))))
           case TempId(part, id, dbId) => Apply(Ident(newTermName("TempId")), List(incept(part), incept(id), Literal(Constant(dbId))))
@@ -246,13 +246,13 @@ trait DatomicInception {
         Apply(Select(Ident(newTermName("Datomic")), "toDWrapper"), List(compiled))
       }
 
-      def incept(seq: DSetParsing): c.universe.Tree = {
+      def incept(seq: DCollParsing): c.universe.Tree = {
         Apply(
-          Select(Ident(newTermName("Datomic")), "set"),
+          Select(Ident(newTermName("Datomic")), "coll"),
           seq.elts.map{ 
             case Left(se: ScalaExpr) => incept(se)
             case Right(dd: DatomicData) => incept(dd)
-            case _ => throw new RuntimeException("Unexpected data while incepting DSetParsing")
+            case _ => throw new RuntimeException("Unexpected data while incepting DCollParsing")
           }.toList
         )
       }
@@ -265,7 +265,7 @@ trait DatomicInception {
 
       private def localIncept(v: Either[ParsingExpr, DatomicData]): c.universe.Tree = v match {
         case Left(se: ScalaExpr) => incept(se)
-        case Left(se: DSetParsing) => incept(se)
+        case Left(se: DCollParsing) => incept(se)
         case Right(dd: DatomicData) => incept(dd)
       }
 
