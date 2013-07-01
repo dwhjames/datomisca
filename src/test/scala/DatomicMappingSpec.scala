@@ -283,7 +283,7 @@ class DatomicMappingSpec extends Specification {
           person / "name"       -> DString("toto"),
           person / "age"        -> DLong(45),
           person / "birth"      -> DInstant(birthDate),
-          person / "characters" -> DSet(violent.ref, weak.ref)
+          person / "characters" -> DColl(violent.ref, weak.ref)
         )
       ).toString)
 
@@ -302,7 +302,7 @@ class DatomicMappingSpec extends Specification {
           person / "name"       -> DString("toto"),
           person / "age"        -> DLong(45),
           person / "birth"      -> DInstant(birthDate),
-          person / "characters" -> DSet(violent.ref, weak.ref)
+          person / "characters" -> DColl(violent.ref, weak.ref)
         )
       ).toString)
     }

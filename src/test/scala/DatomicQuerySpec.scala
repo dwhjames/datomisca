@@ -83,7 +83,7 @@ class DatomicQuerySpec extends Specification {
          :in $ [?names ...]
          :where [?e :person/name ?names]
         ]
-      """), database, DSet(DString("toto"), DString("tata"))) map {
+      """), database, Datomic.coll("toto", "tata")) map {
         case DLong(e) =>
           val entity = database.entity(e)
           println(s"3 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
@@ -105,9 +105,9 @@ class DatomicQuerySpec extends Specification {
       """)
       Datomic.q(
         q, database,
-        DSet(
-          DSet(DString("toto"), DLong(30L)),
-          DSet(DString("tutu"), DLong(54L))
+        DColl(
+          Datomic.coll("toto", 30L),
+          Datomic.coll("tutu", 54L)
         )
       ) map {
         case (DLong(e), DString(n), DLong(a)) =>
@@ -302,7 +302,7 @@ class DatomicQuerySpec extends Specification {
     val q = Query("""
       [:find ?firstname ?lastname :where [?firstname ?lastname]]
     """)
-    Datomic.q(q, DSet(DSet(DString("John"), DString("Smith")))) map {
+    Datomic.q(q, DColl(Datomic.coll("John", "Smith"))) map {
       case (DString(firstname), DString(lastname)) =>
         firstname must beEqualTo("John")
         lastname must beEqualTo("Smith")
@@ -319,7 +319,7 @@ class DatomicQuerySpec extends Specification {
     val q = Query("""
       [:find ?firstname ?lastname :in $ :where [?firstname ?lastname]]
     """)
-    Datomic.q(q, DSet(DSet(DString("John"), DString("Smith")))) map {
+    Datomic.q(q, DColl(Datomic.coll("John", "Smith"))) map {
       case (DString(firstname), DString(lastname)) =>
         firstname must beEqualTo("John")
         lastname must beEqualTo("Smith")

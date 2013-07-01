@@ -100,9 +100,9 @@ trait QueryMacros {
     *
     * Datomic.q(
     *   q, database,
-    *   DSet(
-    *     DSet(DString("toto"), DLong(30L)),
-    *     DSet(DString("tutu"), DLong(54L))
+    *   DColl(
+    *     Datomic.coll("toto", 30L),
+    *     Datomic.coll("tutu", 54L)
     *   )
     * ) map {
     *   case (DLong(e), DString(n), DLong(a)) =>
@@ -138,9 +138,9 @@ trait QueryMacros {
     *
     * Datomic.q(
     *   q, database,
-    *   DSet(
-    *     DSet(DString("toto"), DLong(30L)),
-    *     DSet(DString("tutu"), DLong(54L))
+    *   DColl(
+    *     Datomic.coll("toto", 30L),
+    *     Datomic.coll("tutu", 54L)
     *   )
     * ) map {
     *   case (DLong(e), DString(n), DLong(a)) =>

@@ -161,21 +161,24 @@ object DId {
 }
 
 
-/** DSet is a Set but in order to be able to have several tempids in it, this is a seq */
-class DSet(elements: Set[DatomicData]) extends DatomicData {
+
+class DColl(coll: Iterable[DatomicData]) extends DatomicData {
   def toNative: AnyRef =
-    datomic.Util.list(elements.map(_.toNative).toSeq: _*)
+    datomic.Util.list(coll.map(_.toNative).toSeq : _*)
 
-  override def toString = elements.mkString("[", ", ", "]")
+  override def toString = coll.mkString("[", ", ", "]")
 
-  def toSet = elements
+  def toIterable = coll
+  def toSet = coll.toSet
+  def toSeq = coll.toSeq
 }
 
-object DSet {
-  def apply[DD <: DatomicData](set: Set[DD] = Set.empty) = new DSet(set map (_.asInstanceOf[DatomicData]))
-  def apply(dds: DatomicData*) = new DSet(dds.toSet)
+object DColl {
+  // def apply[DD <: DatomicData](set: Set[DD] = Set.empty) = new DColl(set map (_.asInstanceOf[DatomicData]))
+  def apply[DD <: DatomicData](coll: Iterable[DD] = Iterable.empty) = new DColl(coll)
+  def apply(dds: DatomicData*) = new DColl(dds)
 
-  def unapply(dset: DSet): Option[Set[DatomicData]] = Some(dset.toSet)
+  def unapply(dcoll: DColl): Option[Iterable[DatomicData]] = Some(dcoll.toIterable)
 }
 
 

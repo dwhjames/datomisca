@@ -34,7 +34,7 @@ case class ExciseEntity(
     )
 
     if(!attrs.isEmpty) 
-      m = m + (Keyword("attrs", Namespace.DB.EXCISE) -> DSet(attrs.map(DRef(_))))
+      m = m + (Keyword("attrs", Namespace.DB.EXCISE) -> DColl(attrs.map(DRef(_))))
 
     before.foreach{
       case Left(d: java.util.Date) => m = m + (Keyword("before", Namespace.DB.EXCISE) -> DInstant(d))

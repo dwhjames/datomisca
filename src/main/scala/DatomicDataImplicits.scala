@@ -74,8 +74,8 @@ trait FromDatomicImplicits {
 
   implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
 
-  implicit def DD2DSetTyped[DD <: DatomicData, T](implicit fdat: FromDatomicCast[T]): FromDatomic[DD, Set[T]] =
-    FromDatomic(_.asInstanceOf[DSet].toSet.map( fdat.from(_) ))
+  implicit def DD2DCollTyped[T](implicit fdat: FromDatomicCast[T]): FromDatomic[DColl, Set[T]] =
+    FromDatomic(_.toSet.map( fdat.from(_) ))
 }
 
 /**
@@ -145,9 +145,9 @@ trait ToDatomicImplicits {
   implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
     ToDatomic[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
 
-  implicit def DSet2SetWrites[C, A](implicit witness: C <:< Traversable[A], tdat: ToDatomicCast[A]) =
-    ToDatomic[DSet, C]{ (l: C) => 
-      DSet(witness(l).map{ (a: A) => Datomic.toDatomic(a)(tdat) }.toSet) 
+  implicit def DColl2SetWrites[C, A](implicit witness: C <:< Iterable[A], tdat: ToDatomicCast[A]) =
+    ToDatomic[DColl, C]{ (l: C) =>
+      DColl(witness(l).map{ (a: A) => Datomic.toDatomic(a)(tdat) })
     }
 
 }
