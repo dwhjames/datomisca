@@ -42,7 +42,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def add(id: DId)(prop: (Keyword, DWrapper)) = AddFact(id, prop._1, prop._2.underlying)
+  def add(id: DId)(prop: (Keyword, DWrapper)) = AddFact(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Add operation targeting a given [[DId]]
     *
@@ -58,7 +58,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def add(id: DLong)(prop: (Keyword, DWrapper)) = AddFact(DId(id), prop._1, prop._2.underlying)
+  def add(id: DLong)(prop: (Keyword, DWrapper)) = AddFact(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Add operation targeting a given [[DId]]
     *
@@ -74,7 +74,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def add(id: Long)(prop: (Keyword, DWrapper)) = AddFact(DId(DLong(id)), prop._1, prop._2.underlying)
+  def add(id: Long)(prop: (Keyword, DWrapper)) = AddFact(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Retract operation targeting a given [[DId]]
     *
@@ -90,7 +90,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract(id: DLong)(prop: (Keyword, DWrapper)) = RetractFact(id.underlying, prop._1, prop._2.underlying)
+  def retract(id: DLong)(prop: (Keyword, DWrapper)) = RetractFact(id.underlying, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Retract operation targeting a given [[datomisca.DId]]
     *
@@ -106,7 +106,7 @@ trait FactOps extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract(id: Long)(prop: (Keyword, DWrapper)) = RetractFact(id, prop._1, prop._2.underlying)
+  def retract(id: Long)(prop: (Keyword, DWrapper)) = RetractFact(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Helper: creates a special AddToEntity for creating a new Partition
     *
@@ -185,7 +185,7 @@ trait EntityOps extends DatomicTypeWrapper {
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     */
   def add(id: DId)(props: (Keyword, DWrapper)*) =
-    AddEntity(id)(props.map( t => (t._1, t._2.underlying) ): _*)
+    AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
 
   /** Creates a Multiple-"Add" targeting a single [[datomisca.DId]] from a simple Map[[[datomisca.Keyword]], [[datomisca.DatomicData]]]
     *
@@ -234,7 +234,7 @@ trait EntityOps extends DatomicTypeWrapper {
     *              where value can be a simple Scala type which can be converted into a DatomicData
     */
   def partialAdd(props: (Keyword, DWrapper)*) =
-    PartialAddEntity(props.map( t => (t._1, t._2.underlying) ).toMap)
+    PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)
 
   /** Macro-based helper to create Datomic AddToEntity compiled from a Clojure String extended with Scala variables.
     *
