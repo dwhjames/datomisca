@@ -20,17 +20,17 @@ class DatomicMapping2Spec extends Specification {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  case class Person(id: Long, name: String, age: Long, birth: java.util.Date, characters: Set[DRef], specialChar: DRef, dog: Option[Dog] = None, doggies: Set[Dog])
+  case class Person(id: Long, name: String, age: Long, birth: java.util.Date, characters: Set[Keyword], specialChar: Keyword, dog: Option[Dog] = None, doggies: Set[Dog])
   case class Dog(id: Option[Long], name: String, age: Long)
 
   case class Person2(
     id: Long, name: String, age: Long, birth: java.util.Date, 
-    characters: Set[DRef], specialChar: DRef, 
+    characters: Set[Keyword], specialChar: Keyword,
     dog: Option[Long] = None, doggies: Set[Long])
 
   case class Person3(
     id: Long, name: String, age: Long, birth: java.util.Date, 
-    characters: Set[DRef], specialChar: DRef, 
+    characters: Set[Keyword], specialChar: Keyword,
     dog: Option[Long] = None, doggies: Option[Set[Long]] = None)
 
   val person = new Namespace("person") {
@@ -81,8 +81,8 @@ class DatomicMapping2Spec extends Specification {
     PersonSchema.name       .read[String]         and 
     PersonSchema.age        .read[Long]           and
     PersonSchema.birth      .read[java.util.Date] and
-    PersonSchema.characters .read[Set[DRef]]      and
-    PersonSchema.specialChar.read[DRef]           and
+    PersonSchema.characters .read[Set[Keyword]]   and
+    PersonSchema.specialChar.read[Keyword]        and
     PersonSchema.dog        .readOpt[Dog]         and
     PersonSchema.doggies    .read[Set[Dog]]
   )(Person)
@@ -92,8 +92,8 @@ class DatomicMapping2Spec extends Specification {
     PersonSchema.name       .read[String]         and 
     PersonSchema.age        .read[Long]           and
     PersonSchema.birth      .read[java.util.Date] and
-    PersonSchema.characters .read[Set[DRef]]      and
-    PersonSchema.specialChar.read[DRef]           and
+    PersonSchema.characters .read[Set[Keyword]]   and
+    PersonSchema.specialChar.read[Keyword]        and
     PersonSchema.dog        .readOpt[Long]        and
     PersonSchema.doggies    .read[Set[Long]]
   )(Person2)
@@ -103,8 +103,8 @@ class DatomicMapping2Spec extends Specification {
     PersonSchema.name       .read[String]         and 
     PersonSchema.age        .read[Long]           and
     PersonSchema.birth      .read[java.util.Date] and
-    PersonSchema.characters .read[Set[DRef]]      and
-    PersonSchema.specialChar.read[DRef]           and
+    PersonSchema.characters .read[Set[Keyword]]   and
+    PersonSchema.specialChar.read[Keyword]        and
     PersonSchema.dog        .readOpt[Long]        and
     PersonSchema.doggies    .readOpt[Set[Long]]
   )(Person3)
@@ -140,18 +140,18 @@ class DatomicMapping2Spec extends Specification {
 
   val toto = Person(
     0L, "toto", 30L, birthDate, 
-    Set(violent.ref, weak.ref), clever.ref, Some(medor), Set(doggy1, doggy2, doggy3)
+    Set(violent.ident, weak.ident), clever.ident, Some(medor), Set(doggy1, doggy2, doggy3)
   )
   val totobis = Person2(
     0L, "toto", 30L, birthDate, 
-    Set(violent.ref, weak.ref), clever.ref, None, Set()
+    Set(violent.ident, weak.ident), clever.ident, None, Set()
   )
   val totoId = DId(Partition.USER)
   var realTotoId: Long = _
 
   val toto2 = Person3(
     0L, "toto2", 30L, birthDate, 
-    Set(violent.ref, weak.ref), clever.ref, None, None
+    Set(violent.ident, weak.ident), clever.ident, None, None
   )
   val toto2Id = DId(Partition.USER)
   var realToto2Id: Long = _
@@ -316,7 +316,7 @@ class DatomicMapping2Spec extends Specification {
           entity.as[Long](person / "age") must beEqualTo(30)
 
           val characters  = entity(PersonSchema.characters)
-          val characters2 = entity.getAs[Set[DRef]](person / "characters")
+          val characters2 = entity.getAs[Set[Keyword]](person / "characters")
 
           entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
 

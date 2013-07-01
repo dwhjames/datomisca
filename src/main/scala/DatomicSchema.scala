@@ -71,6 +71,10 @@ case object SchemaTypeBytes extends SchemaType[DBytes] {
   def keyword = Keyword(Namespace.DB.TYPE, "bytes")
 }
 
+case object SchemaTypeKeyword extends SchemaType[DKeyword] {
+  def keyword = Keyword(Namespace.DB.TYPE, "keyword")
+}
+
 //case class SchemaType(keyword: Keyword)
 
 object SchemaType {
@@ -86,6 +90,7 @@ object SchemaType {
   val uuid = SchemaTypeUuid //SchemaType(Keyword(Namespace.DB.TYPE, "uuid"))
   val uri = SchemaTypeUri //SchemaType(Keyword(Namespace.DB.TYPE, "uri"))
   val bytes = SchemaTypeBytes //SchemaType(Keyword(Namespace.DB.TYPE, "bytes"))
+  val keyword = SchemaTypeKeyword
 }
 
 trait Cardinality {
