@@ -70,9 +70,9 @@ class TypedAddDbFunction6[A:ToDatomicCast, B:ToDatomicCast, C:ToDatomicCast, D:T
  * Construct a vanila database function.
  */
 object AddDbFunction {
-  def apply(kw: Keyword, partition: Partition = Partition.USER)
+  def apply(kw: Keyword)
            (params: String*)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new AddDbFunction(kw, lang, params, code, imports, requires, partition)
 }
@@ -84,15 +84,15 @@ object AddDbFunction {
  * the remaining arguments.
  */
 object AddTxFunction {
-  def apply(kw: Keyword, partition: Partition = Partition.USER)
+  def apply(kw: Keyword)
            (params: String*)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new AddDbFunction(kw, lang, params, code, imports, requires, partition)
 
   def typed(kw: Keyword)
            (param: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction0(
       new AddDbFunction(kw, lang, Seq(param), code))
@@ -100,7 +100,7 @@ object AddTxFunction {
   def typed[A : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction1[A](
       new AddDbFunction(kw, lang, Seq(param1, param2), code))
@@ -109,7 +109,7 @@ object AddTxFunction {
             B : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction2[A, B](new AddDbFunction(kw, lang, Seq(param1, param2, param3), code))
 
@@ -118,7 +118,7 @@ object AddTxFunction {
             C : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction3[A, B, C](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4), code))
@@ -129,7 +129,7 @@ object AddTxFunction {
             D : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String, param5: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction4[A, B, C, D](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5), code))
@@ -141,7 +141,7 @@ object AddTxFunction {
             E : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String, param5: String, param6: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction5[A, B, C, D, E](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5, param6), code))
@@ -154,7 +154,7 @@ object AddTxFunction {
             F : ToDatomicCast]
            (kw: Keyword)
            (param1: String, param2: String, param3: String, param4: String, param5: String, param6: String, param7: String)
-           (lang: String, imports: String = "", requires: String = "")
+           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
     new TypedAddDbFunction6[A, B, C, D, E, F](
       new AddDbFunction(kw, lang, Seq(param1, param2, param3, param4, param5, param6, param7), code))
