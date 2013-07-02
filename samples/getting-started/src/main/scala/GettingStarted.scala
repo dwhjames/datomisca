@@ -216,7 +216,7 @@ object GettingStarted {
              * a type of our choice. The type must be consistent
              * with the type defined by the attribute.
              */
-            val interests = entity.read[Set[DRef]](PersonSchema.interests)
+            val interests = entity.read[Set[Keyword]](PersonSchema.interests)
             assert(interests.size == 2)
 
             println(s"""$name's

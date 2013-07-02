@@ -34,7 +34,7 @@ case class ExciseEntity(
     )
 
     if(!attrs.isEmpty) 
-      m = m + (Keyword("attrs", Namespace.DB.EXCISE) -> DColl(attrs.map(DRef(_))))
+      m = m + (Keyword("attrs", Namespace.DB.EXCISE) -> DColl(attrs.map(DKeyword.apply)))
 
     before.foreach{
       case Left(d: java.util.Date) => m = m + (Keyword("before", Namespace.DB.EXCISE) -> DInstant(d))
@@ -63,19 +63,19 @@ case class ExciseAttr(
       case None => // BE CAREFUL it excises All Values of An Attribute
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, excisionId.toNative,
-          Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative
+          Keyword("excise", Namespace.DB).toNative, attr.toNative
         )
       case Some(Left(d)) =>
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, excisionId.toNative,
-          Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative,
+          Keyword("excise", Namespace.DB).toNative, attr.toNative,
           Keyword("before", Namespace.DB.EXCISE).toNative, DInstant(d).toNative
         )
 
       case Some(Right(tx)) =>
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, excisionId.toNative,
-          Keyword("excise", Namespace.DB).toNative, DRef(attr).toNative,
+          Keyword("excise", Namespace.DB).toNative, attr.toNative,
           Keyword("beforeT", Namespace.DB.EXCISE).toNative, DLong(tx).toNative
         )
     }

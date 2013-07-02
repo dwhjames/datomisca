@@ -217,6 +217,27 @@ trait Attribute2EntityReaderCastImplicits {
         }
     }
 
+  implicit val attr2EntityReaderCastKeyword =
+    new Attribute2EntityReaderCast[DRef, CardinalityOne.type, Keyword] {
+      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Keyword] =
+        EntityReader { entity =>
+          entity(attr.ident).asInstanceOf[DKeyword].underlying
+        }
+    }
+
+  implicit val attr2EntityReaderCastManyKeyword =
+    new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[Keyword]] {
+      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Keyword]] =
+        EntityReader { entity =>
+          entity.get(attr.ident) map { case DColl(elems) =>
+            elems.map {
+              case DKeyword(keyword) => keyword
+              case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
+            } .toSet
+          } getOrElse (Set.empty)
+        }
+    }
+
   /*
    * we need to have an entity reader for type A in scope
    * we can read the ref value of an attribute as an entity

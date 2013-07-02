@@ -50,6 +50,7 @@ private[datomisca] trait FromDatomicInjImplicits {
   implicit val DUuid2UUID:              FromDatomicInj[DUuid,    UUID]        = FromDatomicInj(_.underlying)
   implicit val DUri2URI:                FromDatomicInj[DUri,     URI]         = FromDatomicInj(_.underlying)
   implicit val DBytes2Bytes:            FromDatomicInj[DBytes,   Array[Byte]] = FromDatomicInj(_.underlying)
+  implicit val DKeyword2Keyword:        FromDatomicInj[DKeyword, Keyword]     = FromDatomicInj(_.underlying)
 
 }
 
@@ -111,6 +112,7 @@ trait ToDatomicInjImplicits {
   implicit val UUID2DUuid       = ToDatomicInj[DUuid,    UUID]        ((u: UUID)        => DUuid(u))
   implicit val URI2DUri         = ToDatomicInj[DUri,     URI]         ((u: URI)         => DUri(u))
   implicit val Bytes2DBytes     = ToDatomicInj[DBytes,   Array[Byte]] ((a: Array[Byte]) => DBytes(a))
+  implicit val Keyword2DKeyword = ToDatomicInj[DKeyword, Keyword]     ((k: Keyword)     => DKeyword(k))
 
   implicit val WriteDRef        = ToDatomicInj[DRef,     DRef]        ((d: DRef)        => d)
 
