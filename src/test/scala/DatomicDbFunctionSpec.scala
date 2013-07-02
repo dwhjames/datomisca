@@ -38,15 +38,15 @@ class DatomicDbFunctionSpec extends Specification {
       val maybeRes = Datomic.transact(Data.txData).flatMap{ tx =>
         val fooEntity = database.entity(Data.foo.ident)
 
-        fooEntity(Namespace.DB / "ident") must beEqualTo(DRef(KW(":foo")))
+        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
 
         Datomic.transact(
-          InvokeTxFunction(Data.addDocFn.ident)(DRef(Data.foo.ident), DString("this is foo's doc"))
+          InvokeTxFunction(Data.addDocFn.ident)(Data.foo.ref, DString("this is foo's doc"))
         ).map{ tx =>
           val fooEntity = database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)
 
-          fooEntity(Namespace.DB / "ident") must beEqualTo(DRef(KW(":foo")))
+          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
           fooEntity(Namespace.DB / "doc") must beEqualTo(DString("this is foo's doc"))
 
           success
@@ -262,7 +262,7 @@ class DatomicDbFunctionSpec extends Specification {
       val maybeRes = Datomic.transact(Data.txData).flatMap{ tx =>
         val fooEntity = database.entity(Data.foo.ident)
 
-        fooEntity(Namespace.DB / "ident") must beEqualTo(DRef(KW(":foo")))
+        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
 
         Datomic.transact(
           InvokeTxFunction(Data.addDocFn)(Data.foo, "this is foo's doc")
@@ -270,7 +270,7 @@ class DatomicDbFunctionSpec extends Specification {
           val fooEntity = database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)
 
-          fooEntity(Namespace.DB / "ident") must beEqualTo(DRef(KW(":foo")))
+          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
           fooEntity(Namespace.DB / "doc") must beEqualTo(DString("this is foo's doc"))
 
           success

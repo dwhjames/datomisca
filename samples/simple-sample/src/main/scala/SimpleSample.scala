@@ -94,7 +94,7 @@ object GettingStarted {
             val johnName = entity.as[String](Person.person / "name")
             val johnAge = entity.as[Long](Person.person / "age")
             val johnBirth = entity.as[java.util.Date](Person.person / "birth")
-            val johnCharacters = entity.as[Set[DRef]](Person.person / "characters")
+            val johnCharacters = entity.as[Set[Keyword]](Person.person / "characters")
 
             println(s"john: $johnName $johnAge $johnBirth $johnCharacters")
         }

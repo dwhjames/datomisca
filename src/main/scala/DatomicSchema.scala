@@ -71,6 +71,10 @@ case object SchemaTypeBytes extends SchemaType[DBytes] {
   def keyword = Keyword(Namespace.DB.TYPE, "bytes")
 }
 
+case object SchemaTypeKeyword extends SchemaType[DKeyword] {
+  def keyword = Keyword(Namespace.DB.TYPE, "keyword")
+}
+
 //case class SchemaType(keyword: Keyword)
 
 object SchemaType {
@@ -86,6 +90,7 @@ object SchemaType {
   val uuid = SchemaTypeUuid //SchemaType(Keyword(Namespace.DB.TYPE, "uuid"))
   val uri = SchemaTypeUri //SchemaType(Keyword(Namespace.DB.TYPE, "uri"))
   val bytes = SchemaTypeBytes //SchemaType(Keyword(Namespace.DB.TYPE, "bytes"))
+  val keyword = SchemaTypeKeyword
 }
 
 trait Cardinality {
@@ -141,19 +146,19 @@ case class Attribute[DD <: DatomicData, Card <: Cardinality](
   lazy val toAddOps: AddEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
       Attribute.id -> id,
-      Attribute.ident -> DRef(ident),
-      Attribute.valueType -> DRef(valueType.keyword),
-      Attribute.cardinality -> DRef(cardinality.keyword)
+      Attribute.ident -> DKeyword(ident),
+      Attribute.valueType -> DKeyword(valueType.keyword),
+      Attribute.cardinality -> DKeyword(cardinality.keyword)
     ))
     if(doc.isDefined) mb += Attribute.doc -> DString(doc.get)
-    if(unique.isDefined) mb += Attribute.unique -> DRef(unique.get.keyword)
+    if(unique.isDefined) mb += Attribute.unique -> DKeyword(unique.get.keyword)
     if(index.isDefined) mb += Attribute.index -> DBoolean(index.get)
     if(fulltext.isDefined) mb += Attribute.fulltext -> DBoolean(fulltext.get)
     if(isComponent.isDefined) mb += Attribute.isComponent -> DBoolean(isComponent.get)
     if(noHistory.isDefined) mb += Attribute.noHistory -> DBoolean(noHistory.get)
     
     // installing attribute
-    mb += Attribute.installAttr -> DRef(Partition.DB.keyword)
+    mb += Attribute.installAttr -> DKeyword(Partition.DB.keyword)
 
     AddEntity(id, mb.result())
   }
@@ -164,16 +169,16 @@ case class Attribute[DD <: DatomicData, Card <: Cardinality](
   def stringify = s"""
 { 
   ${Attribute.id} $id
-  ${Attribute.ident} ${DRef(ident)}
-  ${Attribute.valueType} ${DRef(valueType.keyword)}
-  ${Attribute.cardinality} ${DRef(cardinality.keyword)}""" +
+  ${Attribute.ident} ${DKeyword(ident)}
+  ${Attribute.valueType} ${DKeyword(valueType.keyword)}
+  ${Attribute.cardinality} ${DKeyword(cardinality.keyword)}""" +
   ( if(doc.isDefined) { "\n  " + Attribute.doc + " " + DString(doc.get) } else { "" } ) +
-  ( if(unique.isDefined) { "\n  " + Attribute.unique + " " + DRef(unique.get.keyword) } else { "" } ) +
+  ( if(unique.isDefined) { "\n  " + Attribute.unique + " " + DKeyword(unique.get.keyword) } else { "" } ) +
   ( if(index.isDefined) { "\n  " + Attribute.index + " " + DBoolean(index.get) } else { "" }) +
   ( if(fulltext.isDefined) { "\n  " + Attribute.fulltext + " " + DBoolean(fulltext.get) } else { "" }) +
   ( if(isComponent.isDefined) { "\n  " + Attribute.isComponent + " " + DBoolean(isComponent.get) } else { "" }) +
   ( if(noHistory.isDefined) { "\n  " + Attribute.noHistory + " " + DBoolean(noHistory.get) } else { "" }) +
-  "\n  " + Attribute.installAttr + " " + DRef(Partition.DB.keyword) + 
+  "\n  " + Attribute.installAttr + " " + DKeyword(Partition.DB.keyword) + 
   "\n}"
 
 } 

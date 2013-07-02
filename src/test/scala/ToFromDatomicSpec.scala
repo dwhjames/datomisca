@@ -7,7 +7,7 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import datomisca._
-import Datomic.{toDatomic, fromDatomic}
+import Datomic.{toDatomic, fromDatomic, KW}
 import DatomicMapping._
 
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
@@ -29,6 +29,7 @@ class ToFromDatomicSpec extends Specification {
   val attruuid    = Attribute(ns / "uuid",    SchemaType.uuid,    Cardinality.one)
   val attruri     = Attribute(ns / "uri",     SchemaType.uri,     Cardinality.one)
   val attrbytes   = Attribute(ns / "bytes",   SchemaType.bytes,   Cardinality.one)
+  val attrkeyword = Attribute(ns / "keyword", SchemaType.keyword, Cardinality.one)
 
   "ToDatomicCast" can {
 
@@ -49,6 +50,8 @@ class ToFromDatomicSpec extends Specification {
       toDatomic(DUri(new URI("urn:isbn:096139210x"))) must beAnInstanceOf[DUri]
 
       toDatomic(DBytes(Array(Byte.MinValue))) must beAnInstanceOf[DBytes]
+
+      toDatomic(DKeyword(KW(":my-kw"))) must beAnInstanceOf[DKeyword]
 
       success
     }
@@ -80,6 +83,8 @@ class ToFromDatomicSpec extends Specification {
 
       toDatomic(Array(Byte.MinValue)) must beAnInstanceOf[DBytes]
 
+      toDatomic(KW(":my-kw")) must beAnInstanceOf[DKeyword]
+
       success
     }
   }
@@ -104,6 +109,7 @@ class ToFromDatomicSpec extends Specification {
       SchemaFact.add(id)(attruuid    -> UUID.randomUUID())
       SchemaFact.add(id)(attruri     -> new URI("urn:isbn:096139210x"))
       SchemaFact.add(id)(attrbytes   -> Array(Byte.MinValue))
+      SchemaFact.add(id)(attrkeyword -> KW(":my-kw"))
 
       // extensions
       SchemaFact.add(id)(attrlong -> Int.MinValue)
@@ -139,6 +145,8 @@ class ToFromDatomicSpec extends Specification {
 
       DBytes(Array(Byte.MinValue)).as[DBytes]
 
+      DKeyword(KW(":my-kw")).as[DKeyword]
+
       success
     }
 
@@ -167,6 +175,8 @@ class ToFromDatomicSpec extends Specification {
       DUri(new URI("urn:isbn:096139210x")).as[URI]
 
       DBytes(Array(Byte.MinValue)).as[Array[Byte]]
+
+      DKeyword(KW(":my-kw")).as[Keyword]
 
       success
     }
@@ -197,6 +207,7 @@ class ToFromDatomicSpec extends Specification {
         val uuid:    UUID        = entity.read[UUID]       (attruuid)
         val uri:     URI         = entity.read[URI]        (attruri)
         val bytes:   Array[Byte] = entity.read[Array[Byte]](attrbytes)
+        val keyword: Keyword     = entity.read[Keyword]    (attrkeyword)
 
         // extensions
         val int:   Int   = entity.read[Int]  (attrlong)
@@ -228,6 +239,7 @@ class ToFromDatomicSpec extends Specification {
         val uuid    = entity.read[DUuid](attruuid)
         val uri     = entity.read[DUri](attruri)
         val bytes   = entity.read[DBytes](attrbytes)
+        val keyword = entity.read[DKeyword](attrkeyword)
       } must throwA[NullPointerException]
 
       success
@@ -254,6 +266,8 @@ class ToFromDatomicSpec extends Specification {
       val uri: URI = fromDatomic(DUri(new URI("urn:isbn:096139210x")))
 
       val bytes: Array[Byte] = fromDatomic(DBytes(Array(Byte.MinValue)))
+
+      val keyword: Keyword = fromDatomic(DKeyword(KW(":my-kw")))
 
       success
     }
@@ -283,6 +297,7 @@ class ToFromDatomicSpec extends Specification {
         val uuid: UUID         = entity(attruuid)
         val uri: URI           = entity(attruri)
         val bytes: Array[Byte] = entity(attrbytes)
+        val keyword: Keyword   = entity(attrkeyword)
       } must throwA[NullPointerException]
 
       success

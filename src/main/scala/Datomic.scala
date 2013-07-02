@@ -243,28 +243,38 @@ trait DatomicFacilities extends DatomicTypeWrapper{
 
   /** Converts any data to a Datomic Data (or not if not possible) */
   def toDatomicData(v: Any): DatomicData = v match {
+    // :db.type/string
     case s: String => DString(s)
+    // :db.type/boolean
     case b: Boolean => DBoolean(b)
-    case i: Int => DLong(i)
+    // :db.type/long
     case l: Long => DLong(l)
+    // :db.type/float
     case f: Float => DFloat(f)
+    // :db.type/double
     case d: Double => DDouble(d)
-    case bi: BigInt => DBigInt(bi)
-    case bd: BigDecimal => DBigDec(bd)
+    // :db.type/bigint
     case bi: java.math.BigInteger => DBigInt(BigInt(bi))
+    // :db.type/bigdec
     case bd: java.math.BigDecimal => DBigDec(BigDecimal(bd))
+    // :db.type/instant
     case d: java.util.Date => DInstant(d)
+    // :db.type/uuid
     case u: java.util.UUID => DUuid(u)
+    // :db.type/uri
     case u: java.net.URI => DUri(u)
+    // :db.type/keyword
     case kw: clojure.lang.Keyword => 
-      DRef(Keyword(kw.getName, Option(kw.getNamespace).map(Namespace(_))))
+      DKeyword(Keyword(kw.getName, Option(kw.getNamespace).map(Namespace(_))))
+    // :db.type/bytes
+    case bytes: Array[Byte] => DBytes(bytes)
+    // an entity map
     case e: datomic.Entity => DEntity(e)
+    // a collection
     case coll: java.util.Collection[_] =>
       import scala.collection.JavaConverters._
       new DColl(coll.asScala.map(toDatomicData(_)))
-
-    //DRef(DId(e.get(Keyword("id", Namespace.DB).toNative).asInstanceOf[Long]))
-    // REF???
+    // otherwise
     case v => throw new UnexpectedDatomicTypeException(v.getClass.getName)
   }
 
