@@ -41,7 +41,7 @@ class DatomicDbFunctionSpec extends Specification {
         fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
 
         Datomic.transact(
-          InvokeTxFunction(Data.addDocFn.ident)(DRef(Data.foo.ident), DString("this is foo's doc"))
+          InvokeTxFunction(Data.addDocFn.ident)(Data.foo.ref, DString("this is foo's doc"))
         ).map{ tx =>
           val fooEntity = database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)

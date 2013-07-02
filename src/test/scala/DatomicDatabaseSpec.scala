@@ -156,7 +156,7 @@ class DatomicDatabaseSpec extends Specification {
               ]
             """),
             Datomic.database,
-            DRef(user / "email"),
+            DKeyword(user / "email"),
             DString("jdoe@example.com")
           ) map {
             case DLong(e) =>

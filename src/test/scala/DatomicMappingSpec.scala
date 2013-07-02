@@ -231,7 +231,7 @@ class DatomicMappingSpec extends Specification {
           entity.as[Long](person / "age") must beEqualTo(30)
 
           val characters  = entity(PersonSchema.characters)
-          val characters2 = entity.getAs[Set[DRef]](person / "characters")
+          val characters2 = entity.getAs[Set[DKeyword]](person / "characters")
 
           entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
 
@@ -385,7 +385,6 @@ class DatomicMappingSpec extends Specification {
       implicit val conn = Datomic.connect(uri)
 
       val rd  = PersonSchema.dog.read[IdView[DEntity]]
-      val rd2 = PersonSchema.dog.read[DRef]
       val rd3 = PersonSchema.dog.read[Long]
 
       success
