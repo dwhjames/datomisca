@@ -248,8 +248,3 @@ trait DatomicDataToArgs[T] {
 }
 
 object DatomicDataToArgs extends DatomicDataToArgsImplicitsHidden
-
-trait DatomicExecutor {
-  type F[_]
-  def execute: F[_]
-}
