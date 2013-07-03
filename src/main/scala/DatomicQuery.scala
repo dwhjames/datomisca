@@ -164,7 +164,7 @@ case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends 
 /* DATOMIC QUERY */
 object QueryExecutor {
 
-  private[datomisca] def directQuery[InArgs <: Args](q: Query, in: InArgs): List[List[DatomicData]] = {
+  private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]): List[List[DatomicData]] = {
     import scala.collection.JavaConversions._
 
     // serializes query
@@ -179,7 +179,7 @@ object QueryExecutor {
     }
   }
 
-  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[Object])(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
+  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[AnyRef])(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
     import scala.collection.JavaConverters._
 
@@ -201,11 +201,8 @@ object QueryExecutor {
 }
 
 trait QueryExecutorPure {
-  def q(query: PureQuery, dataSource: DatomicData) =
-    QueryExecutor.directQuery(query, Args1(dataSource))
-
-  def q[InArgs <: Args](query: PureQuery, in: InArgs) =
-    QueryExecutor.directQuery(query, in)
+  def q(query: PureQuery, in: DatomicData*) =
+    QueryExecutor.directQuery(query, in.map(_.toNative))
 }
 
 
