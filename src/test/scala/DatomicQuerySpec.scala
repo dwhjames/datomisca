@@ -61,7 +61,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      val q = Query.manual[Args0, Args1]("""
+      val q = Query("""
         [:find ?e :where [?e :person/name]]
       """)
       Datomic.q(q, database) map {
@@ -77,7 +77,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.q(Query.manual[Args2, Args1]("""
+      Datomic.q(Query("""
         [
          :find ?e
          :in $ [?names ...]
@@ -95,7 +95,7 @@ class DatomicQuerySpec extends Specification {
     "4 - typed query with rule with list of tuple inputs" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Query.manual[Args2, Args3]("""
+      val q = Query("""
         [
          :find ?e ?name ?age
          :in $ [[?name ?age]]
@@ -120,7 +120,7 @@ class DatomicQuerySpec extends Specification {
     "5 - typed query with fulltext query" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Query.manual[Args0, Args2]("""
+      val q = Query("""
         [
          :find ?e ?n
          :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
@@ -191,7 +191,7 @@ class DatomicQuerySpec extends Specification {
         ] ]
       """)
 
-      val q = Query.manual[Args2, Args2]("""
+      val q = Query("""
         [
           :find ?e ?age
           :in $ %
@@ -210,7 +210,7 @@ class DatomicQuerySpec extends Specification {
     "9 - query with with" in {
       implicit val conn = Datomic.connect(uri)
 
-      val q = Query.manual[Args0, Args2]("""
+      val q = Query("""
         [ :find ?e ?n
           :with ?age
           :where  [ ?e :person/name ?n ]

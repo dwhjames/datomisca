@@ -139,7 +139,7 @@ class DatomicTxSpec extends Specification {
         ) map { tx => 
           println(s"Provisioned more data... TX: $tx")
 
-          Datomic.q(Query.manual[Args0, Args1]("""
+          Datomic.q(Query("""
             [ :find ?e 
               :where [ ?e :person/friend ?f ]
                      [ ?f :person/name "toto" ]
@@ -199,7 +199,7 @@ class DatomicTxSpec extends Specification {
         ) map { tx => 
           println(s"2 Provisioned more data... TX: $tx")
 
-          Datomic.q(Query.manual[Args0, Args1]("""
+          Datomic.q(Query("""
             [ :find ?e 
               :where [ ?e :person/friend ?f ]
                      [ ?f :person/name "toto" ]

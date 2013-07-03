@@ -24,7 +24,7 @@ import scala.util.parsing.input.Positional
 
 import dmacros._
 
-trait DatomicQueryExecutor extends QueryExecutorPure with QueryExecutorInOut with QueryExecutorAuto with ArgsImplicits
+trait DatomicQueryExecutor extends QueryExecutorPure with QueryExecutorAuto with ArgsImplicits
 
 /* DATOMIC QUERY */
 trait Query {
@@ -42,7 +42,6 @@ object Query extends QueryMacros {
   def apply(find: Find, in: Option[In], where: Where): PureQuery = PureQuery(find, None, in, where)
   def apply(find: Find, wizz: With, in: In, where: Where): PureQuery = PureQuery(find, Some(wizz), Some(in), where)
   def apply(find: Find, wizz: Option[With], in: Option[In], where: Where): PureQuery = PureQuery(find, wizz, in, where)
-  //def apply[In <: Args, Out <: Args](q: PureQuery): TypedQuery[In, Out] = TypedQuery[In, Out](q)
 }
 
 
@@ -113,43 +112,6 @@ trait QueryMacros {
   def auto(q: String) = macro DatomicQueryMacro.autoTypedQueryImpl
   def apply(q: String) = macro DatomicQueryMacro.autoTypedQueryImpl
 
-  /** Creates a macro-based compile-time typed query from a String:
-    *    - syntax validation is performed.
-    *    - type validation (for the time being, number of input/output args, later much more)
-    *
-    * '''Keep in mind a query is an immutable data structure that you can manipulate'''
-    *
-    * A ``TypedQuery[InArgs, OutArgs] takes 2 type parameters:
-    *     - InArgs <: Args defining the number of input args
-    *     - OutArgs <: args defining the number of output args
-    *
-    * When a [[TypedQuery]] is executed, it returns a `List[TupleX[DatomicData, DatomicData, ...]]` where X corresponds
-    * to the number of output parameters
-    *
-    * {{{
-    * val q = Datomic.Query.manual[Args2, Args3]("""
-    *   [
-    *    :find ?e ?name ?age
-    *    :in $ [[?name ?age]]
-    *    :where [?e :person/name ?name]
-    *           [?e :person/age ?age]
-    *   ]
-    * """)
-    *
-    * Datomic.q(
-    *   q, database,
-    *   DColl(
-    *     Datomic.coll("toto", 30L),
-    *     Datomic.coll("tutu", 54L)
-    *   )
-    * ) map {
-    *   case (DLong(e), DString(n), DLong(a)) =>
-    *      ...
-    * }
-    * }}}
-    */
-  def manual[A <: Args, B <: Args](q: String): TypedQueryInOut[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
-
 
   //def typedQuery[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
 
@@ -195,23 +157,6 @@ case class PureQuery(override val find: Find, override val wizz: Option[With] = 
     }
   }
 
-}
-
-case class TypedQueryInOut[InArgs <: Args, OutArgs <: Args](query: PureQuery) extends Query {
-  self =>
-  override def find = query.find
-  override def wizz = query.wizz
-  override def in = query.in
-  override def where = query.where
-
-  private[datomisca] def prepare[T]()(implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T], tf: ToFunction[InArgs, List[T]]) = {
-    new DatomicExecutor {
-      type F[_] = tf.F[List[T]]
-      def execute = tf.convert(
-        ((in: InArgs) => QueryExecutor.directQueryInOut(self, in)).andThen((t: List[OutArgs]) => t.map( out => ott.convert(out)) )
-      )
-    }
-  }
 }
 
 abstract class TypedQueryAuto(query: PureQuery) extends Query {
@@ -297,14 +242,6 @@ trait QueryExecutorPure {
     QueryExecutor.directQuery(query, in)
 }
 
-trait QueryExecutorInOut extends DatomicQueryHidden {
-  @deprecated("use this one only on purpose", "")
-  def q[OutArgs <: Args, T](query: TypedQueryInOut[Args0, OutArgs], db: DDatabase)(
-    implicit outConv: DatomicDataToArgs[OutArgs], ott: ArgsToTuple[OutArgs, T]
-  ) = TypedQueryInOut[Args1, OutArgs](query.query).prepare[T]()(outConv, ott, ArgsImplicits.toF1[List[T]]).execute(db)
-
-  // .. others are in DatomicQueryHidden
-}
 
 trait QueryExecutorAuto extends ToDatomicCastImplicits{
   /*def q[R](query: TypedQueryAuto0[R])(
@@ -342,17 +279,6 @@ trait QueryExecutorAuto extends ToDatomicCastImplicits{
 
 }
 
-
-/**
- * Converts a function In => Out into another function
- * that returns Out but takes other input parameters
- * built from In
- */
-trait ToFunction[In <: Args, Out] {
-  type F[Out]
-  def convert(from: (In => Out)): F[Out]
-}
-
 /**
  * Convert Args into a Tuple
  */
@@ -374,14 +300,7 @@ trait DatomicExecutor {
 
 object ArgsImplicits extends ArgsImplicits
 
-trait ArgsImplicits extends ToFunctionImplicits with DatomicDataToArgsImplicits with ArgsToTupleImplicits
-
-trait ToFunctionImplicits extends ToFunctionImplicitsHidden {
-  implicit def toF0[Out] = new ToFunction[Args0, Out] {
-    type F[Out] = Function0[Out]
-    def convert(f: (Args0 => Out)): F[Out] = () => f(Args0())
-  }
-}
+trait ArgsImplicits extends DatomicDataToArgsImplicits with ArgsToTupleImplicits
 
 trait DatomicDataToArgsImplicits extends DatomicDataToArgsImplicitsHidden {
 

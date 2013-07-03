@@ -230,15 +230,6 @@ trait DatomicInception {
         )
       }
 
-      def incept[A <: Args, B <: Args](q: TypedQueryInOut[A, B]): c.universe.Tree = {
-        Apply(
-          Ident(newTermName("TypedQueryInOut")), 
-          List(
-            incept(q.query)
-          )
-        )
-      }
-
       def incept(se: ScalaExpr): c.universe.Tree = {
         val compiled = c.parse(se.expr)
 
