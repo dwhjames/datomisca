@@ -24,7 +24,7 @@ import scala.util.parsing.input.Positional
 
 import dmacros._
 
-trait DatomicQueryExecutor extends QueryExecutorPure with QueryExecutorAuto with ArgsImplicits
+trait DatomicQueryExecutor extends QueryExecutorPure with QueryExecutorAuto
 
 /* DATOMIC QUERY */
 trait Query {
@@ -246,46 +246,19 @@ trait QueryExecutorAuto extends ToDatomicCastImplicits{
 }
 
 /**
- * Convert Args into a Tuple
- */
-trait ArgsToTuple[A <: Args, T] {
-  def convert(from: A): T
-}
-
-/**
  * Converts a Seq[DatomicData] into an Args with potential error (exception)
  */
 trait DatomicDataToArgs[T] {
   def toArgs(l: Seq[DatomicData]): T
 }
 
+object DatomicDataToArgs extends DatomicDataToArgsImplicitsHidden
+
 trait DatomicExecutor {
   type F[_]
   def execute: F[_]
 }
 
-object ArgsImplicits extends ArgsImplicits
-
-trait ArgsImplicits extends DatomicDataToArgsImplicits with ArgsToTupleImplicits
-
-trait DatomicDataToArgsImplicits extends DatomicDataToArgsImplicitsHidden {
-
-  implicit object DatomicDataToArgs1 extends DatomicDataToArgs[Args1] {
-    def toArgs(l: Seq[DatomicData]): Args1 = l match {
-      case List(_1) => Args1(_1)
-      case _ => throw new RuntimeException("Could convert Seq to Args1")
-    }
-  }
-
-}
-
-trait ArgsToTupleImplicits extends ArgsToTupleImplicitsHidden {
-
-  implicit def Args1ToTuple = new ArgsToTuple[Args1, DatomicData] {
-    def convert(from: Args1) = from._1
-  }
-
-}
 
 
 sealed trait Args {
