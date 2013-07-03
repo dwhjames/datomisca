@@ -113,8 +113,6 @@ trait QueryMacros {
   def apply(q: String) = macro DatomicQueryMacro.autoTypedQueryImpl
 
 
-  //def typedQuery[A <: Args, B <: Args](q: String): TypedQuery[A, B] = macro DatomicQueryMacro.typedQueryImpl[A, B]
-
   /** Macro-based helper to create Rule alias to be used in Queries.
     * {{{
     * val totoRule = Datomic.Query.rules("""
@@ -254,102 +252,4 @@ object DatomicDataToArgs extends DatomicDataToArgsImplicitsHidden
 trait DatomicExecutor {
   type F[_]
   def execute: F[_]
-}
-
-
-
-sealed trait Args {
-  def toSeq: Seq[Object]
-}
-
-case class Args0() extends Args {
-  override def toSeq: Seq[Object] = Seq()
-}
-
-case class Args1(_1: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative)
-}
-
-case class Args2(_1: DatomicData, _2: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative)
-}
-
-case class Args3(_1: DatomicData, _2: DatomicData, _3: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative)
-}
-
-case class Args4(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative)
-}
-
-case class Args5(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative)
-}
-
-case class Args6(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative)
-}
-
-case class Args7(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative)
-}
-
-case class Args8(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative)
-}
-
-case class Args9(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative)
-}
-
-case class Args10(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative)
-}
-
-case class Args11(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative)
-}
-
-case class Args12(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative)
-}
-
-case class Args13(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative)
-}
-
-case class Args14(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative)
-}
-
-case class Args15(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative)
-}
-
-case class Args16(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative)
-}
-
-case class Args17(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData, _17: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative, _17.toNative)
-}
-
-case class Args18(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData, _17: DatomicData, _18: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative, _17.toNative, _18.toNative)
-}
-
-case class Args19(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData, _17: DatomicData, _18: DatomicData, _19: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative, _17.toNative, _18.toNative, _19.toNative)
-}
-
-case class Args20(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData, _17: DatomicData, _18: DatomicData, _19: DatomicData, _20: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative, _17.toNative, _18.toNative, _19.toNative, _20.toNative)
-}
-
-case class Args21(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData, _17: DatomicData, _18: DatomicData, _19: DatomicData, _20: DatomicData, _21: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative, _17.toNative, _18.toNative, _19.toNative, _20.toNative, _21.toNative)
-}
-
-case class Args22(_1: DatomicData, _2: DatomicData, _3: DatomicData, _4: DatomicData, _5: DatomicData, _6: DatomicData, _7: DatomicData, _8: DatomicData, _9: DatomicData, _10: DatomicData, _11: DatomicData, _12: DatomicData, _13: DatomicData, _14: DatomicData, _15: DatomicData, _16: DatomicData, _17: DatomicData, _18: DatomicData, _19: DatomicData, _20: DatomicData, _21: DatomicData, _22: DatomicData) extends Args {
-  override def toSeq: Seq[Object] = Seq(_1.toNative, _2.toNative, _3.toNative, _4.toNative, _5.toNative, _6.toNative, _7.toNative, _8.toNative, _9.toNative, _10.toNative, _11.toNative, _12.toNative, _13.toNative, _14.toNative, _15.toNative, _16.toNative, _17.toNative, _18.toNative, _19.toNative, _20.toNative, _21.toNative, _22.toNative)
 }
