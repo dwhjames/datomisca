@@ -141,23 +141,7 @@ trait QueryMacros {
   def rules(q: String): DRuleAliases = macro DatomicQueryMacro.rulesImpl
 }
 
-case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query {
-  self =>
-
-  private[datomisca] def prepare[InArgs <: Args](in: InArgs): List[List[DatomicData]] = {
-    import scala.collection.JavaConversions._
-
-    val qser = self.toString
-    val args = in.toSeq
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-
-    results.map { fields =>
-      fields.map { field => Datomic.toDatomicData(field) }
-    }
-  }
-
-}
+case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query
 
 abstract class TypedQueryAuto(query: PureQuery) extends Query {
   override def find = query.find
@@ -193,24 +177,6 @@ object QueryExecutor {
     results.map { fields =>
       fields.map { field => Datomic.toDatomicData(field) }
     }
-  }
-
-  private[datomisca] def directQueryInOut[InArgs <: Args, OutArgs <: Args](q: Query, in: InArgs)(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
-    import scala.collection.JavaConversions._
-    import scala.collection.JavaConverters._
-
-    // serializes query
-    val qser = q.toString
-
-    val args = in.toSeq
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-
-    val listOfTry = results.map { fields =>
-      outConv.toArgs(fields.map { field => Datomic.toDatomicData(field) })
-    }
-
-    listOfTry.foldLeft(Nil: List[OutArgs]){ (acc, e) => acc :+ e }
   }
 
   private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[Object])(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
