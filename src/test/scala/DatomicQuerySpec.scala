@@ -205,6 +205,8 @@ class DatomicQuerySpec extends Specification {
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
       }
+
+      success
     }
 
     "9 - query with with" in {
@@ -224,6 +226,8 @@ class DatomicQuerySpec extends Specification {
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
       }
+
+      success
     }
 
     "10 - parse fct call in rule alias" in {

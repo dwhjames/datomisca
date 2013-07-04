@@ -22,6 +22,8 @@ import language.experimental.macros
 import scala.util.{Try, Success, Failure}
 import scala.util.parsing.input.Positional
 
+import java.{util => ju}
+
 import dmacros._
 
 trait DatomicQueryExecutor extends QueryExecutorPure with QueryExecutorAuto
@@ -148,34 +150,22 @@ abstract class TypedQueryAuto(query: PureQuery) extends Query {
   override def where = query.where
 }
 
-case class TypedQueryAuto0[R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto1[A, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto2[A, B, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto3[A, B, C, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto4[A, B, C, D, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto5[A, B, C, D, E, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto6[A, B, C, D, E, F, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto7[A, B, C, D, E, F, G, R](query: PureQuery) extends TypedQueryAuto(query)
-case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends TypedQueryAuto(query)
-
-
 /* DATOMIC QUERY */
 object QueryExecutor {
-  import scala.collection.JavaConverters._
 
   private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]) =
     new Iterable[IndexedSeq[DatomicData]] {
-      private val jColl: java.util.Collection[java.util.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
+      private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
       override def iterator = new Iterator[IndexedSeq[DatomicData]] {
-        private val jIter: java.util.Iterator[java.util.List[AnyRef]] = jColl.iterator
+        private val jIter: ju.Iterator[ju.List[AnyRef]] = jColl.iterator
         override def hasNext = jIter.hasNext
         override def next() = new IndexedSeq[DatomicData] {
-          private val jList: java.util.List[AnyRef] = jIter.next()
+          private val jList: ju.List[AnyRef] = jIter.next()
           override def length = jList.size
           override def apply(idx: Int): DatomicData =
             Datomic.toDatomicData(jList.get(idx))
           override def iterator = new Iterator[DatomicData] {
-            private val jIter: java.util.Iterator[AnyRef] = jList.iterator
+            private val jIter: ju.Iterator[AnyRef] = jList.iterator
             override def hasNext = jIter.hasNext
             override def next() = Datomic.toDatomicData(jIter.next)
           }
@@ -183,24 +173,16 @@ object QueryExecutor {
       }
     }
 
-  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[AnyRef])(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
-    import scala.collection.JavaConversions._
+  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[AnyRef])(implicit outConv: QueryResultToTuple[OutArgs]): Iterable[OutArgs] = {
     import scala.collection.JavaConverters._
-
-    // serializes query
-    val qser = q.toString
-
-    //println("QSER:"+qser)
-
-    val args = in
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-
-    val listOfTry = results.map { fields =>
-      outConv.toArgs(fields.map { field => Datomic.toDatomicData(field) })
+    new Iterable[OutArgs] {
+      private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
+      override def iterator = new Iterator[OutArgs] {
+        private val jIter: ju.Iterator[ju.List[AnyRef]] = jColl.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = outConv.toTuple(jIter.next())
+      }
     }
-
-    listOfTry.foldLeft(Nil: List[OutArgs]){ (acc, e) => acc :+ e }
   }
 }
 
@@ -209,48 +191,8 @@ trait QueryExecutorPure {
     QueryExecutor.directQuery(query, in.map(_.toNative))
 }
 
-
-trait QueryExecutorAuto extends ToDatomicCastImplicits{
-  /*def q[R](query: TypedQueryAuto0[R])(
-    implicit outConv: DatomicDataToArgs[R], db: DDatabase
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(db))(outConv)*/
-
-  def q[R](query: TypedQueryAuto0[R], dataSource: DatomicData)(
-    implicit outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(dataSource.toNative))(outConv)
-
-  def q[A, R](query: TypedQueryAuto1[A, R], a: A)(
-    implicit tdata: ToDatomicCast[A],
-             outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative))(outConv)
-
-  def q[A, B, R](query: TypedQueryAuto2[A, B, R], a: A, b: B)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B],
-             outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative))(outConv)
-
-  def q[A, B, C, R](query: TypedQueryAuto3[A, B, C, R], a: A, b: B, c: C)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C],
-             outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative))(outConv)
-
-  def q[A, B, C, D, R](query: TypedQueryAuto4[A, B, C, D, R], a: A, b: B, c: C, d:D)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D],
-             outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative))(outConv)
-
-  def q[A, B, C, D, E, R](query: TypedQueryAuto5[A, B, C, D, E, R], a: A, b: B, c: C, d:D, e:E)(
-    implicit tdata: ToDatomicCast[A], tdatb: ToDatomicCast[B], tdatc: ToDatomicCast[C], tdatd: ToDatomicCast[D], tdate: ToDatomicCast[E],
-             outConv: DatomicDataToArgs[R]
-  ): List[R] = QueryExecutor.directQueryOut[R](query, Seq(tdata.to(a).toNative, tdatb.to(b).toNative, tdatc.to(c).toNative, tdatd.to(d).toNative, tdate.to(e).toNative))(outConv)
-
+trait QueryResultToTuple[T] {
+  def toTuple(l: ju.List[AnyRef]): T
 }
 
-/**
- * Converts a Seq[DatomicData] into an Args with potential error (exception)
- */
-trait DatomicDataToArgs[T] {
-  def toArgs(l: Seq[DatomicData]): T
-}
-
-object DatomicDataToArgs extends DatomicDataToArgsImplicitsHidden
+object QueryResultToTuple extends QueryResultToTupleInstances
