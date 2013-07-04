@@ -49,7 +49,7 @@ class DatomicQuerySpec extends Specification {
                   [ ?e :person/character :person.character/violent ]
         ]
       """), database) map {
-        case List(DLong(e), DString(n)) =>
+        case Seq(DLong(e), DString(n)) =>
           val entity = database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }

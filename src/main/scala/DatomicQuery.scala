@@ -161,21 +161,27 @@ case class TypedQueryAuto8[A, B, C, D, E, F, G, H, R](query: PureQuery) extends 
 
 /* DATOMIC QUERY */
 object QueryExecutor {
+  import scala.collection.JavaConverters._
 
-  private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]): List[List[DatomicData]] = {
-    import scala.collection.JavaConversions._
-
-    // serializes query
-    val qser = q.toString
-
-    val args = in.toSeq
-
-    val results: List[List[Any]] = datomic.Peer.q(qser, args: _*).toList.map(_.toList)
-
-    results.map { fields =>
-      fields.map { field => Datomic.toDatomicData(field) }
+  private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]) =
+    new Iterable[IndexedSeq[DatomicData]] {
+      private val jColl: java.util.Collection[java.util.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
+      override def iterator = new Iterator[IndexedSeq[DatomicData]] {
+        private val jIter: java.util.Iterator[java.util.List[AnyRef]] = jColl.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new IndexedSeq[DatomicData] {
+          private val jList: java.util.List[AnyRef] = jIter.next()
+          override def length = jList.size
+          override def apply(idx: Int): DatomicData =
+            Datomic.toDatomicData(jList.get(idx))
+          override def iterator = new Iterator[DatomicData] {
+            private val jIter: java.util.Iterator[AnyRef] = jList.iterator
+            override def hasNext = jIter.hasNext
+            override def next() = Datomic.toDatomicData(jIter.next)
+          }
+        }
+      }
     }
-  }
 
   private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[AnyRef])(implicit outConv: DatomicDataToArgs[OutArgs]): List[OutArgs] = {
     import scala.collection.JavaConversions._
@@ -199,7 +205,7 @@ object QueryExecutor {
 }
 
 trait QueryExecutorPure {
-  def q(query: PureQuery, in: DatomicData*) =
+  def q(query: PureQuery, in: DatomicData*): Iterable[IndexedSeq[DatomicData]] =
     QueryExecutor.directQuery(query, in.map(_.toNative))
 }
 
