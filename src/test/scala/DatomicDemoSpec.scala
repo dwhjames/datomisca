@@ -84,7 +84,7 @@ class DatomicDemoSpec extends Specification {
            *  - change Input Args2 to Args3 to show compiling error (beginning of query)
            *  - erase ?a to show compiling error in query (beginning of query)
            */
-          val l1 = Datomic.q(Query.manual[Args2, Args3]("""
+          val l1 = Datomic.q(Query("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -100,7 +100,7 @@ class DatomicDemoSpec extends Specification {
               name -> age
           }
 
-          val l2 = Datomic.q(Query.manual[Args2, Args3]("""
+          val l2 = Datomic.q(Query("""
             [ 
               :find ?e ?name ?a
               :in $ ?age
@@ -116,7 +116,7 @@ class DatomicDemoSpec extends Specification {
               name -> age
           }
 
-          val l3 = Datomic.q(Query.manual[Args2, Args3]("""
+          val l3 = Datomic.q(Query("""
             [ 
               :find ?e ?name ?a
               :in $ ?age

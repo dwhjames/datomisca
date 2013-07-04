@@ -164,6 +164,8 @@ class DatomicQuery2Spec extends Specification {
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
       }
+
+      success
     }
 
     "9 - query with with" in {
@@ -183,6 +185,8 @@ class DatomicQuery2Spec extends Specification {
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
       }
+
+      success
     }
   }
 }

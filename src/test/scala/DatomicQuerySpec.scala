@@ -49,7 +49,7 @@ class DatomicQuerySpec extends Specification {
                   [ ?e :person/character :person.character/violent ]
         ]
       """), database) map {
-        case List(DLong(e), DString(n)) =>
+        case Seq(DLong(e), DString(n)) =>
           val entity = database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
@@ -61,7 +61,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      val q = Query.manual[Args0, Args1]("""
+      val q = Query("""
         [:find ?e :where [?e :person/name]]
       """)
       Datomic.q(q, database) map {
@@ -77,7 +77,7 @@ class DatomicQuerySpec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.q(Query.manual[Args2, Args1]("""
+      Datomic.q(Query("""
         [
          :find ?e
          :in $ [?names ...]
@@ -95,7 +95,7 @@ class DatomicQuerySpec extends Specification {
     "4 - typed query with rule with list of tuple inputs" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Query.manual[Args2, Args3]("""
+      val q = Query("""
         [
          :find ?e ?name ?age
          :in $ [[?name ?age]]
@@ -120,7 +120,7 @@ class DatomicQuerySpec extends Specification {
     "5 - typed query with fulltext query" in {
 
       implicit val conn = Datomic.connect(uri)
-      val q = Query.manual[Args0, Args2]("""
+      val q = Query("""
         [
          :find ?e ?n
          :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
@@ -191,7 +191,7 @@ class DatomicQuerySpec extends Specification {
         ] ]
       """)
 
-      val q = Query.manual[Args2, Args2]("""
+      val q = Query("""
         [
           :find ?e ?age
           :in $ %
@@ -205,12 +205,14 @@ class DatomicQuerySpec extends Specification {
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
       }
+
+      success
     }
 
     "9 - query with with" in {
       implicit val conn = Datomic.connect(uri)
 
-      val q = Query.manual[Args0, Args2]("""
+      val q = Query("""
         [ :find ?e ?n
           :with ?age
           :where  [ ?e :person/name ?n ]
@@ -224,6 +226,8 @@ class DatomicQuerySpec extends Specification {
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
       }
+
+      success
     }
 
     "10 - parse fct call in rule alias" in {

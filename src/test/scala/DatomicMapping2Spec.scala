@@ -216,7 +216,7 @@ class DatomicMapping2Spec extends Specification {
             realDoggy2Id = tx.resolve(doggy2Id)
             realDoggy3Id = tx.resolve(doggy3Id)
 
-            Datomic.q(Query.manual[Args0, Args1]("""
+            Datomic.q(Query("""
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
@@ -243,7 +243,7 @@ class DatomicMapping2Spec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.q(Query.manual[Args0, Args1]("""
+      Datomic.q(Query("""
         [ :find ?e 
           :where [?e :dog/name "medor"]
         ]
@@ -253,7 +253,7 @@ class DatomicMapping2Spec extends Specification {
           DatomicMapping.fromEntity[Dog](entity) must beEqualTo(medor.copy(id=Some(realMedorId)))
       }
 
-      Datomic.q(Query.manual[Args0, Args1]("""
+      Datomic.q(Query("""
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]
@@ -280,7 +280,7 @@ class DatomicMapping2Spec extends Specification {
             ))
       }
 
-      Datomic.q(Query.manual[Args0, Args1]("""
+      Datomic.q(Query("""
         [ :find ?e 
           :where [?e :person/name "toto2"]
         ]
@@ -299,7 +299,7 @@ class DatomicMapping2Spec extends Specification {
 
       implicit val conn = Datomic.connect(uri)
 
-      Datomic.q(Query.manual[Args0, Args1]("""
+      Datomic.q(Query("""
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]

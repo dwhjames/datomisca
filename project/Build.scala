@@ -34,6 +34,7 @@ object ApplicationBuild extends Build {
   lazy val datomic = Project(
     BuildSettings.buildName, file("."),
     settings = BuildSettings.buildSettings ++ Seq(
+      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen,
       //logLevel := Level.Debug,
       //ivyLoggingLevel := UpdateLogging.Full,
       scalacOptions ++= Seq(

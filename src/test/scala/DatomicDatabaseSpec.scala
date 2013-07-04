@@ -143,12 +143,12 @@ class DatomicDatabaseSpec extends Specification {
                  )
                )
         } yield {
-          val qPasswordHash = Query.manual[Args1, Args1]("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
+          val qPasswordHash = Query("""[:find ?v :in $ :where [_ :user/passwordHash ?v]]""")
 
           println("Find PasswordHash:" + Datomic.q(qPasswordHash, database))
 
           Datomic.q(
-            Query.manual[Args3, Args1]("""
+            Query("""
               [
                :find ?e
                :in $ ?attr ?val
@@ -209,7 +209,7 @@ class DatomicDatabaseSpec extends Specification {
           }
 
           // all the stories
-          val qCount = Query.manual[Args1, Args1]("""
+          val qCount = Query("""
             [:find ?e :in $ :where [?e :story/url ]]
           """)
           val count = Datomic.q(qCount, Datomic.database).size

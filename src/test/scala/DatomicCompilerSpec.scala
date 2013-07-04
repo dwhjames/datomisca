@@ -24,7 +24,7 @@ class DatomicCompilerSpec extends Specification {
 
         val person = Namespace("person")
   
-        val query = Query.manual[Args2, Args2]("""
+        val query = Query("""
           [ :find ?e ?name
             :in $ ?age
             :where  [ ?e :person/name ?name ] 
@@ -41,7 +41,7 @@ class DatomicCompilerSpec extends Specification {
         }
         
         Datomic.q(
-          Query.manual[Args2, Args3]("""
+          Query("""
             [ :find ?e ?name ?age
               :in $ ?age
               :where  [ ?e :person/name ?name ] 
