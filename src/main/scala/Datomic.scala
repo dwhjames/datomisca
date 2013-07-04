@@ -242,17 +242,17 @@ trait DatomicFacilities extends DatomicTypeWrapper{
   def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
 
   /** Converts any data to a Datomic Data (or not if not possible) */
-  def toDatomicData(v: Any): DatomicData = v match {
+  def toDatomicData(v: AnyRef): DatomicData = v match {
     // :db.type/string
-    case s: String => DString(s)
+    case s: java.lang.String => DString(s)
     // :db.type/boolean
-    case b: Boolean => DBoolean(b)
+    case b: java.lang.Boolean => DBoolean(b)
     // :db.type/long
-    case l: Long => DLong(l)
+    case l: java.lang.Long => DLong(l)
     // :db.type/float
-    case f: Float => DFloat(f)
+    case f: java.lang.Float => DFloat(f)
     // :db.type/double
-    case d: Double => DDouble(d)
+    case d: java.lang.Double => DDouble(d)
     // :db.type/bigint
     case bi: java.math.BigInteger => DBigInt(BigInt(bi))
     // :db.type/bigdec
@@ -272,8 +272,13 @@ trait DatomicFacilities extends DatomicTypeWrapper{
     case e: datomic.Entity => DEntity(e)
     // a collection
     case coll: java.util.Collection[_] =>
-      import scala.collection.JavaConverters._
-      new DColl(coll.asScala.map(toDatomicData(_)))
+      new DColl(new Iterable[DatomicData] {
+        override def iterator = new Iterator[DatomicData] {
+          private val jIter = coll.iterator.asInstanceOf[java.util.Iterator[AnyRef]]
+          override def hasNext = jIter.hasNext
+          override def next(): DatomicData = toDatomicData(jIter.next())
+        }
+      })
     // otherwise
     case v => throw new UnexpectedDatomicTypeException(v.getClass.getName)
   }
