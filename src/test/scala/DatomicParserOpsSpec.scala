@@ -43,7 +43,7 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).fact.id)(KW(":db/ident") -> DRef(KW(":region/n")))
+          Fact.add(ops(0).id)(KW(":db/ident") -> DRef(KW(":region/n")))
         ).toString
       )
     }
@@ -78,7 +78,7 @@ class DatomicParserOpsSpec extends Specification {
       println(s"3 - Ops:$ops")
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).fact.id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          Fact.add(ops(0).id)(KW(":db/ident") -> DRef(KW(":region/n"))),
           Fact.add(id)(KW(":db/ident") -> DRef(KW(":region/n")))
         ).toString
       )
@@ -97,7 +97,7 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.retract(ops(0).fact.id)(KW(":db/ident") -> DRef(KW(":region/n")))
+          Fact.retract(ops(0).id)(KW(":db/ident") -> DRef(KW(":region/n")))
         ).toString
       )
     }
@@ -180,9 +180,9 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).asInstanceOf[AddFact].fact.id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          Fact.add(ops(0).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
           Fact.add(id)(KW(":db/ident") -> DRef(KW(":region/n"))),
-          // FIX Fact.retract(ops(2).asInstanceOf[RetractFact].fact.id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          // FIX Fact.retract(ops(2).asInstanceOf[RetractFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
           Entity.retract(1234L),
           Entity.add(id)(
             person / "name"      -> "toto",
@@ -227,10 +227,10 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).asInstanceOf[AddFact].fact.id)(KW(":db/ident") -> DRef(KW(":character/weak"))),
-          Fact.add(ops(1).asInstanceOf[AddFact].fact.id)(KW(":db/ident") -> DRef(KW(":character/dumb"))),
-          Fact.add(ops(2).asInstanceOf[AddFact].fact.id)(KW(":db/ident") -> DRef(KW(":region/n"))),
-          // FIX Fact.retract(ops(3).asInstanceOf[RetractFact].fact.id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          Fact.add(ops(0).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":character/weak"))),
+          Fact.add(ops(1).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":character/dumb"))),
+          Fact.add(ops(2).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          // FIX Fact.retract(ops(3).asInstanceOf[RetractFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
           Entity.retract(1234L),
           Entity.add(ops(4).asInstanceOf[AddEntity].id)(
             person / "name"      -> "toto, tata",

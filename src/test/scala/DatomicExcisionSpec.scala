@@ -53,7 +53,7 @@ class DatomicExcisionSpec extends Specification {
       println("BEGIN:"+database.basisT)
 
       val maybeRes = Datomic.transact(
-        Entity.excise(e)
+        Excise.entity(e)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -88,7 +88,7 @@ class DatomicExcisionSpec extends Specification {
       println("BEGIN:"+database.basisT)
 
       val maybeRes = Datomic.transact(
-        Entity.excise(e, DId(Partition.USER))
+        Excise.entity(e, DId(Partition.USER))
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -123,7 +123,7 @@ class DatomicExcisionSpec extends Specification {
       println("BEGIN:"+database.basisT)
 
       val maybeRes = Datomic.transact(
-        Entity.excise(e, person / "name")
+        Excise.entity(e, person / "name")
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -160,7 +160,7 @@ class DatomicExcisionSpec extends Specification {
       println("BEGIN:"+database.basisT)
 
       val maybeRes = Datomic.transact(
-        Entity.excise(e).before(new java.util.Date())
+        Excise.entity(e).before(new java.util.Date())
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -197,7 +197,7 @@ class DatomicExcisionSpec extends Specification {
       println("BEGIN:"+database.basisT)
 
       val maybeRes = Datomic.transact(
-        Entity.excise(e).before(database.basisT)
+        Excise.entity(e).before(database.basisT)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -234,7 +234,7 @@ class DatomicExcisionSpec extends Specification {
       println("BEGIN:"+database.basisT)
 
       val maybeRes = Datomic.transact(
-        Entity.excise(e, person / "name").before(database.basisT)
+        Excise.entity(e, person / "name").before(database.basisT)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -269,7 +269,7 @@ class DatomicExcisionSpec extends Specification {
       val DLong(e) = Datomic.q(query, database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
-        Entity.exciseAttr( person / "age", basisT)
+        Excise.attribute( person / "age", basisT)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println(s"toto ${toto.id} excised:"+toto.toMap)
@@ -303,7 +303,7 @@ class DatomicExcisionSpec extends Specification {
       val DLong(e) = Datomic.q(query, database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
-        Entity.exciseAttr( person / "age", new java.util.Date)
+        Excise.attribute( person / "age", new java.util.Date)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println(s"toto ${toto.id} excised:"+toto.toMap)
@@ -337,7 +337,7 @@ class DatomicExcisionSpec extends Specification {
       val DLong(e) = Datomic.q(query, database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
-        Entity.exciseAttr( person / "age")
+        Excise.attribute( person / "age")
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println(s"toto ${toto.id} excised:"+toto.toMap)
@@ -371,7 +371,7 @@ class DatomicExcisionSpec extends Specification {
       val DLong(e) = Datomic.q(query, database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
-        Entity.exciseAttr( person / "age", DId(Partition.USER), basisT)
+        Excise.attribute( person / "age", DId(Partition.USER), basisT)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println(s"toto ${toto.id} excised:"+toto.toMap)

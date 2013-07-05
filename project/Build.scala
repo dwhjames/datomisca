@@ -5,14 +5,19 @@ object BuildSettings {
   val buildName              = "datomisca"
   val buildOrganization      = "pellucidanalytics"
   val buildVersion           = "0.3-SNAPSHOT"
-  val buildScalaVersion      = "2.10.0"
+  val buildScalaVersion      = "2.10.2"
 
   val datomicVersion         = "0.8.4007"
  
   val buildSettings = Defaults.defaultSettings ++ Seq (
     organization    := buildOrganization,
     version         := buildVersion,
-    scalaVersion    := buildScalaVersion
+    scalaVersion    := buildScalaVersion,
+    scalacOptions   ++= Seq(
+        //"-Xlog-implicits",
+        "-deprecation",
+        "-feature"
+      )
   )
 }
 
@@ -31,6 +36,56 @@ object ApplicationBuild extends Build {
     "couchbase" at "http://files.couchbase.com/maven2"
   )
 
+  val commonSettings = BuildSettings.buildSettings ++ Seq(
+      resolvers ++= typesafeRepo ++ datomicRepo,
+      libraryDependencies ++= Seq(
+          "com.datomic" % "datomic-free" % BuildSettings.datomicVersion % "provided" exclude("org.slf4j", "slf4j-nop")
+        )
+    )
+
+  lazy val datomisca = Project(
+      BuildSettings.buildName,
+      file("."),
+      settings = commonSettings ++ Seq(
+          fork in Test := true,
+          libraryDependencies ++= Seq(
+            "org.specs2" %% "specs2" % "1.13" % "test",
+            "junit" % "junit" % "4.8" % "test"
+          )
+        )
+    ) dependsOn(common, macros, core, extras)
+
+  lazy val common = Project(
+      "common",
+      file("common"),
+      settings = commonSettings
+    )
+
+  lazy val macros = Project(
+      "macros",
+      file("macros"),
+      settings = commonSettings ++ Seq(
+        libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+      )
+    ) dependsOn(common)
+
+  lazy val core = Project(
+      "core",
+      file("core"),
+      settings = commonSettings ++ Seq(
+          (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
+        )
+    ) dependsOn(common, macros)
+
+  lazy val extras = Project(
+      "extras",
+      file("extras"),
+      settings = commonSettings ++ Seq(
+          (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
+        )
+    ) dependsOn(common, core)
+
+/*
   lazy val datomic = Project(
     BuildSettings.buildName, file("."),
     settings = BuildSettings.buildSettings ++ Seq(
@@ -61,4 +116,5 @@ object ApplicationBuild extends Build {
       }
     )
   )
+*/
 }

@@ -4,7 +4,8 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import datomisca._
-import datomisca.Datomic._
+import macros._
+import Datomic._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicParserSpec extends Specification {
