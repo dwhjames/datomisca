@@ -1,120 +1,174 @@
 import sbt._
 import Keys._
+import sbtunidoc.Plugin._
 
-object BuildSettings {
-  val buildName              = "datomisca"
-  val buildOrganization      = "pellucidanalytics"
-  val buildVersion           = "0.3-SNAPSHOT"
-  val buildScalaVersion      = "2.10.2"
 
-  val datomicVersion         = "0.8.4007"
- 
-  val buildSettings = Defaults.defaultSettings ++ Seq (
-    organization    := buildOrganization,
-    version         := buildVersion,
-    scalaVersion    := buildScalaVersion,
-    scalacOptions   ++= Seq(
-        //"-Xlog-implicits",
-        "-deprecation",
-        "-feature"
-      )
-  )
-}
+object DatomiscaBuild extends Build {
 
-object ApplicationBuild extends Build {
-
-  val typesafeRepo = Seq(
-    "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    "Typesafe repository releases" at "http://repo.typesafe.com/typesafe/releases/"
-  )
-
-//  val datomicCredentials = Credentials(Path.userHome / ".sbt" / ".credentials")
-
-  val datomicRepo = Seq(
-    //"Bitbucket.org HTTP" at "https://bitbucket.org/mandubian/datomic-mvn/raw/master/releases/"
-    "clojars" at "https://clojars.org/repo",
-    "couchbase" at "http://files.couchbase.com/maven2"
-  )
-
-  val commonSettings = BuildSettings.buildSettings ++ Seq(
-      resolvers ++= typesafeRepo ++ datomicRepo,
-      libraryDependencies ++= Seq(
-          "com.datomic" % "datomic-free" % BuildSettings.datomicVersion % "provided" exclude("org.slf4j", "slf4j-nop")
+  lazy val buildSettings = Defaults.defaultSettings ++ Seq(
+      version       := "0.3-SNAPSHOT",
+      organization  := "pellucidanalytics",
+      scalaVersion  := "2.10.2",
+      scalacOptions ++= Seq(
+          "-deprecation",
+          "-feature",
+          "-unchecked"
         )
     )
 
   lazy val datomisca = Project(
-      BuildSettings.buildName,
-      file("."),
-      settings = commonSettings ++ Seq(
-          fork in Test := true,
-          libraryDependencies ++= Seq(
-            "org.specs2" %% "specs2" % "1.13" % "test",
-            "junit" % "junit" % "4.8" % "test"
-          )
-        )
-    ) dependsOn(common, macros, core, extras)
+      id       = "datomisca",
+      base     = file("."),
+      settings = rootProjectSettings
+    ) aggregate(common, macros, core, extras)
 
   lazy val common = Project(
-      "common",
-      file("common"),
-      settings = commonSettings
+      id       = "common",
+      base     = file("common"),
+      settings = commonProjectSettings
     )
 
   lazy val macros = Project(
-      "macros",
-      file("macros"),
-      settings = commonSettings ++ Seq(
-        libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
-      )
+      id       = "macros",
+      base     = file("macros"),
+      settings = macrosProjectSettings
     ) dependsOn(common)
 
   lazy val core = Project(
-      "core",
-      file("core"),
-      settings = commonSettings ++ Seq(
-          (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
-        )
+      id       = "core",
+      base     = file("core"),
+      settings = coreProjectSettings
     ) dependsOn(common, macros)
 
   lazy val extras = Project(
-      "extras",
-      file("extras"),
-      settings = commonSettings ++ Seq(
-          (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
-        )
+      id       = "extras",
+      base     = file("extras"),
+      settings = extrasProjectSettings
     ) dependsOn(common, core)
 
-/*
-  lazy val datomic = Project(
-    BuildSettings.buildName, file("."),
-    settings = BuildSettings.buildSettings ++ Seq(
-      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen,
-      //logLevel := Level.Debug,
-      //ivyLoggingLevel := UpdateLogging.Full,
-      scalacOptions ++= Seq(
-        //"-Xlog-implicits",
-        //"-deprecation",
-        //"-feature"
-      ),
-      fork in Test := true,
-      //parallelExecution in Test := false,
-      //javaOptions in test += "-Xmx512M -Xmx512m -Xmx1024M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=1024M",
-      resolvers ++= typesafeRepo ++ datomicRepo,
-      //credentials += datomicCredentials,
-      libraryDependencies ++= Seq(
-        "com.datomic" % "datomic-free" % BuildSettings.datomicVersion % "provided" exclude("org.slf4j", "slf4j-nop"),        "org.scala-lang" % "scala-compiler" % "2.10.0",
-        "org.specs2" %% "specs2" % "1.13" % "test",
-        "junit" % "junit" % "4.8" % "test"
-      ),
-      publishMavenStyle := true,
-      publishTo <<= version { (version: String) =>
-        val localPublishRepo = "../datomisca-repo/"
-        if(version.trim.endsWith("SNAPSHOT"))
-          Some(Resolver.file("snapshots", new File(localPublishRepo + "/snapshots")))
-        else Some(Resolver.file("releases", new File(localPublishRepo + "/releases")))
-      }
-    )
+
+  val typesafeRepo = Seq(
+    "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
+    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/"
   )
-*/
+
+  val datomicRepo = Seq(
+    "clojars"   at "https://clojars.org/repo",
+    "couchbase" at "http://files.couchbase.com/maven2"
+  )
+
+  lazy val sharedSettings =
+    buildSettings ++
+    Seq(
+      resolvers ++= typesafeRepo ++ datomicRepo,
+      libraryDependencies ++= Dependencies.shared,
+      shellPrompt := { s => Project.extract(s).currentProject.id + "> " }
+    )
+
+
+  lazy val rootProjectSettings =
+    sharedSettings ++
+    unidocSettings ++
+    Publish.settings ++
+    Seq(
+      name := "Datomisca",
+
+      libraryDependencies ++= Dependencies.test,
+
+      fork in Test := true,
+
+      scalacOptions in ScalaUnidoc += "-Ymacro-no-expand",
+
+      publishArtifact in (Compile, packageDoc) := false,
+
+      mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
+      mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
+      mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
+      mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
+
+      mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
+      mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
+      mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
+      mappings in (Compile, packageSrc) <++= mappings in (extras, Compile, packageSrc)
+    )
+
+  lazy val subProjectSettings =
+    sharedSettings ++
+    Seq(
+      publish      := (),
+      publishLocal := ()
+    )
+
+  lazy val commonProjectSettings =
+    subProjectSettings ++
+    Seq(
+      name := "Datomisca common"
+    )
+
+  lazy val macrosProjectSettings =
+    subProjectSettings ++
+    Seq(
+      name := "Datomisca macros",
+
+      libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+    )
+
+  lazy val mapGenSourceSettings =
+    Seq(
+      mappings in (Compile, packageSrc) <++=
+        (sourceManaged in Compile, managedSources in Compile) map { (base, srcs) =>
+          (srcs x (Path.relativeTo(base) | Path.flat))
+        }
+    )
+
+  lazy val coreProjectSettings =
+    subProjectSettings ++
+    mapGenSourceSettings ++
+    Seq(
+      name := "Datomisca core",
+
+      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
+    )
+
+  lazy val extrasProjectSettings =
+    subProjectSettings ++
+    mapGenSourceSettings ++
+    Seq(
+      name := "Datomisca extras",
+
+      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
+    )
+
+}
+
+object Dependencies {
+
+  object Compile {
+    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4007"    %    "provided" exclude("org.slf4j", "slf4j-nop")
+  }
+  import Compile._
+
+  object Test {
+    val specs2 = "org.specs2"    %%    "specs2"    %    "1.13"    %    "test"
+    val junit  = "junit"         %     "junit"     %    "4.8"     %    "test"
+  }
+  import Test._
+
+  val shared = Seq(datomic)
+  val test   = Seq(specs2, junit)
+}
+
+object Publish {
+
+  lazy val settings = Seq(
+    publishMavenStyle := true,
+    publishTo <<= version { v: String =>
+      val localPublishRepo = "../datomisca-repo/"
+      if (v.trim endsWith "SNAPSHOT")
+        Some(Resolver.file("snapshots", new File(localPublishRepo + "/snapshots")))
+      else
+        Some(Resolver.file("releases",  new File(localPublishRepo + "/releases")))
+    }
+  )
+
 }
