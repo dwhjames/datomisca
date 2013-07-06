@@ -84,7 +84,7 @@ trait EntityOps extends DatomicTypeWrapper with EntityOpsMacros {
   def add(id: DId)(props: (Keyword, DWrapper)*) =
     AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
 
-  /** Creates a Multiple-"Add" targeting a single [[datomisca.DId]] from a simple Map[[[datomisca.Keyword]], [[datomisca.DatomicData]]]
+  /** Creates a Multiple-"Add" targeting a single [[DId]] from a simple Map[ [[Keyword]], [[DatomicData]] ]
     *
     * In Clojure, this is equivalent to:
     * {{{
@@ -108,7 +108,7 @@ trait EntityOps extends DatomicTypeWrapper with EntityOpsMacros {
   def add(id: DId, props: Map[Keyword, DatomicData]) = AddEntity(id, props)
 
 
-  /** Creates a Multiple-"Add" targeting a single [[DId]] and using a [[PartialAddToEntity]]
+  /** Creates a Multiple-"Add" targeting a single [[DId]] and using a [[PartialAddEntity]]
     * which is basically a AddEntity without the DId part (''technical API'').
     *
     * In Clojure, this is equivalent to:
@@ -121,7 +121,7 @@ trait EntityOps extends DatomicTypeWrapper with EntityOpsMacros {
     * }}}
     *
     * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param props a PartialAddToEntity containing tuples (keyword, value)
+    * @param props a [[PartialAddEntity]] containing tuples (keyword, value)
     */
   def add(id: DId, props: PartialAddEntity) = AddEntity(id, props)
 

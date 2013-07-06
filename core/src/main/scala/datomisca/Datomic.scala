@@ -25,12 +25,7 @@ import scala.util.{Try, Success, Failure}
   *    - all Datomic basic functions (Peer, Transactor)
   *    - all Scala basic functions
   *    - all Scala high-level functions (macro, typed ops)
-  *    - all implicit DDReader/DDWriter
   *
-  *
-  * {{{
-  * import Datomic._ // brings all DDReader/DDWriter
-  * }}}
   */
 object Datomic
   extends PeerOps
@@ -45,20 +40,18 @@ object Datomic
   */
 trait DatomicFacilities extends DatomicTypeWrapper{
 
-  /** Converts any value to a DatomicData given there is the right [[DDWriter]] in the scope
+  /** Converts any value to a DatomicData given there is the right [[ToDatomicCast]] in the scope
     *
     * {{{
-    * import Datomic._ // brings all DDReader/DDWriter
     * val s: DString = Datomic.toDatomic("toto")
     * val l: DLong = Datomic.toDatomic("5L")
     * }}}
     */
   def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): DatomicData = tdc.to(t)
 
-  /** converts a DatomicData to a type given there is the right [[DDReader]] in the scope
+  /** converts a DatomicData to a type given there is the right implicit in the scope
     *
     * {{{
-    * import Datomic._ // brings all DDReader/DDWriter
     * val l: String = Datomic.fromDatomic(DString("toto"))
     * val s: Long = Datomic.fromDatomic(DLong(5L))
     * }}}

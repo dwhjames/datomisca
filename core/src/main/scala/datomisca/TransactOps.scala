@@ -23,7 +23,7 @@ import scala.concurrent.{Future, ExecutionContext}
   *
   * Please note that those functions require :
   *   - an implicit [[Connection]] for transaction,
-  *   - Scala [[scala.concurrent.ExecutionContext]] for Future management
+  *   - Scala scala.concurrent.ExecutionContext for Future management
   */
 trait TransactOps {
 
@@ -46,7 +46,7 @@ trait TransactOps {
     *
     * @param ops a sequence of [[Operation]]
     * @param connection the implicit [[Connection]]
-    * @param ex the implicit [[scala.concurrent.ExecutionContext]]
+    * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     *
     */
@@ -66,7 +66,7 @@ trait TransactOps {
     * }}}
     * @param op the [[Operation]]
     * @param connection the implicit [[Connection]]
-    * @param ex the implicit [[scala.concurrent.ExecutionContext]]
+    * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     */
   def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
@@ -91,7 +91,7 @@ trait TransactOps {
     * @param op 1st [[Operation]]
     * @param ops Other [[Operation]]s
     * @param connection the implicit [[Connection]]
-    * @param ex the implicit [[scala.concurrent.ExecutionContext]]
+    * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     */
   def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)

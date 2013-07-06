@@ -27,7 +27,7 @@ trait QueryMacros {
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
     *
     *     - A [[PureQuery]] is the low-level query AST provided in the Scala API.
-    *     - [[TypedQuery]] is based on it.
+    *     - [[TypedQueryAuto]] is based on it.
     *     - When a [[PureQuery]] is executed, it returns a `List[List[DatomicData]].
     *     - All returned types are [[DatomicData]].
     *
@@ -61,7 +61,7 @@ trait QueryMacros {
     *
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
     *
-    * When a [[TypedQuery]] is executed, it returns a `List[TupleN[DatomicData, DatomicData, ...]]` where X corresponds
+    * When a [[TypedQueryAuto]] is executed, it returns a `List[TupleN[DatomicData, DatomicData, ...]]` where X corresponds
     * to the number of output parameters
     *
     * {{{

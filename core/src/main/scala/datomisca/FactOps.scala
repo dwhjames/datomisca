@@ -95,7 +95,7 @@ trait FactOps extends DatomicTypeWrapper {
     * val totoName = Datomic.Fact.retract(3L)( person / "name" -> "toto")
     * }}}
     *
-    * @param id the [[Long]] of the targeted [[DId]]
+    * @param id the Long of the targeted [[DId]]
     * @param prop a tuple ([[Keyword]], value)<br/>
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion

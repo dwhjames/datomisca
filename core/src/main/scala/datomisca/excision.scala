@@ -24,8 +24,8 @@ import java.util.Date
 
 class ExciseEntity(
     val id:     Long,
-    excisionId: TempId                               = DId(Partition.USER),
-    attrs:      Set[Keyword]                         = Set(),
+    excisionId: TempId = DId(Partition.USER),
+    attrs:      Set[Keyword] = Set(),
     before:     Option[Either[Date, Long]] = None
 ) extends Operation with FinalIdentified {
   def before(d: Date) = new ExciseEntity(this.id, this.excisionId, this.attrs, Some(Left(d)))
@@ -94,7 +94,7 @@ class ExciseAttr(
 
 object Excise {
   /** Create operations to excise partialy an entity
-    * @param id the targeted [[DId]] which must be a [[Long]]
+    * @param id the targeted [[DId]] which must be a Long
     * @param excisionId the temporary ID of the excision entity 
     * @param attr attribute to excised from entity (partial excision)
     */
@@ -102,14 +102,14 @@ object Excise {
   def entity(id: Long, attrs: Keyword*) = new ExciseEntity(id = id, attrs = attrs.toSet)
 
   /** Create operations to excise a full entity
-    * @param id the targeted [[DId]] which must be a [[Long]] or [[FinalId]]
+    * @param id the targeted [[DId]] which must be a Long or [[FinalId]]
     * @param excisionId the temporary ID of the excision entity
     */
   def entity(id: Long, excisionId: TempId) = new ExciseEntity(id, excisionId)
   def entity(id: Long) = new ExciseEntity(id)
 
   /** Create operations to excise entity restricting excision to datoms created before a tx
-    * @param id the targeted [[DId]] which must be a [[Long]]
+    * @param id the targeted [[DId]] which must be a Long
     * @param excisionId the temporary ID of the excision entity
     * @param before the transaction id before which datoms excision is limited
     */
@@ -117,7 +117,7 @@ object Excise {
   def entity(id: Long, before: Long) = new ExciseEntity(id=id, before=Some(Right(before)))
 
   /** Create operations to excise entity restricting excision to datoms created before a date
-    * @param id the targeted [[DId]] which must be a [[Long]]
+    * @param id the targeted [[DId]] which must be a Long
     * @param excisionId the temporary ID of the excision entity
     * @param before the instant before which datoms excision is limited
     */
