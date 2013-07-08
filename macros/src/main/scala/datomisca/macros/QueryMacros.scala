@@ -149,7 +149,7 @@ private[datomisca] object QueryMacros {
 
     val inc = inception(c)
 
-    def pkgDatomic(tpe: String) = Select(Select(Ident(newTermName("datomisca")), newTermName("gen")), tpe)
+    def pkgDatomic(tpe: String) = Select(Select(Ident(newTermName("datomisca")), newTermName("gen")), newTermName(tpe))
     def pkgDatomicType(tpe: String) = Select(Ident(newTermName("datomisca")), newTypeName(tpe))
 
     q.tree match {

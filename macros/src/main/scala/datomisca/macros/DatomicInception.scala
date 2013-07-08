@@ -239,12 +239,12 @@ private[datomisca] object DatomicInception {
         val compiled = c.parse(se.expr)
 
         //println("TPE: "+compiled.tpe)
-        Apply(Select(Ident(newTermName("Datomic")), "toDWrapper"), List(compiled))
+        Apply(Select(Ident(newTermName("Datomic")), newTermName("toDWrapper")), List(compiled))
       }
 
       def incept(seq: DCollParsing): c.universe.Tree = {
         Apply(
-          Select(Ident(newTermName("Datomic")), "coll"),
+          Select(Ident(newTermName("Datomic")), newTermName("coll")),
           seq.elts.map{ 
             case Left(se: ScalaExpr) => incept(se)
             case Right(dd: DatomicData) => incept(dd)
