@@ -17,9 +17,7 @@
 package datomisca
 
 
-object SchemaEntity extends SchemaEntityOps
-
-trait SchemaEntityOps {
+object SchemaEntity {
   /** AddEntity based on Schema attributes 
     */
   def add(id: DId)(props: Props): AddEntity = AddEntity(id, props.convert)

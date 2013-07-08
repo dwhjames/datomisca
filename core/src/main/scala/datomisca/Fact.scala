@@ -19,9 +19,7 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
-object Fact extends FactOps
-
-trait FactOps extends DatomicTypeWrapper {
+object Fact extends DatomicTypeWrapper {
   /** Creates a single Add operation targeting a given [[DId]]
     *
     * In Clojure, this is equivalent to:

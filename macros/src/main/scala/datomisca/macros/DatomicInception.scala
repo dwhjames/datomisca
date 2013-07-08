@@ -17,11 +17,13 @@
 package datomisca
 package macros
 
+import ast._
+
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
 
 
-trait DatomicInception {
+private[datomisca] object DatomicInception {
   def computeOffset(
     pos: scala.reflect.internal.util.Position, 
     offsetLine: Int, offsetCol: Int): Int = {
@@ -37,8 +39,11 @@ trait DatomicInception {
     computedOffset + computedCol
   }
 
+
   def inception(c: Context) = {
     import c.universe._
+
+    def pkgAST(tpe: String) = Select(Select(Ident(newTermName("datomisca")), newTermName("ast")), newTermName(tpe))
 
     new {
 
@@ -102,14 +107,14 @@ trait DatomicInception {
       }
 
       def incept(part: Partition): c.Tree = Apply( Ident(newTermName("Partition")), List(incept(part.keyword)) )
-      def incept(df: DFunction): c.Tree = Apply( Ident(newTermName("DFunction")), List(Literal(Constant(df.name))) )
-      def incept(df: DPredicate): c.Tree = Apply( Ident(newTermName("DPredicate")), List(Literal(Constant(df.name))) )
+      def incept(df: DFunction): c.Tree = Apply( pkgAST("DFunction"), List(Literal(Constant(df.name))) )
+      def incept(df: DPredicate): c.Tree = Apply( pkgAST("DPredicate"), List(Literal(Constant(df.name))) )
 
       def incept(b: Binding): c.Tree = b match {
-        case ScalarBinding(name) => Apply( Ident(newTermName("ScalarBinding")), List(incept(name)) )
+        case ScalarBinding(name) => Apply( pkgAST("ScalarBinding"), List(incept(name)) )
         case TupleBinding(names) => 
           Apply( 
-            Ident(newTermName("TupleBinding")), 
+            pkgAST("TupleBinding"),
             List(
               Apply(
                 Ident(newTermName("Seq")),
@@ -117,10 +122,10 @@ trait DatomicInception {
               )
             )
           )
-        case CollectionBinding(name) => Apply( Ident(newTermName("CollectionBinding")), List(incept(name)) )
+        case CollectionBinding(name) => Apply( pkgAST("CollectionBinding"), List(incept(name)) )
         case RelationBinding(names) => 
           Apply( 
-            Ident(newTermName("RelationBinding")), 
+            pkgAST("RelationBinding"),
             List(
               Apply(
                 Ident(newTermName("Seq")),
@@ -133,7 +138,7 @@ trait DatomicInception {
       def incept(e: Expression): c.Tree = e match {
         case PredicateExpression(df, args) => 
           Apply( 
-            Ident(newTermName("PredicateExpression")), 
+            pkgAST("PredicateExpression"),
             List(
               incept(df),
               Apply(Ident(newTermName("Seq")), args.map(incept(_)).toList)
@@ -141,7 +146,7 @@ trait DatomicInception {
           )
         case FunctionExpression(df, args, binding) =>
           Apply( 
-            Ident(newTermName("FunctionExpression")), 
+            pkgAST("FunctionExpression"),
             List(
               incept(df),
               Apply(Ident(newTermName("Seq")), args.map(incept(_)).toList),
@@ -152,7 +157,7 @@ trait DatomicInception {
 
       def incept(r: Rule): c.Tree = r match {
         case DataRule(ds, entity, attr, value, tx, added) =>
-          Apply( Ident(newTermName("DataRule")), 
+          Apply(pkgAST("DataRule"),
             List(
               (if(ds == ImplicitDS) Ident(newTermName("ImplicitDS")) else Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(ds.name)))) ), 
               incept(entity), 
@@ -164,20 +169,20 @@ trait DatomicInception {
           )
         case f: ExpressionRule => 
           Apply( 
-            Ident(newTermName("ExpressionRule")), 
+            pkgAST("ExpressionRule"),
             List(incept(f.expr))
           )
         
         case ra: RuleAliasCall =>
           Apply(
-            Ident(newTermName("RuleAliasCall")), 
+            pkgAST("RuleAliasCall"),
             List(
               Literal(Constant(ra.name)),
               Apply(Ident(newTermName("Seq")), ra.args.map(incept(_)).toList )
             )
           )
         case DataRuleParsing(ds, entity, attr, value, tx, added) =>
-          Apply( Ident(newTermName("DataRule")), 
+          Apply(pkgAST("DataRule"),
             List(
               (if(ds == ImplicitDS) Ident(newTermName("ImplicitDS")) else Apply( Ident(newTermName("ExternalDS")), List(Literal(Constant(ds.name)))) ), 
               incept(entity), 
@@ -197,28 +202,28 @@ trait DatomicInception {
 
 
       def incept(o: Output): c.Tree = o match {
-        case OutVariable(v) => Apply(Ident(newTermName("OutVariable")), List(incept(v)))
+        case OutVariable(v) => Apply(pkgAST("OutVariable"), List(incept(v)))
       }
 
       def incept(w: Where): c.Tree = 
-        Apply( Ident(newTermName("Where")), List( Apply(Ident(newTermName("Seq")), w.rules.map(incept(_)).toList )) )
+        Apply(pkgAST("Where"), List( Apply(Ident(newTermName("Seq")), w.rules.map(incept(_)).toList )) )
 
 
       def incept(i: Input): c.Tree = i match {
-        case InDataSource(ds) => Apply(Ident(newTermName("InDataSource")), List(incept(ds)))
-        case InVariable(v) => Apply(Ident(newTermName("InVariable")), List(incept(v)))
-        case InRuleAlias => Ident(newTermName("InRuleAlias"))
+        case InDataSource(ds) => Apply(pkgAST("InDataSource"), List(incept(ds)))
+        case InVariable(v) => Apply(pkgAST("InVariable"), List(incept(v)))
+        case InRuleAlias => pkgAST("InRuleAlias")
       }
 
       def incept(in: In): c.Tree = 
-        Apply( Ident(newTermName("In")), List( Apply(Ident(newTermName("Seq")), in.inputs.map(incept(_)).toList )) )
+        Apply(pkgAST("In"), List( Apply(Ident(newTermName("Seq")), in.inputs.map(incept(_)).toList )) )
 
       
       def incept(f: Find): c.Tree = 
-        Apply( Ident(newTermName("Find")), List( Apply(Ident(newTermName("Seq")), f.outputs.map(incept(_)).toList )) )  
+        Apply(pkgAST("Find"), List( Apply(Ident(newTermName("Seq")), f.outputs.map(incept(_)).toList )) )  
 
       def incept(f: With): c.Tree = 
-        Apply( Ident(newTermName("With")), List( Apply(Ident(newTermName("Seq")), f.variables.map(incept(_)).toList )) )  
+        Apply(pkgAST("With"), List( Apply(Ident(newTermName("Seq")), f.variables.map(incept(_)).toList )) )  
 
       def incept(q: PureQuery): c.universe.Tree = {
         Apply(

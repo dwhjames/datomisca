@@ -17,9 +17,7 @@
 package datomisca
 
 
-object SchemaFact extends SchemaFactOps
-
-trait SchemaFactOps {
+object SchemaFact {
   /** add based on Schema attributes 
     */
   def add[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))

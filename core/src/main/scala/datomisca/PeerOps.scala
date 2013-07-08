@@ -29,7 +29,7 @@ package datomisca
   * implicit val conn = Datomic.connection("datomic:mem://mydatabase")
   * }}}
   */
-trait PeerOps {
+private[datomisca] trait PeerOps {
   /** Builds a Connection from URI
     *
     * In order to benefit from Datomic facilities based on implicit [[Connection]],

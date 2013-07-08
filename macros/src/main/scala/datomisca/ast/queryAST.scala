@@ -15,6 +15,7 @@
  */
 
 package datomisca
+package ast
 
 import scala.util.parsing.input.Positional
 

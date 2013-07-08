@@ -16,6 +16,7 @@
 
 package datomisca
 
+import ast._
 import macros._
 
 import org.specs2.mutable._

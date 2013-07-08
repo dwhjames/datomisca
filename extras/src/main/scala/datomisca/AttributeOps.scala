@@ -17,7 +17,7 @@
 package datomisca
 
 
-class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, Card])
+private[datomisca] class AttributeOps[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, Card])
 {
   def read[A](implicit a2er: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
     a2er.convert(attr)

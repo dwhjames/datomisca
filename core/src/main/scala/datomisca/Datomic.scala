@@ -38,7 +38,7 @@ object Datomic
 
 /** Provides all Datomic Scala specific facilities
   */
-trait DatomicFacilities extends DatomicTypeWrapper{
+  private[datomisca] trait DatomicFacilities extends DatomicTypeWrapper{
 
   /** Converts any value to a DatomicData given there is the right [[ToDatomicCast]] in the scope
     *

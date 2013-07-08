@@ -30,14 +30,14 @@ object Attribute2EntityReaderInj {
    * precise type.
    */
   implicit val attr2EntityReaderDRef2DD =
-    new Attribute2EntityReaderInj[DRef, CardinalityOne.type, DatomicData] {
-      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[DatomicData] =
+    new Attribute2EntityReaderInj[DRef, Cardinality.one.type, DatomicData] {
+      def convert(attr: Attribute[DRef, Cardinality.one.type]): EntityReader[DatomicData] =
         EntityReader { entity => entity(attr.ident) }
     }
   // similarly for multi-valued attributes
   implicit val attr2EntityReaderManyDRef2DD =
-    new Attribute2EntityReaderInj[DRef, CardinalityMany.type, Set[DatomicData]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[DatomicData]] =
+    new Attribute2EntityReaderInj[DRef, Cardinality.many.type, Set[DatomicData]] {
+      def convert(attr: Attribute[DRef, Cardinality.many.type]): EntityReader[Set[DatomicData]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DColl(elems) => elems.toSet } getOrElse (Set.empty)
         }
@@ -49,8 +49,8 @@ object Attribute2EntityReaderInj {
    * the result type A
    */
   implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
-    new Attribute2EntityReaderInj[DD, CardinalityOne.type, A] {
-      def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] =
+    new Attribute2EntityReaderInj[DD, Cardinality.one.type, A] {
+      def convert(attr: Attribute[DD, Cardinality.one.type]): EntityReader[A] =
         EntityReader { entity =>
           val dd = entity(attr.ident).asInstanceOf[DD]
           fdat.from(dd)
@@ -58,8 +58,8 @@ object Attribute2EntityReaderInj {
     }  
   // similarly for multi-valued attributes
   implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit fdat: FromDatomicInj[DD, A]) = 
-    new Attribute2EntityReaderInj[DD, CardinalityMany.type, Set[A]] {
-      def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] =
+    new Attribute2EntityReaderInj[DD, Cardinality.many.type, Set[A]] {
+      def convert(attr: Attribute[DD, Cardinality.many.type]): EntityReader[Set[A]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DColl(elems) =>
             elems.map { elem => fdat.from(elem.asInstanceOf[DD]) } .toSet
@@ -78,8 +78,8 @@ trait Attribute2EntityReaderCast[DD <: DatomicData, Card <: Cardinality, T] {
 object Attribute2EntityReaderCast {
 
   implicit def attr2EntityReaderCastOne[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) =
-      new Attribute2EntityReaderCast[DD, CardinalityOne.type, A] {
-        def convert(attr: Attribute[DD, CardinalityOne.type]): EntityReader[A] =
+      new Attribute2EntityReaderCast[DD, Cardinality.one.type, A] {
+        def convert(attr: Attribute[DD, Cardinality.one.type]): EntityReader[A] =
           EntityReader { entity =>
             val dd = entity(attr.ident).asInstanceOf[DD]
             fdat.from(dd)
@@ -87,8 +87,8 @@ object Attribute2EntityReaderCast {
       }
 
   implicit def attr2EntityReaderCastMany[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) =
-  new Attribute2EntityReaderCast[DD, CardinalityMany.type, Set[A]] {
-    def convert(attr: Attribute[DD, CardinalityMany.type]): EntityReader[Set[A]] =
+  new Attribute2EntityReaderCast[DD, Cardinality.many.type, Set[A]] {
+    def convert(attr: Attribute[DD, Cardinality.many.type]): EntityReader[Set[A]] =
       EntityReader { entity =>
         entity.get(attr.ident) map { case DColl(elems) =>
           elems.map { elem => fdat.from(elem.asInstanceOf[DD]) } .toSet
@@ -98,16 +98,16 @@ object Attribute2EntityReaderCast {
 
 
   implicit val attr2EntityReaderCastIdOnly =
-    new Attribute2EntityReaderCast[DRef, CardinalityOne.type, Long] {
-      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Long] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, Long] {
+      def convert(attr: Attribute[DRef, Cardinality.one.type]): EntityReader[Long] =
         EntityReader { entity =>
           entity(attr.ident).asInstanceOf[DEntity].id
         }
     }  
 
   implicit val attr2EntityReaderCastManyIdOnly =
-    new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[Long]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Long]] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[Long]] {
+      def convert(attr: Attribute[DRef, Cardinality.many.type]): EntityReader[Set[Long]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DColl(elems) =>
             elems.map {
@@ -119,16 +119,16 @@ object Attribute2EntityReaderCast {
     }
 
   implicit val attr2EntityReaderCastKeyword =
-    new Attribute2EntityReaderCast[DRef, CardinalityOne.type, Keyword] {
-      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[Keyword] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, Keyword] {
+      def convert(attr: Attribute[DRef, Cardinality.one.type]): EntityReader[Keyword] =
         EntityReader { entity =>
           entity(attr.ident).asInstanceOf[DKeyword].underlying
         }
     }
 
   implicit val attr2EntityReaderCastManyKeyword =
-    new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[Keyword]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[Keyword]] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[Keyword]] {
+      def convert(attr: Attribute[DRef, Cardinality.many.type]): EntityReader[Set[Keyword]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DColl(elems) =>
             elems.map {
@@ -145,8 +145,8 @@ object Attribute2EntityReaderCast {
    * and then use the entity reader to interpet it
    */
   implicit def attr2EntityReaderOneObj[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, CardinalityOne.type, A] {
-      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[A] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, A] {
+      def convert(attr: Attribute[DRef, Cardinality.one.type]): EntityReader[A] =
         EntityReader { entity =>
           val subent = entity(attr.ident).asInstanceOf[DEntity]
           er.read(subent)
@@ -154,8 +154,8 @@ object Attribute2EntityReaderCast {
     }
   // similarly for multi-valued attributes
   implicit def attr2EntityReaderManyObj[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[A]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[A]] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[A]] {
+      def convert(attr: Attribute[DRef, Cardinality.many.type]): EntityReader[Set[A]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DColl(elems) =>
             elems.map {
@@ -174,8 +174,8 @@ object Attribute2EntityReaderCast {
    * id of the transformed entity in an IdView
    */
   implicit def attr2EntityReaderOneIdView[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[A]] {
-      def convert(attr: Attribute[DRef, CardinalityOne.type]): EntityReader[IdView[A]] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, IdView[A]] {
+      def convert(attr: Attribute[DRef, Cardinality.one.type]): EntityReader[IdView[A]] =
         EntityReader { entity =>
           val subent = entity(attr.ident).asInstanceOf[DEntity]
           IdView(subent.id)(er.read(subent))
@@ -183,8 +183,8 @@ object Attribute2EntityReaderCast {
     }  
   // similarly for multi-valued attributes
   implicit def attr2EntityReaderManyIdView[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[A]]] {
-      def convert(attr: Attribute[DRef, CardinalityMany.type]): EntityReader[Set[IdView[A]]] =
+    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[IdView[A]]] {
+      def convert(attr: Attribute[DRef, Cardinality.many.type]): EntityReader[Set[IdView[A]]] =
         EntityReader { entity =>
           entity.get(attr.ident) map { case DColl(elems) =>
             elems.map {

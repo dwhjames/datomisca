@@ -23,93 +23,72 @@ trait SchemaType[DD <: DatomicData] {
   def keyword: Keyword
 }
 
-case object SchemaTypeString extends SchemaType[DString] {
-  def keyword = Keyword(Namespace.DB.TYPE, "string")
-}
-
-case object SchemaTypeBoolean extends SchemaType[DBoolean] {
-  def keyword = Keyword(Namespace.DB.TYPE, "boolean")
-}
-
-case object SchemaTypeLong extends SchemaType[DLong] {
-  def keyword = Keyword(Namespace.DB.TYPE, "long")
-}
-
-case object SchemaTypeBigInt extends SchemaType[DBigInt] {
-  def keyword = Keyword(Namespace.DB.TYPE, "bigint")
-}
-
-case object SchemaTypeFloat extends SchemaType[DFloat] {
-  def keyword = Keyword(Namespace.DB.TYPE, "float")
-}
-
-case object SchemaTypeDouble extends SchemaType[DDouble] {
-  def keyword = Keyword(Namespace.DB.TYPE, "double")
-}
-
-case object SchemaTypeBigDec extends SchemaType[DBigDec] {
-  def keyword = Keyword(Namespace.DB.TYPE, "bigdec")
-}
-
-case object SchemaTypeRef extends SchemaType[DRef] {
-  def keyword = Keyword(Namespace.DB.TYPE, "ref")
-}
-
-case object SchemaTypeInstant extends SchemaType[DInstant] {
-  def keyword = Keyword(Namespace.DB.TYPE, "instant")
-}
-
-case object SchemaTypeUuid extends SchemaType[DUuid] {
-  def keyword = Keyword(Namespace.DB.TYPE, "uuid")
-}
-
-case object SchemaTypeUri extends SchemaType[DUri] {
-  def keyword = Keyword(Namespace.DB.TYPE, "uri")
-}
-
-case object SchemaTypeBytes extends SchemaType[DBytes] {
-  def keyword = Keyword(Namespace.DB.TYPE, "bytes")
-}
-
-case object SchemaTypeKeyword extends SchemaType[DKeyword] {
-  def keyword = Keyword(Namespace.DB.TYPE, "keyword")
-}
-
-//case class SchemaType(keyword: Keyword)
-
 object SchemaType {
-  val string = SchemaTypeString //SchemaType(Keyword(Namespace.DB.TYPE, "string"))
-  val boolean = SchemaTypeBoolean //SchemaType(Keyword(Namespace.DB.TYPE, "boolean"))
-  val long = SchemaTypeLong //SchemaType(Keyword(Namespace.DB.TYPE, "long"))
-  val bigint = SchemaTypeBigInt //SchemaType(Keyword(Namespace.DB.TYPE, "bigint"))
-  val float = SchemaTypeFloat //SchemaType(Keyword(Namespace.DB.TYPE, "float"))
-  val double = SchemaTypeDouble //SchemaType(Keyword(Namespace.DB.TYPE, "double"))
-  val bigdec = SchemaTypeBigDec //SchemaType(Keyword(Namespace.DB.TYPE, "bigdec"))
-  val ref = SchemaTypeRef //SchemaType(Keyword(Namespace.DB.TYPE, "ref"))
-  val instant = SchemaTypeInstant //SchemaType(Keyword(Namespace.DB.TYPE, "instant"))
-  val uuid = SchemaTypeUuid //SchemaType(Keyword(Namespace.DB.TYPE, "uuid"))
-  val uri = SchemaTypeUri //SchemaType(Keyword(Namespace.DB.TYPE, "uri"))
-  val bytes = SchemaTypeBytes //SchemaType(Keyword(Namespace.DB.TYPE, "bytes"))
-  val keyword = SchemaTypeKeyword
+  object string extends SchemaType[DString] {
+    def keyword = Keyword(Namespace.DB.TYPE, "string")
+  }
+
+  object boolean extends SchemaType[DBoolean] {
+    def keyword = Keyword(Namespace.DB.TYPE, "boolean")
+  }
+
+  object long extends SchemaType[DLong] {
+    def keyword = Keyword(Namespace.DB.TYPE, "long")
+  }
+
+  object bigint extends SchemaType[DBigInt] {
+    def keyword = Keyword(Namespace.DB.TYPE, "bigint")
+  }
+
+  object float extends SchemaType[DFloat] {
+    def keyword = Keyword(Namespace.DB.TYPE, "float")
+  }
+
+  object double extends SchemaType[DDouble] {
+    def keyword = Keyword(Namespace.DB.TYPE, "double")
+  }
+
+  object bigdec extends SchemaType[DBigDec] {
+    def keyword = Keyword(Namespace.DB.TYPE, "bigdec")
+  }
+
+  object ref extends SchemaType[DRef] {
+    def keyword = Keyword(Namespace.DB.TYPE, "ref")
+  }
+
+  object instant extends SchemaType[DInstant] {
+    def keyword = Keyword(Namespace.DB.TYPE, "instant")
+  }
+
+  object uuid extends SchemaType[DUuid] {
+    def keyword = Keyword(Namespace.DB.TYPE, "uuid")
+  }
+
+  object uri extends SchemaType[DUri] {
+    def keyword = Keyword(Namespace.DB.TYPE, "uri")
+  }
+
+  object bytes extends SchemaType[DBytes] {
+    def keyword = Keyword(Namespace.DB.TYPE, "bytes")
+  }
+
+  object keyword extends SchemaType[DKeyword] {
+    def keyword = Keyword(Namespace.DB.TYPE, "keyword")
+  }
 }
 
 trait Cardinality {
   def keyword: Keyword
 }
 
-case object CardinalityOne extends Cardinality {
-  def keyword = Keyword(Namespace.DB.CARDINALITY, "one")
-}
-
-case object CardinalityMany extends Cardinality {
-  def keyword = Keyword(Namespace.DB.CARDINALITY, "many")
-}
-
-//case class Cardinality(keyword: Keyword)
-
 object Cardinality {
-  val one = CardinalityOne //Cardinality(Keyword(Namespace.DB.CARDINALITY, "one"))
-  val many = CardinalityMany //Cardinality(Keyword(Namespace.DB.CARDINALITY, "many"))
+  case object one extends Cardinality {
+    def keyword = Keyword(Namespace.DB.CARDINALITY, "one")
+  }
+
+  case object many extends Cardinality {
+    def keyword = Keyword(Namespace.DB.CARDINALITY, "many")
+  }
 }
 
 case class Unique(keyword: Keyword)

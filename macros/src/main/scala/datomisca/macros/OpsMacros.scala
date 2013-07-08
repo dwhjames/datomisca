@@ -22,7 +22,7 @@ import scala.reflect.macros.Context
 import scala.reflect.internal.util.{Position, OffsetPosition}
 
 
-trait EntityOpsMacros {
+private[datomisca] trait EntityOpsMacros {
   /** Macro-based helper to create Datomic AddToEntity compiled from a Clojure String extended with Scala variables.
     *
     * You can then directly copy some Clojure code in a String and get it compiled.
@@ -81,7 +81,8 @@ trait OpsMacros {
   def ops(q: String): Seq[Operation] = macro OpsMacros.opsImpl
 }
 
-object OpsMacros extends DatomicInception {
+private[datomisca] object OpsMacros {
+  import DatomicInception._
 
   def addEntityImpl(c: Context)(q: c.Expr[String]): c.Expr[AddEntity] = {
     import c.universe._

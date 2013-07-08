@@ -17,6 +17,8 @@
 package datomisca
 package macros
 
+import ast._
+
 import scala.language.reflectiveCalls
 
 import scala.util.parsing.combinator.JavaTokenParsers
@@ -216,7 +218,7 @@ object DatomicParser extends JavaTokenParsers {
   def inDatasource: Parser[InDataSource] = datasource ^^ { InDataSource(_) }
   def inVariable: Parser[InVariable] = binding ^^ { InVariable(_) }
   def inRuleAlias: Parser[InRuleAlias.type] = "%" ^^ { _ => InRuleAlias }
-  def input: Parser[datomisca.Input] = inRuleAlias | inDatasource | inVariable
+  def input: Parser[datomisca.ast.Input] = inRuleAlias | inDatasource | inVariable
   def in: Parser[In] = positioned(":in" ~> rep(input) ^^ { In(_) })
 
   // FIND

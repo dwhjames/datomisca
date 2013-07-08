@@ -83,7 +83,8 @@ object Boilerplate {
     val instances = ((1 to 22) map genInstance).mkString
 
     genHeader +
-    ("""|
+    ("""|package gen
+        |
         |case class TypedQueryAuto0[R](query: PureQuery) extends TypedQueryAuto(query)
         | """ +
          instances + """
@@ -109,7 +110,9 @@ object Boilerplate {
 
     genHeader +
     ("""|
-        |trait QueryExecutorAuto {
+        |import gen._
+        |
+        |private[datomisca] trait QueryExecutorAuto {
         |
         |  def q[Out]
         |       (query: TypedQueryAuto0[Out], dataSource: DatomicData)
@@ -139,7 +142,7 @@ object Boilerplate {
 
     genHeader +
     ("""|
-        |trait QueryResultToTupleInstances {
+        |private[datomisca] trait QueryResultToTupleInstances {
         |  implicit object QueryResultToTuple1 extends QueryResultToTuple[DatomicData] {
         |    override def toTuple(l: java.util.List[AnyRef]) = DatomicData.toDatomicData(l.get(0))
         |  }""" +
@@ -160,7 +163,8 @@ object Boilerplate {
     val instances = ((1 to 22) map genInstance).mkString
 
     genHeader +
-    ("""|
+    ("""|package gen
+        |
         |class TypedAddDbFunction0(fn: AddDbFunction) extends TypedAddDbFunction(fn)
         | """ +
          instances + """
@@ -189,7 +193,9 @@ object Boilerplate {
 
     genHeader +
     ("""|
-        |trait AddTxFunctionGen {""" +
+        |import gen._
+        |
+        |private[datomisca] trait AddTxFunctionGen {""" +
            instances + """
         |}
         |""").stripMargin
@@ -217,7 +223,9 @@ object Boilerplate {
 
     genHeader +
     ("""|
-        |trait InvokeTxFunctionGen {""" +
+        |import gen._
+        |
+        |private[datomisca] trait InvokeTxFunctionGen {""" +
            instances + """
           
         |}

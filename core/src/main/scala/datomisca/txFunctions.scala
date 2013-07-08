@@ -35,7 +35,7 @@ object AddTxFunction extends AddTxFunctionGen {
            (param: String)
            (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
            (code: String) =
-    new TypedAddDbFunction0(
+    new gen.TypedAddDbFunction0(
       new AddDbFunction(kw, lang, Seq(param), code))
 
   // plus generated code
@@ -55,7 +55,7 @@ class InvokeTxFunction(
 object InvokeTxFunction extends InvokeTxFunctionGen {
   def apply(fn: Keyword)(args: DatomicData*) = new InvokeTxFunction(fn, args)
 
-  def apply(fn: TypedAddDbFunction0)() =
+  def apply(fn: gen.TypedAddDbFunction0)() =
     new InvokeTxFunction(fn.ident, Seq.empty)
 
 }

@@ -22,7 +22,7 @@ trait DatomicData extends Nativeable {
   def as[A](implicit fdat: FromDatomicCast[A]) = fdat.from(this)
 }
 
-object DatomicData {
+private[datomisca] object DatomicData {
 
   /** Converts any data to a Datomic Data (or not if not possible) */
   private[datomisca] def toDatomicData(v: AnyRef): DatomicData = v match {

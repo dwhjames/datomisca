@@ -22,7 +22,7 @@ import scala.reflect.macros.Context
 import scala.reflect.internal.util.{Position, OffsetPosition}
 
 
-trait QueryMacros {
+private[datomisca] trait QueryMacros {
   /** Creates a macro-based compile-time pure query from a String (only syntax validation is performed).<br/>
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
     *
@@ -116,7 +116,8 @@ trait QueryMacros {
   def rules(q: String): DRuleAliases = macro QueryMacros.rulesImpl
 }
 
-object QueryMacros extends DatomicInception {
+private[datomisca] object QueryMacros {
+  import DatomicInception._
 
   def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[PureQuery] = {
       import c.universe._
@@ -148,7 +149,7 @@ object QueryMacros extends DatomicInception {
 
     val inc = inception(c)
 
-    def pkgDatomic(tpe: String) = Select(Ident(newTermName("datomisca")), tpe)
+    def pkgDatomic(tpe: String) = Select(Select(Ident(newTermName("datomisca")), newTermName("gen")), tpe)
     def pkgDatomicType(tpe: String) = Select(Ident(newTermName("datomisca")), newTypeName(tpe))
 
     q.tree match {
@@ -196,30 +197,6 @@ object QueryMacros extends DatomicInception {
             //println( "Tree:"+showRaw(tree) )
 
             tree
-        }
-
-      case _ => c.abort(c.enclosingPosition, "Only accepts String")
-    }
-
-  }
-
-  def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
-    import c.universe._
-
-    val inc = inception(c)
-
-    q.tree match {
-      case Literal(Constant(s: String)) =>
-        DatomicParser.parseKeywordSafe(s) match {
-          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
-
-            val offsetPos = new OffsetPosition(
-              treePos.source,
-              computeOffset(treePos, offsetLine, offsetCol)
-            )
-            c.abort(offsetPos.asInstanceOf[c.Position], msg)
-          case Right(kw) => c.Expr[Keyword]( inc.incept(kw) )
         }
 
       case _ => c.abort(c.enclosingPosition, "Only accepts String")

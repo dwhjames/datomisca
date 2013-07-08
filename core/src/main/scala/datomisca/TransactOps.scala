@@ -25,7 +25,7 @@ import scala.concurrent.{Future, ExecutionContext}
   *   - an implicit [[Connection]] for transaction,
   *   - Scala scala.concurrent.ExecutionContext for Future management
   */
-trait TransactOps {
+private[datomisca] trait TransactOps {
 
   /** Performs an Datomic async transaction with multiple operations.
     *

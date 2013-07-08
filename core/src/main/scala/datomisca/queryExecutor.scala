@@ -19,10 +19,10 @@ package datomisca
 import java.{util => ju}
 
 
-trait QueryExecutor extends QueryExecutorPure with QueryExecutorAuto
+private[datomisca] trait QueryExecutor extends QueryExecutorPure with QueryExecutorAuto
 
 /* DATOMIC QUERY */
-object QueryExecutor {
+private[datomisca] object QueryExecutor {
 
   private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]) =
     new Iterable[IndexedSeq[DatomicData]] {
@@ -57,13 +57,13 @@ object QueryExecutor {
   }
 }
 
-trait QueryExecutorPure {
+private[datomisca] trait QueryExecutorPure {
   def q(query: PureQuery, in: DatomicData*): Iterable[IndexedSeq[DatomicData]] =
     QueryExecutor.directQuery(query, in.map(_.toNative))
 }
 
-trait QueryResultToTuple[T] {
+private[datomisca] trait QueryResultToTuple[T] {
   def toTuple(l: ju.List[AnyRef]): T
 }
 
-object QueryResultToTuple extends QueryResultToTupleInstances
+private[datomisca] object QueryResultToTuple extends QueryResultToTupleInstances

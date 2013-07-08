@@ -22,7 +22,7 @@ import scala.collection.JavaConverters._
 import java.util.Date
 
 
-class ExciseEntity(
+private[datomisca] class ExciseEntity(
     val id:     Long,
     excisionId: TempId = DId(Partition.USER),
     attrs:      Set[Keyword] = Set(),
@@ -55,7 +55,7 @@ class ExciseEntity(
   override def toString = props.toString
 }
 
-class ExciseAttr(
+private[datomisca] class ExciseAttr(
     attr:       Keyword,
     excisionId: TempId = DId(Partition.USER),
     before:     Option[Either[Date, Long]]

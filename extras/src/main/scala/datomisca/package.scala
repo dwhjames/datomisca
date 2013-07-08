@@ -88,8 +88,8 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def idView[T]
-              (attr: Attribute[DRef, CardinalityOne.type])
-              (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
+              (attr: Attribute[DRef, Cardinality.one.type])
+              (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.one.type, IdView[T]])
               : IdView[T] =
       read[IdView[T]](attr)
 
@@ -97,8 +97,8 @@ package object datomisca {
       * An optional version of idView
       */
     def getIdView[T]
-                 (attr: Attribute[DRef, CardinalityOne.type])
-                 (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityOne.type, IdView[T]])
+                 (attr: Attribute[DRef, Cardinality.one.type])
+                 (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.one.type, IdView[T]])
                  : Option[IdView[T]] =
       readOpt[IdView[T]](attr)
 
@@ -108,8 +108,8 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def idViews[T]
-               (attr: Attribute[DRef, CardinalityMany.type])
-               (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
+               (attr: Attribute[DRef, Cardinality.many.type])
+               (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[IdView[T]]])
                : Set[IdView[T]] =
       read[Set[IdView[T]]](attr)
 
@@ -117,8 +117,8 @@ package object datomisca {
       * An optional version of idViews
       */
     def getIdViews[T]
-                  (attr: Attribute[DRef, CardinalityMany.type])
-                  (implicit attrC: Attribute2EntityReaderCast[DRef, CardinalityMany.type, Set[IdView[T]]])
+                  (attr: Attribute[DRef, Cardinality.many.type])
+                  (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[IdView[T]]])
                   : Option[Set[IdView[T]]] =
       readOpt[Set[IdView[T]]](attr)
   }

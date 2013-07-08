@@ -72,7 +72,7 @@ object Connection {
   }
 
 
-  def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext): Future[T] = {
+  private[datomisca] def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext): Future[T] = {
     val p = Promise[T]
 
     listenF.addListener(

@@ -24,8 +24,8 @@ trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, D
 object Attribute2PartialAddEntityWriter {
 
   implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit tdat: ToDatomic[DD, Source]) =
-    new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, Source] {
-      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[Source] = {
+    new Attribute2PartialAddEntityWriter[DD, Cardinality.one.type, Source] {
+      def convert(attr: Attribute[DD, Cardinality.one.type]): PartialAddEntityWriter[Source] = {
         PartialAddEntityWriter[Source]{ s: Source =>
           PartialAddEntity( Map( attr.ident -> tdat.to(s) ) )
         }
@@ -34,8 +34,8 @@ object Attribute2PartialAddEntityWriter {
 
 
   implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit tdat: ToDatomic[DColl, Set[Source]]) =
-    new Attribute2PartialAddEntityWriter[DD, CardinalityMany.type, Set[Source]] {
-      def convert(attr: Attribute[DD, CardinalityMany.type]): PartialAddEntityWriter[Set[Source]] = {
+    new Attribute2PartialAddEntityWriter[DD, Cardinality.many.type, Set[Source]] {
+      def convert(attr: Attribute[DD, Cardinality.many.type]): PartialAddEntityWriter[Set[Source]] = {
         PartialAddEntityWriter[Set[Source]]{ s: Set[Source] =>
           if (s.isEmpty) PartialAddEntity( Map.empty )
           else PartialAddEntity( Map( attr.ident -> tdat.to(s) ) )
@@ -44,8 +44,8 @@ object Attribute2PartialAddEntityWriter {
     }
 
   /*implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData] = 
-    new Attribute2PartialAddEntityWriter[DD, CardinalityOne.type, DD] {
-      def convert(attr: Attribute[DD, CardinalityOne.type]): PartialAddEntityWriter[DD] = {
+    new Attribute2PartialAddEntityWriter[DD, Cardinality.one.type, DD] {
+      def convert(attr: Attribute[DD, Cardinality.one.type]): PartialAddEntityWriter[DD] = {
         PartialAddEntityWriter[DD]{ d: DD => 
           PartialAddEntity( Map( attr.ident -> d ) )
         }

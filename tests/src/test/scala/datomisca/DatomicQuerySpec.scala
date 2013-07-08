@@ -16,6 +16,8 @@
 
 package datomisca
 
+import ast._
+
 import org.specs2.mutable._
 
 import org.junit.runner.RunWith

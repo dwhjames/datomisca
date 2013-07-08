@@ -22,7 +22,7 @@ import scala.reflect.macros.Context
 import scala.reflect.internal.util.{Position, OffsetPosition}
 
 
-trait ExtraMacros {
+private[datomisca] trait ExtraMacros {
   /** Macro-based helper to create Datomic keyword using Clojure-style
     * {{{val kw = KW(":person/name")}}}
     *
@@ -32,10 +32,11 @@ trait ExtraMacros {
   def KW(q: String): Keyword = macro ExtraMacros.KWImpl
 }
 
-object ExtraMacros extends DatomicInception {
+private[datomisca] object ExtraMacros {
 
   def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
     import c.universe._
+    import DatomicInception._
 
     val inc = inception(c)
 

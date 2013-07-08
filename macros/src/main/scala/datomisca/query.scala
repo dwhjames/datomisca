@@ -16,6 +16,7 @@
 
 package datomisca
 
+import ast._
 import macros.{QueryMacros}
 
 import java.{util => ju}
