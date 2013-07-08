@@ -18,7 +18,7 @@ import sbt._
 
 object Boilerplate {
 
-  def gen(dir: File) = {
+  def genCore(dir: File) = {
     val typedQueryAutos = dir / "datomisca" / "typedQueryAuto.scala"
     IO.write(typedQueryAutos, genTypedQueryAutos)
 
@@ -28,7 +28,26 @@ object Boilerplate {
     val queryResultToTupleInstances = dir / "datomisca" / "QueryResultToTupleInstances.scala"
     IO.write(queryResultToTupleInstances, genQueryResultToTupleInstances)
 
-    Seq(typedQueryAutos, queryExecutorAuto, queryResultToTupleInstances)
+    val typedAddDbFunctions = dir / "datomisca" / "typedAddDbFunction.scala"
+    IO.write(typedAddDbFunctions, genTypedAddDbFunctions)
+
+    val addTxFunctions = dir / "datomisca" / "AddTxFunctionGen.scala"
+    IO.write(addTxFunctions, genAddTxFunctions)
+
+    val invokeTxFunctions = dir / "datomisca" / "InvokeTxFunctionGen.scala"
+    IO.write(invokeTxFunctions, genInvokeTxFunctions)
+
+    Seq(
+      typedQueryAutos, queryExecutorAuto, queryResultToTupleInstances,
+      typedAddDbFunctions, addTxFunctions, invokeTxFunctions
+    )
+  }
+
+  def genExtras(dir: File) = {
+    val builders = dir / "datomisca" / "functional" / "builders.scala"
+    IO.write(builders, genBuilders)
+
+    Seq(builders)
   }
 
   def genHeader = {
@@ -49,7 +68,7 @@ object Boilerplate {
         | */
         |
         |package datomisca
-        """).stripMargin
+        |""").stripMargin
   }
 
   def genTypedQueryAutos = {
@@ -64,7 +83,8 @@ object Boilerplate {
     val instances = ((1 to 22) map genInstance).mkString
 
     genHeader +
-    ("""|
+    ("""|package gen
+        |
         |case class TypedQueryAuto0[R](query: PureQuery) extends TypedQueryAuto(query)
         | """ +
          instances + """
@@ -90,7 +110,9 @@ object Boilerplate {
 
     genHeader +
     ("""|
-        |trait QueryExecutorAuto {
+        |import gen._
+        |
+        |private[datomisca] trait QueryExecutorAuto {
         |
         |  def q[Out]
         |       (query: TypedQueryAuto0[Out], dataSource: DatomicData)
@@ -106,7 +128,7 @@ object Boilerplate {
   def genQueryResultToTupleInstances = {
     def genInstance(arity: Int) = {
       val typeParams = Seq.fill(arity)("DatomicData").mkString("(", ", ", ")")
-      val body = ((0 until arity) map (n => "Datomic.toDatomicData(l.get("+n+"))")).mkString("(", ", ", ")")
+      val body = ((0 until arity) map (n => "DatomicData.toDatomicData(l.get("+n+"))")).mkString("(", ", ", ")")
 
       ("""|
           |  implicit object QueryResultToTuple"""+arity+" extends QueryResultToTuple["+typeParams+"""] {
@@ -120,12 +142,154 @@ object Boilerplate {
 
     genHeader +
     ("""|
-        |trait QueryResultToTupleInstances {
+        |private[datomisca] trait QueryResultToTupleInstances {
         |  implicit object QueryResultToTuple1 extends QueryResultToTuple[DatomicData] {
-        |    override def toTuple(l: java.util.List[AnyRef]) = Datomic.toDatomicData(l.get(0))
+        |    override def toTuple(l: java.util.List[AnyRef]) = DatomicData.toDatomicData(l.get(0))
         |  }""" +
            instances +
      """|}
+        |""").stripMargin
+  }
+
+  def genTypedAddDbFunctions = {
+    def genInstance(arity: Int) = {
+      val typeParams = ((1 to arity) map (n => "In"+n+":ToDatomicCast")).mkString(", ")
+
+      ("""|
+          |class TypedAddDbFunction"""+arity+"["+typeParams+"""](fn: AddDbFunction) extends TypedAddDbFunction(fn)
+          |""").stripMargin
+    }
+
+    val instances = ((1 to 22) map genInstance).mkString
+
+    genHeader +
+    ("""|package gen
+        |
+        |class TypedAddDbFunction0(fn: AddDbFunction) extends TypedAddDbFunction(fn)
+        | """ +
+         instances + """
+        |""").stripMargin
+  }
+
+  def genAddTxFunctions = {
+    def genInstance(arity: Int) = {
+      val methodTypeParams = ((1 until arity) map (n => "In"+n+":ToDatomicCast")).mkString("[", ", ", "]")
+      val params = ((1 to arity) map (n => "p"+n+": String")).mkString("(", ", ", ")")
+      val classTypeParams = ((1 until arity) map (n => "In"+n)).mkString("[", ", ", "]")
+      val args = ((1 to arity) map (n => "p"+n)).mkString("(", ", ", ")")
+
+      ("""|
+          |  def typed"""+methodTypeParams+"""
+          |           (kw: Keyword)
+          |           """+params+"""
+          |           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
+          |           (code: String) =
+          |    new TypedAddDbFunction"""+(arity-1)+classTypeParams+"""(
+          |      new AddDbFunction(kw, lang, Seq"""+args+""", code, imports, requires, partition))
+          |""").stripMargin
+    }
+
+    val instances = ((2 to 22) map genInstance).mkString
+
+    genHeader +
+    ("""|
+        |import gen._
+        |
+        |private[datomisca] trait AddTxFunctionGen {""" +
+           instances + """
+        |}
+        |""").stripMargin
+  }
+
+  def genInvokeTxFunctions = {
+    def genInstance(arity: Int) = {
+      val methodTypeParams = ((1 to arity) map (n => "In"+n+":ToDatomicCast")).mkString("[", ", ", "]")
+      val classTypeParams = ((1 to arity) map (n => "In"+n)).mkString("[", ", ", "]")
+      val methodParams = ((1 to arity) map (n => "in"+n+": In"+n)).mkString("(", ", ", ")")
+      val args = ((1 to arity) map (n => "Datomic.toDatomic(in"+n+")")).mkString("Seq(", ", ", ")")
+
+      ("""|
+          |  def apply"""+methodTypeParams+"""
+          |           (fn: TypedAddDbFunction"""+arity+classTypeParams+""")
+          |           """+methodParams+""" =
+          |    new InvokeTxFunction(
+          |      fn.ident,
+          |      """+args+"""
+          |    )
+          |""").stripMargin
+    }
+
+    val instances = ((1 to 22) map genInstance).mkString
+
+    genHeader +
+    ("""|
+        |import gen._
+        |
+        |private[datomisca] trait InvokeTxFunctionGen {""" +
+           instances + """
+          
+        |}
+        |""").stripMargin
+  }
+
+  def genBuilders = {
+    def genNesting(arity: Int): String = arity match {
+      case 2 => "new ~(a1, a2)"
+      case n if n > 2 => "new ~("+genNesting(n-1)+", a"+arity+")"
+      case n if n < 2 => throw new RuntimeException
+    }
+
+    def genInstance(arity: Int) = {
+      val typeList = ((1 to arity) map (n => "A"+n)) // A1 A2 ... An
+      val typeListDec = typeList.init // A1 A2 ... An-1
+      val typeParams = typeList.mkString("[", ", ", "]") // [A1, A2, ... An]
+      val combParams = typeList.mkString("~") // A1~A2~... An
+      val combDec = typeListDec.mkString("[", " ~ ", "]") // [A1 ~ A2 ~ ... An-1]
+      val params = typeList.mkString("(", ", ", ")") // (A1, A2, ... An)
+      val typeParamInc = "[A"+(arity+1)+"]" // [An+1]
+      val valList = ((1 to arity) map (n => "a"+n)) // a1 a2 ... an
+      val combVals = valList.mkString(" ~ ") // a1 ~ a2 ~ ... an
+      val parenVals = valList.mkString("(", ", ", ")") // (a1, a2, ... an)
+      val valsWithTypes = ((1 to arity) map (n => "a"+n+": A"+n)).mkString("(", ", ", ")") // (a1: A1, a2: A2, ... an: A2)
+      val valsWithIdx = ((1 to arity) map (n => "a._"+n)).mkString("(", ", ", ")") // (a._1, a._2, ... a._n)
+
+      ("""|
+          |  class Builder"""+arity+typeParams+"(m1: M"+combDec+", m2:M[A"+arity+"""]) {
+          |    def ~"""+typeParamInc+"(m3: M"+typeParamInc+") = new Builder"+(arity+1)+"""(combi(m1, m2), m3)
+          |    def and"""+typeParamInc+"(m3: M"+typeParamInc+""") = this.~(m3)
+          |
+          |    def apply[B](f: """+params+""" => B)(implicit functor: Functor[M]): M[B] =
+          |      functor.fmap["""+combParams+", B](combi(m1, m2), { case "+combVals+" => f"+parenVals+""" })
+          |
+          |    def apply[B](f: B => """+params+""")(implicit functor: ContraFunctor[M]): M[B] =
+          |      functor.contramap["""+combParams+", B](combi(m1, m2), { (b: B) => f(b) match { case "+parenVals+" => "+genNesting(arity)+""" } })
+          |
+          |    def tupled(implicit v: Variant[M]): M["""+params+"""] = (v: @unchecked) match {
+          |      case f: Functor[M] => apply("""+valsWithTypes+" => "+parenVals+""")(f)
+          |      case f: ContraFunctor[M] => apply((a: """+params+") => "+valsWithIdx+""")(f)
+          |    }
+          |  }
+          |""").stripMargin
+    }
+
+    val size = 20 // long compile for 21 and out of mem for 22
+
+    val instances = ((2 until size) map genInstance).mkString
+
+    val combSize = ((1 until size) map (n => "A"+n)).mkString("[", " ~ ", "]")
+    val typeParamsSize = ((1 to size) map (n => "A"+n)).mkString("[", ", ", "]")
+
+    genHeader +
+    ("""|
+        |package functional
+        |
+        |import scala.language.higherKinds
+        |
+        |class Builder[M[_]](combi: Combinator[M]) {""" +
+           instances + """
+        |
+        | case class Builder"""+size+typeParamsSize+"(m1: M"+combSize+", m2: M[A"+size+"""])
+        |}
         |""").stripMargin
   }
 

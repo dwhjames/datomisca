@@ -1,6 +1,5 @@
 
 import datomisca._
-import Datomic._
 
 import scala.concurrent._
 import scala.concurrent.duration.Duration
@@ -86,7 +85,7 @@ object AccountsTxData {
     Seq(
       InvokeTxFunction(transferFn.ident)(fromAcc, toAcc, DBigDec(transAmount)),
       Entity.add(txId)(
-        KW(":db/doc") -> note,
+        Datomic.KW(":db/doc") -> note,
         from.ident    -> fromAcc,
         to.ident      -> toAcc,
         amount.ident  -> transAmount
@@ -161,47 +160,47 @@ object Accounts {
   val uri = "datomic:mem://datomisca-accounts-sample"
 
   // Datomic Connection as an implicit in scope
-  implicit lazy val conn = connect(uri)
+  implicit lazy val conn = Datomic.connect(uri)
 
   def main(args: Array[String]) {
     import AccountsSchema.{name, from, to}
     import AccountsQueries._
     import AccountsTxData.{transfer, credit}
-    createDatabase(uri)
+    Datomic.createDatabase(uri)
 
     Await.result(
       for {
-        _ <- transact(AccountsSchema.schema)
-        _ <- transact(AccountsTxData.sampleTxData)
+        _ <- Datomic.transact(AccountsSchema.schema)
+        _ <- Datomic.transact(AccountsTxData.sampleTxData)
       } yield (),
       Duration("3 seconds")
     )
 
     val issuerId =
-      q(findAccountByName, database, DString("Issuer")).head.as[DLong]
+      Datomic.q(findAccountByName, Datomic.database, DString("Issuer")).head.as[DLong]
     val bobId =
-      q(findAccountByName, database, DString("Bob")).head.as[DLong]
+      Datomic.q(findAccountByName, Datomic.database, DString("Bob")).head.as[DLong]
     val aliceId =
-      q(findAccountByName, database, DString("Alice")).head.as[DLong]
+      Datomic.q(findAccountByName, Datomic.database, DString("Alice")).head.as[DLong]
 
     Await.result(
       for {
-        _ <- transact(transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
+        _ <- Datomic.transact(transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
         _ =  Thread.sleep(2000)
-        _ <- transact(transfer(issuerId, bobId,   BigDecimal(23), "Issuance to Bob"))
+        _ <- Datomic.transact(transfer(issuerId, bobId,   BigDecimal(23), "Issuance to Bob"))
         _ =  Thread.sleep(2000)
-        _ <- transact(transfer(aliceId, bobId,    BigDecimal(7),  "Dinner"))
+        _ <- Datomic.transact(transfer(aliceId, bobId,    BigDecimal(7),  "Dinner"))
       } yield (),
       Duration("10 seconds")
     )
 
     def dumpAcc(eid: DatomicData) {
-      val entity = database.entity(eid.asInstanceOf[DLong])
+      val entity = Datomic.database.entity(eid.asInstanceOf[DLong])
       println(entity.toMap)
     }
 
     def dumpTx(eid: DatomicData) {
-      val entity = database.entity(eid.asInstanceOf[DLong])
+      val entity = Datomic.database.entity(eid.asInstanceOf[DLong])
       def getName(entity: DEntity, kw: Keyword) =
         entity.as[DEntity](kw).as[DString](name.ident)
       println(
@@ -212,34 +211,34 @@ object Accounts {
     }
 
     println("All accounts")
-    q(queryAccounts, database) foreach dumpAcc
+    Datomic.q(queryAccounts, Datomic.database) foreach dumpAcc
     println()
 
     println("All transactions")
-    q(queryAllTransactions, database) foreach dumpTx
+    Datomic.q(queryAllTransactions, Datomic.database) foreach dumpTx
     println()
 
     println("Issuers's account")
     dumpAcc(issuerId)
     println("Issuers's transactions")
-    q(queryAccountTransactions, database, rulesParty, issuerId) foreach dumpTx
+    Datomic.q(queryAccountTransactions, Datomic.database, rulesParty, issuerId) foreach dumpTx
     println()
 
     println("Bob's account")
     dumpAcc(bobId)
     println("Bob's transactions")
-    q(queryAccountTransactions, database, rulesParty, bobId) foreach dumpTx
+    Datomic.q(queryAccountTransactions, Datomic.database, rulesParty, bobId) foreach dumpTx
     println()
 
     println("Alice's account")
     dumpAcc(aliceId)
     println("Alice's transactions")
-    q(queryAccountTransactions, database, rulesParty, aliceId) foreach dumpTx
+    Datomic.q(queryAccountTransactions, Datomic.database, rulesParty, aliceId) foreach dumpTx
     println()
 
     try {
       Await.result(
-        transact(transfer(aliceId, bobId, BigDecimal(71),  "Car")),
+        Datomic.transact(transfer(aliceId, bobId, BigDecimal(71),  "Car")),
         Duration("3 seconds")
       )
     } catch {

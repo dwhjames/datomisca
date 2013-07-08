@@ -2,8 +2,6 @@
 import scala.language.reflectiveCalls
 
 import datomisca._
-import Datomic._
-import DatomicMapping._
 
 import scala.concurrent._
 import scala.concurrent.duration.Duration
@@ -114,7 +112,7 @@ object GettingStarted {
         // the keyword constructed from namespaces
         PersonSchema.ns.person / "age" -> 30,
         // a raw keyword
-        KW(":person/birth")            -> new JDate,
+        Datomic.KW(":person/birth")    -> new JDate,
         // The set of references to the 'interests' idents
         PersonSchema.interests.ident -> Set( PersonSchema.movies, PersonSchema.books )
       )
@@ -169,7 +167,7 @@ object GettingStarted {
         """)
 
         // execute the query and sort the results by age
-        val results = Datomic.q(queryFindByName, database, DLong(32)) sortBy (_._3.as[Long])
+        val results = Datomic.q(queryFindByName, Datomic.database, DLong(32)).toSeq sortBy (_._3.as[Long])
 
         println(s"""Results:
         |${results.mkString("[\n  ", ",\n  ", "\n]")}
@@ -181,7 +179,7 @@ object GettingStarted {
           case (DLong(eid), DString(qname), DLong(qage), DInstant(qbirth)) =>
 
             // load the entity by its entity id
-            val entity = database.entity(eid)
+            val entity = Datomic.database.entity(eid)
 
             /*
              * get the value for the name attribute
@@ -205,7 +203,7 @@ object GettingStarted {
              * keyword and a type, which retrieves the
              * value and casts it.
              */
-            val birth     = entity.as[JDate](KW(":person/birth"))
+            val birth     = entity.as[JDate](Datomic.KW(":person/birth"))
             assert(qbirth == birth)
 
             /*
