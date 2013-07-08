@@ -1,3 +1,23 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
+
+import DatomicMapping._
+
 import scala.language.reflectiveCalls
 
 import org.specs2.mutable._
@@ -6,11 +26,9 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-import datomisca._
-import Datomic._
-import DatomicMapping._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicMapping2Spec extends Specification {
@@ -18,7 +36,7 @@ class DatomicMapping2Spec extends Specification {
 
   val uri = "datomic:mem://DatomicMapping2Spec"
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  
 
   case class Person(id: Long, name: String, age: Long, birth: java.util.Date, characters: Set[Keyword], specialChar: Keyword, dog: Option[Dog] = None, doggies: Set[Dog])
   case class Dog(id: Option[Long], name: String, age: Long)
@@ -220,9 +238,9 @@ class DatomicMapping2Spec extends Specification {
               [ :find ?e 
                 :where [?e :person/name "toto"]
               ]
-            """), database).head match {
+            """), Datomic.database).head match {
               case DLong(e) =>
-                val entity = database.entity(e)
+                val entity = Datomic.database.entity(e)
                 println(
                   "dentity age:" + entity.getAs[Long](person / "age") + 
                   " name:" + entity(person / "name") +
@@ -247,9 +265,9 @@ class DatomicMapping2Spec extends Specification {
         [ :find ?e 
           :where [?e :dog/name "medor"]
         ]
-      """), database).head match {
+      """), Datomic.database).head match {
         case DLong(e) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           DatomicMapping.fromEntity[Dog](entity) must beEqualTo(medor.copy(id=Some(realMedorId)))
       }
 
@@ -257,9 +275,9 @@ class DatomicMapping2Spec extends Specification {
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]
-      """), database).head match {
+      """), Datomic.database).head match {
         case DLong(e) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           val realMedor = medor.copy(id=Some(realMedorId))
           val realDoggy1 = doggy1.copy(id=Some(realDoggy1Id))
           val realDoggy2 = doggy2.copy(id=Some(realDoggy2Id))
@@ -284,9 +302,9 @@ class DatomicMapping2Spec extends Specification {
         [ :find ?e 
           :where [?e :person/name "toto2"]
         ]
-      """), database).head match {
+      """), Datomic.database).head match {
         case DLong(e) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           DatomicMapping.fromEntity[Person3](entity) must beEqualTo(
             toto2.copy(
               id=realToto2Id
@@ -303,9 +321,9 @@ class DatomicMapping2Spec extends Specification {
         [ :find ?e 
           :where [?e :person/name "toto"]
         ]
-      """), database).head match {
+      """), Datomic.database).head match {
         case DLong(e) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
 
           entity(PersonSchema.name) must beEqualTo("toto")
 

@@ -20,7 +20,7 @@ object DatomiscaBuild extends Build {
       id       = "datomisca",
       base     = file("."),
       settings = rootProjectSettings
-    ) aggregate(common, macros, core, extras)
+    ) aggregate(common, macros, core, extras, tests)
 
   lazy val common = Project(
       id       = "common",
@@ -45,6 +45,12 @@ object DatomiscaBuild extends Build {
       base     = file("extras"),
       settings = extrasProjectSettings
     ) dependsOn(common, core)
+
+  lazy val tests = Project(
+      id = "tests",
+      base = file("tests"),
+      settings = testsProjectSettings
+    ) dependsOn(common, core, extras, macros)
 
 
   val typesafeRepo = Seq(
@@ -72,10 +78,6 @@ object DatomiscaBuild extends Build {
     Publish.settings ++
     Seq(
       name := "Datomisca",
-
-      libraryDependencies ++= Dependencies.test,
-
-      fork in Test := true,
 
       scalacOptions in ScalaUnidoc += "-Ymacro-no-expand",
 
@@ -137,6 +139,16 @@ object DatomiscaBuild extends Build {
       name := "Datomisca extras",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
+    )
+
+  lazy val testsProjectSettings =
+    subProjectSettings ++
+    Seq(
+      name := "Datomisca tests",
+
+      libraryDependencies ++= Dependencies.test,
+
+      fork in Test := true
     )
 
 }

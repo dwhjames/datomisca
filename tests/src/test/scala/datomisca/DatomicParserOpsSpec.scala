@@ -1,3 +1,20 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
 
 import scala.language.reflectiveCalls
 
@@ -8,24 +25,23 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-import datomisca._
-import Datomic._
 
+@RunWith(classOf[JUnitRunner])
 class DatomicParserOpsSpec extends Specification {
   sequential
 
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   val uri = "datomic:mem://DatomicParserOpsSpec"
 
   def startDB = {
-    println(s"created DB with uri $uri: ${createDatabase(uri)}")
+    println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
   } 
 
   def stopDB = {
-    deleteDatabase(uri)
+    Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }
 
@@ -43,7 +59,7 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).id)(KW(":db/ident") -> DRef(KW(":region/n")))
+          Fact.add(ops(0).id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n")))
         ).toString
       )
     }
@@ -60,7 +76,7 @@ class DatomicParserOpsSpec extends Specification {
       println(s"2 - Ops:$ops")
       ops.toString must beEqualTo(
         List(
-          Fact.add(id)(KW(":db/ident") -> DRef(KW(":region/n")))
+          Fact.add(id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n")))
         ).toString
       )
     }
@@ -78,8 +94,8 @@ class DatomicParserOpsSpec extends Specification {
       println(s"3 - Ops:$ops")
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).id)(KW(":db/ident") -> DRef(KW(":region/n"))),
-          Fact.add(id)(KW(":db/ident") -> DRef(KW(":region/n")))
+          Fact.add(ops(0).id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n"))),
+          Fact.add(id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n")))
         ).toString
       )
     }
@@ -97,7 +113,7 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.retract(ops(0).id)(KW(":db/ident") -> DRef(KW(":region/n")))
+          Fact.retract(ops(0).id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n")))
         ).toString
       )
     }
@@ -180,9 +196,9 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
-          Fact.add(id)(KW(":db/ident") -> DRef(KW(":region/n"))),
-          // FIX Fact.retract(ops(2).asInstanceOf[RetractFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          Fact.add(ops(0).asInstanceOf[AddFact].id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n"))),
+          Fact.add(id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n"))),
+          // FIX Fact.retract(ops(2).asInstanceOf[RetractFact].id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n"))),
           Entity.retract(1234L),
           Entity.add(id)(
             person / "name"      -> "toto",
@@ -227,20 +243,20 @@ class DatomicParserOpsSpec extends Specification {
 
       ops.toString must beEqualTo(
         List(
-          Fact.add(ops(0).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":character/weak"))),
-          Fact.add(ops(1).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":character/dumb"))),
-          Fact.add(ops(2).asInstanceOf[AddFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
-          // FIX Fact.retract(ops(3).asInstanceOf[RetractFact].id)(KW(":db/ident") -> DRef(KW(":region/n"))),
+          Fact.add(ops(0).asInstanceOf[AddFact].id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":character/weak"))),
+          Fact.add(ops(1).asInstanceOf[AddFact].id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":character/dumb"))),
+          Fact.add(ops(2).asInstanceOf[AddFact].id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n"))),
+          // FIX Fact.retract(ops(3).asInstanceOf[RetractFact].id)(Datomic.KW(":db/ident") -> DRef(Datomic.KW(":region/n"))),
           Entity.retract(1234L),
           Entity.add(ops(4).asInstanceOf[AddEntity].id)(
             person / "name"      -> "toto, tata",
             person / "age"       -> 30L,
-            person / "character" -> Set(DRef(KW(":character/_weak")), DRef(KW(":character/dumb-toto")))
+            person / "character" -> Set(DRef(Datomic.KW(":character/_weak")), DRef(Datomic.KW(":character/dumb-toto")))
           ),
           Entity.add(ops(5).asInstanceOf[AddEntity].id)(
             person / "name"      -> "toto",
             person / "age"       -> 30L,
-            person / "character" -> Set(DRef(KW(":character/_weak")), DRef(KW(":character/dumb-toto")))
+            person / "character" -> Set(DRef(Datomic.KW(":character/_weak")), DRef(Datomic.KW(":character/dumb-toto")))
           )
         ).toString
       )

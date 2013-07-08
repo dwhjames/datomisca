@@ -1,3 +1,20 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
 
 import scala.language.reflectiveCalls
 
@@ -6,13 +23,12 @@ import org.specs2.mutable._
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import datomisca._
-import Datomic.{toDatomic, fromDatomic, KW}
-import DatomicMapping._
+import Datomic.{toDatomic, fromDatomic}
 
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import java.util.{Date, UUID}
 import java.net.URI
+
 
 @RunWith(classOf[JUnitRunner])
 class ToFromDatomicSpec extends Specification {
@@ -51,7 +67,7 @@ class ToFromDatomicSpec extends Specification {
 
       toDatomic(DBytes(Array(Byte.MinValue))) must beAnInstanceOf[DBytes]
 
-      toDatomic(DKeyword(KW(":my-kw"))) must beAnInstanceOf[DKeyword]
+      toDatomic(DKeyword(Datomic.KW(":my-kw"))) must beAnInstanceOf[DKeyword]
 
       success
     }
@@ -83,7 +99,7 @@ class ToFromDatomicSpec extends Specification {
 
       toDatomic(Array(Byte.MinValue)) must beAnInstanceOf[DBytes]
 
-      toDatomic(KW(":my-kw")) must beAnInstanceOf[DKeyword]
+      toDatomic(Datomic.KW(":my-kw")) must beAnInstanceOf[DKeyword]
 
       success
     }
@@ -109,7 +125,7 @@ class ToFromDatomicSpec extends Specification {
       SchemaFact.add(id)(attruuid    -> UUID.randomUUID())
       SchemaFact.add(id)(attruri     -> new URI("urn:isbn:096139210x"))
       SchemaFact.add(id)(attrbytes   -> Array(Byte.MinValue))
-      SchemaFact.add(id)(attrkeyword -> KW(":my-kw"))
+      SchemaFact.add(id)(attrkeyword -> Datomic.KW(":my-kw"))
 
       // extensions
       SchemaFact.add(id)(attrlong -> Int.MinValue)
@@ -145,7 +161,7 @@ class ToFromDatomicSpec extends Specification {
 
       DBytes(Array(Byte.MinValue)).as[DBytes]
 
-      DKeyword(KW(":my-kw")).as[DKeyword]
+      DKeyword(Datomic.KW(":my-kw")).as[DKeyword]
 
       success
     }
@@ -176,7 +192,7 @@ class ToFromDatomicSpec extends Specification {
 
       DBytes(Array(Byte.MinValue)).as[Array[Byte]]
 
-      DKeyword(KW(":my-kw")).as[Keyword]
+      DKeyword(Datomic.KW(":my-kw")).as[Keyword]
 
       success
     }
@@ -267,7 +283,7 @@ class ToFromDatomicSpec extends Specification {
 
       val bytes: Array[Byte] = fromDatomic(DBytes(Array(Byte.MinValue)))
 
-      val keyword: Keyword = fromDatomic(DKeyword(KW(":my-kw")))
+      val keyword: Keyword = fromDatomic(DKeyword(Datomic.KW(":my-kw")))
 
       success
     }

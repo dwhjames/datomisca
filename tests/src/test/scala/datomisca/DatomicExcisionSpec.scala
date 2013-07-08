@@ -1,3 +1,20 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
 
 import org.specs2.mutable._
 
@@ -6,12 +23,9 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-import datomisca._
-import Datomic._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])
 class DatomicExcisionSpec extends Specification {
@@ -20,7 +34,7 @@ class DatomicExcisionSpec extends Specification {
   val person = Namespace("person")
 
   def startDB = {
-    println(s"created DB with uri $uri: ${createDatabase(uri)}")
+    println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)
 
@@ -48,9 +62,9 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
-      println("BEGIN:"+database.basisT)
+      println("BEGIN:"+Datomic.database.basisT)
 
       val maybeRes = Datomic.transact(
         Excise.entity(e)
@@ -61,7 +75,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent)
         }
 
@@ -83,9 +97,9 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
-      println("BEGIN:"+database.basisT)
+      println("BEGIN:"+Datomic.database.basisT)
 
       val maybeRes = Datomic.transact(
         Excise.entity(e, DId(Partition.USER))
@@ -96,7 +110,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent)
         }
 
@@ -118,9 +132,9 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
-      println("BEGIN:"+database.basisT)
+      println("BEGIN:"+Datomic.database.basisT)
 
       val maybeRes = Datomic.transact(
         Excise.entity(e, person / "name")
@@ -131,7 +145,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent)
         }
 
@@ -146,7 +160,7 @@ class DatomicExcisionSpec extends Specification {
     "full entity excision before date" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -155,9 +169,9 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
-      println("BEGIN:"+database.basisT)
+      println("BEGIN:"+Datomic.database.basisT)
 
       val maybeRes = Datomic.transact(
         Excise.entity(e).before(new java.util.Date())
@@ -168,7 +182,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 
@@ -183,7 +197,7 @@ class DatomicExcisionSpec extends Specification {
     "full entity excision before tx" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -192,12 +206,12 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
-      println("BEGIN:"+database.basisT)
+      println("BEGIN:"+Datomic.database.basisT)
 
       val maybeRes = Datomic.transact(
-        Excise.entity(e).before(database.basisT)
+        Excise.entity(e).before(Datomic.database.basisT)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -205,7 +219,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 
@@ -220,7 +234,7 @@ class DatomicExcisionSpec extends Specification {
     "partial entity excision before tx" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -229,12 +243,12 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
-      println("BEGIN:"+database.basisT)
+      println("BEGIN:"+Datomic.database.basisT)
 
       val maybeRes = Datomic.transact(
-        Excise.entity(e, person / "name").before(database.basisT)
+        Excise.entity(e, person / "name").before(Datomic.database.basisT)
       ).map{ tx =>
         val toto = tx.dbAfter.entity(e)
         println("AFTER:"+tx)
@@ -242,7 +256,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 
@@ -257,7 +271,7 @@ class DatomicExcisionSpec extends Specification {
     "attribute excision before tx" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -266,7 +280,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age", basisT)
@@ -276,7 +290,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 
@@ -291,7 +305,7 @@ class DatomicExcisionSpec extends Specification {
     "attribute excision before date" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -300,7 +314,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age", new java.util.Date)
@@ -310,7 +324,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 
@@ -325,7 +339,7 @@ class DatomicExcisionSpec extends Specification {
     "attribute excision ALL" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -334,7 +348,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age")
@@ -344,7 +358,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 
@@ -359,7 +373,7 @@ class DatomicExcisionSpec extends Specification {
     "attribute excision before tx with excisionId" in {
       implicit val conn = Datomic.connect(uri)
 
-      val basisT = database.basisT
+      val basisT = Datomic.database.basisT
 
       val query = Query("""
         [ :find ?e
@@ -368,7 +382,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, database, DString("toto")).head
+      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age", DId(Partition.USER), basisT)
@@ -378,7 +392,7 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), database, DLong(e)).head match {
+        """), Datomic.database, DLong(e)).head match {
           case DLong(ent) => println("found excision entity:"+ent); success
         }
 

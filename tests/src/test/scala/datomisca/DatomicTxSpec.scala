@@ -1,3 +1,23 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
+
+import DatomicMapping._
+
 import org.specs2.mutable._
 
 import org.junit.runner.RunWith
@@ -5,17 +25,14 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-import scala.util.{Try, Success, Failure}
 
-import datomisca._
-import Datomic._
-import DatomicMapping._
 
+@RunWith(classOf[JUnitRunner])
 class DatomicTxSpec extends Specification {
   sequential
 
-  import scala.concurrent.ExecutionContext.Implicits.global
 
   val uri = "datomic:mem://DatomicTxSpec"
 
@@ -86,7 +103,7 @@ class DatomicTxSpec extends Specification {
   }
 
   def startDB = {
-    println(s"Creating DB with uri $uri: ${createDatabase(uri)}")
+    println(s"Creating DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
     
@@ -97,7 +114,7 @@ class DatomicTxSpec extends Specification {
   } 
 
   def stopDB = {
-    deleteDatabase(uri)
+    Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }
 
@@ -144,9 +161,9 @@ class DatomicTxSpec extends Specification {
               :where [ ?e :person/friend ?f ]
                      [ ?f :person/name "toto" ]
             ]              
-          """), database) map {
+          """), Datomic.database) map {
             case DLong(e) =>
-              val entity = database.entity(e)
+              val entity = Datomic.database.entity(e)
               val p @ Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"Found person with name $name and age $age")
               p
@@ -204,9 +221,9 @@ class DatomicTxSpec extends Specification {
               :where [ ?e :person/friend ?f ]
                      [ ?f :person/name "toto" ]
             ]
-          """), database) map {
+          """), Datomic.database) map {
             case DLong(e) =>
-              val entity = database.entity(e)
+              val entity = Datomic.database.entity(e)
               val Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"2 Found person with name $name and age $age")
           }
@@ -287,7 +304,7 @@ class DatomicTxSpec extends Specification {
         println(s"2 Provisioned more data... TX: $tx")
         val txIds = tx.tempidMap
         println(s"4 totoId:${txIds(totoId)} medorId:${txIds(medorId)}")
-        val entity = database.entity(txIds(totoId))
+        val entity = Datomic.database.entity(txIds(totoId))
         val PersonDog(name, age, dog) = DatomicMapping.fromEntity[PersonDog](entity)
         println(s"Found Toto $name $age $dog")
       }      
@@ -336,11 +353,11 @@ class DatomicTxSpec extends Specification {
         println(s"5 - Provisioned more data... TX: $tx")
         val txIds = tx.tempidMap
         println(s"5 - totoId:${txIds(totoId)} tutuId:${txIds(tutuId)}")
-        val entityToto = database.entity(txIds(totoId))
+        val entityToto = Datomic.database.entity(txIds(totoId))
         val t1 = DatomicMapping.fromEntity[PersonLike](entityToto)
         println(s"5 - retrieved toto:$t")
         t1.toString must beEqualTo(PersonLike("toto", 30, Some("chocolate")).toString)
-        val entityTutu = database.entity(txIds(tutuId))
+        val entityTutu = Datomic.database.entity(txIds(tutuId))
         val t2 = DatomicMapping.fromEntity[PersonLike](entityTutu)
         println(s"5 - retrieved tutu:$t")
         t2 must beEqualTo(tutu)
@@ -385,7 +402,7 @@ class DatomicTxSpec extends Specification {
         
         val realTotoId = tx.resolve(totoId)
         println(s"6 - totoId:$totoId")
-        val entity = database.entity(realTotoId)
+        val entity = Datomic.database.entity(realTotoId)
         val t = DatomicMapping.fromEntity[PersonLikes](entity)
         println(s"5 - retrieved toto:$t")
         t must beEqualTo(PersonLikes("toto", 30, Set("chocolate", "vanilla")))
@@ -449,12 +466,12 @@ class DatomicTxSpec extends Specification {
         
         val Seq(realMedorId, realTotoId, realTutuId) = Seq(medorId, totoId, tutuId) map tx.resolve
         println(s"7 - totoId:$totoId medorId:$medorId")
-        val entityToto = database.entity(realTotoId)
+        val entityToto = Datomic.database.entity(realTotoId)
         val t1 = DatomicMapping.fromEntity[PersonDogOpt](entityToto)
         println(s"7 - retrieved toto:$t")
         t1.toString must beEqualTo(PersonDogOpt("toto", 30, Some(IdView(DId(realMedorId))(medor))).toString)
 
-        val entityTutu = database.entity(realTutuId)
+        val entityTutu = Datomic.database.entity(realTutuId)
         val t2 = DatomicMapping.fromEntity[PersonDogOpt](entityTutu)
         println(s"7 - retrieved tutu:$t")
         t2 must beEqualTo(tutu)
@@ -520,7 +537,7 @@ class DatomicTxSpec extends Specification {
         println(s"8 - Provisioned more data... TX: $tx")
         
         val Seq(realMedorId, realBrutusId, realTotoId) = Seq(medorId, brutusId, totoId) map tx.resolve
-        val entity = database.entity(realTotoId)
+        val entity = Datomic.database.entity(realTotoId)
         val t = DatomicMapping.fromEntity[PersonDogList](entity)
         t must beEqualTo(PersonDogList("toto", 30, Set(IdView(DId(realMedorId))(medor), IdView(DId(realBrutusId))(brutus))))
       }      
@@ -549,9 +566,9 @@ class DatomicTxSpec extends Specification {
         )
       ) map { tx => 
         val id = tx.resolve(idToto)
-        database.entity(id) !== beNull
+        Datomic.database.entity(id) !== beNull
         
-        database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
+        Datomic.database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
         tx.resolveEntity(DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
       }
     }

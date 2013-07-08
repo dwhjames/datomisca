@@ -1,3 +1,21 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
+
 import scala.language.reflectiveCalls
 
 import org.specs2.mutable._
@@ -7,12 +25,8 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-
-import datomisca._
-import Datomic._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @RunWith(classOf[JUnitRunner])
@@ -44,7 +58,7 @@ class DatomicSchemaQuerySpec extends Specification {
   )
 
   def startDB = {
-    println(s"created DB with uri $uri: ${createDatabase(uri)}")
+    println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
     
@@ -97,11 +111,11 @@ class DatomicSchemaQuerySpec extends Specification {
       
       Datomic.q(
         query, 
-        database, 
-        DRef(KW(":person.character/violent"))
+        Datomic.database, 
+        DRef(Datomic.KW(":person.character/violent"))
       ) map {
         case (DLong(e), DString(n)) => 
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
       

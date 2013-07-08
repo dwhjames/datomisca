@@ -1,3 +1,21 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
+
 import org.specs2.mutable._
 
 import org.junit.runner.RunWith
@@ -5,12 +23,8 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
-
-import datomisca._
-import Datomic._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
 @RunWith(classOf[JUnitRunner])
@@ -20,7 +34,7 @@ class DatomicQuerySpec extends Specification {
   val person = Namespace("person")
 
   def startDB = {
-    println(s"created DB with uri $uri: ${createDatabase(uri)}")
+    println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)
 
@@ -48,9 +62,9 @@ class DatomicQuerySpec extends Specification {
           :where  [ ?e :person/name ?n ]
                   [ ?e :person/character :person.character/violent ]
         ]
-      """), database) map {
+      """), Datomic.database) map {
         case Seq(DLong(e), DString(n)) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
 
@@ -64,9 +78,9 @@ class DatomicQuerySpec extends Specification {
       val q = Query("""
         [:find ?e :where [?e :person/name]]
       """)
-      Datomic.q(q, database) map {
+      Datomic.q(q, Datomic.database) map {
         case DLong(e) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
 
@@ -83,9 +97,9 @@ class DatomicQuerySpec extends Specification {
          :in $ [?names ...]
          :where [?e :person/name ?names]
         ]
-      """), database, Datomic.coll("toto", "tata")) map {
+      """), Datomic.database, Datomic.coll("toto", "tata")) map {
         case DLong(e) =>
-          val entity = database.entity(e)
+          val entity = Datomic.database.entity(e)
           println(s"3 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
 
@@ -104,7 +118,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
       Datomic.q(
-        q, database,
+        q, Datomic.database,
         DColl(
           Datomic.coll("toto", 30L),
           Datomic.coll("tutu", 54L)
@@ -126,7 +140,7 @@ class DatomicQuerySpec extends Specification {
          :where [(fulltext $ :person/name "toto") [[ ?e ?n ]]]
         ]
       """)
-      Datomic.q(q, database) map {
+      Datomic.q(q, Datomic.database) map {
         case (DLong(e), DString(n)) =>
           println(s"5 - entity: $e name: $n")
       }
@@ -200,7 +214,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
 
-      Datomic.q(q, database, totoRule) map {
+      Datomic.q(q, Datomic.database, totoRule) map {
         case (DLong(e), DLong(age)) =>
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
@@ -221,7 +235,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
 
-      Datomic.q(q, database) map {
+      Datomic.q(q, Datomic.database) map {
         case (DLong(e), DString(name)) =>
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
@@ -290,9 +304,9 @@ class DatomicQuerySpec extends Specification {
     val q = Query("""
       [:find ?e :where [?e :person/name]]
     """)
-    Datomic.q(q, database) map {
+    Datomic.q(q, Datomic.database) map {
       case DLong(e) =>
-        val entity = database.entity(e)
+        val entity = Datomic.database.entity(e)
         println(s"12 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
     }
 

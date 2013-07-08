@@ -1,3 +1,20 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
 
 import org.specs2.mutable._
 
@@ -5,12 +22,9 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-import datomisca._
-import Datomic._
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 @RunWith(classOf[JUnitRunner])
 class DatomicDbFunctionSpec extends Specification {
@@ -21,9 +35,9 @@ class DatomicDbFunctionSpec extends Specification {
       val uri = "datomic:mem://DatomicDbFunctionSpec"
 
       object Data {
-        val foo = AddIdent(KW(":foo"))
+        val foo = AddIdent(Datomic.KW(":foo"))
 
-        val addDocFn = AddTxFunction(KW(":add-doc"))("db", "e", "doc")("java") {
+        val addDocFn = AddTxFunction(Datomic.KW(":add-doc"))("db", "e", "doc")("java") {
           """
           return list(list(":db/add", e, ":db/doc", doc));
           """
@@ -33,20 +47,20 @@ class DatomicDbFunctionSpec extends Specification {
       }
 
       Datomic.createDatabase(uri)
-      implicit val conn = connect(uri)
+      implicit val conn = Datomic.connect(uri)
 
       val maybeRes = Datomic.transact(Data.txData).flatMap{ tx =>
-        val fooEntity = database.entity(Data.foo.ident)
+        val fooEntity = Datomic.database.entity(Data.foo.ident)
 
-        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
+        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
 
         Datomic.transact(
           InvokeTxFunction(Data.addDocFn.ident)(Data.foo.ref, DString("this is foo's doc"))
         ).map{ tx =>
-          val fooEntity = database.entity(Data.foo.ident)
+          val fooEntity = Datomic.database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)
 
-          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
+          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
           fooEntity(Namespace.DB / "doc") must beEqualTo(DString("this is foo's doc"))
 
           success
@@ -144,7 +158,7 @@ class DatomicDbFunctionSpec extends Specification {
           Seq(
             InvokeTxFunction(transferFn.ident)(fromAcc, toAcc, DBigDec(transAmount)),
             Entity.add(txId)(
-              KW(":db/doc") -> note,
+              Datomic.KW(":db/doc") -> note,
               from.ident    -> fromAcc,
               to.ident      -> toAcc,
               amount.ident  -> transAmount
@@ -206,48 +220,48 @@ class DatomicDbFunctionSpec extends Specification {
       val uri = "datomic:mem://DatomicDbFunctionSpec"
 
       Datomic.createDatabase(uri)
-      implicit val conn = connect(uri)
+      implicit val conn = Datomic.connect(uri)
 
       Await.result(
         for {
-          _ <- transact(AccountsSchema.schema)
-          _ <- transact(AccountsTxData.sampleTxData)
+          _ <- Datomic.transact(AccountsSchema.schema)
+          _ <- Datomic.transact(AccountsTxData.sampleTxData)
         } yield (),
         Duration("3 seconds")
       )
 
       val issuerId =
-        q(AccountsQueries.findAccountByName, database, DString("Issuer")).head.as[DLong]
+        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, DString("Issuer")).head.as[DLong]
       val bobId =
-        q(AccountsQueries.findAccountByName, database, DString("Bob")).head.as[DLong]
+        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, DString("Bob")).head.as[DLong]
       val aliceId =
-        q(AccountsQueries.findAccountByName, database, DString("Alice")).head.as[DLong]
+        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, DString("Alice")).head.as[DLong]
 
       Await.result(
         for {
-          _ <- transact(AccountsTxData.transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
+          _ <- Datomic.transact(AccountsTxData.transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
           _ =  Thread.sleep(2000)
-          _ <- transact(AccountsTxData.transfer(issuerId, bobId,   BigDecimal(23), "Issuance to Bob"))
+          _ <- Datomic.transact(AccountsTxData.transfer(issuerId, bobId,   BigDecimal(23), "Issuance to Bob"))
           _ =  Thread.sleep(2000)
-          _ <- transact(AccountsTxData.transfer(aliceId, bobId,    BigDecimal(7),  "Dinner"))
+          _ <- Datomic.transact(AccountsTxData.transfer(aliceId, bobId,    BigDecimal(7),  "Dinner"))
         } yield (),
         Duration("10 seconds")
       )
 
-      //println("bob:"+database.entity(bobId).toMap)
-      //println("alice:"+database.entity(aliceId).toMap)
+      //println("bob:"+Datomic.database.entity(bobId).toMap)
+      //println("alice:"+Datomic.database.entity(aliceId).toMap)
 
-      database.entity(bobId).as[BigDecimal](AccountsSchema.balance.ident) must beEqualTo(30L)
-      database.entity(aliceId).as[BigDecimal](AccountsSchema.balance.ident) must beEqualTo(70L)
+      Datomic.database.entity(bobId).as[BigDecimal](AccountsSchema.balance.ident) must beEqualTo(30L)
+      Datomic.database.entity(aliceId).as[BigDecimal](AccountsSchema.balance.ident) must beEqualTo(70L)
     }
 
     "simplest typed Fn" in {
       val uri = "datomic:mem://DatomicDbFunctionSpec"
 
       object Data {
-        val foo = AddIdent(KW(":foo"))
+        val foo = AddIdent(Datomic.KW(":foo"))
 
-        val addDocFn = AddTxFunction.typed[AddIdent, String](KW(":add-doc"))("db", "e", "doc")("java") {
+        val addDocFn = AddTxFunction.typed[AddIdent, String](Datomic.KW(":add-doc"))("db", "e", "doc")("java") {
           """
           return list(list(":db/add", e, ":db/doc", doc));
           """
@@ -257,20 +271,20 @@ class DatomicDbFunctionSpec extends Specification {
       }
 
       Datomic.createDatabase(uri)
-      implicit val conn = connect(uri)
+      implicit val conn = Datomic.connect(uri)
 
       val maybeRes = Datomic.transact(Data.txData).flatMap{ tx =>
-        val fooEntity = database.entity(Data.foo.ident)
+        val fooEntity = Datomic.database.entity(Data.foo.ident)
 
-        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
+        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
 
         Datomic.transact(
           InvokeTxFunction(Data.addDocFn)(Data.foo, "this is foo's doc")
         ).map{ tx =>
-          val fooEntity = database.entity(Data.foo.ident)
+          val fooEntity = Datomic.database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)
 
-          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(KW(":foo")))
+          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
           fooEntity(Namespace.DB / "doc") must beEqualTo(DString("this is foo's doc"))
 
           success

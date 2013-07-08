@@ -1,3 +1,21 @@
+/*
+ * Copyright 2012 Pellucid and Zenexity
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package datomisca
+
 import scala.language.reflectiveCalls
 
 import org.specs2.mutable._
@@ -6,21 +24,19 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import scala.concurrent._
+import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-import datomisca._
-import Datomic._
 
 @RunWith(classOf[JUnitRunner])
 class DatomicSchema2Spec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
-      import scala.concurrent.ExecutionContext.Implicits.global
 
       val uri = "datomic:mem://DatomicSchema2Spec"
 
       //DatomicBootstrap(uri)
-      println(s"created DB with uri $uri: ${createDatabase(uri)}")
+      println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
       implicit val conn = Datomic.connect(uri)
 
@@ -69,7 +85,7 @@ class DatomicSchema2Spec extends Specification {
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-          """), database).head.head match { case DLong(l) => l }
+          """), Datomic.database).head.head match { case DLong(l) => l }
 
           println(s"TOTO: $totoId")
           Datomic.transact(
@@ -81,14 +97,14 @@ class DatomicSchema2Spec extends Specification {
               [ :find ?e
                 :where  [ ?e :person/name "toto" ] 
               ]
-            """), database).isEmpty must beTrue
+            """), Datomic.database).isEmpty must beTrue
 
             println(s"Provisioned data... TX: $tx")
             val tutuId = Datomic.q(Query.pure("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
-            """), database).head.head match { case DLong(l) => l }
+            """), Datomic.database).head.head match { case DLong(l) => l }
 
             println(s"TUTU: $tutuId")
             Datomic.transact(
@@ -100,7 +116,7 @@ class DatomicSchema2Spec extends Specification {
                 [ :find ?e
                   :where  [ ?e :person/name "tutu" ] 
                 ]
-              """), database).isEmpty must beTrue
+              """), Datomic.database).isEmpty must beTrue
             }
           }
         }
