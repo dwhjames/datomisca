@@ -82,12 +82,12 @@ trait OpsMacros {
 }
 
 private[datomisca] object OpsMacros {
-  import DatomicInception._
+  //import DatomicInception._
 
   def addEntityImpl(c: Context)(q: c.Expr[String]): c.Expr[AddEntity] = {
     import c.universe._
 
-    val inc = inception(c)
+    val inc = new Helper[c.type](c)
 
     q.tree match {
       case Literal(Constant(s: String)) => 
@@ -97,7 +97,7 @@ private[datomisca] object OpsMacros {
 
             val offsetPos = new OffsetPosition(
               treePos.source, 
-              computeOffset(treePos, offsetLine, offsetCol)
+              inc.computeOffset(treePos, offsetLine, offsetCol)
             )
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
           case Right(ae) => 
@@ -111,7 +111,7 @@ private[datomisca] object OpsMacros {
   def opsImpl(c: Context)(q: c.Expr[String]): c.Expr[Seq[Operation]] = {
     import c.universe._
 
-    val inc = inception(c)
+    val inc = new Helper[c.type](c)
 
     q.tree match {
       case Literal(Constant(s: String)) => 
@@ -121,7 +121,7 @@ private[datomisca] object OpsMacros {
 
             val offsetPos = new OffsetPosition(
               treePos.source, 
-              computeOffset(treePos, offsetLine, offsetCol)
+              inc.computeOffset(treePos, offsetLine, offsetCol)
             )
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
           case Right(ops) => 

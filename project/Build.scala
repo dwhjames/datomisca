@@ -53,20 +53,20 @@ object DatomiscaBuild extends Build {
     ) dependsOn(common, core, extras, macros)
 
 
-  val typesafeRepo = Seq(
+  val repositories = Seq(
     "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/"
-  )
+    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/",
 
-  val datomicRepo = Seq(
-    "clojars"   at "https://clojars.org/repo",
+    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+
+    "clojars" at "https://clojars.org/repo",
     "couchbase" at "http://files.couchbase.com/maven2"
   )
 
   lazy val sharedSettings =
     buildSettings ++
     Seq(
-      resolvers ++= typesafeRepo ++ datomicRepo,
+      resolvers ++= repositories,
       libraryDependencies ++= Dependencies.shared,
       shellPrompt := { s => Project.extract(s).currentProject.id + "> " }
     )
@@ -79,7 +79,8 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "Datomisca",
 
-      scalacOptions in ScalaUnidoc += "-Ymacro-no-expand",
+      scalacOptions in (ScalaUnidoc, UnidocKeys.unidoc) += "-Ymacro-no-expand",
+      UnidocKeys.excludedProjects in UnidocKeys.unidoc in ScalaUnidoc += "Datomisca macros",
 
       publishArtifact in (Compile, packageDoc) := false,
 
@@ -112,7 +113,10 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "Datomisca macros",
 
-      libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+      scalaVersion := "2.10.2-SNAPSHOT",
+      scalaOrganization := "org.scala-lang.macro-paradise",
+      libraryDependencies <+= (scalaVersion)("org.scala-lang.macro-paradise" % "scala-reflect" % _)
+      // libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
     )
 
   lazy val mapGenSourceSettings =

@@ -36,9 +36,9 @@ private[datomisca] object ExtraMacros {
 
   def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
     import c.universe._
-    import DatomicInception._
+    // import DatomicInception._
 
-    val inc = inception(c)
+    val inc = new Helper[c.type](c)
 
     q.tree match {
       case Literal(Constant(s: String)) =>
@@ -48,7 +48,7 @@ private[datomisca] object ExtraMacros {
 
             val offsetPos = new OffsetPosition(
               treePos.source,
-              computeOffset(treePos, offsetLine, offsetCol)
+              inc.computeOffset(treePos, offsetLine, offsetCol)
             )
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
           case Right(kw) => c.Expr[Keyword]( inc.incept(kw) )
