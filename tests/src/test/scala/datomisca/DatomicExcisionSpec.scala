@@ -85,6 +85,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "full entity excision with excisionId" in {
@@ -120,6 +122,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "partial entity excision" in {
@@ -155,6 +159,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "full entity excision before date" in {
@@ -192,6 +198,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "full entity excision before tx" in {
@@ -229,6 +237,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "partial entity excision before tx" in {
@@ -266,6 +276,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "attribute excision before tx" in {
@@ -300,6 +312,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "attribute excision before date" in {
@@ -334,6 +348,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "attribute excision ALL" in {
@@ -368,6 +384,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
 
     "attribute excision before tx with excisionId" in {
@@ -402,6 +420,8 @@ class DatomicExcisionSpec extends Specification {
         maybeRes,
         Duration("3 seconds")
       )
+
+      success
     }
   }
 }

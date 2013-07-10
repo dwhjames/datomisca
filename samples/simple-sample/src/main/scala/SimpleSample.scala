@@ -1,12 +1,11 @@
 
+import scala.language.reflectiveCalls
+
 import datomisca._
 
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
+
 
 object Person {
   // Namespaces definition to be reused in Schema

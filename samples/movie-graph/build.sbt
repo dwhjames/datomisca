@@ -2,9 +2,9 @@ name := "datomisca-movie-graph"
 
 organization := "pellucidanalytics"
 
-version := "0.3-SNAPSHOT"
+version := "0.5-SNAPSHOT"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.2"
 
 resolvers ++= Seq(
   "datomisca-repo snapshots" at "https://github.com/pellucidanalytics/datomisca-repo/raw/master/snapshots",
@@ -13,6 +13,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "pellucidanalytics" %% "datomisca" % "0.3-SNAPSHOT",
-  "com.datomic" % "datomic-free" % "0.8.4007"
+  "pellucidanalytics" %% "datomisca" % "0.5-SNAPSHOT",
+  "com.datomic" % "datomic-free" % "0.8.4020.26"
 )

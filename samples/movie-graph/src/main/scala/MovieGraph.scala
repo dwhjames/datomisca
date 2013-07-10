@@ -2,8 +2,6 @@
 import scala.language.reflectiveCalls
 
 import datomisca._
-//import Datomic._
-//import DatomicMapping._
 
 import scala.concurrent._
 import scala.concurrent.duration.Duration

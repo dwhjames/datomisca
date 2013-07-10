@@ -254,6 +254,8 @@ class DatomicMapping2Spec extends Specification {
         Duration("2 seconds")
       )
 
+      success
+
     }
 
     "read case class with ID" in {
@@ -310,6 +312,8 @@ class DatomicMapping2Spec extends Specification {
               id=realToto2Id
             ))
       }
+
+      success
     }
 
     "get entity fields from attributes" in {
@@ -358,6 +362,8 @@ class DatomicMapping2Spec extends Specification {
             )).toMap
           )
       }
+
+      success
     }
 
     "create ops from attributes" in {
@@ -411,6 +417,8 @@ class DatomicMapping2Spec extends Specification {
           person / "characters" -> DColl(violent.ref, weak.ref)
         )
       ).toString)
+
+      success
     }
   }
   
