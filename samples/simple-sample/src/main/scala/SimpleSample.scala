@@ -1,13 +1,11 @@
 
+import scala.language.reflectiveCalls
+
 import datomisca._
-import Datomic._
 
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
+
 
 object Person {
   // Namespaces definition to be reused in Schema
@@ -84,12 +82,12 @@ object GettingStarted {
           ]
         """)
 
-        val results = Datomic.q(queryFindByName, database, DString("John"))
+        val results = Datomic.q(queryFindByName, Datomic.database, DString("John"))
         println(results)
         results.headOption.map{
           case (e: DLong, age: DLong) =>
             // retrieves again the entity directly by its ID
-            val entity = database.entity(e)
+            val entity = Datomic.database.entity(e)
 
             val johnName = entity.as[String](Person.person / "name")
             val johnAge = entity.as[Long](Person.person / "age")

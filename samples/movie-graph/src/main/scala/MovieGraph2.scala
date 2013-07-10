@@ -2,8 +2,6 @@
 import scala.language.reflectiveCalls
 
 import datomisca._
-import Datomic._
-import DatomicMapping._
 
 import scala.concurrent._
 import scala.concurrent.duration.Duration
@@ -223,39 +221,39 @@ object MovieGraph2 {
       Datomic.transact(MovieGraph2Data.txData)
     } map { _ =>
 
-      def disp[T](results: List[T]): Unit =
+      def disp[T](results: Iterable[T]): Unit =
         println(s"""Results:
         |${results.mkString("[\n  ", ",\n  ", "\n]")}
         |""".stripMargin)
 
       disp {
         println("Find the movie 'The Matrix'")
-        Datomic.q(MovieGraph2Queries.queryFindMovieByTitle, database, DString("The Matrix"))
+        Datomic.q(MovieGraph2Queries.queryFindMovieByTitle, Datomic.database, DString("The Matrix"))
       }
 
       disp {
         println("Find movies with titles that start with 'The Matrix'")
-        Datomic.q(MovieGraph2Queries.queryFindMovieByTitlePrefix, database, DString("The Matrix"))
+        Datomic.q(MovieGraph2Queries.queryFindMovieByTitlePrefix, Datomic.database, DString("The Matrix"))
       }
 
       disp {
         println("Find the actors in the movie 'Memento'")
-        Datomic.q(MovieGraph2Queries.queryFindActorsInTitle, database, DString("Memento"))
+        Datomic.q(MovieGraph2Queries.queryFindActorsInTitle, Datomic.database, DString("Memento"))
       }
 
       disp {
         println("Find the movie roles for actor 'Carrie-Ann Moss'")
-        Datomic.q(MovieGraph2Queries.queryFindTitlesAndRolesForActor, database, DString("Carrie-Ann Moss"))
+        Datomic.q(MovieGraph2Queries.queryFindTitlesAndRolesForActor, Datomic.database, DString("Carrie-Ann Moss"))
       }
 
       disp {
         println("Find the movies that included actors from 'The Matrix Reloaded'")
-        Datomic.q(MovieGraph2Queries.queryFindMoviesThatIncludeActorsInGivenMovie, database, DString("The Matrix Reloaded"))
+        Datomic.q(MovieGraph2Queries.queryFindMoviesThatIncludeActorsInGivenMovie, Datomic.database, DString("The Matrix Reloaded"))
       }
 
       disp {
         println("Find all the movies with a role called 'Agent Smith'")
-        Datomic.q(MovieGraph2Queries.queryFindAllMoviesWithRole, database, DString("Agent Smith"))
+        Datomic.q(MovieGraph2Queries.queryFindAllMoviesWithRole, Datomic.database, DString("Agent Smith"))
       }
     }
 
