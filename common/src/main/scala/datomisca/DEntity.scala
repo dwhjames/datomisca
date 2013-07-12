@@ -51,15 +51,23 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     get(keyword) map (fdat.from(_))
 
   def keySet: Set[String] = {
-    import scala.collection.JavaConverters._
-
-    entity.keySet.asScala.view.toSet
+    val builder = Set.newBuilder[String]
+    val iter = entity.keySet.iterator
+    while (iter.hasNext) {
+      builder += iter.next()
+    }
+    builder.result
   }
 
-  def toMap: Map[String, DatomicData] =
-    keySet.view.map{ key: String =>
-      (key -> apply(key))
-    }.toMap
+  def toMap: Map[String, DatomicData] = {
+    val builder = Map.newBuilder[String, DatomicData]
+    val iter = entity.keySet.iterator
+    while (iter.hasNext) {
+      val key = iter.next()
+      builder += (key -> DatomicData.toDatomicData(entity.get(key)))
+    }
+    builder.result
+  }
 
 }
 
