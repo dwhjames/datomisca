@@ -22,4 +22,8 @@ object SchemaEntity {
     */
   def add(id: DId)(props: Props): AddEntity = AddEntity(id, props.convert)
 
+  def add(id: DLong)(props: Props): AddEntity = AddEntity(DId(id), props.convert)
+
+  def add(id: Long)(props: Props): AddEntity = AddEntity(DId(id), props.convert)
+
 }
