@@ -179,19 +179,19 @@ object DRef {
   }
 }
 
-trait ToDRef[T] {
+sealed trait ToDRef[T] {
   def toDRef(t: T): DRef
 }
 
 object ToDRef {
-  implicit val keyword2DRef = new ToDRef[Keyword] { def toDRef(kw: Keyword) = new DRef(Left(kw)) }
-  implicit val long2DRef    = new ToDRef[Long]    { def toDRef(l:  Long)    = new DRef(Right(DId(l))) }
-  implicit val dlong2DRef   = new ToDRef[DLong]   { def toDRef(l:  DLong)   = new DRef(Right(DId(l))) }
+  implicit val keyword2DRef: ToDRef[Keyword] = new ToDRef[Keyword] { def toDRef(kw: Keyword) = new DRef(Left(kw)) }
+  implicit val long2DRef:    ToDRef[Long]    = new ToDRef[Long]    { def toDRef(l:  Long)    = new DRef(Right(DId(l))) }
+  implicit val dlong2DRef:   ToDRef[DLong]   = new ToDRef[DLong]   { def toDRef(l:  DLong)   = new DRef(Right(DId(l))) }
 
-  implicit def did2DRef[I <: DId] = new ToDRef[I] { def toDRef(i:  I)       = new DRef(Right(i)) }
+  implicit def did2DRef[I <: DId]: ToDRef[I] = new ToDRef[I]       { def toDRef(i:  I)       = new DRef(Right(i)) }
 }
 
-trait DId extends DatomicData
+sealed trait DId extends DatomicData
 
 case class FinalId(underlying: Long) extends DId {
   //def toNative: AnyRef = underlying
