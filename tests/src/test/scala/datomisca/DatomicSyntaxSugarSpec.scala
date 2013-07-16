@@ -78,7 +78,7 @@ class DatomicSyntaxSugarSpec extends Specification {
         ).toString
       )
 
-      Entity.add("""{
+      Entity.addRaw("""{
         :db/id $id
         :person/name "toto"
         :person/age 30
@@ -92,7 +92,7 @@ class DatomicSyntaxSugarSpec extends Specification {
       )
 
       Datomic.transact(
-        Entity.add("""{
+        Entity.addRaw("""{
           :db/id ${DId(Partition.USER)}
           :person/name "toto"
           :person/age 30

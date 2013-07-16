@@ -86,7 +86,7 @@ class DatomicDemoSpec extends Specification {
             Datomic.KW(":person/age") -> 54L,
             Datomic.KW(":person/character") -> Seq(violent, clever)
           ),
-          Entity.add("""{
+          Entity.addRaw("""{
             :db/id ${DId(Partition.USER)}
             :person/name "tutu"
             :person/age 35

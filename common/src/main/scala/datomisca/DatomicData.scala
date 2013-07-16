@@ -210,6 +210,26 @@ object DId {
   def apply(id: DLong) = new FinalId(id.underlying)
 }
 
+trait ToDId[T] {
+  def to(t: T): DId
+}
+
+object ToDId {
+  implicit val long  = new ToDId[Long]  { override def to(l: Long)  = new FinalId(l) }
+  implicit val dlong = new ToDId[DLong] { override def to(l: DLong) = new FinalId(l.underlying) }
+  implicit def dId[I <: DId] = new ToDId[I] { override def to(i: I) = i}
+}
+
+trait FromFinalId[T] {
+  def from(t: T): Long
+}
+
+object FromFinalId {
+  implicit val long    = new FromFinalId[Long]    { override def from(l: Long)    = l }
+  implicit val dlong   = new FromFinalId[DLong]   { override def from(l: DLong)   = l.underlying }
+  implicit val finalid = new FromFinalId[FinalId] { override def from(l: FinalId) = l.underlying }
+}
+
 
 
 class DColl(coll: Iterable[DatomicData]) extends DatomicData {

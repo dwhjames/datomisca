@@ -20,35 +20,22 @@ package datomisca
 object SchemaFact {
   /** add based on Schema attributes 
     */
-  def add[DD <: DatomicData, Card <: Cardinality, A](id: DId)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
+  def add[T, DD <: DatomicData, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
+    (implicit ev: ToDId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: DatomicData) = partial.props.head
-    AddFact(id, kw, value)
-  }
-
-  def add[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
-    add(DId(id))(prop)(attrC)
-  }
-
-  def add[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
-    add(DId(DLong(id)))(prop)(attrC)
+    AddFact(ev.to(id), kw, value)
   }
 
   /** retract based on Schema attributes 
     */
-  def retract[DD <: DatomicData, Card <: Cardinality, A](id: Long)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
+  def retract[T, DD <: DatomicData, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
+    (implicit ev: FromFinalId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: DatomicData) = partial.props.head
-    RetractFact(id, kw, value)
+    RetractFact(ev.from(id), kw, value)
   }
-  def retract[DD <: DatomicData, Card <: Cardinality, A](id: DLong)(prop: (Attribute[DD, Card], A))
-    (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
-    retract(id.underlying)(prop)(attrC)
-  }
+
 }
