@@ -76,7 +76,7 @@ class DatomicDemoSpec extends Specification {
          *  - remove a ] from addEntity to show compiling error
          */
         Datomic.transact(
-          AddEntity(DId(Partition.USER))(
+          Entity.add(DId(Partition.USER))(
             person / "name" -> DString("toto"),
             person / "age" -> DLong(30L),
             person / "character" -> DColl(weak.ref, dumb.ref)

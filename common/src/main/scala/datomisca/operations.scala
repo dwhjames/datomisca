@@ -82,12 +82,6 @@ case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends P
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
-object AddEntity {
-  //def apply(id: DId, props: Map[Keyword, DatomicData]): AddToEntity = new AddToEntity(props + (Keyword("id", Namespace.DB) -> id) )
-  def apply(id: DId)(props: (Keyword, DatomicData)*): AddEntity = new AddEntity(id, props.toMap)
-  def apply(id: DId, partial: PartialAddEntity) = new AddEntity(id, partial.props)
-}
-
 case class AddIdent(ident: Keyword, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
   lazy val ref = DRef(ident)
   def toNative = AddFact(DId(partition), Keyword("ident", Namespace.DB), ref).toNative
