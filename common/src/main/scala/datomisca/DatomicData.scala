@@ -162,10 +162,7 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
 }
 
 object DRef {
-  def apply(kw: Keyword) = new DRef(Left(kw))
-  def apply(id: DId)     = new DRef(Right(id))
-  def apply(id: DLong)   = new DRef(Right(DId(id)))
-  def apply(id: Long)    = new DRef(Right(DId(id)))
+  def apply[T](t: T)(implicit ev: ToDRef[T]) = ev.toDRef(t)
 
   object IsKeyword {
     def unapply(ref: DRef): Option[Keyword] = ref.underlying match {
@@ -182,7 +179,19 @@ object DRef {
   }
 }
 
-trait DId extends DatomicData
+sealed trait ToDRef[T] {
+  def toDRef(t: T): DRef
+}
+
+object ToDRef {
+  implicit val keyword2DRef: ToDRef[Keyword] = new ToDRef[Keyword] { def toDRef(kw: Keyword) = new DRef(Left(kw)) }
+  implicit val long2DRef:    ToDRef[Long]    = new ToDRef[Long]    { def toDRef(l:  Long)    = new DRef(Right(DId(l))) }
+  implicit val dlong2DRef:   ToDRef[DLong]   = new ToDRef[DLong]   { def toDRef(l:  DLong)   = new DRef(Right(DId(l))) }
+
+  implicit def did2DRef[I <: DId]: ToDRef[I] = new ToDRef[I]       { def toDRef(i:  I)       = new DRef(Right(i)) }
+}
+
+sealed trait DId extends DatomicData
 
 case class FinalId(underlying: Long) extends DId {
   //def toNative: AnyRef = underlying
@@ -206,8 +215,27 @@ object DId {
 
   def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
   def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
-  def apply(id: Long) = new FinalId(id)
-  def apply(id: DLong) = new FinalId(id.underlying)
+  def apply[T](id: T)(implicit ev: ToDId[T]) = ev.to(id)
+}
+
+sealed trait ToDId[T] {
+  def to(t: T): DId
+}
+
+object ToDId {
+  implicit val long:          ToDId[Long]  = new ToDId[Long]  { override def to(l: Long)  = new FinalId(l) }
+  implicit val dlong:         ToDId[DLong] = new ToDId[DLong] { override def to(l: DLong) = new FinalId(l.underlying) }
+  implicit def dId[I <: DId]: ToDId[I]     = new ToDId[I]     { override def to(i: I)     = i }
+}
+
+trait FromFinalId[T] {
+  def from(t: T): Long
+}
+
+object FromFinalId {
+  implicit val long    = new FromFinalId[Long]    { override def from(l: Long)    = l }
+  implicit val dlong   = new FromFinalId[DLong]   { override def from(l: DLong)   = l.underlying }
+  implicit val finalid = new FromFinalId[FinalId] { override def from(l: FinalId) = l.underlying }
 }
 
 

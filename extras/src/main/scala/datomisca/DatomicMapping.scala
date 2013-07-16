@@ -25,7 +25,7 @@ object DatomicMapping
 {
   def fromEntity[A](e: DEntity)(implicit er: EntityReader[A]): A = er.read(e)
 
-  def toEntity[A](id: DId)(a: A)(implicit ew: PartialAddEntityWriter[A]): AddEntity = AddEntity(id, ew.write(a))
+  def toEntity[T, A](id: T)(a: A)(implicit ev: ToDId[T], ew: PartialAddEntityWriter[A]): AddEntity = new AddEntity(ev.to(id), ew.write(a).props)
 
   val ID = Attribute( Namespace.DB / "id", SchemaType.long, Cardinality.one)
 

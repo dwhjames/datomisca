@@ -39,7 +39,7 @@ object SchemaManager {
     """)
 
   private[datomisca] def hasSchema(schemaTag: Keyword, schemaName: String)(implicit db: DDatabase): Boolean =
-    ! Datomic.q(schemaTagQuery, db, DRef(schemaTag), DString(schemaName)).isEmpty
+    ! Datomic.q(schemaTagQuery, db, DKeyword(schemaTag), DString(schemaName)).isEmpty
 
   private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection): Future[Unit] =
     future {
