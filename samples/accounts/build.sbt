@@ -2,7 +2,7 @@ name := "datomisca-accounts-sample"
 
 organization := "pellucidanalytics"
 
-version := "0.5"
+version := "0.5.1"
 
 scalaVersion := "2.10.2"
 
@@ -15,6 +15,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "pellucidanalytics" %% "datomisca" % "0.5",
+  "pellucidanalytics" %% "datomisca" % "0.5.1",
   "com.datomic" % "datomic-free" % "0.8.4020.26"
 )
