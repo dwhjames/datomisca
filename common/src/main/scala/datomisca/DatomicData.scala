@@ -162,10 +162,7 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
 }
 
 object DRef {
-  def apply(kw: Keyword) = new DRef(Left(kw))
-  def apply(id: DId)     = new DRef(Right(id))
-  def apply(id: DLong)   = new DRef(Right(DId(id)))
-  def apply(id: Long)    = new DRef(Right(DId(id)))
+  def apply[T](t: T)(implicit ev: ToDRef[T]) = ev.toDRef(t)
 
   object IsKeyword {
     def unapply(ref: DRef): Option[Keyword] = ref.underlying match {
@@ -180,6 +177,18 @@ object DRef {
       case _         => None
     }
   }
+}
+
+trait ToDRef[T] {
+  def toDRef(t: T): DRef
+}
+
+object ToDRef {
+  implicit val keyword2DRef = new ToDRef[Keyword] { def toDRef(kw: Keyword) = new DRef(Left(kw)) }
+  implicit val long2DRef    = new ToDRef[Long]    { def toDRef(l:  Long)    = new DRef(Right(DId(l))) }
+  implicit val dlong2DRef   = new ToDRef[DLong]   { def toDRef(l:  DLong)   = new DRef(Right(DId(l))) }
+
+  implicit def did2DRef[I <: DId] = new ToDRef[I] { def toDRef(i:  I)       = new DRef(Right(i)) }
 }
 
 trait DId extends DatomicData

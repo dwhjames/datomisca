@@ -47,6 +47,9 @@ class ToFromDatomicSpec extends Specification {
   val attrbytes   = Attribute(ns / "bytes",   SchemaType.bytes,   Cardinality.one)
   val attrkeyword = Attribute(ns / "keyword", SchemaType.keyword, Cardinality.one)
 
+  val attrref     = Attribute(ns / "ref",     SchemaType.ref,     Cardinality.one)
+  val attrrefMany = Attribute(ns / "refMany", SchemaType.ref,     Cardinality.many)
+
   "ToDatomicCast" can {
 
     "write DatomicData as itself" in {
@@ -135,6 +138,42 @@ class ToFromDatomicSpec extends Specification {
 
       SchemaFact.add(id)(attrbigint -> BigInt(1).bigInteger)
       SchemaFact.add(id)(attrbigdec -> BigDecimal(1).bigDecimal)
+
+      success
+    }
+
+    "support various ways to write to reference attributes" in {
+      val id = 1L
+
+      /*
+       * we simply need the following code to compile
+       */
+      SchemaFact.add(id)(attrref -> DRef(Datomic.KW(":my-kw")))
+      SchemaFact.add(id)(attrref -> DRef(1L))
+      SchemaFact.add(id)(attrref -> DRef(DId(1L)))
+      SchemaFact.add(id)(attrref -> DRef(DId(Partition.USER)))
+
+      SchemaFact.add(id)(attrref -> DId(1L))
+      SchemaFact.add(id)(attrref -> DId(Partition.USER))
+      SchemaFact.add(id)(attrref -> 1L)
+      SchemaFact.add(id)(attrref -> Datomic.KW(":my-kw"))
+
+      SchemaFact.add(id)(attrrefMany -> Set(DId(1L)))
+      SchemaFact.add(id)(attrrefMany -> Seq(DId(Partition.USER)))
+      SchemaFact.add(id)(attrrefMany -> List(1L))
+      SchemaFact.add(id)(attrrefMany -> Iterable(Datomic.KW(":my-kw")))
+
+      val addfact = Fact.add(id)(attrstring.ident -> "str")
+      SchemaFact.add(id)(attrref -> addfact)
+      SchemaFact.add(id)(attrrefMany -> Set(addfact))
+
+      val retractfact = Fact.retract(id)(attrstring.ident -> "str")
+      SchemaFact.add(id)(attrref -> retractfact)
+      SchemaFact.add(id)(attrrefMany -> Set(retractfact))
+
+      val identEntity = AddIdent(Datomic.KW(":my-kw"))
+      SchemaFact.add(id)(attrref -> identEntity)
+      SchemaFact.add(id)(attrrefMany -> Set(identEntity))
 
       success
     }
