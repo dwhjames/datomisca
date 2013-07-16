@@ -163,6 +163,11 @@ class ToFromDatomicSpec extends Specification {
       SchemaFact.add(id)(attrrefMany -> List(1L))
       SchemaFact.add(id)(attrrefMany -> Iterable(Datomic.KW(":my-kw")))
 
+      SchemaFact.add(id)(attrrefMany -> DId(1L))
+      SchemaFact.add(id)(attrrefMany -> DId(Partition.USER))
+      SchemaFact.add(id)(attrrefMany -> 1L)
+      SchemaFact.add(id)(attrrefMany -> Datomic.KW(":my-kw"))
+
       val addfact = Fact.add(id)(attrstring.ident -> "str")
       SchemaFact.add(id)(attrref -> addfact)
       SchemaFact.add(id)(attrrefMany -> Set(addfact))

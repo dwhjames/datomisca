@@ -51,6 +51,13 @@ object Attribute2PartialAddEntityWriter {
       }
     }
 
+  implicit def refAttr2PartialAddEntityWriterSingleton[T](implicit ev: ToDRef[T]) =
+    new Attribute2PartialAddEntityWriter[DRef, Cardinality.many.type, T] {
+      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new PartialAddEntityWriter[T] {
+        override def write(t: T) = PartialAddEntity( Map( attr.ident -> ev.toDRef(t) ) )
+      }
+    }
+
   implicit def refAttr2PartialAddEntityWriterMany[C, T](implicit ev: C <:< Traversable[T], conv: ToDRef[T]) =
     new Attribute2PartialAddEntityWriter[DRef, Cardinality.many.type, C] {
       override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new PartialAddEntityWriter[C] {
