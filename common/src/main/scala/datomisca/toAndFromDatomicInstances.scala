@@ -68,8 +68,14 @@ trait FromDatomicImplicits {
 
   implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
 
-  implicit def DD2DCollTyped[T](implicit fdat: FromDatomicCast[T]): FromDatomic[DColl, Set[T]] =
-    FromDatomic(_.toSet.map( fdat.from(_) ))
+  implicit def DD2DCollTyped[T](implicit conv: FromDatomicCast[T]): FromDatomic[DColl, Set[T]] = new FromDatomic[DColl, Set[T]] {
+    override def from(d: DColl) = {
+      val builder = Set.newBuilder[T]
+      for (e <- d.toIterable) builder += conv.from(e)
+      builder.result
+    }
+  }
+
 }
 
 /**
@@ -106,9 +112,6 @@ trait ToDatomicInjImplicits {
   implicit val URI2DUri         = ToDatomicInj[DUri,     URI]         ((u: URI)         => DUri(u))
   implicit val Bytes2DBytes     = ToDatomicInj[DBytes,   Array[Byte]] ((a: Array[Byte]) => DBytes(a))
   implicit val Keyword2DKeyword = ToDatomicInj[DKeyword, Keyword]     ((k: Keyword)     => DKeyword(k))
-
-  implicit val WriteDRef        = ToDatomicInj[DRef,     DRef]        ((d: DRef)        => d)
-
 }
 
 /**
@@ -129,7 +132,6 @@ trait ToDatomicImplicits {
   implicit val JBigInt2DBigInt  = ToDatomic[DBigInt,  JBigInt]     ((i: JBigInt)     => DBigInt(i))
   implicit val JBigDec2DBigDec  = ToDatomic[DBigDec,  JBigDecimal] ((i: JBigDecimal) => DBigDec(i))
 
-  implicit val DId2DRef = ToDatomic[DRef, DId] { (id: DId) => DRef(id) }
 
   implicit def KeywordIdentified2DRef[T <: KeywordIdentified] = ToDatomic[DRef, T] { (x: T) => DRef(x.ident) }
   implicit def TempIdentified2DRef   [T <: TempIdentified]    = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
@@ -137,10 +139,13 @@ trait ToDatomicImplicits {
 
   implicit def DDatomicData[DD <: DatomicData] = ToDatomic[DD, DD]( dd => dd )
 
-  implicit def DColl2SetWrites[C, A](implicit witness: C <:< Iterable[A], tdat: ToDatomicCast[A]) =
-    ToDatomic[DColl, C]{ (l: C) =>
-      DColl(witness(l).map(tdat.to(_)))
+  implicit def DColl2SetWrites[C, A](implicit ev: C <:< Traversable[A], conv: ToDatomicCast[A]) = new ToDatomic[DColl, C] {
+    override def to(c: C) = {
+      val builder = Iterable.newBuilder[DatomicData]
+      for (e <- c) builder += conv.to(e)
+      DColl(builder.result)
     }
+  }
 
 }
 
