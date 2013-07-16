@@ -269,15 +269,19 @@ private[datomisca] object DatomicInception {
         if(!a.props.contains(Keyword("id", Namespace.DB)))
           c.abort(c.enclosingPosition, "addEntity requires one :db/id field")
         else {
-          val tree = Apply(
+          val tree =
             Apply(
               Ident(newTermName("AddEntity")),
-              List(inceptId(a.props(Keyword("id", Namespace.DB))))
-            ),
-            ( a.props - Keyword("id", Namespace.DB) ).map{ case (k, v) => 
-              Apply(Ident(newTermName("Tuple2")), List( incept(k), localIncept(v) ))
-            }.toList
-          )
+              List(
+                inceptId(a.props(Keyword("id", Namespace.DB))),
+                Apply(
+                  Ident(newTermName("Map")),
+                  ( a.props - Keyword("id", Namespace.DB) ).map{ case (k, v) =>
+                    Apply(Ident(newTermName("Tuple2")), List( incept(k), localIncept(v) ))
+                  }.toList
+                )
+              )
+            )
           tree
         }
       }

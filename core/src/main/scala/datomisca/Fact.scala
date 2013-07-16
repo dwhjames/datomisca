@@ -34,39 +34,7 @@ object Fact extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def add(id: DId)(prop: (Keyword, DWrapper)) = AddFact(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
-
-  /** Creates a single Add operation targeting a given [[DId]]
-    *
-    * In Clojure, this is equivalent to:
-    * {{{[:db/add entity-id attribute value]}}}
-    *
-    * {{{
-    * val totoName = Datomic.Fact.add(DLong(3L))( person / "name" -> "toto")
-    * }}}
-    *
-    * @param id a DLong corresponding to a real [[DId]]
-    * @param prop a tuple ([[Keyword]], value)<br/>
-    *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-    *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
-    */
-  def add(id: DLong)(prop: (Keyword, DWrapper)) = AddFact(DId(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
-
-  /** Creates a single Add operation targeting a given [[DId]]
-    *
-    * In Clojure, this is equivalent to:
-    * {{{[:db/add entity-id attribute value]}}}
-    *
-    * {{{
-    * val totoName = Datomic.Fact.add(3L)( person / "name" -> "toto")
-    * }}}
-    *
-    * @param id a Long corresponding to a real [[DId]]
-    * @param prop a tuple ([[Keyword]], value)<br/>
-    *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-    *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
-    */
-  def add(id: Long)(prop: (Keyword, DWrapper)) = AddFact(DId(DLong(id)), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def add[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: ToDId[T]) = AddFact(ev.to(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Retract operation targeting a given [[DId]]
     *
@@ -82,23 +50,7 @@ object Fact extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract(id: DLong)(prop: (Keyword, DWrapper)) = RetractFact(id.underlying, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
-
-  /** Creates a single Retract operation targeting a given [[datomisca.DId]]
-    *
-    * In Clojure, this is equivalent to:
-    * {{{[:db/retract entity-id attribute value]}}}
-    *
-    * {{{
-    * val totoName = Datomic.Fact.retract(3L)( person / "name" -> "toto")
-    * }}}
-    *
-    * @param id the Long of the targeted [[DId]]
-    * @param prop a tuple ([[Keyword]], value)<br/>
-    *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-    *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
-    */
-  def retract(id: Long)(prop: (Keyword, DWrapper)) = RetractFact(id, prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: FromFinalId[T]) = RetractFact(ev.from(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Helper: creates a special AddToEntity for creating a new Partition
     *
@@ -108,10 +60,10 @@ object Fact extends DatomicTypeWrapper {
     *
     * @param partition the partition to create
     */
-  def partition(partition: Partition) = {
-    AddEntity(DId(Partition.DB))(
+  def partition(partition: Partition) =
+    new AddEntity(DId(Partition.DB), Map(
       Namespace.DB / "ident" -> DString(partition.toString),
       Namespace.DB.INSTALL / "_partition" -> DString("db.part/db")
-    )
-  }
+    ))
+
 }
