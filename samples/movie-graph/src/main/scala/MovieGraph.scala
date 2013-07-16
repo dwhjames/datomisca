@@ -62,35 +62,35 @@ object MovieGraphData {
 
   def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[Operation]] = Seq(
     Seq(
-      SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> Set(DRef(tempIds(The_Matrix.id)))),
+      SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> tempIds(The_Matrix.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Trinity")
     ),
     Seq(
-      SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> Set(DRef(tempIds(The_Matrix_Reloaded.id)))),
+      SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> tempIds(The_Matrix_Reloaded.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Trinity")
     ),
     Seq(
-      SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> Set(DRef(tempIds(Memento.id)))),
+      SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> tempIds(Memento.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Natalie")
     ),
     Seq(
-      SchemaFact.add(tempIds(Hugo_Weaving.id))(actorActs -> Set(DRef(tempIds(The_Matrix.id)))),
+      SchemaFact.add(tempIds(Hugo_Weaving.id))(actorActs -> tempIds(The_Matrix.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Agent Smith")
     ),
     Seq(
-      SchemaFact.add(tempIds(Hugo_Weaving.id))(actorActs -> Set(DRef(tempIds(The_Matrix_Reloaded.id)))),
+      SchemaFact.add(tempIds(Hugo_Weaving.id))(actorActs -> tempIds(The_Matrix_Reloaded.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Agent Smith")
     ),
     Seq(
-      SchemaFact.add(tempIds(Guy_Peace.id))(actorActs -> Set(DRef(tempIds(Memento.id)))),
+      SchemaFact.add(tempIds(Guy_Peace.id))(actorActs -> tempIds(Memento.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Leonard Shelby")
     ),
     Seq(
-      SchemaFact.add(tempIds(Joe_Pantoliano.id))(actorActs -> Set(DRef(tempIds(The_Matrix.id)))),
+      SchemaFact.add(tempIds(Joe_Pantoliano.id))(actorActs -> tempIds(The_Matrix.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Cypher")
     ),
     Seq(
-      SchemaFact.add(tempIds(Joe_Pantoliano.id))(actorActs -> Set(DRef(tempIds(Memento.id)))),
+      SchemaFact.add(tempIds(Joe_Pantoliano.id))(actorActs -> tempIds(Memento.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Teddy Gammell")
     )
   )
