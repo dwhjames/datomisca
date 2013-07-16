@@ -31,33 +31,7 @@ object Entity extends DatomicTypeWrapper with EntityOpsMacros {
     *
     * @param id the DLong of a targeted real [[DId]]
     */
-  def retract(id: DLong) = RetractEntity(id.underlying)
-
-  /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
-    *
-    * In Clojure, this is equivalent to:
-    * {{{[:db.fn/retractEntity entity-id]}}}
-    *
-    * {{{
-    * val retractEntity = Datomic.Entity.retract(3L)
-    * }}}
-    *
-    * @param id the long of a targeted real [[DId]]
-    */
-  def retract(id: Long) = RetractEntity(id)
-
-  /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
-    *
-    * In Clojure, this is equivalent to:
-    * {{{[:db.fn/retractEntity entity-id]}}}
-    *
-    * {{{
-    * val retractEntity = Datomic.Entity.retract(DId(3L))
-    * }}}
-    *
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
-    */
-  def retract(id: FinalId) = RetractEntity(id.underlying)
+  def retract[T](id: T)(implicit ev: FromFinalId[T]) = RetractEntity(ev.from(id))
 
   /** Creates a Multiple-"Add" targeting a single [[DId]]
     *
@@ -79,8 +53,11 @@ object Entity extends DatomicTypeWrapper with EntityOpsMacros {
     *
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     */
-  def add(id: DId)(props: (Keyword, DWrapper)*) =
-    AddEntity(id)(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ): _*)
+  def add[T](id: T)(props: (Keyword, DWrapper)*)(implicit ev: ToDId[T]) = {
+    val builder = Map.newBuilder[Keyword, DatomicData]
+    for (p <- props) builder += (p._1 -> p._2.asInstanceOf[DWrapperImpl].underlying)
+    new AddEntity(ev.to(id), builder.result)
+  }
 
   /** Creates a Multiple-"Add" targeting a single [[DId]] from a simple Map[ [[Keyword]], [[DatomicData]] ]
     *
@@ -103,7 +80,7 @@ object Entity extends DatomicTypeWrapper with EntityOpsMacros {
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param props the map containing all tupled (keyword, value)
     */
-  def add(id: DId, props: Map[Keyword, DatomicData]) = AddEntity(id, props)
+  def add[T](id: T, props: Map[Keyword, DatomicData])(implicit ev: ToDId[T]) = new AddEntity(ev.to(id), props)
 
 
   /** Creates a Multiple-"Add" targeting a single [[DId]] and using a [[PartialAddEntity]]
@@ -121,7 +98,7 @@ object Entity extends DatomicTypeWrapper with EntityOpsMacros {
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param props a [[PartialAddEntity]] containing tuples (keyword, value)
     */
-  def add(id: DId, props: PartialAddEntity) = AddEntity(id, props)
+  def add[T](id: T, partial: PartialAddEntity)(implicit ev: ToDId[T]) = new AddEntity(ev.to(id), partial.props)
 
   /** Creates a [[PartialAddEntity]] which is basically a AddToEntity without the DId part (''technical API'').
     *
