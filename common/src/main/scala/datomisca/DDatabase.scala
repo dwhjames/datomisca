@@ -140,7 +140,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       new datomic.Database.Predicate[datomic.Datom](){
         def apply(db: datomic.Database, d: datomic.Datom): Boolean = {
           val ddb = DDatabase(db)
-          filterFn(ddb, DDatom(d)(ddb))
+          filterFn(ddb, new DDatom(d, ddb))
         }
       }
     ))
@@ -150,7 +150,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     DDatabase(underlying.filter(
       new datomic.Database.Predicate[datomic.Datom](){
         def apply(db: datomic.Database, d: datomic.Datom): Boolean = {
-          filterFn(DDatom(d)(self))
+          filterFn(new DDatom(d, self))
         }
       }
     ))
@@ -167,7 +167,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def datoms(index: Keyword, components: Keyword*): Seq[DDatom] = {
     //import scala.collection.JavaConverters._
     import scala.collection.JavaConversions._
-    underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => DDatom(d)(this) )
+    underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => new DDatom(d, this) )
   }
 
   /** Returns a special database containing all assertions

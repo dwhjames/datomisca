@@ -276,33 +276,20 @@ case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
   )
 }
 
-trait DDatom extends DatomicData{
-  val id:         Long
-  val attr:       Keyword
-  val attrId:     Long
-  val value:      DatomicData
-  val tx:         Long
-  val added:      Boolean
-  val underlying: datomic.Datom
+
+class DDatom(
+    val underlying: datomic.Datom,
+    val database: DDatabase
+) extends DatomicData {
+
+  def id:     Long        = underlying.e.asInstanceOf[Long]
+  def attr:   Keyword     = database.ident(attrId)
+  def attrId: Int         = underlying.a.asInstanceOf[Integer]
+  def value:  DatomicData = DatomicData.toDatomicData(underlying.v)
+  def tx:     Long        = underlying.tx.asInstanceOf[Long]
+  def added:  Boolean     = underlying.added
 
   override def toNative = underlying
 
   override def toString = "Datom(e[%s] a[%s] v[%s] tx[%s] added[%s])".format(id, attr, value, tx, added)
 }
-
-object DDatom{
-  def apply(d: datomic.Datom)(implicit db: DDatabase) = new DDatom{
-    lazy val id = d.e.asInstanceOf[Long]
-    lazy val attr = db.ident(d.a.asInstanceOf[Integer].toLong)
-    lazy val attrId = d.a.asInstanceOf[Integer].toLong
-    lazy val value = DatomicData.toDatomicData(d.v)
-    lazy val tx = d.tx.asInstanceOf[Long]
-    lazy val added = d.added.asInstanceOf[Boolean]
-    lazy val underlying = d
-  }
-}
-
-
-
-
-
