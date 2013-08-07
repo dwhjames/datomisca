@@ -21,10 +21,21 @@ import ast._
 
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
+import scala.reflect.api
+import scala.reflect.api.Liftable
 
 
-private[datomisca] class Helper[C <: Context](val c: C) extends QuasiquoteCompat {
+private[datomisca] class Helper[C <: Context](val c: C) {
   import c.universe._
+
+  implicit val liftBigInt: Liftable[BigInt] = new Liftable[BigInt] {
+    def apply(universe: api.Universe, value: BigInt): universe.Tree =
+      universe.Literal(universe.Constant(value))
+  }
+  implicit val liftBigDec: Liftable[BigDecimal] = new Liftable[BigDecimal] {
+    def apply(universe: api.Universe, value: BigDecimal): universe.Tree =
+      universe.Literal(universe.Constant(value))
+  }
 
   def computeOffset(
     pos: scala.reflect.internal.util.Position,

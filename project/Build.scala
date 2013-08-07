@@ -13,7 +13,8 @@ object DatomiscaBuild extends Build {
           "-deprecation",
           "-feature",
           "-unchecked"
-        )
+        ),
+      addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise_2.10.2" % "2.0.0-SNAPSHOT")
     )
 
   lazy val datomisca = Project(
@@ -79,9 +80,6 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "Datomisca",
 
-      scalacOptions in (ScalaUnidoc, UnidocKeys.unidoc) += "-Ymacro-no-expand",
-      UnidocKeys.excludedProjects in UnidocKeys.unidoc in ScalaUnidoc += "Datomisca macros",
-
       publishArtifact in (Compile, packageDoc) := false,
 
       mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
@@ -113,9 +111,12 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "Datomisca macros",
 
-      scalaVersion := "2.10.2-SNAPSHOT",
-      scalaOrganization := "org.scala-lang.macro-paradise",
-      libraryDependencies <+= (scalaVersion)("org.scala-lang.macro-paradise" % "scala-reflect" % _)
+      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
+
+      // scalaVersion := "2.10.2-SNAPSHOT",
+      // scalaOrganization := "org.scala-lang.macro-paradise",
+      // libraryDependencies <+= (scalaVersion)("org.scala-lang.macro-paradise" % "scala-reflect" % _)
+
       // libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
     )
 
