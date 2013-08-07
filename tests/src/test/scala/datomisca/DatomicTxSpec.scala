@@ -176,6 +176,7 @@ class DatomicTxSpec extends Specification {
         Duration("2 seconds")
       )
 
+      success
     }
 
     "2 - resolve id of an inserted entity" in {
@@ -236,6 +237,7 @@ class DatomicTxSpec extends Specification {
         Duration("2 seconds")
       )
 
+      success
     }
 
     "3 - convert a simple case class to AddEntity" in {
@@ -255,6 +257,8 @@ class DatomicTxSpec extends Specification {
       )
 
       DatomicMapping.toEntity(totoId)(toto).toString must beEqualTo(totoEntity.toString)
+
+      success
     }
 
     /*
@@ -367,6 +371,8 @@ class DatomicTxSpec extends Specification {
         fut,
         Duration("2 seconds")
       )
+
+      success
     }
 
 
@@ -412,6 +418,8 @@ class DatomicTxSpec extends Specification {
         fut,
         Duration("2 seconds")
       )
+
+      success
     }
 
     /*
@@ -571,6 +579,8 @@ class DatomicTxSpec extends Specification {
         Datomic.database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
         tx.resolveEntity(DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
       }
+
+      success
     }
 
     "10 - get txReport map/toString" in {
@@ -593,6 +603,8 @@ class DatomicTxSpec extends Specification {
         
         println(tx.toString)
       }
+
+      success
     }
   }
 

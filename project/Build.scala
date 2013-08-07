@@ -6,7 +6,7 @@ import sbtunidoc.Plugin._
 object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.3-SNAPSHOT",
+      version       := "0.6-SNAPSHOT",
       organization  := "pellucidanalytics",
       scalaVersion  := "2.10.2",
       scalacOptions ++= Seq(
@@ -161,12 +161,12 @@ object DatomiscaBuild extends Build {
 object Dependencies {
 
   object Compile {
-    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4007"    %    "provided" exclude("org.slf4j", "slf4j-nop")
+    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4020.26"    %    "provided" exclude("org.slf4j", "slf4j-nop")
   }
   import Compile._
 
   object Test {
-    val specs2 = "org.specs2"    %%    "specs2"    %    "1.13"    %    "test"
+    val specs2 = "org.specs2"    %%    "specs2"    %    "2.0"    %    "test"
     val junit  = "junit"         %     "junit"     %    "4.8"     %    "test"
   }
   import Test._

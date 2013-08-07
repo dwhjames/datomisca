@@ -23,33 +23,53 @@ trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, D
 
 object Attribute2PartialAddEntityWriter {
 
-  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, Source](implicit tdat: ToDatomic[DD, Source]) =
-    new Attribute2PartialAddEntityWriter[DD, Cardinality.one.type, Source] {
-      def convert(attr: Attribute[DD, Cardinality.one.type]): PartialAddEntityWriter[Source] = {
-        PartialAddEntityWriter[Source]{ s: Source =>
-          PartialAddEntity( Map( attr.ident -> tdat.to(s) ) )
-        }
-      }
-    }  
-
-
-  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, Source](implicit tdat: ToDatomic[DColl, Set[Source]]) =
-    new Attribute2PartialAddEntityWriter[DD, Cardinality.many.type, Set[Source]] {
-      def convert(attr: Attribute[DD, Cardinality.many.type]): PartialAddEntityWriter[Set[Source]] = {
-        PartialAddEntityWriter[Set[Source]]{ s: Set[Source] =>
-          if (s.isEmpty) PartialAddEntity( Map.empty )
-          else PartialAddEntity( Map( attr.ident -> tdat.to(s) ) )
-        }
+  implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, T](implicit conv: ToDatomic[DD, T]) =
+    new Attribute2PartialAddEntityWriter[DD, Cardinality.one.type, T] {
+      override def convert(attr: Attribute[DD, Cardinality.one.type]) = new PartialAddEntityWriter[T] {
+        override def write(t: T) = PartialAddEntity( Map( attr.ident -> conv.to(t) ) )
       }
     }
 
-  /*implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData] = 
-    new Attribute2PartialAddEntityWriter[DD, Cardinality.one.type, DD] {
-      def convert(attr: Attribute[DD, Cardinality.one.type]): PartialAddEntityWriter[DD] = {
-        PartialAddEntityWriter[DD]{ d: DD => 
-          PartialAddEntity( Map( attr.ident -> d ) )
-        }
+  implicit def attr2PartialAddEntityWriterMany[DD <: DatomicData, C, T](implicit ev: C <:< Traversable[T], conv: ToDatomic[DD, T]) =
+    new Attribute2PartialAddEntityWriter[DD, Cardinality.many.type, C] {
+      override def convert(attr: Attribute[DD, Cardinality.many.type]) = new PartialAddEntityWriter[C] {
+        override def write(c: C) =
+          if (c.isEmpty)
+            PartialAddEntity.empty
+          else {
+            val builder = Iterable.newBuilder[DatomicData]
+            for (e <- c) builder += conv.to(e)
+            PartialAddEntity( Map( attr.ident -> DColl(builder.result) ) )
+          }
       }
-    }*/
+    }
+
+  implicit def refAttr2PartialAddEntityWriterOne[T](implicit ev: ToDRef[T]) =
+    new Attribute2PartialAddEntityWriter[DRef, Cardinality.one.type, T] {
+      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new PartialAddEntityWriter[T] {
+        override def write(t: T) = PartialAddEntity( Map( attr.ident -> ev.toDRef(t) ) )
+      }
+    }
+
+  implicit def refAttr2PartialAddEntityWriterSingleton[T](implicit ev: ToDRef[T]) =
+    new Attribute2PartialAddEntityWriter[DRef, Cardinality.many.type, T] {
+      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new PartialAddEntityWriter[T] {
+        override def write(t: T) = PartialAddEntity( Map( attr.ident -> ev.toDRef(t) ) )
+      }
+    }
+
+  implicit def refAttr2PartialAddEntityWriterMany[C, T](implicit ev: C <:< Traversable[T], conv: ToDRef[T]) =
+    new Attribute2PartialAddEntityWriter[DRef, Cardinality.many.type, C] {
+      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new PartialAddEntityWriter[C] {
+        override def write(c: C) =
+          if (c.isEmpty)
+            PartialAddEntity.empty
+          else {
+            val builder = Iterable.newBuilder[DatomicData]
+            for (e <- c) builder += conv.toDRef(e)
+            PartialAddEntity( Map( attr.ident -> DColl(builder.result) ) )
+          }
+      }
+    }
 
 }

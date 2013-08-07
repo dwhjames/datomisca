@@ -1,12 +1,11 @@
 
+import scala.language.reflectiveCalls
+
 import datomisca._
 
 import scala.concurrent._
-import scala.concurrent.util._
-import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration.Duration
-import scala.concurrent.duration._
-import java.util.concurrent.TimeUnit._
+
 
 object Person {
   // Namespaces definition to be reused in Schema
@@ -65,8 +64,7 @@ object GettingStarted {
         Person.person / "name"       -> "John",
         Person.person / "age"        -> 35L,
         Person.person / "birth"      -> new java.util.Date(),
-        // Please note that we use Datomic References here
-        Person.person / "characters" -> Set( Person.violent.ref, Person.clever.ref )
+        Person.person / "characters" -> Set( Person.violent, Person.clever )
       )
 
       // creates an entity

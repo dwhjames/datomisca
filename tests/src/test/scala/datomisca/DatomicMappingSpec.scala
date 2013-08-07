@@ -222,6 +222,7 @@ class DatomicMappingSpec extends Specification {
         Duration("2 seconds")
       )
 
+      success
     }
 
     "get entity fields from attributes" in {
@@ -272,6 +273,8 @@ class DatomicMappingSpec extends Specification {
             )).toMap
           )
       }
+
+      success
     }
 
     "create ops from attributes" in {
@@ -322,6 +325,8 @@ class DatomicMappingSpec extends Specification {
           person / "characters" -> DColl(violent.ref, weak.ref)
         )
       ).toString)
+
+      success
     }
 
     "get entity with empty set" in {
@@ -395,6 +400,7 @@ class DatomicMappingSpec extends Specification {
         Duration("2 seconds")
       )
 
+      success
     }
 
     "entity list" in {

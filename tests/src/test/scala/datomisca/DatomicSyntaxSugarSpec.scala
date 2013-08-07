@@ -59,11 +59,11 @@ class DatomicSyntaxSugarSpec extends Specification {
         person / "age"       -> 30L,
         person / "character" -> Seq(weak, dumb)
       ).toString must beEqualTo(
-        AddEntity(id)(
+        AddEntity(id, Map(
           Keyword(person, "name")      -> DString("toto"),
           Keyword(person, "age")       -> DLong(30L),
           Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
-        ).toString
+        )).toString
       )
 
       Entity.add(id)(
@@ -71,28 +71,28 @@ class DatomicSyntaxSugarSpec extends Specification {
         Datomic.KW(":person/age")           -> 30L,
         Datomic.KW(""":person/character""") -> Seq(weak, dumb)
       ).toString must beEqualTo(
-        AddEntity(id)(
+        AddEntity(id, Map(
           Keyword(person, "name")      -> DString("toto"),
           Keyword(person, "age")       -> DLong(30L),
           Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
-        ).toString
+        )).toString
       )
 
-      Entity.add("""{
+      Entity.addEDN("""{
         :db/id $id
         :person/name "toto"
         :person/age 30
         :person/character [ $weak $dumb ]
       }""").toString must beEqualTo(
-        AddEntity(id)(
+        AddEntity(id, Map(
           Keyword(person, "name")      -> DString("toto"),
           Keyword(person, "age")       -> DLong(30L),
           Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
-        ).toString
+        )).toString
       )
 
       Datomic.transact(
-        Entity.add("""{
+        Entity.addEDN("""{
           :db/id ${DId(Partition.USER)}
           :person/name "toto"
           :person/age 30

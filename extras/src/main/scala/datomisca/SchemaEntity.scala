@@ -20,6 +20,6 @@ package datomisca
 object SchemaEntity {
   /** AddEntity based on Schema attributes 
     */
-  def add(id: DId)(props: Props): AddEntity = AddEntity(id, props.convert)
+  def add[T](id: T)(props: Props)(implicit ev: ToDId[T]): AddEntity = new AddEntity(ev.to(id), props.convert.props)
 
 }

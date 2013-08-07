@@ -2,9 +2,9 @@ name := "datomisca-accounts-sample"
 
 organization := "pellucidanalytics"
 
-version := "0.3-SNAPSHOT"
+version := "0.5.1"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2"
 
 fork in test := true
 
@@ -15,6 +15,6 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "pellucidanalytics" %% "datomisca" % "0.3-SNAPSHOT",
-  "com.datomic" % "datomic-free" % "0.8.4007"
+  "pellucidanalytics" %% "datomisca" % "0.5.1",
+  "com.datomic" % "datomic-free" % "0.8.4020.26"
 )

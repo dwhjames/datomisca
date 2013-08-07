@@ -33,7 +33,7 @@ private[datomisca] trait EntityOpsMacros {
     * val weak = AddIdent(Keyword(person.character, "weak"))
     * val dumb = AddIdent(Keyword(person.character, "dumb"))
     *
-    * Datomic.Entity.add("""{
+    * Datomic.Entity.addEDN("""{
     *   :db/id \${DId(Partition.USER)}
     *   :person/name \$name
     *   :person/age 30
@@ -44,7 +44,7 @@ private[datomisca] trait EntityOpsMacros {
     * @param q the Clojure string
     * @return the operation
     */
-  def add(q: String): AddEntity = macro OpsMacros.addEntityImpl
+  def addEDN(q: String): AddEntity = macro OpsMacros.addEntityImpl
 }
 
 trait OpsMacros {
