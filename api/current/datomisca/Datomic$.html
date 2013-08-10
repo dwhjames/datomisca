@@ -1,0 +1,1083 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>Datomic - datomisca.Datomic</title>
+          <meta name="description" content="Datomic - datomisca.Datomic" />
+          <meta name="keywords" content="Datomic datomisca.Datomic" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../index.html';
+            var hash = 'datomisca.Datomic$';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../lib/object_big.png" />
+        <p id="owner"><a href="package.html" class="extype" name="datomisca">datomisca</a></p>
+        <h1>Datomic</h1>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Datomic</span><span class="result"> extends <span class="extype" name="datomisca.PeerOps">PeerOps</span> with <span class="extype" name="datomisca.TransactOps">TransactOps</span> with <span class="extype" name="datomisca.DatomicFacilities">DatomicFacilities</span> with <span class="extype" name="datomisca.QueryExecutor">QueryExecutor</span> with <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a> with <span class="extype" name="datomisca.macros.ExtraMacros">ExtraMacros</span> with <a href="macros/OpsMacros.html" class="extype" name="datomisca.macros.OpsMacros">OpsMacros</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Main object containing:</p><ul><li>all Datomic basic functions (Peer, Transactor)</li><li>all Scala basic functions</li><li>all Scala high-level functions (macro, typed ops)</li></ul></div><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="macros/OpsMacros.html" class="extype" name="datomisca.macros.OpsMacros">OpsMacros</a>, <span class="extype" name="datomisca.macros.ExtraMacros">ExtraMacros</span>, <span class="extype" name="datomisca.QueryExecutor">QueryExecutor</span>, <span class="extype" name="datomisca.QueryExecutorAuto">QueryExecutorAuto</span>, <span class="extype" name="datomisca.QueryExecutorPure">QueryExecutorPure</span>, <span class="extype" name="datomisca.DatomicFacilities">DatomicFacilities</span>, <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a>, <span class="extype" name="datomisca.TransactOps">TransactOps</span>, <span class="extype" name="datomisca.PeerOps">PeerOps</span>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="datomisca.Datomic"><span>Datomic</span></li><li class="in" name="datomisca.macros.OpsMacros"><span>OpsMacros</span></li><li class="in" name="datomisca.macros.ExtraMacros"><span>ExtraMacros</span></li><li class="in" name="datomisca.QueryExecutor"><span>QueryExecutor</span></li><li class="in" name="datomisca.QueryExecutorAuto"><span>QueryExecutorAuto</span></li><li class="in" name="datomisca.QueryExecutorPure"><span>QueryExecutorPure</span></li><li class="in" name="datomisca.DatomicFacilities"><span>DatomicFacilities</span></li><li class="in" name="datomisca.DatomicTypeWrapper"><span>DatomicTypeWrapper</span></li><li class="in" name="datomisca.TransactOps"><span>TransactOps</span></li><li class="in" name="datomisca.PeerOps"><span>PeerOps</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="datomisca.DatomicTypeWrapper.DWrapper" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="DWrapperextendsNotNull"></a>
+      <a id="DWrapper:DWrapper"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="DatomicTypeWrapper$DWrapper.html"><span class="name">DWrapper</span></a><span class="result"> extends <span class="extype" name="scala.NotNull">NotNull</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:AnyRef):Boolean"></a>
+      <a id="!=(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:AnyRef):Boolean"></a>
+      <a id="==(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.Any#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="datomisca.macros.ExtraMacros#KW" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="KW(q:String):datomisca.Keyword"></a>
+      <a id="KW(String):Keyword"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">KW</span><span class="params">(<span name="q">q: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Macro-based helper to create Datomic keyword using Clojure-style</p><div class="fullcomment"><div class="comment cmt"><p>Macro-based helper to create Datomic keyword using Clojure-style</p><pre><span class="kw">val</span> kw = KW(<span class="lit">":person/name"</span>)</pre></div><dl class="paramcmts block"><dt class="param">q</dt><dd class="cmt"><p>the Clojure string</p></dd><dt>returns</dt><dd class="cmt"><p>parsed <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>ExtraMacros</dd><dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;datomisca.macros.ExtraMacros&quot;, &quot;methodName&quot; = &quot;KWImpl&quot;, &quot;signature&quot; = List(-1, -1))">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.DatomicFacilities#coll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="coll(dw:DatomicFacilities.this.DWrapper*):datomisca.DColl"></a>
+      <a id="coll(DWrapper*):DColl"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">coll</span><span class="params">(<span name="dw">dw: <a href="#DWrapperextendsNotNull" class="extmbr" name="datomisca.DatomicTypeWrapper.DWrapper">DWrapper</a>*</span>)</span><span class="result">: <a href="DColl.html" class="extype" name="datomisca.DColl">DColl</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Helper: creates a <a href="DColl.html" class="extype" name="datomisca.DColl">DColl</a> from simple types using DWrapper implicit conversion</p><div class="fullcomment"><div class="comment cmt"><p>Helper: creates a <a href="DColl.html" class="extype" name="datomisca.DColl">DColl</a> from simple types using DWrapper implicit conversion</p><pre><span class="kw">val</span> addPartOp = Datomic.coll(<span class="lit">"toto"</span>, <span class="num">3</span>L, <span class="lit">"tata"</span>)</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>DatomicFacilities</dd></dl></div>
+    </li><li name="datomisca.PeerOps#connect" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="connect(uri:String):datomisca.Connection"></a>
+      <a id="connect(String):Connection"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">connect</span><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Builds a Connection from URI</p><div class="fullcomment"><div class="comment cmt"><p>Builds a Connection from URI</p><p>In order to benefit from Datomic facilities based on implicit <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a>,
+you should put a connection in an implicit val in your scope.
+You can also use <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a> explicitly.</p><pre><span class="kw">implicit</span> <span class="kw">val</span> conn = Datomic.connection(<span class="lit">"datomic:mem://mydatabase"</span>)</pre></div><dl class="paramcmts block"><dt class="param">uri</dt><dd class="cmt"><p>The URI of Datomic DB</p></dd><dt>returns</dt><dd class="cmt"><p>Connection
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>PeerOps</dd></dl></div>
+    </li><li name="datomisca.PeerOps#createDatabase" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="createDatabase(uri:String):Boolean"></a>
+      <a id="createDatabase(String):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">createDatabase</span><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Creates a new database using uri</p><div class="fullcomment"><div class="comment cmt"><p>Creates a new database using uri</p></div><dl class="paramcmts block"><dt class="param">uri</dt><dd class="cmt"><p>the Uri of the DB</p></dd><dt>returns</dt><dd class="cmt"><p>true/false for success
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>PeerOps</dd></dl></div>
+    </li><li name="datomisca.PeerOps#database" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="database(implicitconn:datomisca.Connection):datomisca.DDatabase"></a>
+      <a id="database(Connection):DDatabase"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">database</span><span class="params">(<span class="implicit">implicit </span><span name="conn">conn: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>)</span><span class="result">: <a href="DDatabase.html" class="extype" name="datomisca.DDatabase">DDatabase</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">The database associated to the implicit connection</p><div class="fullcomment"><div class="comment cmt"><p>The database associated to the implicit connection</p><pre><span class="kw">implicit</span> conn = Datomic.connect(<span class="lit">"datomic:mem://mydatabase"</span>)
+database.transact(...)</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>PeerOps</dd></dl></div>
+    </li><li name="datomisca.PeerOps#deleteDatabase" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="deleteDatabase(uri:String):Boolean"></a>
+      <a id="deleteDatabase(String):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">deleteDatabase</span><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Deletes an existing database using uri</p><div class="fullcomment"><div class="comment cmt"><p>Deletes an existing database using uri</p></div><dl class="paramcmts block"><dt class="param">uri</dt><dd class="cmt"><p>the URI of the DB</p></dd><dt>returns</dt><dd class="cmt"><p>true/false for success
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>PeerOps</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.DatomicFacilities#fromDatomic" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="fromDatomic[DD&lt;:datomisca.DatomicData,T](dd:DD)(implicitfd:datomisca.FromDatomicInj[DD,T]):T"></a>
+      <a id="fromDatomic[DD&lt;:DatomicData,T](DD)(FromDatomicInj[DD,T]):T"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fromDatomic</span><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="T">T</span>]</span><span class="params">(<span name="dd">dd: <span class="extype" name="datomisca.DatomicFacilities.fromDatomic.DD">DD</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="fd">fd: <span class="extype" name="datomisca.FromDatomicInj">FromDatomicInj</span>[<span class="extype" name="datomisca.DatomicFacilities.fromDatomic.DD">DD</span>, <span class="extype" name="datomisca.DatomicFacilities.fromDatomic.T">T</span>]</span>)</span><span class="result">: <span class="extype" name="datomisca.DatomicFacilities.fromDatomic.T">T</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">converts a DatomicData to a type given there is the right implicit in the scope</p><div class="fullcomment"><div class="comment cmt"><p>converts a DatomicData to a type given there is the right implicit in the scope</p><pre><span class="kw">val</span> l: <span class="std">String</span> = Datomic.fromDatomic(DString(<span class="lit">"toto"</span>))
+<span class="kw">val</span> s: <span class="std">Long</span> = Datomic.fromDatomic(DLong(<span class="num">5</span>L))</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>DatomicFacilities</dd></dl></div>
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="datomisca.macros.OpsMacros#ops" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ops(q:String):Seq[datomisca.Operation]"></a>
+      <a id="ops(String):Seq[Operation]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ops</span><span class="params">(<span name="q">q: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Macro-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
+compiled from a Clojure String extended with Scala variables.</p><div class="fullcomment"><div class="comment cmt"><p>Macro-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
+compiled from a Clojure String extended with Scala variables.</p><p>You can then directly copy some Clojure code in a String and get it compiled.
+You can also use variables in this String in String interpolation style.</p><pre><span class="kw">val</span> id = DId(Partition.USER)
+
+<span class="kw">val</span> weak = AddIdent(Keyword(Namespace(<span class="lit">"person.character"</span>), <span class="lit">"weak"</span>))
+<span class="kw">val</span> dumb = AddIdent(Keyword(Namespace(<span class="lit">"person.character"</span>), <span class="lit">"dumb"</span>))
+
+<span class="kw">val</span> id = DId(Partition.USER)
+<span class="kw">val</span> ops = Datomic.ops(<span class="lit">""</span><span class="lit">"[
+  [:db/add #db/id[:db.part/user] :db/ident :region/n]
+  [:db/add ${DId(Partition.USER)} :db/ident :region/n]
+  [:db/retract #db/id[:db.part/user] :db/ident :region/n]
+  [:db/retractEntity 1234]
+  {
+    :db/id ${id}
+    :person/name "</span>toto<span class="lit">"
+    :person/age 30
+    :person/character [ $weak $dumb ]
+  }
+]"</span><span class="lit">""</span>)</pre></div><dl class="paramcmts block"><dt class="param">q</dt><dd class="cmt"><p>the Clojure string</p></dd><dt>returns</dt><dd class="cmt"><p>a sequence of operations
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="macros/OpsMacros.html" class="extype" name="datomisca.macros.OpsMacros">OpsMacros</a></dd><dt>Annotations</dt><dd>
+                <span class="name">@macroImpl</span><span class="args">(<span>
+      
+      <span class="defval" name="`macro`(&quot;versionFormat&quot; = 1, &quot;className&quot; = &quot;datomisca.macros.OpsMacros&quot;, &quot;methodName&quot; = &quot;opsImpl&quot;, &quot;signature&quot; = List(-1, -1))">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.DatomicFacilities#parseOps" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="parseOps(q:String):scala.util.Try[Seq[datomisca.Operation]]"></a>
+      <a id="parseOps(String):Try[Seq[Operation]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">parseOps</span><span class="params">(<span name="q">q: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.util.Try">Try</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>]]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
+compiled from a Clojure String.</p><div class="fullcomment"><div class="comment cmt"><p>Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
+compiled from a Clojure String. <b>This is not a Macro so no variable in string and it is evaluated
+at runtime</b></p><p>You can then directly copy some Clojure code in a String and get it parsed at runtime. This is why
+it returns a <code>Try[Seq[Operation]]</code>
+It also manages comments.</p><pre><span class="kw">val</span> ops = Datomic.parseOps(<span class="lit">""</span><span class="lit">"
+;; comment blabla
+[
+  [:db/add #db/id[:db.part/user] :db/ident :character/weak]
+  ;; comment blabla
+  [:db/add #db/id[:db.part/user] :db/ident :character/dumb]
+  [:db/add #db/id[:db.part/user] :db/ident :region/n]
+  [:db/retract #db/id[:db.part/user] :db/ident :region/n]
+  [:db/retractEntity 1234]
+  ;; comment blabla
+  {
+    :db/id #db/id[:db.part/user]
+    :person/name "</span>toto, tata<span class="lit">"
+    :person/age 30
+    :person/character [ :character/_weak :character/dumb-toto ]
+  }
+  { :db/id #db/id[:db.part/user], :person/name "</span>toto<span class="lit">",
+    :person/age 30, :person/character [ :character/_weak, :character/dumb-toto ]
+  }
+]"</span><span class="lit">""</span>)</pre></div><dl class="paramcmts block"><dt class="param">q</dt><dd class="cmt"><p>the Clojure string</p></dd><dt>returns</dt><dd class="cmt"><p>a sequence of operations or an error
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>DatomicFacilities</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,In22,Out](query:datomisca.gen.TypedQueryAuto22[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,In22,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData,in17:datomisca.DatomicData,in18:datomisca.DatomicData,in19:datomisca.DatomicData,in20:datomisca.DatomicData,in21:datomisca.DatomicData,in22:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,In22,Out](TypedQueryAuto22[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,In22,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="In17">In17</span>, <span name="In18">In18</span>, <span name="In19">In19</span>, <span name="In20">In20</span>, <span name="In21">In21</span>, <span name="In22">In22</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto22.html" class="extype" name="datomisca.gen.TypedQueryAuto22">TypedQueryAuto22</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In17">In17</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In18">In18</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In19">In19</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In20">In20</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In21">In21</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In22">In22</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in17">in17: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in18">in18: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in19">in19: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in20">in20: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in21">in21: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in22">in22: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,Out](query:datomisca.gen.TypedQueryAuto21[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData,in17:datomisca.DatomicData,in18:datomisca.DatomicData,in19:datomisca.DatomicData,in20:datomisca.DatomicData,in21:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,Out](TypedQueryAuto21[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,In21,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="In17">In17</span>, <span name="In18">In18</span>, <span name="In19">In19</span>, <span name="In20">In20</span>, <span name="In21">In21</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto21.html" class="extype" name="datomisca.gen.TypedQueryAuto21">TypedQueryAuto21</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In17">In17</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In18">In18</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In19">In19</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In20">In20</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In21">In21</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in17">in17: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in18">in18: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in19">in19: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in20">in20: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in21">in21: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,Out](query:datomisca.gen.TypedQueryAuto20[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData,in17:datomisca.DatomicData,in18:datomisca.DatomicData,in19:datomisca.DatomicData,in20:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,Out](TypedQueryAuto20[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,In20,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="In17">In17</span>, <span name="In18">In18</span>, <span name="In19">In19</span>, <span name="In20">In20</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto20.html" class="extype" name="datomisca.gen.TypedQueryAuto20">TypedQueryAuto20</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In17">In17</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In18">In18</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In19">In19</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In20">In20</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in17">in17: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in18">in18: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in19">in19: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in20">in20: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,Out](query:datomisca.gen.TypedQueryAuto19[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData,in17:datomisca.DatomicData,in18:datomisca.DatomicData,in19:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,Out](TypedQueryAuto19[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,In19,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="In17">In17</span>, <span name="In18">In18</span>, <span name="In19">In19</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto19.html" class="extype" name="datomisca.gen.TypedQueryAuto19">TypedQueryAuto19</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In17">In17</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In18">In18</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In19">In19</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in17">in17: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in18">in18: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in19">in19: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,Out](query:datomisca.gen.TypedQueryAuto18[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData,in17:datomisca.DatomicData,in18:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,Out](TypedQueryAuto18[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,In18,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="In17">In17</span>, <span name="In18">In18</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto18.html" class="extype" name="datomisca.gen.TypedQueryAuto18">TypedQueryAuto18</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In17">In17</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In18">In18</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in17">in17: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in18">in18: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,Out](query:datomisca.gen.TypedQueryAuto17[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData,in17:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,Out](TypedQueryAuto17[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,In17,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="In17">In17</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto17.html" class="extype" name="datomisca.gen.TypedQueryAuto17">TypedQueryAuto17</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In17">In17</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in17">in17: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,Out](query:datomisca.gen.TypedQueryAuto16[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData,in16:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,Out](TypedQueryAuto16[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,In16,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="In16">In16</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto16.html" class="extype" name="datomisca.gen.TypedQueryAuto16">TypedQueryAuto16</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In16">In16</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in16">in16: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,Out](query:datomisca.gen.TypedQueryAuto15[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData,in15:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,Out](TypedQueryAuto15[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,In15,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="In15">In15</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto15.html" class="extype" name="datomisca.gen.TypedQueryAuto15">TypedQueryAuto15</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In15">In15</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in15">in15: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,Out](query:datomisca.gen.TypedQueryAuto14[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData,in14:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,Out](TypedQueryAuto14[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,In14,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="In14">In14</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto14.html" class="extype" name="datomisca.gen.TypedQueryAuto14">TypedQueryAuto14</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In14">In14</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in14">in14: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,Out](query:datomisca.gen.TypedQueryAuto13[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData,in13:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,Out](TypedQueryAuto13[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,In13,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="In13">In13</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto13.html" class="extype" name="datomisca.gen.TypedQueryAuto13">TypedQueryAuto13</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In13">In13</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in13">in13: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,Out](query:datomisca.gen.TypedQueryAuto12[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData,in12:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,Out](TypedQueryAuto12[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,In12,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="In12">In12</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto12.html" class="extype" name="datomisca.gen.TypedQueryAuto12">TypedQueryAuto12</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In12">In12</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in12">in12: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,Out](query:datomisca.gen.TypedQueryAuto11[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData,in11:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,Out](TypedQueryAuto11[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,In11,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="In11">In11</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto11.html" class="extype" name="datomisca.gen.TypedQueryAuto11">TypedQueryAuto11</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In11">In11</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in11">in11: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,Out](query:datomisca.gen.TypedQueryAuto10[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData,in10:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,Out](TypedQueryAuto10[In1,In2,In3,In4,In5,In6,In7,In8,In9,In10,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="In10">In10</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto10.html" class="extype" name="datomisca.gen.TypedQueryAuto10">TypedQueryAuto10</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In10">In10</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in10">in10: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,Out](query:datomisca.gen.TypedQueryAuto9[In1,In2,In3,In4,In5,In6,In7,In8,In9,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData,in9:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,In9,Out](TypedQueryAuto9[In1,In2,In3,In4,In5,In6,In7,In8,In9,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="In9">In9</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto9.html" class="extype" name="datomisca.gen.TypedQueryAuto9">TypedQueryAuto9</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In9">In9</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in9">in9: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,Out](query:datomisca.gen.TypedQueryAuto8[In1,In2,In3,In4,In5,In6,In7,In8,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData,in8:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,In8,Out](TypedQueryAuto8[In1,In2,In3,In4,In5,In6,In7,In8,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="In8">In8</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto8.html" class="extype" name="datomisca.gen.TypedQueryAuto8">TypedQueryAuto8</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In8">In8</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in8">in8: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,Out](query:datomisca.gen.TypedQueryAuto7[In1,In2,In3,In4,In5,In6,In7,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData,in7:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,In7,Out](TypedQueryAuto7[In1,In2,In3,In4,In5,In6,In7,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="In7">In7</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto7.html" class="extype" name="datomisca.gen.TypedQueryAuto7">TypedQueryAuto7</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In7">In7</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in7">in7: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,In6,Out](query:datomisca.gen.TypedQueryAuto6[In1,In2,In3,In4,In5,In6,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData,in6:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,In6,Out](TypedQueryAuto6[In1,In2,In3,In4,In5,In6,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="In6">In6</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto6.html" class="extype" name="datomisca.gen.TypedQueryAuto6">TypedQueryAuto6</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In6">In6</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in6">in6: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,In5,Out](query:datomisca.gen.TypedQueryAuto5[In1,In2,In3,In4,In5,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData,in5:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,In5,Out](TypedQueryAuto5[In1,In2,In3,In4,In5,Out],DatomicData,DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="In5">In5</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto5.html" class="extype" name="datomisca.gen.TypedQueryAuto5">TypedQueryAuto5</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In5">In5</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in5">in5: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,In4,Out](query:datomisca.gen.TypedQueryAuto4[In1,In2,In3,In4,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData,in4:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,In4,Out](TypedQueryAuto4[In1,In2,In3,In4,Out],DatomicData,DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="In4">In4</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto4.html" class="extype" name="datomisca.gen.TypedQueryAuto4">TypedQueryAuto4</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In4">In4</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in4">in4: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,In3,Out](query:datomisca.gen.TypedQueryAuto3[In1,In2,In3,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData,in3:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,In3,Out](TypedQueryAuto3[In1,In2,In3,Out],DatomicData,DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="In3">In3</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto3.html" class="extype" name="datomisca.gen.TypedQueryAuto3">TypedQueryAuto3</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In3">In3</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in3">in3: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,In2,Out](query:datomisca.gen.TypedQueryAuto2[In1,In2,Out],in1:datomisca.DatomicData,in2:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,In2,Out](TypedQueryAuto2[In1,In2,Out],DatomicData,DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="In2">In2</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto2.html" class="extype" name="datomisca.gen.TypedQueryAuto2">TypedQueryAuto2</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.In2">In2</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="in2">in2: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[In1,Out](query:datomisca.gen.TypedQueryAuto1[In1,Out],in1:datomisca.DatomicData)(implicitoutConv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[In1,Out](TypedQueryAuto1[In1,Out],DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="In1">In1</span>, <span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto1.html" class="extype" name="datomisca.gen.TypedQueryAuto1">TypedQueryAuto1</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.In1">In1</span>, <span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="in1">in1: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="outConv">outConv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorAuto#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q[Out](query:datomisca.gen.TypedQueryAuto0[Out],dataSource:datomisca.DatomicData)(implicitconv:datomisca.QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <a id="q[Out](TypedQueryAuto0[Out],DatomicData)(QueryResultToTuple[Out]):Iterable[Out]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="tparams">[<span name="Out">Out</span>]</span><span class="params">(<span name="query">query: <a href="gen/TypedQueryAuto0.html" class="extype" name="datomisca.gen.TypedQueryAuto0">TypedQueryAuto0</a>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>, <span name="dataSource">dataSource: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="conv">conv: <span class="extype" name="datomisca.QueryResultToTuple">QueryResultToTuple</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="datomisca.QueryExecutorAuto.q.Out">Out</span>]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorAuto</dd></dl></div>
+    </li><li name="datomisca.QueryExecutorPure#q" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="q(query:datomisca.PureQuery,in:datomisca.DatomicData*):Iterable[IndexedSeq[datomisca.DatomicData]]"></a>
+      <a id="q(PureQuery,DatomicData*):Iterable[IndexedSeq[DatomicData]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">q</span><span class="params">(<span name="query">query: <a href="PureQuery.html" class="extype" name="datomisca.PureQuery">PureQuery</a></span>, <span name="in">in: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>*</span>)</span><span class="result">: <span class="extype" name="scala.Iterable">Iterable</span>[<span class="extype" name="scala.IndexedSeq">IndexedSeq</span>[<a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>QueryExecutorPure</dd></dl></div>
+    </li><li name="datomisca.PeerOps#renameDatabase" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="renameDatabase(uri:String,newName:String):Boolean"></a>
+      <a id="renameDatabase(String,String):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">renameDatabase</span><span class="params">(<span name="uri">uri: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="newName">newName: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Renames an existing database using uri</p><div class="fullcomment"><div class="comment cmt"><p>Renames an existing database using uri</p></div><dl class="paramcmts block"><dt class="param">uri</dt><dd class="cmt"><p>the URI of the DB</p></dd><dt class="param">newName</dt><dd class="cmt"><p>the new name</p></dd><dt>returns</dt><dd class="cmt"><p>true/false for success
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>PeerOps</dd></dl></div>
+    </li><li name="datomisca.PeerOps#shutdown" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="shutdown(shutdownClojure:Boolean):Unit"></a>
+      <a id="shutdown(Boolean):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">shutdown</span><span class="params">(<span name="shutdownClojure">shutdownClojure: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Shutdown all Peer resources.</p><div class="fullcomment"><div class="comment cmt"><p>Shutdown all Peer resources.
+Copied from Datomic Javadoc: This method should be called as part of clean
+shutdown of a JVM process.
+Will release all Connections, and, if shutdownClojure is true, will release
+Clojure resources. Programs written in Clojure can set shutdownClojure to
+false if they manage Clojure resources (e.g. agents) outside of Datomic;
+programs written in other JVM languages should typically set shutdownClojure
+to true.
+</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>PeerOps</dd></dl></div>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="datomisca.DatomicTypeWrapper#toDWrapper" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toDWrapper[T](t:T)(implicittd:datomisca.ToDatomicCast[T]):DatomicTypeWrapper.this.DWrapper"></a>
+      <a id="toDWrapper[T](T)(ToDatomicCast[T]):DWrapper"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toDWrapper</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="t">t: <span class="extype" name="datomisca.DatomicTypeWrapper.toDWrapper.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="td">td: <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a>[<span class="extype" name="datomisca.DatomicTypeWrapper.toDWrapper.T">T</span>]</span>)</span><span class="result">: <a href="#DWrapperextendsNotNull" class="extmbr" name="datomisca.DatomicTypeWrapper.DWrapper">DWrapper</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">implicit converters to simplify conversion from Scala Types to Datomic Type</p><div class="fullcomment"><div class="comment cmt"><p>implicit converters to simplify conversion from Scala Types to Datomic Type</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></dd></dl></div>
+    </li><li name="datomisca.DatomicFacilities#toDatomic" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toDatomic[T](t:T)(implicittdc:datomisca.ToDatomicCast[T]):datomisca.DatomicData"></a>
+      <a id="toDatomic[T](T)(ToDatomicCast[T]):DatomicData"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toDatomic</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="t">t: <span class="extype" name="datomisca.DatomicFacilities.toDatomic.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="tdc">tdc: <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a>[<span class="extype" name="datomisca.DatomicFacilities.toDatomic.T">T</span>]</span>)</span><span class="result">: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Converts any value to a DatomicData given there is the right <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a> in the scope</p><div class="fullcomment"><div class="comment cmt"><p>Converts any value to a DatomicData given there is the right <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a> in the scope</p><pre><span class="kw">val</span> s: DString = Datomic.toDatomic(<span class="lit">"toto"</span>)
+<span class="kw">val</span> l: DLong = Datomic.toDatomic(<span class="lit">"5L"</span>)</pre></div><dl class="attributes block"> <dt>Definition Classes</dt><dd>DatomicFacilities</dd></dl></div>
+    </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="datomisca.TransactOps#transact" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="transact(op:datomisca.Operation,ops:datomisca.Operation*)(implicitconnection:datomisca.Connection,implicitex:scala.concurrent.ExecutionContext):scala.concurrent.Future[datomisca.TxReport]"></a>
+      <a id="transact(Operation,Operation*)(Connection,ExecutionContext):Future[TxReport]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transact</span><span class="params">(<span name="op">op: <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></span>, <span name="ops">ops: <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="connection">connection: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>, <span name="ex">ex: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="TxReport.html" class="extype" name="datomisca.TxReport">TxReport</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Performs an Datomic async transaction with multiple operations.</p><div class="fullcomment"><div class="comment cmt"><p>Performs an Datomic async transaction with multiple operations.</p><pre>Datomic.transact(
+  AddToEntity(DId(Partition.USER))(
+    person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>,
+    person / <span class="lit">"age"</span> -&gt; <span class="num">30</span>L
+  ),
+  AddToEntity(DId(Partition.USER))(
+    person / <span class="lit">"name"</span> -&gt; <span class="lit">"tata"</span>,
+    person / <span class="lit">"age"</span> -&gt; <span class="num">54</span>L
+  )
+).map{ tx <span class="kw">=&gt;</span>
+    ...
+}</pre></div><dl class="paramcmts block"><dt class="param">op</dt><dd class="cmt"><p>1st <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></p></dd><dt class="param">ops</dt><dd class="cmt"><p>Other <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>s</p></dd><dt class="param">connection</dt><dd class="cmt"><p>the implicit <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></p></dd><dt class="param">ex</dt><dd class="cmt"><p>the implicit scala.concurrent.ExecutionContext</p></dd><dt>returns</dt><dd class="cmt"><p>A future of Transaction Report
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>TransactOps</dd></dl></div>
+    </li><li name="datomisca.TransactOps#transact" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="transact(op:datomisca.Operation)(implicitconnection:datomisca.Connection,implicitex:scala.concurrent.ExecutionContext):scala.concurrent.Future[datomisca.TxReport]"></a>
+      <a id="transact(Operation)(Connection,ExecutionContext):Future[TxReport]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transact</span><span class="params">(<span name="op">op: <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="connection">connection: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>, <span name="ex">ex: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="TxReport.html" class="extype" name="datomisca.TxReport">TxReport</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Performs an Datomic async transaction with single operation.</p><div class="fullcomment"><div class="comment cmt"><p>Performs an Datomic async transaction with single operation.</p><pre>Datomic.transact(
+  AddToEntity(DId(Partition.USER))(
+    person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>,
+    person / <span class="lit">"age"</span> -&gt; <span class="num">30</span>L
+  )
+)).map{ tx <span class="kw">=&gt;</span>
+    ...
+}</pre></div><dl class="paramcmts block"><dt class="param">op</dt><dd class="cmt"><p>the <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></p></dd><dt class="param">connection</dt><dd class="cmt"><p>the implicit <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></p></dd><dt class="param">ex</dt><dd class="cmt"><p>the implicit scala.concurrent.ExecutionContext</p></dd><dt>returns</dt><dd class="cmt"><p>A future of Transaction Report
+</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>TransactOps</dd></dl></div>
+    </li><li name="datomisca.TransactOps#transact" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="transact(ops:Seq[datomisca.Operation])(implicitconnection:datomisca.Connection,implicitex:scala.concurrent.ExecutionContext):scala.concurrent.Future[datomisca.TxReport]"></a>
+      <a id="transact(Seq[Operation])(Connection,ExecutionContext):Future[TxReport]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">transact</span><span class="params">(<span name="ops">ops: <span class="extype" name="scala.Seq">Seq</span>[<a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>]</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="connection">connection: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>, <span name="ex">ex: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<a href="TxReport.html" class="extype" name="datomisca.TxReport">TxReport</a>]</span>
+      </span>
+      </h4>
+      <p class="shortcomment cmt">Performs an Datomic async transaction with multiple operations.</p><div class="fullcomment"><div class="comment cmt"><p>Performs an Datomic async transaction with multiple operations.</p><pre>Datomic.transact(<span class="std">Seq</span>(
+  AddToEntity(DId(Partition.USER))(
+    person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>,
+    person / <span class="lit">"age"</span> -&gt; <span class="num">30</span>L
+  ),
+  AddToEntity(DId(Partition.USER))(
+    person / <span class="lit">"name"</span> -&gt; <span class="lit">"tata"</span>,
+    person / <span class="lit">"age"</span> -&gt; <span class="num">54</span>L
+  )
+)).map{ tx <span class="kw">=&gt;</span>
+    ...
+}</pre></div><dl class="paramcmts block"><dt class="param">ops</dt><dd class="cmt"><p>a sequence of <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></p></dd><dt class="param">connection</dt><dd class="cmt"><p>the implicit <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></p></dd><dt class="param">ex</dt><dd class="cmt"><p>the implicit scala.concurrent.ExecutionContext</p></dd><dt>returns</dt><dd class="cmt"><p>A future of Transaction Report</p></dd></dl><dl class="attributes block"> <dt>Definition Classes</dt><dd>TransactOps</dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>, <span name="arg1">arg1: <span class="extype" name="scala.Int">Int</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result">: <span class="extype" name="scala.Unit">Unit</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="datomisca.macros.OpsMacros">
+              <h3>Inherited from <a href="macros/OpsMacros.html" class="extype" name="datomisca.macros.OpsMacros">OpsMacros</a></h3>
+            </div><div class="parent" name="datomisca.macros.ExtraMacros">
+              <h3>Inherited from <span class="extype" name="datomisca.macros.ExtraMacros">ExtraMacros</span></h3>
+            </div><div class="parent" name="datomisca.QueryExecutor">
+              <h3>Inherited from <span class="extype" name="datomisca.QueryExecutor">QueryExecutor</span></h3>
+            </div><div class="parent" name="datomisca.QueryExecutorAuto">
+              <h3>Inherited from <span class="extype" name="datomisca.QueryExecutorAuto">QueryExecutorAuto</span></h3>
+            </div><div class="parent" name="datomisca.QueryExecutorPure">
+              <h3>Inherited from <span class="extype" name="datomisca.QueryExecutorPure">QueryExecutorPure</span></h3>
+            </div><div class="parent" name="datomisca.DatomicFacilities">
+              <h3>Inherited from <span class="extype" name="datomisca.DatomicFacilities">DatomicFacilities</span></h3>
+            </div><div class="parent" name="datomisca.DatomicTypeWrapper">
+              <h3>Inherited from <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></h3>
+            </div><div class="parent" name="datomisca.TransactOps">
+              <h3>Inherited from <span class="extype" name="datomisca.TransactOps">TransactOps</span></h3>
+            </div><div class="parent" name="datomisca.PeerOps">
+              <h3>Inherited from <span class="extype" name="datomisca.PeerOps">PeerOps</span></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
+            </div>
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+      <script defer="defer" type="text/javascript" id="jquery-js" src="../lib/jquery.js"></script><script defer="defer" type="text/javascript" id="jquery-ui-js" src="../lib/jquery-ui.js"></script><script defer="defer" type="text/javascript" id="tools-tooltip-js" src="../lib/tools.tooltip.js"></script><script defer="defer" type="text/javascript" id="template-js" src="../lib/template.js"></script>
+    </body>
+      </html>
