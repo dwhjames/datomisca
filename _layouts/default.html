@@ -8,8 +8,8 @@
     <style>
         @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
     </style>
-    <link rel="stylesheet/less" href="{{ site.url }}/stylesheets/font-awesome.less">
-    <link rel="stylesheet/less" href="{{ site.url }}/stylesheets/styles.less">
+    <link rel="stylesheet/less" href="{{ site.baseurl }}/stylesheets/font-awesome.less">
+    <link rel="stylesheet/less" href="{{ site.baseurl }}/stylesheets/styles.less">
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/js/google-code-prettify/prettify.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
@@ -39,14 +39,15 @@
   <body>
     <div class="wrapper">
       <header>
-        <h1><a href="{{ site.url }}/index.html"><i>Datomisca</i></a>
-        <img src="{{ site.url }}/images/menu.png">
+        <h1><a href="{{ site.baseurl }}/index.html"><i>Datomisca</i></a>
+        <img src="{{ site.baseurl }}/images/menu.png">
         </h1>
         <p id="subtitle">A Scala API for <a href="http://www.datomic.com">Datomic</a></p>
 
         <ul class="hdr-buttons">
-          <li><a href="{{ site.url }}/api/current">Read the <strong>Scaladoc</strong></a></li>
-          <li><a href="https://github.com/pellucidanalytics/datomisca">See on <strong>GitHub</strong></a></li>
+          <li><a href="{{ site.baseurl }}/api/current">Browse the <strong>Scaladoc</strong></a></li>
+          <li><a href="https://bintray.com/pellucid/maven/datomsica">Download from <strong>Bintray</strong></a></li>
+          <li><a href="https://github.com/pellucidanalytics/datomisca">Fork on <strong>GitHub</strong></a></li>
         </ul>
 {% include menu.html %}
       </header>
@@ -58,9 +59,13 @@
       </section>
 
       <footer>
-        <p>Sponsored By <a href="http://pellucid.com">Pellucid</a> and <a href="http://zenexity.com">Zenexity</a></p>
-        <p>Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache v2.0</a></p>
-        <p>Contact us <a href="https://groups.google.com/forum/?fromgroups#!forum/datomisca">Datomisca Google Group</a></p>
+        <p>
+          Sponsored By <a href="http://pellucid.com">Pellucid</a> and <a href="http://zenexity.com">Zenexity</a>
+          <br/>
+          Licensed under <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache v2.0</a>
+          <br/>
+          Contact us <a href="https://groups.google.com/forum/?fromgroups#!forum/datomisca">Datomisca Google Group</a>
+        </p>
 
         <p><small><i>Datomisca is <b>beta</b> but already used in a commercial project at Pellucid. So we are involved in making it production-ready right now.</i></small></p>
 

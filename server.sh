@@ -1,2 +1,2 @@
-jekyll --pygments --no-lsi --server --auto --url=""
+jekyll serve --watch --baseurl ''
 

@@ -12,7 +12,10 @@ Using Scala 2.10 Execution Contexts &amp; Futures, Datomic transactions are exec
 val person = Namespace("person")
 
 Datomic.transact(
-  Seq(operation1, operation2, operation3, ...)
+  operation1,
+  operation2,
+  operation3,
+  ...
 ) map { tx =>
   ...
 }

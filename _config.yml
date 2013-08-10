@@ -1,7 +1,7 @@
 safe: false
 pygments: true
 lsi: false
-url: /datomisca
+baseurl: /datomisca
 markdown: redcarpet
 navigation:
 - title: Home

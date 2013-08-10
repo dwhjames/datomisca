@@ -3,9 +3,9 @@ layout: default
 title: Datomisca by Pellucid & Zenexity
 ---
 
-# <span style="color:#777">Embrace [Datomic](http://www.datomic.com) the Scala way</span>
+# Embrace Datomic the Scala way
 
-#### **News:** 2013/03/03 : [v0.2](doc/releases.html#release-0.2) released
+#### **News:** 2013/07/16 : [v0.5.1](doc/releases.html#release-0.5.1) released
 
 > For the impatient, head directly to [Getting Started](doc/getstarted.html)
 

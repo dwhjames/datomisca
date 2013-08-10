@@ -12,7 +12,7 @@ You can contact us on [Datomisca Google Group](https://groups.google.com/forum/?
 The project is developed by:
 
 - Pascal Voitot ([@mandubian](https://twitter.com/mandubian)) from Zenexity as Lead Dev & API Architect & Eternal "API rewriter" until release
-- Daniel James from Pellucid as Dev & External Advisor to bring fresh air into the machine
+- Daniel James ([@dwhjames](https://twitter.com/dwhjames)) from Pellucid as Dev & External Advisor to bring fresh air into the machine
 
 And supervised by:
 
