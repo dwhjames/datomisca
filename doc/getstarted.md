@@ -24,8 +24,7 @@ You can add that in your `build.sbt` or `Build.scala depending on your choice.
 resolvers ++= Seq(
   // to get Datomisca
   "Pellucid Bintray"  at "http://dl.bintray.com/content/pellucid/maven",
-  // to get Datomic free (for pro, you must put in your own repo or local)
-  "clojars" at "https://clojars.org/repo"
+  ...
 )
 ```
 
