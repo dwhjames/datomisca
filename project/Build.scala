@@ -110,13 +110,13 @@ object DatomiscaBuild extends Build {
   lazy val commonProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca common"
+      name := "datomisca-common"
     )
 
   lazy val macrosProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca macros",
+      name := "datomisca-macros",
 
       libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
     )
@@ -133,7 +133,7 @@ object DatomiscaBuild extends Build {
     subProjectSettings ++
     mapGenSourceSettings ++
     Seq(
-      name := "Datomisca core",
+      name := "datomisca-core",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
     )
@@ -142,7 +142,7 @@ object DatomiscaBuild extends Build {
     subProjectSettings ++
     mapGenSourceSettings ++
     Seq(
-      name := "Datomisca extras",
+      name := "datomisca-extras",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
     )
@@ -150,7 +150,7 @@ object DatomiscaBuild extends Build {
   lazy val testsProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca tests",
+      name := "datomisca-tests",
 
       libraryDependencies ++= Dependencies.test,
 
