@@ -87,6 +87,72 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       case Some(eid) => eid.asInstanceOf[Long]
     }
 
+  /**
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t.
+    *
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t. Entity ids sort by
+    * partition, then T component, such T components interleaving with
+    * transaction numbers. Thus this method can be used to fabricate a
+    * time-based entity id component for use in e.g. seekDatoms.
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param partition
+    *     a partition name.
+    * @param t
+    *     a transaction number, or transaction id.
+    * @return a fabricated entity id at or after some point t.
+    * @see [[seekDatoms]]
+    */
+  def entidAt(partition: Partition, t: Long): Long =
+    underlying.entidAt(partition.keyword.toNative, t).asInstanceOf[Long]
+
+  /**
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t.
+    *
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t. Entity ids sort by
+    * partition, then T component, such T components interleaving with
+    * transaction numbers. Thus this method can be used to fabricate a
+    * time-based entity id component for use in e.g. seekDatoms.
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param partition
+    *     a partition name.
+    * @param t
+    *     a point in time.
+    * @return a fabricated entity id at or after some point t.
+    * @see [[seekDatoms]]
+    */
+  def entidAt(partition: Partition, t: java.util.Date): Long =
+    underlying.entidAt(partition.keyword.toNative, t).asInstanceOf[Long]
+
+  /**
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t.
+    *
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t. Entity ids sort by
+    * partition, then T component, such T components interleaving with
+    * transaction numbers. Thus this method can be used to fabricate a
+    * time-based entity id component for use in e.g. seekDatoms.
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param partition
+    *     a partition name.
+    * @param t
+    *     a point in time.
+    * @return a fabricated entity id at or after some point t.
+    * @see [[seekDatoms]]
+    */
+  def entidAt(partition: Partition, t: DInstant): Long =
+    underlying.entidAt(partition.keyword.toNative, t.underlying).asInstanceOf[Long]
+
   /** Returns the symbolic keyword associated with an id
     *
     * @param eid an entity id
@@ -186,6 +252,43 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def datoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
     new Iterable[DDatom] {
       private val jIterable = underlying.datoms(index.toNative, components.map(_.toNative): _*)
+      override def iterator = new Iterator[DDatom] {
+        private val jIter = jIterable.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new DDatom(jIter.next(), self)
+      }
+    }
+
+
+  /**
+    * Raw access to the index data, by index.
+    *
+    * Raw access to the index data, by index. The index must be supplied,
+    * and, optionally, one or more leading components of the index can be
+    * supplied for the initial search. Note that, unlike the datoms method,
+    * there need not be an exact match on the supplied components. The
+    * iteration will begin at or after the point in the index where the
+    * components would reside. Further, the iteration is not bound by the
+    * supplied components, and will only terminate at the end of the index.
+    * Thus you will have to supply your own termination logic, as you rarely
+    * want the entire index. As such, seekDatoms is for more advanced
+    * applications, and datoms should be preferred wherever it is adequate.
+    *  - [[DDatabase.EAVT]] and [[DDatabase.AEVT]] indexes will contain all datoms
+    *  - [[DDatabase.AVET]] contains datoms for attributes where :db/index = true.
+    *  - [[DDatabase.VAET]] contains datoms for attributes of :db.type/ref (it is the reverse index)
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param index
+    *     the index to use.
+    * @param components
+    *     optional leading components of the index to search for.
+    * @return an iterable collection of [[DDatom]].
+    * @see entidAt
+    */
+  def seekDatoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
+    new Iterable[DDatom] {
+      private val jIterable = underlying.seekDatoms(index.toNative, components.map(_.toNative): _*)
       override def iterator = new Iterator[DDatom] {
         private val jIter = jIterable.iterator
         override def hasNext = jIter.hasNext
