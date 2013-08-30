@@ -17,16 +17,20 @@
 package datomisca
 
 
-class DatomicException(msg: String) extends Exception(msg)
+class DatomiscaException(message: String, cause: Throwable) extends RuntimeException(message, cause) {
+  def this(message: String) {
+    this(message, null)
+  }
+}
 
 class TempidNotResolved(id: DId)
-  extends DatomicException(s"Datomic Error: entity not found with id($id)")
+  extends DatomiscaException(s"entity not found with id($id)")
 
-class UnexpectedDatomicTypeException(typeName: String)
-  extends DatomicException(s"Datomic Error: unresolved datomic type $typeName")
+class UnsupportedDatomicTypeException(cls: Class[_])
+  extends DatomiscaException(s"Datomic returned un supported ${cls.getName}")
 
 class EntityKeyNotFoundException(keyword: String)
-  extends DatomicException(s"The keyword $keyword not found in the entity")
+  extends DatomiscaException(s"the keyword $keyword not found in the entity map")
 
-class EntityMappingException(msg: String)
-  extends DatomicException(s"Datomic Error: $msg")
+class EntityMappingException(message: String)
+  extends DatomiscaException(message)

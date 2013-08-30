@@ -67,7 +67,7 @@ private[datomisca] object DatomicData {
         }
       })
     // otherwise
-    case v => throw new UnexpectedDatomicTypeException(v.getClass.getName)
+    case v => throw new UnsupportedDatomicTypeException(v.getClass)
   }
 }
 
@@ -156,12 +156,12 @@ final case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
 
   def toId = underlying match {
     case Right(id) => id
-    case _         => throw new DatomicException("DRef was not an Id but a Keyword")
+    case _         => throw new DatomiscaException("DRef was not an Id but a Keyword")
   }
 
   def toKeyword = underlying match {
     case Left(kw)  => kw
-    case _         => throw new DatomicException("DRef was not an Keyword but an DId") 
+    case _         => throw new DatomiscaException("DRef was not an Keyword but an DId")
   }
 }
 
