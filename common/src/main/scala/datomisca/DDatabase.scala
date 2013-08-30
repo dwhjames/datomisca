@@ -164,11 +164,35 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def touch(eid: Long):  DEntity = entity(eid).touch()
   def touch(eid: DLong): DEntity = entity(eid).touch()
 
-  def datoms(index: Keyword, components: Keyword*): Seq[DDatom] = {
-    //import scala.collection.JavaConverters._
-    import scala.collection.JavaConversions._
-    underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => new DDatom(d, this) )
-  }
+
+  /**
+    * Raw access to the index data, by index.
+    *
+    * Raw access to the index data, by index. The index must be supplied,
+    * and, optionally, one or more leading components of the index can be
+    * supplied to narrow the result.
+    *  - [[DDatabase.EAVT]] and [[DDatabase.AEVT]] indexes will contain all datoms
+    *  - [[DDatabase.AVET]] contains datoms for attributes where :db/index = true.
+    *  - [[DDatabase.VAET]] contains datoms for attributes of :db.type/ref (it is the reverse index)
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param index
+    *     the index to use.
+    * @param components
+    *     optional leading components of the index to match.
+    * @return an iterable collection of [[DDatom]].
+    */
+  def datoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
+    new Iterable[DDatom] {
+      private val jIterable = underlying.datoms(index.toNative, components.map(_.toNative): _*)
+      override def iterator = new Iterator[DDatom] {
+        private val jIter = jIterable.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new DDatom(jIter.next(), self)
+      }
+    }
+
 
   /** Returns a special database containing all assertions
     * and retractions across time.
