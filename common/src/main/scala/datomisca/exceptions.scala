@@ -16,6 +16,8 @@
 
 package datomisca
 
+import clojure.{lang => clj}
+
 
 class DatomiscaException(message: String, cause: Throwable) extends RuntimeException(message, cause) {
   def this(message: String) {
@@ -34,3 +36,28 @@ class EntityKeyNotFoundException(keyword: String)
 
 class EntityMappingException(message: String)
   extends DatomiscaException(message)
+
+
+object ExceptionInfo {
+
+  def apply(t: Throwable): Boolean = t match {
+    case _: clj.IExceptionInfo => true
+    case _ => false
+  }
+
+  def getData(ex: clj.IExceptionInfo): Map[String, String] = {
+    val builder = Map.newBuilder[String, String]
+    var iter = ex.getData.iterator
+    while (iter.hasNext) {
+      val entry = iter.next.asInstanceOf[clj.IMapEntry]
+      builder += (entry.key.toString -> entry.`val`.toString)
+    }
+    builder.result
+  }
+
+  def unapply(t: Throwable): Option[(Throwable, Map[String, String])] = t match {
+    case ex: clj.IExceptionInfo =>
+      Some (ex, getData(ex))
+    case _ => None
+  }
+}
