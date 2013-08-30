@@ -297,6 +297,35 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     }
 
 
+  /**
+    * Raw access to the index data for an indexed attribute.
+    *
+    * Returns a range of datoms in index specified by attrid,
+    * starting at start, or from beginning if start is null,
+    * and ending before end, or through end of attr index if
+    * end is null
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param attr
+    *     attribute keyword (attribute must be indexed or unique).
+    * @param start
+    *     some start value or none if beginning.
+    * @param end
+    *     some end value (non-inclusive), or None if through end.
+    * @return an iterable collection of [[DDatom]].
+    */
+  def indexRange(attr: Keyword, start: Option[AnyRef] = None, end: Option[AnyRef] = None): Iterable[DDatom] =
+    new Iterable[DDatom] {
+      private val jIterable = underlying.indexRange(attr.toNative, start.orNull, end.orNull)
+      override def iterator = new Iterator[DDatom] {
+        private val jIter = jIterable.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new DDatom(jIter.next(), self)
+      }
+    }
+
+
   /** Returns a special database containing all assertions
     * and retractions across time.
     *
