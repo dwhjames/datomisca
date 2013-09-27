@@ -233,12 +233,13 @@ object ToDId {
     new ToDId[I] { override def to(i: I) = i }
 }
 
-trait FromFinalId[T] {
+sealed trait FromFinalId[T] {
   def from(t: T): Long
 }
 
 object FromFinalId {
-  implicit val long    = new FromFinalId[Long]    { override def from(l: Long)    = l }
+  implicit def long[L](implicit toLong: L => Long) =
+    new FromFinalId[L] { override def from(l: L) = toLong(l) }
   implicit val dlong   = new FromFinalId[DLong]   { override def from(l: DLong)   = l.underlying }
   implicit val finalid = new FromFinalId[FinalId] { override def from(l: FinalId) = l.underlying }
 }

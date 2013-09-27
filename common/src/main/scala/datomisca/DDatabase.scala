@@ -20,23 +20,23 @@ package datomisca
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
   self => 
 
-  /** Returns the entity for the given entity id
+
+  /** Returns the entity for the given entity id.
     *
-    * @param eid an entity id
-    * @return an entity
-    * @throws EntityNotFoundException if there is no such entity
+    * @param id an entity id.
+    * @return an entity.
+    * @throws EntityNotFoundException if there is no such entity.
     */
-  def entity(eid: Long): DEntity =
-    wrapEntity(eid.toString, underlying.entity(eid))
+  def entity[T](id: T)(implicit ev: FromFinalId[T]): DEntity = {
+    val l = ev.from(id)
+    wrapEntity(l.toString, underlying.entity(l))
+  }
 
-  def entity(e: DLong):   DEntity = entity(e.underlying)
-  def entity(e: FinalId): DEntity = entity(e.underlying)
-
-  /** Returns the entity for the given keyword
+  /** Returns the entity for the given keyword.
     *
-    * @param kw a keyword
-    * @return an entity
-    * @throws EntityNotFoundException if there is no such entity
+    * @param kw a keyword.
+    * @return an entity.
+    * @throws EntityNotFoundException if there is no such entity.
     */
   def entity(kw: Keyword): DEntity =
     wrapEntity(kw.toString, underlying.entity(kw.toNative))
@@ -62,24 +62,19 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
   def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
   def since(date: DInstant): DDatabase = since(date.underlying)
 
-  /**
-    * @param eid an entity id
-    * @return the entity id
-    * @throws Exception if no entity is found
+  /** Returns the entity id passed.
+    *
+    * @param id
+    *     an entity id.
+    * @return the entity id passed.
     */
-  def entid(eid: Long): Long =
-    Option { underlying.entid(eid) } match {
-      case None      => throw new Exception(s"DDatabase.entid: entity id $eid not found")
-      case Some(eid) => eid.asInstanceOf[Long]
-    }
-
-  def entid(eid: DLong): Long = entid(eid.underlying)
+  def entid[T](id: T)(implicit ev: FromFinalId[T]): Long = underlying.entid(ev.from(id)).asInstanceOf[Long]
 
   /** Returns the entity id associated with a symbolic keyword
     *
-    * @param kw a keyword
-    * @return the entity id
-    * @throws Exception if no entity is found
+    * @param kw a keyword.
+    * @return the entity id.
+    * @throws Exception if no entity is found.
     */
   def entid(kw: Keyword): Long =
     Option { underlying.entid(kw.toNative) } match {
@@ -155,12 +150,12 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
   /** Returns the symbolic keyword associated with an id
     *
-    * @param eid an entity id
+    * @param id an entity id
     * @return a keyword
     * @throws Exception if no keyword is found
     */
-  def ident(eid: Long): Keyword =
-    Option { underlying.ident(eid) } match {
+  def ident[T](id: T)(implicit ev: FromFinalId[T]): Keyword =
+    Option { underlying.ident(ev.from(id)) } match {
       case None     => throw new Exception("DDatabase.ident: keyword not found")
       case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
     }
@@ -224,11 +219,10 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
   /** Combines `entity()` and `entity.touch()`
     *
-    * @param eid an entity id
+    * @param id an entity id
     * @return a touched entity
     */
-  def touch(eid: Long):  DEntity = entity(eid).touch()
-  def touch(eid: DLong): DEntity = entity(eid).touch()
+  def touch[T : FromFinalId](id: T): DEntity = entity(id).touch()
 
 
   /**
