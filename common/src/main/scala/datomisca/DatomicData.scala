@@ -223,9 +223,14 @@ sealed trait ToDId[T] {
 }
 
 object ToDId {
-  implicit val long:          ToDId[Long]  = new ToDId[Long]  { override def to(l: Long)  = new FinalId(l) }
-  implicit val dlong:         ToDId[DLong] = new ToDId[DLong] { override def to(l: DLong) = new FinalId(l.underlying) }
-  implicit def dId[I <: DId]: ToDId[I]     = new ToDId[I]     { override def to(i: I)     = i }
+  implicit def long[L](implicit toLong: L => Long): ToDId[L] =
+    new ToDId[L] { override def to(l: L)  = new FinalId(toLong(l)) }
+
+  implicit val dlong: ToDId[DLong] =
+    new ToDId[DLong] { override def to(l: DLong) = new FinalId(l.underlying) }
+
+  implicit def dId[I <: DId]: ToDId[I] =
+    new ToDId[I] { override def to(i: I) = i }
 }
 
 trait FromFinalId[T] {

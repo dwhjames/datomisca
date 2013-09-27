@@ -1,3 +1,6 @@
+
+import scala.language.postfixOps
+
 import sbt._
 import Keys._
 import sbtunidoc.Plugin._
@@ -7,7 +10,7 @@ object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
       version       := "0.6-SNAPSHOT",
-      organization  := "pellucidanalytics",
+      organization  := "com.pellucid",
       scalaVersion  := "2.10.2",
       scalacOptions ++= Seq(
           "-deprecation",
@@ -69,16 +72,16 @@ object DatomiscaBuild extends Build {
     Seq(
       resolvers ++= repositories,
       libraryDependencies ++= Dependencies.shared,
-      shellPrompt := { s => Project.extract(s).currentProject.id + "> " }
+      shellPrompt := CustomShellPrompt.customPrompt
     )
 
 
   lazy val rootProjectSettings =
     sharedSettings ++
     unidocSettings ++
-    Publish.settings ++
+    bintray.Plugin.bintraySettings ++
     Seq(
-      name := "Datomisca",
+      name := "datomisca",
 
       publishArtifact in (Compile, packageDoc) := false,
 
@@ -90,7 +93,10 @@ object DatomiscaBuild extends Build {
       mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
-      mappings in (Compile, packageSrc) <++= mappings in (extras, Compile, packageSrc)
+      mappings in (Compile, packageSrc) <++= mappings in (extras, Compile, packageSrc),
+
+      licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+      bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("pellucid")
     )
 
   lazy val subProjectSettings =
@@ -103,13 +109,13 @@ object DatomiscaBuild extends Build {
   lazy val commonProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca common"
+      name := "datomisca-common"
     )
 
   lazy val macrosProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca macros",
+      name := "datomisca-macros",
 
       libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
 
@@ -132,7 +138,7 @@ object DatomiscaBuild extends Build {
     subProjectSettings ++
     mapGenSourceSettings ++
     Seq(
-      name := "Datomisca core",
+      name := "datomisca-core",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
     )
@@ -141,7 +147,7 @@ object DatomiscaBuild extends Build {
     subProjectSettings ++
     mapGenSourceSettings ++
     Seq(
-      name := "Datomisca extras",
+      name := "datomisca-extras",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
     )
@@ -149,7 +155,7 @@ object DatomiscaBuild extends Build {
   lazy val testsProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca tests",
+      name := "datomisca-tests",
 
       libraryDependencies ++= Dependencies.test,
 
@@ -175,17 +181,28 @@ object Dependencies {
   val test   = Seq(specs2, junit)
 }
 
-object Publish {
+object CustomShellPrompt {
 
-  lazy val settings = Seq(
-    publishMavenStyle := true,
-    publishTo <<= version { v: String =>
-      val localPublishRepo = "../datomisca-repo/"
-      if (v.trim endsWith "SNAPSHOT")
-        Some(Resolver.file("snapshots", new File(localPublishRepo + "/snapshots")))
-      else
-        Some(Resolver.file("releases",  new File(localPublishRepo + "/releases")))
+  val Branch = """refs/heads/(.*)\s""".r
+
+  def gitBranchOrSha =
+    Process("git symbolic-ref HEAD") #|| Process("git rev-parse --short HEAD") !! match {
+      case Branch(name) => name
+      case sha          => sha.stripLineEnd
     }
-  )
 
+  val customPrompt = { state: State =>
+
+    val extracted = Project.extract(state)
+    import extracted._
+
+    (name in currentRef get structure.data) map { name =>
+      "[" + scala.Console.CYAN + name + scala.Console.RESET + "] " +
+      scala.Console.BLUE + "git:(" +
+      scala.Console.RED + gitBranchOrSha +
+      scala.Console.BLUE + ")" +
+      scala.Console.RESET + " $ "
+    } getOrElse ("> ")
+
+  }
 }
