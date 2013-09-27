@@ -82,7 +82,7 @@ object TxReport {
         javaMap.get(TX_DATA)
                .asInstanceOf[java.util.List[datomic.Datom]]
                .asScala
-               .map(DDatom(_)(database))
+               .map(new DDatom(_, database))
                .toSeq
       override protected val tempids = javaMap.get(TEMPIDS).asInstanceOf[AnyRef]
     }
