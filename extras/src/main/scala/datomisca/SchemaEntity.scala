@@ -22,4 +22,20 @@ object SchemaEntity {
     */
   def add[T](id: T)(props: Props)(implicit ev: ToDId[T]): AddEntity = new AddEntity(ev.to(id), props.convert.props)
 
+  class SchemaEntityBuilder {
+
+    private val builder = Map.newBuilder[Keyword, DatomicData]
+
+    def +=[DD <: DatomicData, Card <: Cardinality, A]
+          (attrVal: (Attribute[DD, Card], A))
+          (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A])
+          : this.type = {
+      builder ++= attrC.convert(attrVal._1).write(attrVal._2).props.toTraversable
+      this
+    }
+
+    def withId[T](id: T)(implicit ev: ToDId[T]): AddEntity = new AddEntity(ev.to(id), builder.result)
+  }
+
+  def newBuilder: SchemaEntityBuilder = new SchemaEntityBuilder
 }
