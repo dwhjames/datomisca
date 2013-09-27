@@ -136,21 +136,28 @@ class DatomicDbFunctionSpec extends Specification {
 
       object AccountsTxData {
         import AccountsSchema._
-        val issuer = SchemaEntity.add(DId(Partition.USER))(Props() +
-          (AccountsSchema.name       -> "Issuer") +
-          (balance    -> BigDecimal(0)) +
-          (minBalance -> BigDecimal(-1000))
-        )
-        val bob = SchemaEntity.add(DId(Partition.USER))(Props() +
-          (AccountsSchema.name       -> "Bob") +
-          (balance    -> BigDecimal(0)) +
-          (minBalance -> BigDecimal(0))
-        )
-        val alice = SchemaEntity.add(DId(Partition.USER))(Props() +
-          (AccountsSchema.name       -> "Alice") +
-          (balance    -> BigDecimal(0)) +
-          (minBalance -> BigDecimal(0))
-        )
+
+        val issuer = (
+          SchemaEntity.newBuilder
+            += (name       -> "Issuer")
+            += (balance    -> BigDecimal(0))
+            += (minBalance -> BigDecimal(-1000))
+        ) withId DId(Partition.USER)
+
+        val bob = (
+          SchemaEntity.newBuilder
+            += (AccountsSchema.name -> "Bob")
+            += (balance             -> BigDecimal(0))
+            += (minBalance          -> BigDecimal(0))
+        ) withId DId(Partition.USER)
+
+        val alice = (
+          SchemaEntity.newBuilder
+            += (AccountsSchema.name -> "Alice")
+            += (balance             -> BigDecimal(0))
+            += (minBalance          -> BigDecimal(0))
+        ) withId DId(Partition.USER)
+
         val sampleTxData = Seq(issuer, bob, alice)
 
         def transfer(fromAcc: DLong, toAcc: DLong, transAmount: BigDecimal, note: String): Seq[Operation] = {
