@@ -264,7 +264,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       val argPairs = (a.props - Keyword("id", Namespace.DB) ).map { case (k, v) =>
           q"Tuple2(${incept(k)}, ${localIncept(v)})"
         }.toList
-      q"datomisca.AddEntity($id)(..$argPairs)"
+      q"datomisca.AddEntity($id, Map(..$argPairs))"
     }
   }
 
