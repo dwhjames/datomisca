@@ -17,7 +17,7 @@ object DatomiscaBuild extends Build {
           "-feature",
           "-unchecked"
         ),
-      addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise_2.10.2" % "2.0.0-SNAPSHOT")
+      addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
     )
 
   lazy val datomisca = Project(
@@ -83,13 +83,29 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "datomisca",
 
-      publishArtifact in (Compile, packageDoc) := false,
+      // disable some aggregation tasks for subprojects
+      aggregate in Keys.doc          := false,
+      aggregate in Keys.`package`    := false,
+      aggregate in Keys.packageBin   := false,
+      aggregate in Keys.packageDoc   := false,
+      aggregate in Keys.packageSrc   := false,
+      aggregate in Keys.publish      := false,
+      aggregate in Keys.publishLocal := false,
 
+      // substitue unidoc as the way to generate documentation
+      packageDoc in Compile <<= packageDoc in ScalaUnidoc,
+      artifact in (ScalaUnidoc, packageDoc) := {
+        val previous: Artifact = (artifact in (ScalaUnidoc, packageDoc)).value
+        previous.copy(classifier = Some("javadoc"))
+      },
+
+      // map subproject classes into root project
       mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
 
+      // map subproject sources into root project
       mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
