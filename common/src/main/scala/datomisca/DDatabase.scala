@@ -16,6 +16,19 @@
 
 package datomisca
 
+import java.util.{Date => JDate}
+
+
+sealed trait FromPointT[T] {
+  def from(t: T): Any
+}
+
+object FromPointT {
+  implicit def long[L](implicit toLong: L => Long) =
+    new FromPointT[L] { override def from(l: L) = toLong(l) }
+  implicit val jDate   = new FromPointT[JDate] { override def from(date: JDate) = date }
+  implicit val dInstant = new FromPointT[DInstant] { override def from(instant: DInstant) = instant.underlying }
+}
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
   self => 
@@ -48,19 +61,23 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       DEntity(entity)
 
 
-  /**
-    * @param date a Date
-    * @return the value of the database as of some date
+  /** Returns the value of the database as of some point t, inclusive.
+    *
+    * @param t
+    *     a transactor number, transaction id, or date.
+    * @return the value of the database as of some point t, inclusive.
     */
-  def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
-  def asOf(date: DInstant):       DDatabase = asOf(date.underlying)
+  def asOf[T](t: T)(implicit ev: FromPointT[T]): DDatabase = DDatabase(underlying.asOf(ev.from(t)))
 
-  /**
-    * @param date a Date
-    * @return the value of the database since some date
+
+  /** Returns the value of the database since some point t, exclusive.
+    *
+    * @param t
+    *     a transactor number, or transaction id.
+    * @return the value of the database since some point t, exclusive.
     */
-  def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
-  def since(date: DInstant): DDatabase = since(date.underlying)
+  def since[T](t: T)(implicit ev: FromPointT[T]): DDatabase = DDatabase(underlying.since(ev.from(t)))
+
 
   /** Returns the entity id passed.
     *
@@ -97,56 +114,13 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @param partition
     *     a partition name.
     * @param t
-    *     a transaction number, or transaction id.
+    *     a transaction number, transaction id, or date.
     * @return a fabricated entity id at or after some point t.
     * @see [[seekDatoms]]
     */
-  def entidAt(partition: Partition, t: Long): Long =
-    underlying.entidAt(partition.keyword.toNative, t).asInstanceOf[Long]
+  def entidAt[T](partition: Partition, t: T)(implicit ev: FromPointT[T]): Long =
+    underlying.entidAt(partition.keyword.toNative, ev.from(t)).asInstanceOf[Long]
 
-  /**
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t.
-    *
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t. Entity ids sort by
-    * partition, then T component, such T components interleaving with
-    * transaction numbers. Thus this method can be used to fabricate a
-    * time-based entity id component for use in e.g. seekDatoms.
-    *
-    * (Copied from Datomic docs)
-    *
-    * @param partition
-    *     a partition name.
-    * @param t
-    *     a point in time.
-    * @return a fabricated entity id at or after some point t.
-    * @see [[seekDatoms]]
-    */
-  def entidAt(partition: Partition, t: java.util.Date): Long =
-    underlying.entidAt(partition.keyword.toNative, t).asInstanceOf[Long]
-
-  /**
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t.
-    *
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t. Entity ids sort by
-    * partition, then T component, such T components interleaving with
-    * transaction numbers. Thus this method can be used to fabricate a
-    * time-based entity id component for use in e.g. seekDatoms.
-    *
-    * (Copied from Datomic docs)
-    *
-    * @param partition
-    *     a partition name.
-    * @param t
-    *     a point in time.
-    * @return a fabricated entity id at or after some point t.
-    * @see [[seekDatoms]]
-    */
-  def entidAt(partition: Partition, t: DInstant): Long =
-    underlying.entidAt(partition.keyword.toNative, t.underlying).asInstanceOf[Long]
 
   /** Returns the symbolic keyword associated with an id
     *
