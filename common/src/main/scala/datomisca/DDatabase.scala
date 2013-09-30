@@ -24,9 +24,8 @@ sealed trait FromPointT[T] {
 }
 
 object FromPointT {
-  implicit def long[L](implicit toLong: L => Long) =
-    new FromPointT[L] { override def from(l: L) = toLong(l) }
-  implicit val jDate   = new FromPointT[JDate] { override def from(date: JDate) = date }
+  implicit val long     = new FromPointT[Long]     { override def from(l: Long) = l }
+  implicit val jDate    = new FromPointT[JDate]    { override def from(date: JDate) = date }
   implicit val dInstant = new FromPointT[DInstant] { override def from(instant: DInstant) = instant.underlying }
 }
 
