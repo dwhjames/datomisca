@@ -215,33 +215,89 @@ object DId {
 
   def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
   def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
-  def apply[T](id: T)(implicit ev: ToDId[T]) = ev.to(id)
+  def apply[T](id: T)(implicit ev: AsEntityId[T]) = ev.conv(id)
 }
 
-sealed trait ToDId[T] {
-  def to(t: T): DId
+/**
+  * A conversion type class for entity ids.
+  *
+  * A type class for converting the various types that can be treated
+  * as temporary or permanent ids for entities.
+  *
+  * @tparam T
+  *     the type of the id to convert.
+  */
+sealed trait AsEntityId[T] {
+
+  /**
+    * Convert to an entity id.
+    *
+    * @param t
+    *     an id value to convert.
+    * @return the abstracted id.
+    */
+  protected[datomisca] def conv(t: T): DId
 }
 
-object ToDId {
-  implicit def long[L](implicit toLong: L => Long): ToDId[L] =
-    new ToDId[L] { override def to(l: L)  = new FinalId(toLong(l)) }
+/**
+  * The three cases for converting entity ids.
+  */
+object AsEntityId {
 
-  implicit val dlong: ToDId[DLong] =
-    new ToDId[DLong] { override def to(l: DLong) = new FinalId(l.underlying) }
+  /** Any type viewable as a Long can be an entity id. */
+  implicit def long[L](implicit toLong: L => Long): AsEntityId[L] =
+    new AsEntityId[L] {
+      override protected[datomisca] def conv(l: L) = new FinalId(toLong(l))
+    }
 
-  implicit def dId[I <: DId]: ToDId[I] =
-    new ToDId[I] { override def to(i: I) = i }
+  /** A [[DLong]] can be an entity id. */
+  implicit val dlong: AsEntityId[DLong] =
+    new AsEntityId[DLong] {
+      override protected[datomisca] def conv(l: DLong) = new FinalId(l.underlying)
+    }
+
+  /** Any subtype of [[DId]] can be a permament entity id. */
+  implicit def dId[I <: DId]: AsEntityId[I] =
+    new AsEntityId[I] {
+      override protected[datomisca] def conv(i: I) = i
+    }
 }
 
-sealed trait FromFinalId[T] {
-  def from(t: T): Long
+/**
+  * A conversion type class for permanent entity ids.
+  *
+  * A type class for converting from the various types
+  * that can be used as permanent entity ids.
+  *
+  * @tparam T
+  *     the type of the id to convert.
+  */
+sealed trait AsPermanentEntityId[T] {
+  protected[datomisca] def conv(t: T): Long
 }
 
-object FromFinalId {
+/**
+  * The three cases for converting permanent entity ids.
+  */
+object AsPermanentEntityId {
+
+  /** Any type viewable as a Long can be a permanent entity id. */
   implicit def long[L](implicit toLong: L => Long) =
-    new FromFinalId[L] { override def from(l: L) = toLong(l) }
-  implicit val dlong   = new FromFinalId[DLong]   { override def from(l: DLong)   = l.underlying }
-  implicit val finalid = new FromFinalId[FinalId] { override def from(l: FinalId) = l.underlying }
+    new AsPermanentEntityId[L] {
+      override protected[datomisca] def conv(l: L) = toLong(l)
+    }
+
+  /** A [[DLong]] can be a permament entity id. */
+  implicit val dlong =
+    new AsPermanentEntityId[DLong] {
+      override protected[datomisca] def conv(l: DLong) = l.underlying
+    }
+
+  /** A [[FinalId]] can be a permament entity id. */
+  implicit val finalid =
+    new AsPermanentEntityId[FinalId] {
+      override protected[datomisca] def conv(l: FinalId) = l.underlying
+    }
 }
 
 

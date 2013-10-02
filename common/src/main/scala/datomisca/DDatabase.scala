@@ -18,15 +18,51 @@ package datomisca
 
 import java.util.{Date => JDate}
 
+/**
+  * A conversion type class for point in time values.
+  *
+  * A type class for converting from various point in time values.
+  * Basis T values as Long, transaction entity ids as Long, transaction
+  * time stamps as java.util.Date, and transaction time stamps as
+  * [[DInstant]].
+  *
+  * @tparam T
+  *     the type of the point in time.
+  */
+sealed trait AsPointT[T] {
 
-sealed trait FromPointT[T] {
-  def from(t: T): Any
+  /**
+    * Convert from a point in time.
+    *
+    * @param t
+    *     a point in time.
+    * @return an upcast of the point in time.
+    */
+  protected[datomisca] def conv(t: T): Any
 }
 
-object FromPointT {
-  implicit val long     = new FromPointT[Long]     { override def from(l: Long) = l }
-  implicit val jDate    = new FromPointT[JDate]    { override def from(date: JDate) = date }
-  implicit val dInstant = new FromPointT[DInstant] { override def from(instant: DInstant) = instant.underlying }
+/**
+  * The three cases for converting points in time.
+  */
+object AsPointT {
+
+  /** Basis T and transaction entity id values as Long are points in time. */
+  implicit val long =
+    new AsPointT[Long] {
+      override protected[datomisca] def conv(l: Long) = l
+    }
+
+  /** Transaction time stamps as java.util.Date are points in time. */
+  implicit val jDate =
+    new AsPointT[JDate] {
+      override protected[datomisca] def conv(date: JDate) = date
+    }
+
+  /** Transaction time stamps as [[DInstant]] are points in time. */
+  implicit val dInstant =
+    new AsPointT[DInstant] {
+      override protected[datomisca] def conv(instant: DInstant) = instant.underlying
+    }
 }
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
@@ -39,8 +75,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @return an entity.
     * @throws EntityNotFoundException if there is no such entity.
     */
-  def entity[T](id: T)(implicit ev: FromFinalId[T]): DEntity = {
-    val l = ev.from(id)
+  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): DEntity = {
+    val l = ev.conv(id)
     wrapEntity(l.toString, underlying.entity(l))
   }
 
@@ -66,7 +102,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     *     a transactor number, transaction id, or date.
     * @return the value of the database as of some point t, inclusive.
     */
-  def asOf[T](t: T)(implicit ev: FromPointT[T]): DDatabase = DDatabase(underlying.asOf(ev.from(t)))
+  def asOf[T](t: T)(implicit ev: AsPointT[T]): DDatabase =
+    DDatabase(underlying.asOf(ev.conv(t)))
 
 
   /** Returns the value of the database since some point t, exclusive.
@@ -75,7 +112,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     *     a transactor number, or transaction id.
     * @return the value of the database since some point t, exclusive.
     */
-  def since[T](t: T)(implicit ev: FromPointT[T]): DDatabase = DDatabase(underlying.since(ev.from(t)))
+  def since[T](t: T)(implicit ev: AsPointT[T]): DDatabase =
+    DDatabase(underlying.since(ev.conv(t)))
 
 
   /** Returns the entity id passed.
@@ -84,7 +122,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     *     an entity id.
     * @return the entity id passed.
     */
-  def entid[T](id: T)(implicit ev: FromFinalId[T]): Long = underlying.entid(ev.from(id)).asInstanceOf[Long]
+  def entid[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long =
+    underlying.entid(ev.conv(id)).asInstanceOf[Long]
 
   /** Returns the entity id associated with a symbolic keyword
     *
@@ -117,8 +156,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @return a fabricated entity id at or after some point t.
     * @see [[seekDatoms]]
     */
-  def entidAt[T](partition: Partition, t: T)(implicit ev: FromPointT[T]): Long =
-    underlying.entidAt(partition.keyword.toNative, ev.from(t)).asInstanceOf[Long]
+  def entidAt[T](partition: Partition, t: T)(implicit ev: AsPointT[T]): Long =
+    underlying.entidAt(partition.keyword.toNative, ev.conv(t)).asInstanceOf[Long]
 
 
   /** Returns the symbolic keyword associated with an id
@@ -127,8 +166,8 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @return a keyword
     * @throws Exception if no keyword is found
     */
-  def ident[T](id: T)(implicit ev: FromFinalId[T]): Keyword =
-    Option { underlying.ident(ev.from(id)) } match {
+  def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
+    Option { underlying.ident(ev.conv(id)) } match {
       case None     => throw new Exception("DDatabase.ident: keyword not found")
       case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
     }
@@ -195,7 +234,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @param id an entity id
     * @return a touched entity
     */
-  def touch[T : FromFinalId](id: T): DEntity = entity(id).touch()
+  def touch[T : AsPermanentEntityId](id: T): DEntity = entity(id).touch()
 
 
   /**
