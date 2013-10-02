@@ -19,9 +19,6 @@ package datomisca
 
 class DatomicException(msg: String) extends Exception(msg)
 
-class EntityNotFoundException(id: String)
-  extends DatomicException(s"Datomic Error: entity not found with id($id)")
-
 class TempidNotResolved(id: DId)
   extends DatomicException(s"Datomic Error: entity not found with id($id)")
 
