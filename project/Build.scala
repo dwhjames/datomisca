@@ -134,12 +134,6 @@ object DatomiscaBuild extends Build {
       name := "datomisca-macros",
 
       libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
-
-      // scalaVersion := "2.10.2-SNAPSHOT",
-      // scalaOrganization := "org.scala-lang.macro-paradise",
-      // libraryDependencies <+= (scalaVersion)("org.scala-lang.macro-paradise" % "scala-reflect" % _)
-
-      // libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
     )
 
   lazy val mapGenSourceSettings =

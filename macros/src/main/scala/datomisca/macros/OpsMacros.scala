@@ -82,7 +82,6 @@ trait OpsMacros {
 }
 
 private[datomisca] object OpsMacros {
-  //import DatomicInception._
 
   def addEntityImpl(c: Context)(q: c.Expr[String]): c.Expr[AddEntity] = {
     import c.universe._

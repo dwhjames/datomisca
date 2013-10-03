@@ -36,7 +36,6 @@ private[datomisca] object ExtraMacros {
 
   def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
     import c.universe._
-    // import DatomicInception._
 
     val inc = new Helper[c.type](c)
 

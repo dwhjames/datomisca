@@ -117,7 +117,6 @@ private[datomisca] trait QueryMacros {
 }
 
 private[datomisca] object QueryMacros {
-  //import DatomicInception._
 
   def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[PureQuery] = {
       import c.universe._
