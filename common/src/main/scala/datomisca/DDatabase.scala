@@ -16,27 +16,75 @@
 
 package datomisca
 
+import java.util.{Date => JDate}
+
+/**
+  * A conversion type class for point in time values.
+  *
+  * A type class for converting from various point in time values.
+  * Basis T values as Long, transaction entity ids as Long, transaction
+  * time stamps as java.util.Date, and transaction time stamps as
+  * [[DInstant]].
+  *
+  * @tparam T
+  *     the type of the point in time.
+  */
+sealed trait AsPointT[T] {
+
+  /**
+    * Convert from a point in time.
+    *
+    * @param t
+    *     a point in time.
+    * @return an upcast of the point in time.
+    */
+  protected[datomisca] def conv(t: T): Any
+}
+
+/**
+  * The three cases for converting points in time.
+  */
+object AsPointT {
+
+  /** Basis T and transaction entity id values as Long are points in time. */
+  implicit val long =
+    new AsPointT[Long] {
+      override protected[datomisca] def conv(l: Long) = l
+    }
+
+  /** Transaction time stamps as java.util.Date are points in time. */
+  implicit val jDate =
+    new AsPointT[JDate] {
+      override protected[datomisca] def conv(date: JDate) = date
+    }
+
+  /** Transaction time stamps as [[DInstant]] are points in time. */
+  implicit val dInstant =
+    new AsPointT[DInstant] {
+      override protected[datomisca] def conv(instant: DInstant) = instant.underlying
+    }
+}
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
   self => 
 
-  /** Returns the entity for the given entity id
+
+  /** Returns the entity for the given entity id.
     *
-    * @param eid an entity id
-    * @return an entity
-    * @throws EntityNotFoundException if there is no such entity
+    * @param id an entity id.
+    * @return an entity.
+    * @throws EntityNotFoundException if there is no such entity.
     */
-  def entity(eid: Long): DEntity =
-    wrapEntity(eid.toString, underlying.entity(eid))
+  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): DEntity = {
+    val l = ev.conv(id)
+    wrapEntity(l.toString, underlying.entity(l))
+  }
 
-  def entity(e: DLong):   DEntity = entity(e.underlying)
-  def entity(e: FinalId): DEntity = entity(e.underlying)
-
-  /** Returns the entity for the given keyword
+  /** Returns the entity for the given keyword.
     *
-    * @param kw a keyword
-    * @return an entity
-    * @throws EntityNotFoundException if there is no such entity
+    * @param kw a keyword.
+    * @return an entity.
+    * @throws EntityNotFoundException if there is no such entity.
     */
   def entity(kw: Keyword): DEntity =
     wrapEntity(kw.toString, underlying.entity(kw.toNative))
@@ -48,38 +96,40 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       DEntity(entity)
 
 
-  /**
-    * @param date a Date
-    * @return the value of the database as of some date
+  /** Returns the value of the database as of some point t, inclusive.
+    *
+    * @param t
+    *     a transactor number, transaction id, or date.
+    * @return the value of the database as of some point t, inclusive.
     */
-  def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
-  def asOf(date: DInstant):       DDatabase = asOf(date.underlying)
+  def asOf[T](t: T)(implicit ev: AsPointT[T]): DDatabase =
+    DDatabase(underlying.asOf(ev.conv(t)))
 
-  /**
-    * @param date a Date
-    * @return the value of the database since some date
+
+  /** Returns the value of the database since some point t, exclusive.
+    *
+    * @param t
+    *     a transactor number, or transaction id.
+    * @return the value of the database since some point t, exclusive.
     */
-  def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
-  def since(date: DInstant): DDatabase = since(date.underlying)
+  def since[T](t: T)(implicit ev: AsPointT[T]): DDatabase =
+    DDatabase(underlying.since(ev.conv(t)))
 
-  /**
-    * @param eid an entity id
-    * @return the entity id
-    * @throws Exception if no entity is found
+
+  /** Returns the entity id passed.
+    *
+    * @param id
+    *     an entity id.
+    * @return the entity id passed.
     */
-  def entid(eid: Long): Long =
-    Option { underlying.entid(eid) } match {
-      case None      => throw new Exception(s"DDatabase.entid: entity id $eid not found")
-      case Some(eid) => eid.asInstanceOf[Long]
-    }
-
-  def entid(eid: DLong): Long = entid(eid.underlying)
+  def entid[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long =
+    underlying.entid(ev.conv(id)).asInstanceOf[Long]
 
   /** Returns the entity id associated with a symbolic keyword
     *
-    * @param kw a keyword
-    * @return the entity id
-    * @throws Exception if no entity is found
+    * @param kw a keyword.
+    * @return the entity id.
+    * @throws Exception if no entity is found.
     */
   def entid(kw: Keyword): Long =
     Option { underlying.entid(kw.toNative) } match {
@@ -102,65 +152,22 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @param partition
     *     a partition name.
     * @param t
-    *     a transaction number, or transaction id.
+    *     a transaction number, transaction id, or date.
     * @return a fabricated entity id at or after some point t.
     * @see [[seekDatoms]]
     */
-  def entidAt(partition: Partition, t: Long): Long =
-    underlying.entidAt(partition.keyword.toNative, t).asInstanceOf[Long]
+  def entidAt[T](partition: Partition, t: T)(implicit ev: AsPointT[T]): Long =
+    underlying.entidAt(partition.keyword.toNative, ev.conv(t)).asInstanceOf[Long]
 
-  /**
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t.
-    *
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t. Entity ids sort by
-    * partition, then T component, such T components interleaving with
-    * transaction numbers. Thus this method can be used to fabricate a
-    * time-based entity id component for use in e.g. seekDatoms.
-    *
-    * (Copied from Datomic docs)
-    *
-    * @param partition
-    *     a partition name.
-    * @param t
-    *     a point in time.
-    * @return a fabricated entity id at or after some point t.
-    * @see [[seekDatoms]]
-    */
-  def entidAt(partition: Partition, t: java.util.Date): Long =
-    underlying.entidAt(partition.keyword.toNative, t).asInstanceOf[Long]
-
-  /**
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t.
-    *
-    * Returns a fabricated entity id in the supplied partition whose
-    * T component is at or after the supplied t. Entity ids sort by
-    * partition, then T component, such T components interleaving with
-    * transaction numbers. Thus this method can be used to fabricate a
-    * time-based entity id component for use in e.g. seekDatoms.
-    *
-    * (Copied from Datomic docs)
-    *
-    * @param partition
-    *     a partition name.
-    * @param t
-    *     a point in time.
-    * @return a fabricated entity id at or after some point t.
-    * @see [[seekDatoms]]
-    */
-  def entidAt(partition: Partition, t: DInstant): Long =
-    underlying.entidAt(partition.keyword.toNative, t.underlying).asInstanceOf[Long]
 
   /** Returns the symbolic keyword associated with an id
     *
-    * @param eid an entity id
+    * @param id an entity id
     * @return a keyword
     * @throws Exception if no keyword is found
     */
-  def ident(eid: Long): Keyword =
-    Option { underlying.ident(eid) } match {
+  def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
+    Option { underlying.ident(ev.conv(id)) } match {
       case None     => throw new Exception("DDatabase.ident: keyword not found")
       case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
     }
@@ -224,11 +231,10 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
   /** Combines `entity()` and `entity.touch()`
     *
-    * @param eid an entity id
+    * @param id an entity id
     * @return a touched entity
     */
-  def touch(eid: Long):  DEntity = entity(eid).touch()
-  def touch(eid: DLong): DEntity = entity(eid).touch()
+  def touch[T : AsPermanentEntityId](id: T): DEntity = entity(id).touch()
 
 
   /**
