@@ -28,6 +28,56 @@ trait Connection {
 
   def database: DDatabase = DDatabase(connection.db())
 
+  /**
+    * Used to coordinate with other peers.
+    *
+    * Returns a future that will acquire a
+    * database value guaranteed to include all transactions that were
+    * complete at the time sync was called.  Communicates with the
+    * transactor.
+    *
+    * db is the preferred way to get a database value, as it does not
+    * need to wait nor block. Only use sync when coordination is
+    * required, and prefer the one-argument version when you have a
+    * basis t.
+    *
+    * (Copied from the Datomic docs.)
+    *
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a
+    * database value guaranteed to include all transactions that were
+    * complete at the time sync was called.
+    */
+  def sync()(implicit exec: ExecutionContext): Future[DDatabase] =
+    Connection.bridgeDatomicFuture(connection.sync()) map DDatabase.apply
+
+  /**
+    * Used to coordinate with other peers.
+    *
+    * Returns a future that will acquire a
+    * database value with basisT >= t. Does not communicate with the
+    * transactor.
+    *
+    * db is the preferred way to get a database value, as it does not
+    * need to wait nor block. Only use sync when coordination is
+    * required, and prefer the one-argument version when you have a
+    * basis t.
+    *
+    * (Copied from the Datomic docs.)
+    *
+    * @param t
+    *     a transaction number.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a
+    * database value guaranteed to include all transactions that were
+    * complete at the time sync was called.
+    */
+  def sync(t: Long)(implicit exec: ExecutionContext): Future[DDatabase] =
+    Connection.bridgeDatomicFuture(connection.sync(t)) map DDatabase.apply
+
+
   def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
     import scala.collection.JavaConverters._
 
