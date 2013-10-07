@@ -226,8 +226,6 @@ class DatomicQuery2Spec extends Specification {
         case (e:DLong) => {
            val result = Datomic.q(query2, Datomic.database,e) 
            result must not be empty
-           println(result)
-        
         }
       } should  not (throwA[UnexpectedDatomicTypeException])
      
