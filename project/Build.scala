@@ -16,7 +16,8 @@ object DatomiscaBuild extends Build {
           "-deprecation",
           "-feature",
           "-unchecked"
-        )
+        ),
+      addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
     )
 
   lazy val datomisca = Project(
@@ -56,20 +57,20 @@ object DatomiscaBuild extends Build {
     ) dependsOn(common, core, extras, macros)
 
 
-  val typesafeRepo = Seq(
+  val repositories = Seq(
     "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/"
-  )
+    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/",
 
-  val datomicRepo = Seq(
-    "clojars"   at "https://clojars.org/repo",
+    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+
+    "clojars" at "https://clojars.org/repo",
     "couchbase" at "http://files.couchbase.com/maven2"
   )
 
   lazy val sharedSettings =
     buildSettings ++
     Seq(
-      resolvers ++= typesafeRepo ++ datomicRepo,
+      resolvers ++= repositories,
       libraryDependencies ++= Dependencies.shared,
       shellPrompt := CustomShellPrompt.customPrompt
     )
@@ -82,15 +83,29 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "datomisca",
 
-      scalacOptions in ScalaUnidoc += "-Ymacro-no-expand",
+      // disable some aggregation tasks for subprojects
+      aggregate in Keys.doc          := false,
+      aggregate in Keys.`package`    := false,
+      aggregate in Keys.packageBin   := false,
+      aggregate in Keys.packageDoc   := false,
+      aggregate in Keys.packageSrc   := false,
+      aggregate in Keys.publish      := false,
+      aggregate in Keys.publishLocal := false,
 
-      publishArtifact in (Compile, packageDoc) := false,
+      // substitue unidoc as the way to generate documentation
+      packageDoc in Compile <<= packageDoc in ScalaUnidoc,
+      artifact in (ScalaUnidoc, packageDoc) := {
+        val previous: Artifact = (artifact in (ScalaUnidoc, packageDoc)).value
+        previous.copy(classifier = Some("javadoc"))
+      },
 
+      // map subproject classes into root project
       mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
 
+      // map subproject sources into root project
       mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
@@ -118,7 +133,7 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "datomisca-macros",
 
-      libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
     )
 
   lazy val mapGenSourceSettings =
