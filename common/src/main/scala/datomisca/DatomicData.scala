@@ -32,6 +32,8 @@ private[datomisca] object DatomicData {
     case b: java.lang.Boolean => DBoolean(b)
     // :db.type/long
     case l: java.lang.Long => DLong(l)
+    // attribute id
+    case i: java.lang.Integer => DLong(i.toLong)
     // :db.type/float
     case f: java.lang.Float => DFloat(f)
     // :db.type/double
