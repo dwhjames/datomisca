@@ -202,5 +202,35 @@ class DatomicQuery2Spec extends Specification {
 
       success
     }
+    
+     "10 - pure query attribute" in {
+      implicit val conn = Datomic.connect(uri)
+      val query1 = Query("""
+        [ :find ?e 
+          :in $ ?char
+          :where  [ ?e :person/name ?n ]
+                  [ ?e :person/character ?char ]
+        ]
+      """)
+      
+       val query2 = Query("""
+        [:find ?a ?v :in $ ?e  :where [ ?e ?a ?v _]] 
+      """)
+      
+
+      Datomic.q(
+        query1,
+        Datomic.database,
+        DRef(Datomic.KW(":person.character/violent"))
+      ) map {
+        case (e:DLong) => {
+           val result = Datomic.q(query2, Datomic.database,e) 
+           result must not be empty
+           println(result)
+        
+        }
+      } should  not (throwA[UnexpectedDatomicTypeException])
+     
+    }
   }
 }
