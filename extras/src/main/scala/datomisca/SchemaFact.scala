@@ -21,21 +21,21 @@ object SchemaFact {
   /** add based on Schema attributes 
     */
   def add[T, DD <: DatomicData, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
-    (implicit ev: ToDId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
+    (implicit ev: AsEntityId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: DatomicData) = partial.props.head
-    AddFact(ev.to(id), kw, value)
+    AddFact(ev.conv(id), kw, value)
   }
 
   /** retract based on Schema attributes 
     */
   def retract[T, DD <: DatomicData, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
-    (implicit ev: FromFinalId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
+    (implicit ev: AsPermanentEntityId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: DatomicData) = partial.props.head
-    RetractFact(ev.from(id), kw, value)
+    RetractFact(ev.conv(id), kw, value)
   }
 
 }
