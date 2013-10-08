@@ -117,12 +117,11 @@ private[datomisca] trait QueryMacros {
 }
 
 private[datomisca] object QueryMacros {
-  import DatomicInception._
 
   def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[PureQuery] = {
       import c.universe._
 
-      val inc = inception(c)
+      val inc = new Helper[c.type](c)
 
       q.tree match {
         case Literal(Constant(s: String)) =>
@@ -147,7 +146,7 @@ private[datomisca] object QueryMacros {
 
     import c.universe._
 
-    val inc = inception(c)
+    val inc = new Helper[c.type](c)
 
     def pkgDatomic(tpe: String) = Select(Select(Ident(newTermName("datomisca")), newTermName("gen")), newTermName(tpe))
     def pkgDatomicType(tpe: String) = Select(Ident(newTermName("datomisca")), newTypeName(tpe))
@@ -159,7 +158,7 @@ private[datomisca] object QueryMacros {
             val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
             val offsetPos = new OffsetPosition(
               treePos.source,
-              computeOffset(treePos, offsetLine, offsetCol)
+              inc.computeOffset(treePos, offsetLine, offsetCol)
             )
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
 
@@ -207,7 +206,7 @@ private[datomisca] object QueryMacros {
   def rulesImpl(c: Context)(q: c.Expr[String]) : c.Expr[DRuleAliases] = {
     import c.universe._
 
-    val inc = inception(c)
+    val inc = new Helper[c.type](c)
 
     q.tree match {
       case Literal(Constant(s: String)) =>
@@ -217,7 +216,7 @@ private[datomisca] object QueryMacros {
 
             val offsetPos = new OffsetPosition(
               treePos.source,
-              computeOffset(treePos, offsetLine, offsetCol)
+              inc.computeOffset(treePos, offsetLine, offsetCol)
             )
             c.abort(offsetPos.asInstanceOf[c.Position], msg)
           case Right(kw) => c.Expr[DRuleAliases]( inc.incept(kw) )
