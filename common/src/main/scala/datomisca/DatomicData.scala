@@ -184,11 +184,16 @@ sealed trait ToDRef[T] {
 }
 
 object ToDRef {
-  implicit val keyword2DRef: ToDRef[Keyword] = new ToDRef[Keyword] { def toDRef(kw: Keyword) = new DRef(Left(kw)) }
+
   implicit val long2DRef:    ToDRef[Long]    = new ToDRef[Long]    { def toDRef(l:  Long)    = new DRef(Right(DId(l))) }
   implicit val dlong2DRef:   ToDRef[DLong]   = new ToDRef[DLong]   { def toDRef(l:  DLong)   = new DRef(Right(DId(l))) }
 
   implicit def did2DRef[I <: DId]: ToDRef[I] = new ToDRef[I]       { def toDRef(i:  I)       = new DRef(Right(i)) }
+
+  implicit def keyword2DRef[K](implicit toKeyword: K => Keyword): ToDRef[K] =
+    new ToDRef[K] {
+      def toDRef(k: K) = new DRef(Left(toKeyword(k)))
+    }
 }
 
 sealed trait DId extends DatomicData

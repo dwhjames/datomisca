@@ -9,7 +9,7 @@ import sbtunidoc.Plugin._
 object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.5.1",
+      version       := "0.5.2",
       organization  := "com.pellucid",
       scalaVersion  := "2.10.2",
       scalacOptions ++= Seq(
