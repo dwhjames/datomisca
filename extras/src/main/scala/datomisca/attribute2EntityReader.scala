@@ -125,21 +125,21 @@ object Attribute2EntityReaderCast {
       }
     }
 
-  implicit val attr2EntityReaderCastKeyword =
-    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, Keyword] {
-      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[Keyword] {
+  implicit def attr2EntityReaderCastKeyword[K](implicit fromKeyword: Keyword => K) =
+    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, K] {
+      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[K] {
         override def read(entity: DEntity) =
-          entity(attr.ident).asInstanceOf[DKeyword].underlying
+          fromKeyword(entity(attr.ident).asInstanceOf[DKeyword].underlying)
       }
     }
 
-  implicit val attr2EntityReaderCastManyKeyword =
-    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[Keyword]] {
-      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[Keyword]] {
+  implicit def attr2EntityReaderCastManyKeyword[K](implicit fromKeyword: Keyword => K) =
+    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[K]] {
+      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[K]] {
         override def read(entity: DEntity) =
           entity.get(attr.ident) map { case DColl(elems) =>
             elems.map {
-              case DKeyword(keyword) => keyword
+              case DKeyword(keyword) => fromKeyword(keyword)
               case _ => throw new EntityMappingException("expected DatomicData to be DKeyword")
             } .toSet
           } getOrElse (Set.empty)
