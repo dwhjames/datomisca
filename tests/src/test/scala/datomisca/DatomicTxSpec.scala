@@ -606,6 +606,32 @@ class DatomicTxSpec extends Specification {
 
       success
     }
+
+     "11 - get txReport extract" in {
+      implicit val conn = Datomic.connect(uri)  
+
+      implicit val personReader = (
+        PersonSchema.name.read[String] and 
+        PersonSchema.age .read[Long]
+      )(Person)
+
+      val idToto = DId(Partition.USER)
+
+      val fut = Datomic.transact(
+        Entity.add(idToto)(
+          person / "name" -> "toto",
+          person / "age"  -> 30
+        )
+      ) map { tx => 
+         val entries = tx.txData.collect{ case DDatom(_,k,v,_,_) => (k,v)}.toMap
+         entries.size must beEqualTo(3)
+         entries(person / "age") must beEqualTo(30)
+         entries(person / "name")  must beEqualTo("toto")
+      }
+
+      success
+    }
+
   }
 
 }
