@@ -362,3 +362,7 @@ class DDatom(
 
   override def toString = "Datom(e[%s] a[%s] v[%s] tx[%s] added[%s])".format(id, attr, value, tx, added)
 }
+
+object DDatom {
+   def unapply(da:DDatom):Option[(Long,Keyword,DatomicData,Long,Boolean)] = Some((da.id,da.attr,da.value,da.tx,da.added))
+}
