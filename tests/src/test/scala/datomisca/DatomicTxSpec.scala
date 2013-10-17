@@ -576,8 +576,8 @@ class DatomicTxSpec extends Specification {
         val id = tx.resolve(idToto)
         Datomic.database.entity(id) !== beNull
         
-        Datomic.database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
-        tx.resolveEntity(DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
+        Datomic.database.entity(1234L).keySet must beEmpty
+        tx.resolveEntity(DId(Partition.USER)).keySet must beEmpty
       }
 
       success

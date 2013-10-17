@@ -71,29 +71,29 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
   /** Returns the entity for the given entity id.
     *
-    * @param id an entity id.
+    * This will return an empty [[DEntity]], if there
+    * are no facts about the given entity id. The
+    * :db/id of the entity will be the given id.
+    *
+    * @param id
+    *     an entity id.
     * @return an entity.
-    * @throws EntityNotFoundException if there is no such entity.
     */
-  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): DEntity = {
-    val l = ev.conv(id)
-    wrapEntity(l.toString, underlying.entity(l))
-  }
+  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): DEntity =
+    new DEntity(underlying.entity(ev.conv(id)))
 
   /** Returns the entity for the given keyword.
     *
-    * @param kw a keyword.
+    * This will return an empty [[DEntity]], if there
+    * are no facts about the given entity ident. The
+    * :db/id of the entity will null.
+    *
+    * @param kw
+    *   a keyword.
     * @return an entity.
-    * @throws EntityNotFoundException if there is no such entity.
     */
   def entity(kw: Keyword): DEntity =
-    wrapEntity(kw.toString, underlying.entity(kw.toNative))
-
-  private def wrapEntity(id: String, entity: datomic.Entity): DEntity =
-    if (entity.keySet.isEmpty)
-      throw new EntityNotFoundException(id)
-    else
-      DEntity(entity)
+    new DEntity(underlying.entity(kw.toNative))
 
 
   /** Returns the value of the database as of some point t, inclusive.
