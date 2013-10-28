@@ -61,25 +61,23 @@ object SchemaManager {
      (implicit conn: Connection)
      : Future[Unit] = {
     Future.traverse(schemaNames) { schemaName =>
-      future {
-        hasSchema(schemaTag, schemaName)(conn.database)
-      } flatMap {
-        case true  =>
+      val (requires, txDatas) = schemaMap(schemaName)
+      ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { _ =>
+        if (txDatas.isEmpty) {
+          throw new RuntimeException(s"No schema data provided for schema ${schemaName}")
+        } else if (hasSchema(schemaTag, schemaName)(conn.database)) {
           Future.successful(())
-        case false =>
-          val (requires, txDatas) = schemaMap(schemaName)
-          ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { _ =>
-            if (txDatas.isEmpty) {
-              throw new RuntimeException(s"DatomicSchemaManager.ensureSchemas: no data provided for schema ${schemaName}")
-            } else {
-              Future.traverse(txDatas) { txData =>
-                Datomic.transact(
-                  txData :+
-                  Fact.add(DId(Partition.TX))(schemaTag -> schemaName)
-                ) map { _ => () }
-              }
-            }
+        } else {
+          Future.traverse(txDatas) { txData =>
+            Datomic.transact(
+              txData :+
+              // NOTE: this means that if multiple transactions are
+              // required for this schema fragment, then each
+              // transaction is tagged.
+              Fact.add(DId(Partition.TX))(schemaTag -> schemaName)
+            ) map { _ => () }
           }
+        }
       }
     } map { _ => () }
   }
