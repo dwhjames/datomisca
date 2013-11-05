@@ -24,11 +24,11 @@ trait Rule extends Positional
 
 trait Term
 
-case class Var(name: String) extends Term {
+final case class Var(name: String) extends Term {
   override def toString = "?" + name
 }
 
-case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable with Positional
+final case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable with Positional
 
 object Keyword {
   def apply(name: String, ns: Namespace) = new Keyword(name, Some(ns))
@@ -37,7 +37,7 @@ object Keyword {
   def apply(kw: clojure.lang.Keyword) = new Keyword(kw.getName, Some(Namespace(kw.getNamespace)))
 }
 
-case class Const(underlying: DatomicData) extends Term {
+final case class Const(underlying: DatomicData) extends Term {
   override def toString = underlying.toString
 }
 
@@ -45,13 +45,13 @@ case object Empty extends Term {
   override def toString = "_"
 }
 
-trait DataSource extends Term {
+sealed trait DataSource extends Term {
   def name: String
 
   override def toString = "$" + name
 }
 
-case class ExternalDS(override val name: String) extends DataSource
+final case class ExternalDS(override val name: String) extends DataSource
 
 case object ImplicitDS extends DataSource {
   def name = ""

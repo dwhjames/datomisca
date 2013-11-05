@@ -21,7 +21,7 @@ import scala.util.parsing.input.Positional
 
 
 /* DATOMIC DATA RULES */
-case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty, tx: Term = Empty, added: Term = Empty) extends Rule {
+final case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Term = Empty, value: Term = Empty, tx: Term = Empty, added: Term = Empty) extends Rule {
   override def toString = """[%s%s%s%s%s%s]""".format(
     if(ds == ImplicitDS) "" else ds+" ",
     if(entity == Empty){ if(attr != Empty || value != Empty || tx != Empty || added != Empty) (entity+" ") else ""} else entity,
@@ -34,79 +34,79 @@ case class DataRule(ds: DataSource = ImplicitDS, entity: Term = Empty, attr: Ter
 
 /* DATOMIC EXPRESSION RULES */
 sealed trait Binding
-case class ScalarBinding(name: Term) extends Binding {
+final case class ScalarBinding(name: Term) extends Binding {
   override def toString = name.toString
 }
 
-case class TupleBinding(names: Seq[Term]) extends Binding {
+final case class TupleBinding(names: Seq[Term]) extends Binding {
   override def toString = "[ " + names.map( _.toString ).mkString(" ") + " ]"
 }
 
-case class CollectionBinding(name: Term) extends Binding {
+final case class CollectionBinding(name: Term) extends Binding {
   override def toString = "[ " + name.toString + " ... ]" 
 }
 
-case class RelationBinding(names: Seq[Term]) extends Binding {
+final case class RelationBinding(names: Seq[Term]) extends Binding {
   override def toString = "[[ " + names.map( _.toString ).mkString(" ") + " ]]"
 }
 
-case class DFunction(name: String) {
+final case class DFunction(name: String) {
   override def toString = name.toString
 }
 
-case class DPredicate(name: String) {
+final case class DPredicate(name: String) {
   override def toString = name.toString
 }
 
-case class ExpressionRule(expr: Expression) extends Rule {
+final case class ExpressionRule(expr: Expression) extends Rule {
   override def toString = s"""[ $expr ]"""
 }
 
 sealed trait Expression
-case class PredicateExpression(predicate: DPredicate, args: Seq[Term]) extends Expression {
+final case class PredicateExpression(predicate: DPredicate, args: Seq[Term]) extends Expression {
   override def toString = s"""($predicate ${args.map( _.toString ).mkString(" ")})"""
 }
-case class FunctionExpression(function: DFunction, args: Seq[Term], binding: Binding) extends Expression {
+final case class FunctionExpression(function: DFunction, args: Seq[Term], binding: Binding) extends Expression {
   override def toString = s"""($function ${args.map( _.toString ).mkString(" ")}) $binding"""
 }
 
 /* RULE ALIAS */
-case class RuleAliasCall(name: String, args: Seq[Term]) extends Rule {
+final case class RuleAliasCall(name: String, args: Seq[Term]) extends Rule {
   override def toString = """( %s %s )""".format(name, args.map( _.toString ).mkString("", " ", ""))
 }
 
 /* WHERE */
-case class Where(rules: Seq[Rule]) extends Positional {
+final case class Where(rules: Seq[Rule]) extends Positional {
   override def toString = rules.map( _.toString ).mkString(":where ", " ", "")
 }
 
 /* IN */
-case class In(inputs: Seq[Input]) extends Positional {
+final case class In(inputs: Seq[Input]) extends Positional {
   override def toString = inputs.map( _.toString ).mkString(":in ", " ", "")
 }
 
 sealed trait Input
-case class InDataSource(ds: DataSource) extends Input {
+final case class InDataSource(ds: DataSource) extends Input {
   override def toString = ds.toString
 }
-case class InVariable(binding: Binding) extends Input {
+final case class InVariable(binding: Binding) extends Input {
   override def toString = binding.toString
 }
-case object InRuleAlias extends Input {
+final case object InRuleAlias extends Input {
   override def toString = "%"
 }
 
 /* DATOMIC FIND */
-case class Find(outputs: Seq[Output]) extends Positional {
+final case class Find(outputs: Seq[Output]) extends Positional {
   override def toString = outputs.map( _.toString ).mkString(":find ", " ", "")
 }
 
 sealed trait Output
-case class OutVariable(variable: Var) extends Output {
+final case class OutVariable(variable: Var) extends Output {
   override def toString = variable.toString
 }
 
 /* DATOMIC WITH (Optional) */
-case class With(variables: Seq[Var]) extends Positional {
+final case class With(variables: Seq[Var]) extends Positional {
   override def toString = variables.map( _.toString ).mkString(":with ", " ", "")
 }

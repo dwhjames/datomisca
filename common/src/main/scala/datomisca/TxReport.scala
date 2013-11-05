@@ -18,11 +18,12 @@
 package datomisca
 
 
-trait TxReport {
-  val dbBefore: DDatabase
-  val dbAfter:  DDatabase
-  val txData:   Seq[DDatom]
-  protected val tempids: AnyRef
+class TxReport(
+    val dbBefore: DDatabase,
+    val dbAfter:  DDatabase,
+    val txData:   Seq[DDatom],
+    protected val tempids: AnyRef
+) {
 
   def resolve(id: DId): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
@@ -71,20 +72,20 @@ object TxReport {
     import datomic.Connection._
     import datomic.db.Db
 
-    new TxReport {
-      override val dbBefore = DDatabase(
+    new TxReport(
+      dbBefore = DDatabase(
           javaMap.get(DB_BEFORE).asInstanceOf[Db]
-        )
-      override val dbAfter  = DDatabase(
+        ),
+      dbAfter  = DDatabase(
           javaMap.get(DB_AFTER).asInstanceOf[Db]
-        )
-      override val txData =
+        ),
+      txData =
         javaMap.get(TX_DATA)
                .asInstanceOf[java.util.List[datomic.Datom]]
                .asScala
                .map(new DDatom(_, database))
-               .toSeq
-      override protected val tempids = javaMap.get(TEMPIDS).asInstanceOf[AnyRef]
-    }
+               .toSeq,
+      tempids = javaMap.get(TEMPIDS).asInstanceOf[AnyRef]
+    )
   }
 }

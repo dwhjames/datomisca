@@ -109,6 +109,6 @@ object Entity extends DatomicTypeWrapper with EntityOpsMacros {
     *              where value can be a simple Scala type which can be converted into a DatomicData
     */
   def partialAdd(props: (Keyword, DWrapper)*) =
-    PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)
+    new PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)
 
 }

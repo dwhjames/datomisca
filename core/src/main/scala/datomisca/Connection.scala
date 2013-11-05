@@ -22,9 +22,9 @@ import scala.concurrent._
 import datomic.ListenableFuture
 
 
-trait Connection {
-  self =>
-  def connection: datomic.Connection
+class Connection(
+  val connection: datomic.Connection
+) {
 
   def database: DDatabase = DDatabase(connection.db())
 
@@ -93,11 +93,10 @@ trait Connection {
   def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
   def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
-  def txReportQueue: TxReportQueue = new TxReportQueue {
-    override implicit val database = self.database
-
-    override val queue = connection.txReportQueue
-  }
+  def txReportQueue: TxReportQueue = new TxReportQueue(
+      database = database,
+      queue    = connection.txReportQueue
+    )
 
   def removeTxReportQueue: Unit = connection.removeTxReportQueue
 
@@ -127,10 +126,6 @@ trait Connection {
 }
 
 object Connection {
-  def apply(conn: datomic.Connection) = new Connection {
-    def connection = conn
-  }
-
 
   private[datomisca] def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext): Future[T] = {
     val p = Promise[T]

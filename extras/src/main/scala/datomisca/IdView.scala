@@ -17,7 +17,7 @@
 package datomisca
 
 
-case class IdView[T](t: T, id: Long) {
+final case class IdView[T](t: T, id: Long) {
   override def toString = s"IdView($id)($t)"
 }
 
