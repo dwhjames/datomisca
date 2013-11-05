@@ -23,7 +23,7 @@ import functional._
 
 sealed trait EntityMapper[A]
 
-@implicitNotFound("Cannot find a Datomic entity reader for type ${A}.")
+@implicitNotFound("Cannot find a Datomic entity reader for type ${A}. Consider implementing an instance of the EntityReader type class.")
 trait EntityReader[A] extends EntityMapper[A] {
   self => 
   def read(e: DEntity): A
@@ -85,7 +85,7 @@ object EntityReader {
 }
 
 
-@implicitNotFound("Cannot find a Datomic entity writer for type ${A}")
+@implicitNotFound("Cannot find a Datomic entity writer for type ${A}. Consider implementing an instance of the PartialAddEntityWriter type class.")
 trait PartialAddEntityWriter[A] extends EntityMapper[A] {
   def write(a: A): PartialAddEntity
 }

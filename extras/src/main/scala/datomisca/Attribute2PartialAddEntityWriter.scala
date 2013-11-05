@@ -19,7 +19,7 @@ package datomisca
 import scala.annotation.implicitNotFound
 
 
-@implicitNotFound("Cannot find an output function for a value of type ${Dest} to Datomic data of type ${DD} with cardinality ${Card}")
+@implicitNotFound("There is no writer for type ${Dest} given an attribute with Datomic type ${DD} and cardinality ${Card}")
 trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): PartialAddEntityWriter[Dest]
 }

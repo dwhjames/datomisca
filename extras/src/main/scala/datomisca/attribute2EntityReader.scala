@@ -18,7 +18,7 @@ package datomisca
 
 import scala.annotation.implicitNotFound
 
-@implicitNotFound("There is no injection from Datomic data type ${DD} with cardinality ${Card} to type ${T}")
+@implicitNotFound("There is no unique reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}")
 trait Attribute2EntityReaderInj[DD <: DatomicData, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card]): EntityReader[T]
 }
@@ -76,7 +76,7 @@ object Attribute2EntityReaderInj {
 }
 
 
-@implicitNotFound("There is no available cast from Datomic data type ${DD} with cardinality ${Card} to type ${T}")
+@implicitNotFound("There is no type-casting reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}")
 trait Attribute2EntityReaderCast[DD <: DatomicData, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card]): EntityReader[T]
 }
