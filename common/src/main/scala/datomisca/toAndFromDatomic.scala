@@ -15,11 +15,14 @@
  */
 package datomisca
 
+import scala.annotation.implicitNotFound
+
 
 /** Injective form of DatomicData to Scala converter :
   * - 1 DD => 1 Scala type
   * - used when precise type inference by compiler
   */
+@implicitNotFound("There is no injection from Datomic data type ${DD} to type ${A}")
 private[datomisca] trait FromDatomicInj[DD <: DatomicData, A] {
   def from(dd: DD): A
 }
@@ -34,6 +37,7 @@ private[datomisca] object FromDatomicInj extends FromDatomicInjImplicits {
 /** Surjective for DatomicData to Scala converter :
   * - n DD => 1 Scala type
   */
+@implicitNotFound("Cannot find a function from Datomic data type ${DD} to type ${A}")
 trait FromDatomic[DD <: DatomicData, A] {
   def from(dd: DD): A
 }
@@ -49,6 +53,7 @@ object FromDatomic extends FromDatomicImplicits {
   * which inverse is surjective ToDatomic or ToDatomicCast
   * 1 DatomicData -> n Scala type
   */
+@implicitNotFound("There is no available cast from a Datomic data type to type ${A}")
 trait FromDatomicCast[A] {
   def from(dd: DatomicData): A
 }
@@ -62,6 +67,7 @@ object FromDatomicCast extends FromDatomicCastImplicits {
 /** Injective form of Scala to Specific DatomicData converters
   * 1 Scala type => 1 DD
   */
+@implicitNotFound("There is no injection from type ${A} to Datomic data type ${DD}")
 trait ToDatomicInj[DD <: DatomicData, A] {
   def to(a: A): DD
 }
@@ -75,6 +81,7 @@ object ToDatomicInj extends ToDatomicInjImplicits {
 /** Surjective form of Scala to Specific DatomicData converters
   * n Scala type => 1 DD
   */
+@implicitNotFound("Cannot find a function from type ${A} to Datomic data type ${DD}")
 trait ToDatomic[DD <: DatomicData, A] {
   def to(a: A): DD
 }
@@ -88,6 +95,7 @@ object ToDatomic extends ToDatomicImplicits{
 /** Scala type to Generic DatomicData (surjective)
   * n Scala type -> DatomicData
   */
+@implicitNotFound("There is no available cast from type ${A} to a Datomic data type")
 trait ToDatomicCast[A] {
   def to(a: A): DatomicData
 }
@@ -98,7 +106,7 @@ object ToDatomicCast extends ToDatomicCastImplicits {
   }
 }
 
-
+@implicitNotFound("There is no bijection between type ${A} and Datomic data type ${DD}")
 trait DatomicBij[DD <: DatomicData, A] extends FromDatomicInj[DD, A] with ToDatomicInj[DD, A]
 
 object DatomicBij {

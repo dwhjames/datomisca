@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.annotation.implicitNotFound
+
 
 /* DATOMIC TYPES */
 trait DatomicData extends Nativeable {
@@ -181,6 +183,7 @@ object DRef {
   }
 }
 
+@implicitNotFound("Cannot use type ${T} as the type of a Datomic reference")
 sealed trait ToDRef[T] {
   def toDRef(t: T): DRef
 }
@@ -234,6 +237,7 @@ object DId {
   * @tparam T
   *     the type of the id to convert.
   */
+@implicitNotFound("Cannot convert value of type ${T} to a Datomic entity id")
 sealed trait AsEntityId[T] {
 
   /**
@@ -279,6 +283,7 @@ object AsEntityId {
   * @tparam T
   *     the type of the id to convert.
   */
+@implicitNotFound("Cannot convert value of type ${T} to a permanent Datomic entity id")
 sealed trait AsPermanentEntityId[T] {
   protected[datomisca] def conv(t: T): Long
 }

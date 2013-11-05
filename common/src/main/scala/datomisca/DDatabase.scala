@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.annotation.implicitNotFound
+
 import java.util.{Date => JDate}
 
 /**
@@ -29,6 +31,7 @@ import java.util.{Date => JDate}
   * @tparam T
   *     the type of the point in time.
   */
+@implicitNotFound("Cannot use a value of type ${T} as a point in time")
 sealed trait AsPointT[T] {
 
   /**
