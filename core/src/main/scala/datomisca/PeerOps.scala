@@ -43,11 +43,8 @@ private[datomisca] trait PeerOps {
     * @param uri The URI of Datomic DB
     * @return Connection
     */
-  def connect(uri: String): Connection = {
-    val conn = datomic.Peer.connect(uri)
-
-    Connection(conn)
-  }
+  def connect(uri: String): Connection =
+    new Connection(datomic.Peer.connect(uri))
 
   /** The database associated to the implicit connection
     * {{{

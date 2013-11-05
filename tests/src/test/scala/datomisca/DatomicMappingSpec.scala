@@ -268,9 +268,9 @@ class DatomicMappingSpec extends Specification {
 
           val writer = PersonSchema.specialChar.write[DRef]
           writer.write(clever.ref).toMap must beEqualTo(
-            PartialAddEntity(Map(
+            Map(
               PersonSchema.specialChar.ident -> clever.ref
-            )).toMap
+            )
           )
       }
 

@@ -54,25 +54,20 @@ object RetractEntity {
   val kw = Keyword("retractEntity", Some(Namespace.DB.FN))
 }
 
-trait PartialAddEntity {
-  def props: Map[Keyword, DatomicData]
+class PartialAddEntity(val props: Map[Keyword, DatomicData]) {
 
-  def ++(other: PartialAddEntity) = PartialAddEntity( props ++ other.props )
+  def ++(other: PartialAddEntity) = new PartialAddEntity(props ++ other.props)
 
   def toMap = props
   //override def toString = props.toString
 }
 
 object PartialAddEntity {
-  def apply(theProps: Map[Keyword, DatomicData]) = new PartialAddEntity {
-    def props = theProps
-  }
 
-  def empty: PartialAddEntity = apply(Map())
+  def empty: PartialAddEntity = new PartialAddEntity(Map())
 }
 
-final case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity with Operation with TempIdentified {
-  override def props = partialProps + (Keyword("id", Namespace.DB) -> id)
+final case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity(partialProps + (Keyword("id", Namespace.DB) -> id)) with Operation with TempIdentified {
 
   def toNative: AnyRef = {
     import scala.collection.JavaConverters._
