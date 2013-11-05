@@ -64,8 +64,8 @@ object Fact extends DatomicTypeWrapper {
     */
   def partition(partition: Partition) =
     new AddEntity(DId(Partition.DB), Map(
-      Namespace.DB / "ident" -> DString(partition.toString),
-      Namespace.DB.INSTALL / "_partition" -> DString("db.part/db")
+      Namespace.DB / "ident"              -> DKeyword(partition.keyword),
+      Namespace.DB.INSTALL / "_partition" -> DKeyword(Partition.DB.keyword)
     ))
 
 }
