@@ -114,6 +114,16 @@ trait Connection {
     * (e.g. application servers) will never call release.
     */
   def release(): Unit = connection.release()
+
+  /** Retrieves a value of the log for reading.
+    *
+    * Note: the mem db has no log, and thus for it log will return null.
+    *
+    * (Copied from Datomic docs.)
+    *
+    * @return the current value of the log.
+    */
+  def log(): Log = new Log(connection.log(), database)
 }
 
 object Connection {

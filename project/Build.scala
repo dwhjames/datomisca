@@ -177,7 +177,7 @@ object DatomiscaBuild extends Build {
 object Dependencies {
 
   object Compile {
-    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4020.26"    %    "provided" exclude("org.slf4j", "slf4j-nop")
+    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4159"    %    "provided" exclude("org.slf4j", "slf4j-nop")
   }
   import Compile._
 
