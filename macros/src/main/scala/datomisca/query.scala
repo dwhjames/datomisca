@@ -40,7 +40,7 @@ object Query extends QueryMacros {
   def apply(find: Find, wizz: Option[With], in: Option[In], where: Where): PureQuery = PureQuery(find, wizz, in, where)
 }
 
-case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query
+final case class PureQuery(override val find: Find, override val wizz: Option[With] = None, override val in: Option[In] = None, override val where: Where) extends Query
 
 abstract class TypedQueryAuto(query: PureQuery) extends Query {
   override def find = query.find

@@ -71,7 +71,7 @@ case object PropsNil extends Props {
   def convert: PartialAddEntity = PartialAddEntity.empty
 }
 
-case class PropsLink[DD <: DatomicData, Card <: Cardinality, A](
+final case class PropsLink[DD <: DatomicData, Card <: Cardinality, A](
   head: (Attribute[DD, Card], A), 
   tail: Props, 
   attrC: Attribute2PartialAddEntityWriter[DD, Card, A]

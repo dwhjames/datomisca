@@ -69,78 +69,78 @@ private[datomisca] object DatomicData {
   }
 }
 
-case class DString(underlying: String) extends DatomicData {
+final case class DString(underlying: String) extends DatomicData {
   override def toString = "\""+ underlying + "\""
   def toNative: AnyRef = underlying: java.lang.String
 }
 
-case class DBoolean(underlying: Boolean) extends DatomicData {
+final case class DBoolean(underlying: Boolean) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Boolean
   def toBoolean = underlying
 }
 
-case class DLong(underlying: Long) extends DatomicData {
+final case class DLong(underlying: Long) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Long
   def toLong = underlying
 }
 
-case class DFloat(underlying: Float) extends DatomicData {
+final case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Float
   def toFloat = underlying
 }
 
-case class DDouble(underlying: Double) extends DatomicData {
+final case class DDouble(underlying: Double) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Double
   def toDouble = underlying
 }
 
-case class DBigInt(underlying: BigInt) extends DatomicData {
+final case class DBigInt(underlying: BigInt) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying.underlying
   def toBigInt = underlying
 }
 
-case class DBigDec(underlying: BigDecimal) extends DatomicData {
+final case class DBigDec(underlying: BigDecimal) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying.underlying
   def toBigDecimal = underlying
 }
 
-case class DInstant(underlying: java.util.Date) extends DatomicData {
+final case class DInstant(underlying: java.util.Date) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
   def toDate = underlying
 }
 
-case class DUuid(underlying: java.util.UUID) extends DatomicData {
+final case class DUuid(underlying: java.util.UUID) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
   def toUUID = underlying
 }
 
-case class DUri(underlying: java.net.URI) extends DatomicData {
+final case class DUri(underlying: java.net.URI) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
   def toURI = underlying
 }
 
-case class DBytes(underlying: Array[Byte]) extends DatomicData {
+final case class DBytes(underlying: Array[Byte]) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: AnyRef
   def toBytes = underlying
 }
 
-case class DKeyword(underlying: Keyword) extends DatomicData {
+final case class DKeyword(underlying: Keyword) extends DatomicData {
   override def toString = underlying.toString
   override def toNative = underlying.toNative
   def toKeyword = underlying
 }
 
-case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
+final case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
   override def toString = underlying match {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
@@ -200,14 +200,14 @@ object ToDRef {
 
 sealed trait DId extends DatomicData
 
-case class FinalId(underlying: Long) extends DId {
+final case class FinalId(underlying: Long) extends DId {
   //def toNative: AnyRef = underlying
   override lazy val toNative: AnyRef = underlying: java.lang.Long
 
   override def toString = toNative.toString
 }
 
-case class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
+final case class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
   //def toNative: AnyRef = underlying
   override lazy val toNative: AnyRef = dbId
 
@@ -309,7 +309,7 @@ object AsPermanentEntityId {
 
 
 
-class DColl(coll: Iterable[DatomicData]) extends DatomicData {
+final class DColl(coll: Iterable[DatomicData]) extends DatomicData {
   def toNative: AnyRef =
     datomic.Util.list(coll.map(_.toNative).toSeq : _*)
 
@@ -329,7 +329,7 @@ object DColl {
 }
 
 
-case class DRuleAlias(name: String, args: Seq[Var], rules: Seq[Rule]) extends DatomicData {
+final case class DRuleAlias(name: String, args: Seq[Var], rules: Seq[Rule]) extends DatomicData {
   override def toNative = toString
   override def toString = "[ [%s %s] %s ]".format(
     name, 
@@ -338,7 +338,7 @@ case class DRuleAlias(name: String, args: Seq[Var], rules: Seq[Rule]) extends Da
   )
 }
 
-case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
+final case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
   override def toNative = toString
   override def toString = "[ %s ]".format(
     aliases.map(_.toString).mkString("", " ", "")
@@ -346,7 +346,7 @@ case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
 }
 
 
-class DDatom(
+final class DDatom(
     val underlying: datomic.Datom,
     val database: DDatabase
 ) extends DatomicData {

@@ -76,7 +76,7 @@ object Boilerplate {
       val typeParams = ((1 to arity) map (n => "In"+n)).mkString(", ")
 
       ("""|
-          |case class TypedQueryAuto"""+arity+"["+typeParams+""", Out](query: PureQuery) extends TypedQueryAuto(query)
+          |final case class TypedQueryAuto"""+arity+"["+typeParams+""", Out](query: PureQuery) extends TypedQueryAuto(query)
           |""").stripMargin
     }
 
@@ -85,7 +85,7 @@ object Boilerplate {
     genHeader +
     ("""|package gen
         |
-        |case class TypedQueryAuto0[R](query: PureQuery) extends TypedQueryAuto(query)
+        |final case class TypedQueryAuto0[R](query: PureQuery) extends TypedQueryAuto(query)
         | """ +
          instances + """
         |""").stripMargin
@@ -288,7 +288,7 @@ object Boilerplate {
         |class Builder[M[_]](combi: Combinator[M]) {""" +
            instances + """
         |
-        | case class Builder"""+size+typeParamsSize+"(m1: M"+combSize+", m2: M[A"+size+"""])
+        |final case class Builder"""+size+typeParamsSize+"(m1: M"+combSize+", m2: M[A"+size+"""])
         |}
         |""").stripMargin
   }

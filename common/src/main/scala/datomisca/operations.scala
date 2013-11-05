@@ -21,11 +21,11 @@ import scala.language.reflectiveCalls
 
 trait Operation extends Nativeable
 
-trait DataFunction extends Operation {
+sealed trait DataFunction extends Operation {
   def func: Keyword
 }
 
-case class AddFact(id: DId, attr: Keyword, value: DatomicData) extends DataFunction with TempIdentified {
+final case class AddFact(id: DId, attr: Keyword, value: DatomicData) extends DataFunction with TempIdentified {
   override val func = Keyword("add", Some(Namespace.DB))
   // override val id = fact.id
 
@@ -33,14 +33,14 @@ case class AddFact(id: DId, attr: Keyword, value: DatomicData) extends DataFunct
     datomic.Util.list(func.toNative, id.toNative, attr.toNative, value.toNative)
 }
 
-case class RetractFact(id: Long, attr: Keyword, value: DatomicData) extends DataFunction with FinalIdentified {
+final case class RetractFact(id: Long, attr: Keyword, value: DatomicData) extends DataFunction with FinalIdentified {
   override val func = Keyword("retract", Some(Namespace.DB))
 
   def toNative: AnyRef =
     datomic.Util.list(func.toNative, id: java.lang.Long, attr.toNative, value.toNative)
 }
 
-case class RetractEntity(id: Long) extends DataFunction with FinalIdentified {
+final case class RetractEntity(id: Long) extends DataFunction with FinalIdentified {
   override val func = RetractEntity.kw
 
   def toNative: AnyRef =
@@ -71,7 +71,7 @@ object PartialAddEntity {
   def empty: PartialAddEntity = apply(Map())
 }
 
-case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity with Operation with TempIdentified {
+final case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity with Operation with TempIdentified {
   override def props = partialProps + (Keyword("id", Namespace.DB) -> id)
 
   def toNative: AnyRef = {
@@ -82,7 +82,7 @@ case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends P
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
-case class AddIdent(ident: Keyword, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
+final case class AddIdent(ident: Keyword, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
   lazy val ref = DRef(ident)
   def toNative = AddFact(DId(partition), Keyword("ident", Namespace.DB), ref).toNative
 

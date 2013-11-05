@@ -27,23 +27,23 @@ import scala.util.parsing.input.{Positional, Reader}
 import scala.util.parsing.combinator.lexical.StdLexical
 import scala.util.parsing.combinator.syntactical.StandardTokenParsers
 
-case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
+final case class PositionFailure(msg: String, offsetLine: Int, offsetCol: Int)
 
 /** technical structures used by parsing */
 sealed trait ParsingExpr
-case class ScalaExpr(expr: String) extends ParsingExpr
-case class DCollParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
+final case class ScalaExpr(expr: String) extends ParsingExpr
+final case class DCollParsing(elts: Seq[Either[ParsingExpr, DatomicData]]) extends ParsingExpr
 
-case class DIdParsing(partition: Partition, id: Option[Long] = None)
+final case class DIdParsing(partition: Partition, id: Option[Long] = None)
 
 sealed trait OpParsing
-case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
-case class FactParsing(id: Either[ParsingExpr, DIdParsing], attr: Keyword, value: Either[ParsingExpr, DatomicData])
-case class AddFactParsing(fact: FactParsing) extends OpParsing
-case class RetractFactParsing(fact: FactParsing) extends OpParsing
-case class RetractEntityParsing(entid: Either[ParsingExpr, DLong]) extends OpParsing
+final case class AddEntityParsing(props: Map[Keyword, Either[ParsingExpr, DatomicData]]) extends OpParsing
+final case class FactParsing(id: Either[ParsingExpr, DIdParsing], attr: Keyword, value: Either[ParsingExpr, DatomicData])
+final case class AddFactParsing(fact: FactParsing) extends OpParsing
+final case class RetractFactParsing(fact: FactParsing) extends OpParsing
+final case class RetractEntityParsing(entid: Either[ParsingExpr, DLong]) extends OpParsing
 
-case class TermParsing(value: Either[ScalaExpr, Term]) extends Term {
+final case class TermParsing(value: Either[ScalaExpr, Term]) extends Term {
   override def toString = value match {
     case Left(se) => se.toString
     case Right(t) => t.toString
@@ -59,7 +59,7 @@ object TermParsing{
   def apply(t: Term) = new TermParsing(Right(t))
 }
 
-case class DataRuleParsing(ds: DataSource, entity: TermParsing, attr: TermParsing, value: TermParsing, tx: TermParsing, added: TermParsing) extends Rule {
+final case class DataRuleParsing(ds: DataSource, entity: TermParsing, attr: TermParsing, value: TermParsing, tx: TermParsing, added: TermParsing) extends Rule {
   override def toString = """[%s%s%s%s%s%s]""".format(
     if(ds == ImplicitDS) "" else ds+" ",
     if(entity.isEmpty){ if(!attr.isEmpty || !value.isEmpty || !tx.isEmpty || !added.isEmpty) (entity+" ") else ""} else entity,

@@ -19,7 +19,7 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
-case class Attribute[DD <: DatomicData, Card <: Cardinality](
+final case class Attribute[DD <: DatomicData, Card <: Cardinality](
     override val ident: Keyword,
     valueType:   SchemaType[DD],
     cardinality: Card,
