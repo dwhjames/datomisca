@@ -16,7 +16,10 @@
 
 package datomisca
 
+import scala.annotation.implicitNotFound
 
+
+@implicitNotFound("There is no writer for type ${Dest} given an attribute with Datomic type ${DD} and cardinality ${Card}")
 trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): PartialAddEntityWriter[Dest]
 }
