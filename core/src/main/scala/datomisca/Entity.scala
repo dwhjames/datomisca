@@ -16,10 +16,8 @@
 
 package datomisca
 
-import macros.EntityOpsMacros
 
-
-object Entity extends DatomicTypeWrapper with EntityOpsMacros {
+object Entity extends DatomicTypeWrapper {
   /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
     *
     * In Clojure, this is equivalent to:

@@ -29,7 +29,7 @@ final case class Attribute[DD <: DatomicData, Card <: Cardinality](
     fulltext:    Option[Boolean] = None,
     isComponent: Option[Boolean] = None,
     noHistory:   Option[Boolean] = None
-) extends Operation with Term with Namespaceable with KeywordIdentified {
+) extends Operation with Namespaceable with KeywordIdentified {
 
   def withDoc(str: String)        = copy( doc = Some(str) )
   def withUnique(u: Unique)       = copy( unique = Some(u) )

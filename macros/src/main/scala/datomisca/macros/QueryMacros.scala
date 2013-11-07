@@ -19,39 +19,14 @@ package macros
 
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
-import scala.reflect.internal.util.{Position, OffsetPosition}
+
+import scala.collection.JavaConverters._
+import scala.collection.mutable
+
+import clojure.{lang => clj}
 
 
 private[datomisca] trait QueryMacros {
-  /** Creates a macro-based compile-time pure query from a String (only syntax validation is performed).<br/>
-    * '''Keep in mind a query is an immutable data structure that you can manipulate'''
-    *
-    *     - A [[PureQuery]] is the low-level query AST provided in the Scala API.
-    *     - [[TypedQueryAuto]] is based on it.
-    *     - When a [[PureQuery]] is executed, it returns a `List[List[DatomicData]].
-    *     - All returned types are [[DatomicData]].
-    *
-    * {{{
-    * // creates a query
-    * val q = Datomic.Query.pure("""
-    *  [
-    *    :find ?e ?name
-    *    :in $ ?char
-    *    :where  [ ?e :person/name ?name ]
-    *            [ ?e :person/character ?char ]
-    *  ]
-    * """)
-    *
-    * Datomic.query(q, database, person.character / "violent") map {
-    *   case List(DLong(e), DString(name)) =>
-    *     ...
-    * }
-    * }}}
-    *
-    * @param q the query String
-    * @return a PureQuery
-    */
-  def pure(q: String): PureQuery = macro QueryMacros.pureQueryImpl
 
   /** Creates a macro-based compile-time typed query from a String:
     *    - syntax validation is performed.
@@ -61,11 +36,11 @@ private[datomisca] trait QueryMacros {
     *
     * '''Keep in mind a query is an immutable data structure that you can manipulate'''
     *
-    * When a [[TypedQueryAuto]] is executed, it returns a `List[TupleN[DatomicData, DatomicData, ...]]` where X corresponds
+    * When an [[AbstractQuery]] is executed, it returns a `Iterable[TupleN[DatomicData, DatomicData, ...]]` where X corresponds
     * to the number of output parameters
     *
     * {{{
-    * val q = Datomic.Query.auto("""
+    * val q = Datomic.Query("""
     *   [
     *    :find ?e ?name ?age
     *    :in $ [[?name ?age]]
@@ -86,8 +61,7 @@ private[datomisca] trait QueryMacros {
     * }
     * }}}
     */
-  def auto(q: String) = macro QueryMacros.autoTypedQueryImpl
-  def apply(q: String) = macro QueryMacros.autoTypedQueryImpl
+  def apply(edn: String) = macro QueryMacros.cljQueryImpl
 
 
   /** Macro-based helper to create Rule alias to be used in Queries.
@@ -113,118 +87,125 @@ private[datomisca] trait QueryMacros {
     * }
     * }}}
     */
-  def rules(q: String): DRuleAliases = macro QueryMacros.rulesImpl
+  def rules(edn: String) = macro QueryMacros.cljRulesImpl
 }
 
 private[datomisca] object QueryMacros {
 
-  def pureQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[PureQuery] = {
-      import c.universe._
+  // class loader hack to get Clojure to initialize
+  private def withClojure[T](block: => T): T = {
+    val t = Thread.currentThread()
+    val cl = t.getContextClassLoader
+    t.setContextClassLoader(this.getClass.getClassLoader)
+    try block finally t.setContextClassLoader(cl)
+  }
 
-      val inc = new Helper[c.type](c)
 
-      q.tree match {
-        case Literal(Constant(s: String)) =>
-          DatomicParser.parseQuerySafe(s) match {
-            case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-              val enclosingPos = c.enclosingPosition.asInstanceOf[scala.reflect.internal.util.Position]
+  def cljRulesImpl(c: Context)(edn: c.Expr[String]): c.Expr[DRules] = {
+    import c.universe._
 
-              val enclosingOffset =
-                enclosingPos.source.lineToOffset(enclosingPos.line - 1 + offsetLine - 1 ) + offsetCol - 1
+    edn.tree match {
+      case Literal(Constant(s: String)) =>
+        val edn = withClojure { datomic.Util.read(s) }
+        val helper = new Helper[c.type](c)
+        helper.literalQueryRules(helper.literalEDN(edn))
+      case _ =>
+        c.abort(c.enclosingPosition, "Expected a string literal")
+    }
+  }
 
-              val offsetPos = new OffsetPosition(enclosingPos.source, enclosingOffset)
-              c.abort(offsetPos.asInstanceOf[c.Position], msg)
-            case Right(q) => c.Expr[PureQuery]( inc.incept(q) )
-          }
 
-        case _ => c.abort(c.enclosingPosition, "Only accepts String")
+  def cljQueryImpl(c: Context)(edn: c.Expr[String]): c.Expr[AbstractQuery] = {
+    import c.universe._
+
+    edn.tree match {
+      case Literal(Constant(s: String)) =>
+        val edn = withClojure { datomic.Util.read(s) }
+
+        try {
+          val (query, inputSize, outputSize) = validateDatalog(edn)
+          val helper = new Helper[c.type](c)
+          helper.literalQuery(helper.literalEDN(query), inputSize, outputSize)
+        } catch {
+          case ex: IllegalArgumentException =>
+            c.abort(c.enclosingPosition, ex.getMessage)
+        }
+
+      case _ =>
+        c.abort(c.enclosingPosition, "Expected a string literal")
+    }
+  }
+
+
+  private def validateDatalog(edn: AnyRef): (AnyRef, Int, Int) = {
+    val query = edn match {
+      case coll: clj.IPersistentMap =>
+        coll
+      case coll: clj.PersistentVector =>
+        val iter = coll.iterator.asScala.asInstanceOf[Iterator[AnyRef]]
+        transformQuery(iter)
+      case _ =>
+        throw new IllegalArgumentException("Expected a datalog query represented as either a map or a vector")
+    }
+
+    val outputSize = Option {
+        query.valAt(clj.Keyword.intern(null, "find"))
+      } map { findClause =>
+        findClause.asInstanceOf[clj.IPersistentVector].length
+      } getOrElse { throw new IllegalArgumentException("The :find clause is empty")}
+    val inputSize = Option {
+        query.valAt(clj.Keyword.intern(null, "in"))
+      } map { inClause =>
+        inClause.asInstanceOf[clj.IPersistentVector].length
+      } getOrElse 0
+
+    (query, inputSize, outputSize)
+  }
+
+
+  private def transformQuery(iter: Iterator[AnyRef]): clj.IPersistentMap = {
+    def isQueryKeyword(kw: clj.Keyword): Boolean = {
+      val name = kw.getName
+      (name == "find") || (name == "with") || (name == "in") || (name == "where")
+    }
+    var currKW: clj.Keyword =
+      if (iter.hasNext)
+        iter.next() match {
+          case kw: clj.Keyword if isQueryKeyword(kw) =>
+            kw
+          case x =>
+            throw new IllegalArgumentException(s"Expected a query clause, found $x")
+        }
+      else
+        throw new IllegalArgumentException("Expected a non-empty vector")
+
+    val map = new clj.PersistentArrayMap(Array.empty).asTransient()
+    while (iter.hasNext) {
+      val clauseKW = currKW
+      val buf = mutable.Buffer.empty[AnyRef]
+      var shouldContinue = true
+
+      while (shouldContinue && iter.hasNext) {
+        iter.next() match {
+          case kw: clj.Keyword =>
+            if (isQueryKeyword(kw)) {
+              currKW = kw
+              shouldContinue = false
+            } else
+                throw new IllegalArgumentException(s"Unexpected keyword $kw in datalog query")
+
+          case o =>
+            buf += o
+        }
       }
 
-  }
+      if (buf.isEmpty)
+        throw new IllegalArgumentException(s"The $clauseKW clause is empty")
 
-  def autoTypedQueryImpl(c: Context)(q: c.Expr[String]) : c.Expr[Any] = {
-
-    import c.universe._
-
-    val inc = new Helper[c.type](c)
-
-    def pkgDatomic(tpe: String) = Select(Select(Ident(newTermName("datomisca")), newTermName("gen")), newTermName(tpe))
-    def pkgDatomicType(tpe: String) = Select(Ident(newTermName("datomisca")), newTypeName(tpe))
-
-    q.tree match {
-      case Literal(Constant(s: String)) =>
-        DatomicParser.parseQuerySafe(s) match {
-          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
-            val offsetPos = new OffsetPosition(
-              treePos.source,
-              inc.computeOffset(treePos, offsetLine, offsetCol)
-            )
-            c.abort(offsetPos.asInstanceOf[c.Position], msg)
-
-          case Right(query) =>
-            val insz = query.in.map( _.inputs.size ).getOrElse(0)
-            val outsz = query.find.outputs.size
-
-            /*println( showRaw(
-              reify(
-                datomisca.TypedQuery[datomisca.Args0, datomisca.Args2](query)
-              )
-            ) )*/
-
-            val tree = c.Expr[Any](
-              Apply(
-                TypeApply(
-                  Select(
-                    pkgDatomic("TypedQueryAuto"+insz),
-                    newTermName("apply")
-                  ),
-                  List.fill(insz)(pkgDatomicType("DatomicData")) :+
-                  (outsz match {
-                    case 0 => Ident(newTypeName("Unit"))
-                    case 1 => Ident(newTypeName("DatomicData"))
-                    case n => AppliedTypeTree(
-                                Ident(newTypeName("Tuple" + n )),
-                                List.fill(outsz)(pkgDatomicType("DatomicData"))
-                              )
-                  })
-                ),
-                List(inc.incept(query))
-              )
-            )
-
-            //println( "Tree:"+showRaw(tree) )
-
-            tree
-        }
-
-      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+      map.assoc(clauseKW, clj.PersistentVector.create(buf.asJava))
     }
 
-  }
-
-  def rulesImpl(c: Context)(q: c.Expr[String]) : c.Expr[DRuleAliases] = {
-    import c.universe._
-
-    val inc = new Helper[c.type](c)
-
-    q.tree match {
-      case Literal(Constant(s: String)) =>
-        DatomicParser.parseDRuleAliasesSafe(s) match {
-          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
-
-            val offsetPos = new OffsetPosition(
-              treePos.source,
-              inc.computeOffset(treePos, offsetLine, offsetCol)
-            )
-            c.abort(offsetPos.asInstanceOf[c.Position], msg)
-          case Right(kw) => c.Expr[DRuleAliases]( inc.incept(kw) )
-        }
-
-      case _ => c.abort(c.enclosingPosition, "Only accepts String")
-    }
-
+    map.persistent()
   }
 
 }

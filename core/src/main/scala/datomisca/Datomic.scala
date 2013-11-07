@@ -16,8 +16,6 @@
 
 package datomisca
 
-import macros.{DatomicParser, PositionFailure}
-
 import scala.util.{Try, Success, Failure}
 
 
@@ -34,7 +32,6 @@ object Datomic
      with QueryExecutor
      with DatomicTypeWrapper
      with macros.ExtraMacros
-     with macros.OpsMacros
 
 /** Provides all Datomic Scala specific facilities
   */
@@ -102,11 +99,6 @@ object Datomic
     * @param q the Clojure string
     * @return a sequence of operations or an error
     */
-  def parseOps(q: String): Try[Seq[Operation]] = DatomicParser.parseOpSafe(q) match {
-    case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-      Failure(new RuntimeException(s"Couldn't parse operations[msg:$msg, line:$offsetLine, col:$offsetCol]"))
-    case Right(ops) =>
-      Success(ops)
-  }
+  // def parseOps(q: String): Try[Seq[Operation]] = ???
 
 }

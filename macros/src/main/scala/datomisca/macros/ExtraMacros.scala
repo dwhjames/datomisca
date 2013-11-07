@@ -21,6 +21,8 @@ import scala.language.experimental.macros
 import scala.reflect.macros.Context
 import scala.reflect.internal.util.{Position, OffsetPosition}
 
+import clojure.{lang => clj}
+
 
 private[datomisca] trait ExtraMacros {
   /** Macro-based helper to create Datomic keyword using Clojure-style
@@ -34,28 +36,30 @@ private[datomisca] trait ExtraMacros {
 
 private[datomisca] object ExtraMacros {
 
-  def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
-    import c.universe._
+  // class loader hack to get Clojure to initialize
+  private def withClojure[T](block: => T): T = {
+    val t = Thread.currentThread()
+    val cl = t.getContextClassLoader
+    t.setContextClassLoader(this.getClass.getClassLoader)
+    try block finally t.setContextClassLoader(cl)
+  }
 
-    val inc = new Helper[c.type](c)
+
+  def KWImpl(c: Context)(q: c.Expr[String]): c.Expr[Keyword] = {
+    import c.universe._
 
     q.tree match {
       case Literal(Constant(s: String)) =>
-        DatomicParser.parseKeywordSafe(s) match {
-          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
-
-            val offsetPos = new OffsetPosition(
-              treePos.source,
-              inc.computeOffset(treePos, offsetLine, offsetCol)
-            )
-            c.abort(offsetPos.asInstanceOf[c.Position], msg)
-          case Right(kw) => c.Expr[Keyword]( inc.incept(kw) )
+        withClojure { datomic.Util.read(s) } match {
+          case kw: clj.Keyword =>
+            val helper = new Helper[c.type](c)
+            helper.literalDatomiscaKeyword(kw)
+          case _ =>
+            c.abort(c.enclosingPosition, "Not a valid Clojure keyword")
         }
-
-      case _ => c.abort(c.enclosingPosition, "Only accepts String")
+      case _ =>
+        c.abort(c.enclosingPosition, "Expected a string literal")
     }
-
   }
 
 }

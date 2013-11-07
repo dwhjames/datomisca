@@ -17,311 +17,161 @@
 package datomisca
 package macros
 
-import ast._
-
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
-import scala.reflect.api
-import scala.reflect.api.Liftable
+
+import scala.collection.JavaConverters._
+
+import java.{lang => jl}
+import java.{math => jm}
+import clojure.{lang => clj}
 
 
 private[datomisca] class Helper[C <: Context](val c: C) {
   import c.universe._
 
-  implicit val liftBigInt: Liftable[BigInt] = new Liftable[BigInt] {
-    def apply(universe: api.Universe, value: BigInt): universe.Tree =
-      universe.Literal(universe.Constant(value))
-  }
-  implicit val liftBigDec: Liftable[BigDecimal] = new Liftable[BigDecimal] {
-    def apply(universe: api.Universe, value: BigDecimal): universe.Tree =
-      universe.Literal(universe.Constant(value))
-  }
-
-  def computeOffset(
-    pos: scala.reflect.internal.util.Position,
-    offsetLine: Int, offsetCol: Int): Int = {
-    val source = pos.source
-    val computedOffset = source.lineToOffset(pos.line - 1 + offsetLine - 1 )
-    val isMultiLine = source.beginsWith(pos.point, "\"\"\"")
-
-    val computedCol =
-      if(offsetLine > 1 && isMultiLine) (offsetCol - 1)
-      else if(isMultiLine) (offsetCol - 1 + pos.column - 1 + 3)
-      else (offsetCol - 1 + pos.column - 1 + 1)
-
-    computedOffset + computedCol
-  }
-
-  def incept[T](opt: Option[T]): c.universe.Tree = {
-    opt match {
-      case None => q"None"
-      case Some(x) =>
-        val arg = c.universe.reify(x).tree
-        q"Some($arg)"
-    }
-  }
-
-  def incept(d: DatomicData): c.Tree = d match {
-    case DString(v)  => q"datomisca.DString($v)"
-    case DLong(v)    => q"datomisca.DLong($v)"
-    case DFloat(v)   => q"datomisca.DFloat($v)"
-    case DDouble(v)  => q"datomisca.DDouble($v)"
-    case DBoolean(v) => q"datomicsa.DBoolean($v)"
-    case DRef(v) =>
-      val arg = v match {
-        case Left(kw) => incept(kw)
-        case Right(id) => incept(id)
-      }
-      q"datomisca.DRef($arg)"
-    case DBigInt(v) => q"datomisca.DBigInt($v)"
-    case DBigDec(v) => q"datomisca.DBigDec($v)"
-    case DColl(elts) =>
-      val args = elts.map(incept(_)).toList
-      q"datomisca.DColl(..$args)"
-    case id: DId => id match {
-      case FinalId(v) => q"datomisca.FinalId($v)"
-      case TempId(part, id, dbId) =>
-        val underlyingId = Literal(Constant(dbId))
-        q"datomisca.TempId(${incept(part)}, ${incept(id)}, $underlyingId)"
-    }
-    /*case DInstant(v) => Apply(Ident(newTermName("DInstant")), List(Literal(Constant(v))))
-    case DBytes(v) => Apply(Ident(newTermName("DBytes")), List(Literal(Constant(v))))
-    case DUuid(v) => Apply(Ident(newTermName("DUuid")), List(Literal(Constant(v))))
-    case DUri(v) => Apply(Ident(newTermName("DUri")), List(Literal(Constant(v))))*/
-    case e => throw new RuntimeException("Unexcepted type "+e.getClass.toString+" while incepting a macro")
-  }
-
-  def incept(ds: DataSource): c.Tree = ds match {
-    case ImplicitDS => q"datomisca.ImplicitDS"
-    case ExternalDS(n) => q"datomisca.ExternalDS($n)"
-  }
-
-  def incept(t: Term): c.Tree = t match {
-    case Var(name) => q"datomisca.Var($name)"
-    case Keyword(name, None) => q"datomisca.Keyword($name)"
-    case Keyword(name, Some(Namespace(ns))) =>
-      q"datomisca.Keyword($name, Some(datomisca.Namespace($ns)))"
-    case Empty => q"datomisca.Empty"
-    case Const(d: DatomicData) =>
-      q"datomisca.Const(${incept(d)})"
-    case ds: DataSource => incept(ds)
-  }
-
-  def incept(part: Partition): c.Tree =
-    q"datomisca.Partition(${incept(part.keyword)})"
-  def incept(df: DFunction): c.Tree =
-    q"datomisca.ast.DFunction(${df.name})"
-  def incept(df: DPredicate): c.Tree =
-    q"datomisca.ast.DPredicate(${df.name})"
-
-  def incept(b: Binding): c.Tree = b match {
-    case ScalarBinding(name) =>
-      q"datomisca.ast.ScalarBinding(${incept(name)})"
-    case TupleBinding(names) =>
-      val args = names.map(incept(_)).toList
-      q"datomisca.ast.TupleBinding(Seq(..$args))"
-    case CollectionBinding(name) =>
-      q"datomisca.ast.CollectionBinding(${incept(name)})"
-    case RelationBinding(names) =>
-      val args = names.map(incept(_)).toList
-      q"datomisca.ast.RelationBinding(Seq(..$args))"
-  }
-
-  def incept(e: Expression): c.Tree = e match {
-    case PredicateExpression(df, args) =>
-      val fargs = args.map(incept(_)).toList
-      q"datomisca.ast.PredicateExpression(${incept(df)}, Seq(..$fargs))"
-    case FunctionExpression(df, args, binding) =>
-      val fargs = args.map(incept(_)).toList
-      q"datomisca.ast.FunctionExpression(${incept(df)}, Seq(..$fargs), ${incept(binding)})"
-
-  }
-
-  def incept(r: Rule): c.Tree = r match {
-    case DataRule(ds, entity, attr, value, tx, added) =>
-      val dsArg =
-        if (ds == ImplicitDS)
-          q"datomisca.ImplicitDS"
+  def literalEDN(edn: Any): c.Tree =
+    edn match {
+      case b: java.lang.Boolean =>
+        literalBoolean(b)
+      case s: java.lang.String =>
+        q"$s"
+      case c: java.lang.Character =>
+        literalCharacter(c)
+      case s: clj.Symbol =>
+        literalCljSymbol(s)
+      case k: clj.Keyword =>
+        literalCljKeyword(k)
+      case l: java.lang.Long =>
+        literalLong(l)
+      case d: java.lang.Double =>
+        literalDouble(d)
+      case d: java.math.BigDecimal =>
+        literalBigDecimal(d)
+      case i: clj.BigInt =>
+        literalCljBigInt(i)
+      case r: clj.Ratio =>
+        literalCljRatio(r)
+      case coll: clj.PersistentVector =>
+        literalVector(coll)
+      case coll: clj.PersistentList =>
+        literalList(coll)
+      case coll: clj.IPersistentMap =>
+        literalMap(coll)
+      case coll: clj.PersistentHashSet =>
+        literalSet(coll)
+      case x =>
+        if (x == null)
+          c.abort(c.enclosingPosition, "nil is not supported")
         else
-          q"datomisca.ExternalDS(${ds.name})"
-      q"""datomisca.ast.DataRule(
-        $dsArg,
-        ${incept(entity)},
-        ${incept(attr)},
-        ${incept(value)},
-        ${incept(tx)},
-        ${incept(added)}
-      )"""
-    case f: ExpressionRule =>
-      q"datomisca.ast.ExpressionRule(${incept(f.expr)})"
-    case ra: RuleAliasCall =>
-      val args = ra.args.map(incept(_)).toList
-      q"datomisca.ast.RuleAliasCall(${ra.name}, Seq(..$args))"
-    case DataRuleParsing(ds, entity, attr, value, tx, added) =>
-      val dsArg =
-        if (ds == ImplicitDS)
-          q"datomisca.ImplicitDS"
-        else
-          q"datomisca.ExternalDS(${ds.name})"
-      q"""datomisca.ast.DataRule(
-        $dsArg,
-        ${incept(entity)},
-        ${incept(attr)},
-        ${incept(value)},
-        ${incept(tx)},
-        ${incept(added)}
-      )"""
-  }
-
-  def incept(t: TermParsing): c.Tree = t.value match {
-    case Left(se: ScalaExpr) => c.parse(se.expr)
-    case Right(t: Term) => incept(t)
-  }
-
-
-  def incept(o: Output): c.Tree = o match {
-    case OutVariable(v) =>
-      q"datomisca.ast.OutVariable(${incept(v)})"
-  }
-
-  def incept(w: Where): c.Tree = {
-    val args = w.rules.map(incept(_)).toList
-    q"datomisca.ast.Where(Seq(..$args))"
-  }
-
-  def incept(i: Input): c.Tree = i match {
-    case InDataSource(ds) =>
-      q"datomisca.ast.InDataSource(${incept(ds)})"
-    case InVariable(v) =>
-      q"datomisca.ast.InVariable(${incept(v)})"
-    case InRuleAlias =>
-      q"datomisca.ast.InRuleAlias"
-  }
-
-  def incept(in: In): c.Tree = {
-    val args = in.inputs.map(incept(_)).toList
-    q"datomisca.ast.In(Seq(..$args))"
-  }
-
-  def incept(f: Find): c.Tree = {
-    val args = f.outputs.map(incept(_)).toList
-    q"datomisca.ast.Find(Seq(..$args))"
-  }
-
-  def incept(f: With): c.Tree = {
-    val args = f.variables.map(incept(_)).toList
-    q"datomisca.ast.With(Seq(..$args))"
-  }
-
-  def incept(q: PureQuery): c.universe.Tree = {
-    val wizz = q.wizz match {
-      case None       => q"None"
-      case Some(wizz) => q"Some(${incept(wizz)})"
+          c.abort(c.enclosingPosition, s"unexpected value $x with type ${x.getClass}")
     }
-    val in = q.in match {
-      case None     => q"None"
-      case Some(in) => q"Some(${incept(in)})"
-    }
-    q"""datomisca.PureQuery(
-      ${incept(q.find)},
-      $wizz,
-      $in,
-      ${incept(q.where)}
-    )"""
-  }
 
-  def incept(se: ScalaExpr): c.universe.Tree = {
-    val compiled = c.parse(se.expr)
-    q"datomisca.Datomic.toDWrapper($compiled)"
-  }
 
-  def incept(seq: DCollParsing): c.universe.Tree = {
-    val args = seq.elts.map {
-      case Left(se: ScalaExpr)    => incept(se)
-      case Right(dd: DatomicData) => incept(dd)
-      case _ => throw new RuntimeException("Unexpected data while incepting DCollParsing")
-    } .toList
-    q"datomisca.Datomic.coll(..$args)"
-  }
+  def literalBoolean(b: jl.Boolean): c.Tree =
+    q"new java.lang.Boolean(${b.booleanValue})"
 
-  private def inceptId(v: Either[ParsingExpr, DatomicData]): c.universe.Tree = v match {
-    case Left(se: ScalaExpr) => c.parse(se.expr)
-    case Right(did: DId)     => incept(did)
-    case _ => c.abort(c.enclosingPosition, ":db/id can only be a DId")
-  }
 
-  private def localIncept(v: Either[ParsingExpr, DatomicData]): c.universe.Tree = v match {
-    case Left(se: ScalaExpr)    => incept(se)
-    case Left(se: DCollParsing) => incept(se)
-    case Right(dd: DatomicData) => incept(dd)
-  }
-
-  def incept(a: AddEntityParsing): c.universe.Tree = {
-    if(!a.props.contains(Keyword("id", Namespace.DB)))
-      c.abort(c.enclosingPosition, "addEntity requires one :db/id field")
+  def literalCljSymbol(s: clj.Symbol): c.Tree = {
+    val m = s.meta
+    if (m == null)
+      q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()})"
     else {
-      val id = inceptId(a.props(Keyword("id", Namespace.DB)))
-      val argPairs = (a.props - Keyword("id", Namespace.DB) ).map { case (k, v) =>
-          q"Tuple2(${incept(k)}, ${localIncept(v)})"
-        }.toList
-      q"datomisca.AddEntity($id, Map(..$argPairs))"
+      val metaT = literalMap(m)
+      q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()}).withMeta($metaT).asInstanceOf[clojure.lang.Symbol]"
     }
   }
 
-  def incept(did: DIdParsing): c.universe.Tree = {
-    val arg = incept(did.partition)
-    did.id match {
-      case None     => q"datomisca.DId($arg)"
-      case Some(id) => q"datomisca.DId($arg, $id)"
+
+  def literalCljKeyword(k: clj.Keyword): c.Tree =
+    q"clojure.lang.Keyword.intern(${k.getNamespace()}, ${k.getName()})"
+
+
+  def literalLong(l: jl.Long): c.Tree =
+    q"new java.lang.Long(${l.longValue})"
+
+
+  def literalDouble(d: jl.Double): c.Tree =
+    q"new java.lang.Double(${d.doubleValue})"
+
+
+  def literalCljBigInt(k: clj.BigInt): c.Tree =
+    q"clojure.lang.BigInt.fromBigInteger(new java.math.BigInteger(${k.toString}))"
+
+
+  def literalCljRatio(r: clj.Ratio): c.Tree =
+    q"new clojure.lang.Ratio(new java.math.BigInteger(${r.numerator.toString}), new java.math.BigInteger(${r.denominator.toString}))"
+
+
+  def literalBigDecimal(d: jm.BigDecimal): c.Tree =
+    q"new java.math.BigDecimal(${d.toString})"
+
+
+  def literalCharacter(char: jl.Character): c.Tree =
+    q"java.lang.Character.valueOf(${char.charValue()})"
+
+
+  def literalVector(coll: clj.PersistentVector): c.Tree = {
+    val args = coll.iterator.asScala.map(literalEDN).toList
+    q"clojure.lang.PersistentVector.create(java.util.Arrays.asList(..$args))"
+  }
+
+
+  def literalList(coll: clj.PersistentList): c.Tree = {
+    val args = coll.iterator.asScala.map(literalEDN).toList
+    q"clojure.lang.PersistentList.create(java.util.Arrays.asList(..$args))"
+  }
+
+
+  def literalMap(coll: clj.IPersistentMap): c.Tree = {
+    val freshName = newTermName(c.fresh("map$"))
+    val builder = List.newBuilder[c.Tree]
+    builder += q"val $freshName = new java.util.HashMap[AnyRef, AnyRef](${coll.count()})"
+    for (o <- coll.iterator.asScala) {
+       val e = o.asInstanceOf[clj.MapEntry]
+       val keyT = literalEDN(e.key())
+       val valT = literalEDN(e.`val`())
+       builder += q"${freshName}.put($keyT, $valT)"
     }
+    builder += q"clojure.lang.PersistentArrayMap.create($freshName)"
+    q"{ ..${builder.result} }"
   }
 
-  def incept(fact: FactParsing): List[c.universe.Tree] = {
-    List(
-      fact.id match {
-        case Left(se: ScalaExpr)   => inceptId(Left(se))
-        case Right(id: DIdParsing) => incept(id)
-        case _ => c.abort(c.enclosingPosition, "A Fact only accepts a #db/id[:db.part/XXX] or a scala DId as 1st param")
-      },
-      incept(fact.attr),
-      localIncept(fact.value)
-    )
+
+  def literalSet(coll: clj.PersistentHashSet): c.Tree = {
+    val args = coll.iterator.asScala.map(literalEDN).toList
+    q"clojure.lang.PersistentHashSet.create(java.util.Arrays.asList(..$args))"
   }
 
-  def incept(op: AddFactParsing): c.universe.Tree =
-    q"datomisca.AddFact(..${incept(op.fact)})"
 
-  def incept(op: RetractFactParsing): c.universe.Tree =
-    q"datomisca.RetractFact(..${incept(op.fact)})"
+  def literalQueryRules(rules: c.Tree): c.Expr[DRules] =
+    c.Expr[DRules](q"new datomisca.DRules($rules)")
 
-  def incept(op: RetractEntityParsing): c.universe.Tree = {
-    val arg = op.entid match {
-      case Left(se: ScalaExpr) => incept(se)
-      case Right(entid) => incept(entid)
-      case _ => c.abort(c.enclosingPosition, "A Fact only accepts a DLong as 1st param")
-    }
-    q"datomisca.RetractEntity($arg)"
+  def literalQuery(query: c.Tree, inputSize: Int, outputSize: Int): c.Expr[AbstractQuery] = {
+    val typeArgs =
+      List.fill(inputSize)(tq"datomisca.DatomicData") :+
+      (outputSize match {
+        case 0 => tq"Unit"
+        case 1 => tq"datomisca.DatomicData"
+        case n =>
+          val typeName = newTypeName("Tuple" + n)
+          val args = List.fill(n)(tq"datomisca.DatomicData")
+          tq"$typeName[..$args]"
+      })
+    val queryClassName =
+      Select(
+        Select(
+          Ident(newTermName("datomisca")),
+          newTermName("gen")),
+        newTypeName("TypedQuery" + inputSize))
+
+    c.Expr[AbstractQuery](q"new $queryClassName[..$typeArgs]($query)")
   }
 
-  def incept(ra: DRuleAlias): c.universe.Tree = {
-    val args = ra.args.map(incept(_)).toList
-    val rules = ra.rules.map(incept(_)).toList
-    q"datomisca.DRuleAlias(${ra.name}, Seq(..$args), Seq(..$rules))"
-  }
-
-  def incept(ras: DRuleAliases): c.universe.Tree = {
-    val args = ras.aliases.map(incept(_)).toList
-    q"datomisca.DRuleAliases(Seq(..$args))"
-  }
-
-  def incept(ops: Seq[OpParsing]): c.universe.Tree = {
-    val args = ops.map{
-      case add:    AddFactParsing       => incept(add)
-      case ret:    RetractFactParsing   => incept(ret)
-      case retEnt: RetractEntityParsing => incept(retEnt)
-      case addEnt: AddEntityParsing     => incept(addEnt)
-    }.toList
-    q"Seq(..$args)"
-  }
+  def literalDatomiscaKeyword(kw: clj.Keyword): c.Expr[Keyword] =
+    if (kw.getNamespace == null)
+      c.Expr[Keyword](q"new datomisca.Keyword(${kw.getName})")
+    else
+      c.Expr[Keyword](q"new datomisca.Keyword(${kw.getName}, Some(datomisca.Namespace(${kw.getNamespace})))")
 
 }

@@ -19,11 +19,12 @@ import sbt._
 object Boilerplate {
 
   def genCore(dir: File) = {
-    val typedQueryAutos = dir / "datomisca" / "typedQueryAuto.scala"
-    IO.write(typedQueryAutos, genTypedQueryAutos)
 
-    val queryExecutorAuto = dir / "datomisca" / "QueryExecutorAuto.scala"
-    IO.write(queryExecutorAuto, genQueryExecutorAuto)
+    val typedQueries = dir / "datomisca" / "typedQueries.scala"
+    IO.write(typedQueries, genTypedQueries)
+
+    val typedQueryExecutor = dir / "datomisca" / "TypedQueryExecutor.scala"
+    IO.write(typedQueryExecutor, genTypedQueryExecutor)
 
     val queryResultToTupleInstances = dir / "datomisca" / "QueryResultToTupleInstances.scala"
     IO.write(queryResultToTupleInstances, genQueryResultToTupleInstances)
@@ -38,7 +39,7 @@ object Boilerplate {
     IO.write(invokeTxFunctions, genInvokeTxFunctions)
 
     Seq(
-      typedQueryAutos, queryExecutorAuto, queryResultToTupleInstances,
+      typedQueries, typedQueryExecutor, queryResultToTupleInstances,
       typedAddDbFunctions, addTxFunctions, invokeTxFunctions
     )
   }
@@ -71,12 +72,12 @@ object Boilerplate {
         |""").stripMargin
   }
 
-  def genTypedQueryAutos = {
+  def genTypedQueries = {
     def genInstance(arity: Int) = {
       val typeParams = ((1 to arity) map (n => "In"+n)).mkString(", ")
 
       ("""|
-          |final case class TypedQueryAuto"""+arity+"["+typeParams+""", Out](query: PureQuery) extends TypedQueryAuto(query)
+          |final class TypedQuery"""+arity+"["+typeParams+""", Out](q: clojure.lang.IPersistentMap) extends AbstractQuery(q)
           |""").stripMargin
     }
 
@@ -85,13 +86,13 @@ object Boilerplate {
     genHeader +
     ("""|package gen
         |
-        |final case class TypedQueryAuto0[R](query: PureQuery) extends TypedQueryAuto(query)
+        |final class TypedQuery0[R](q: clojure.lang.IPersistentMap) extends AbstractQuery(q)
         | """ +
          instances + """
         |""").stripMargin
   }
 
-  def genQueryExecutorAuto = {
+  def genTypedQueryExecutor = {
     def genInstance(arity: Int) = {
       val typeParams = ((1 to arity) map (n => "In"+n)).mkString(", ")
       val queryParams = ((1 to arity) map (n => "in"+n+": DatomicData")).mkString(", ")
@@ -99,10 +100,10 @@ object Boilerplate {
 
       ("""|
           |  def q["""+typeParams+""", Out]
-          |       (query: TypedQueryAuto"""+arity+"["+typeParams+", Out], "+queryParams+""")
+          |       (query: TypedQuery"""+arity+"["+typeParams+", Out], "+queryParams+""")
           |       (implicit outConv: QueryResultToTuple[Out])
           |       : Iterable[Out] =
-          |    QueryExecutor.directQueryOut[Out](query, Seq("""+queryArgs+"""))
+          |    QueryExecutor.execute[Out](query, Seq("""+queryArgs+"""))
           |""").stripMargin
     }
 
@@ -112,13 +113,13 @@ object Boilerplate {
     ("""|
         |import gen._
         |
-        |private[datomisca] trait QueryExecutorAuto {
+        |private[datomisca] trait TypedQueryExecutor {
         |
         |  def q[Out]
-        |       (query: TypedQueryAuto0[Out], dataSource: DatomicData)
+        |       (query: TypedQuery0[Out], dataSource: DatomicData)
         |       (implicit conv: QueryResultToTuple[Out])
         |       : Iterable[Out] =
-        |    QueryExecutor.directQueryOut[Out](query, Seq(dataSource.toNative))
+        |    QueryExecutor.execute[Out](query, Seq(dataSource.toNative))
         |""" +
            instances + """
         |}
