@@ -86,12 +86,11 @@ class DatomicDemoSpec extends Specification {
             Datomic.KW(":person/age") -> 54L,
             Datomic.KW(":person/character") -> Seq(violent, clever)
           ),
-          Entity.addEDN("""{
-            :db/id ${DId(Partition.USER)}
-            :person/name "tutu"
-            :person/age 35
-            :person/character [ $weak $dumb ]
-          }""")
+          Entity.add(DId(Partition.USER))(
+            person / "name" -> "tutu",
+            person / "age" -> 35,
+            person / "character" -> Seq(weak, dumb)
+          )
         ) map { tx => 
           println("Provisioned data... TX:%s".format(tx))
 

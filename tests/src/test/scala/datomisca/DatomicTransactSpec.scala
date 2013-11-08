@@ -69,13 +69,13 @@ class DatomicTransactSpec extends Specification {
       }
 
       //println("DID:"+DId(Partition.USER).value.getClass)
-      Datomic.q(Query.pure("""
+      Datomic.q(Query("""
         [ :find ?e ?n 
           :where  [ ?e :person/name ?n ] 
                   [ ?e :person/character :person.character/violent ]
         ]
       """), Datomic.database).map {
-        case Seq(DLong(e), DString(n)) => 
+        case (DLong(e), DString(n)) => 
         println(s"PART ${datomic.Peer.part(e.underlying).getClass}")
         val entity = Datomic.database.entity(e)
         println(s"Q2 entity: $e name: $n - e: ${entity.get(person / "character")}")

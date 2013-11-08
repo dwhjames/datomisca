@@ -81,11 +81,11 @@ class DatomicSchema2Spec extends Specification {
           )
         ) flatMap { tx =>
           println(s"Provisioned data... TX: $tx")
-          val totoId = Datomic.q(Query.pure("""
+          val totoId = Datomic.q(Query("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-          """), Datomic.database).head.head match { case DLong(l) => l }
+          """), Datomic.database).head match { case DLong(l) => l }
 
           println(s"TOTO: $totoId")
           Datomic.transact(
@@ -93,18 +93,18 @@ class DatomicSchema2Spec extends Specification {
           ) flatMap { tx =>
             println(s"Retracted data... TX: $tx")
 
-            Datomic.q(Query.pure("""
+            Datomic.q(Query("""
               [ :find ?e
                 :where  [ ?e :person/name "toto" ] 
               ]
             """), Datomic.database).isEmpty must beTrue
 
             println(s"Provisioned data... TX: $tx")
-            val tutuId = Datomic.q(Query.pure("""
+            val tutuId = Datomic.q(Query("""
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
-            """), Datomic.database).head.head match { case DLong(l) => l }
+            """), Datomic.database).head match { case DLong(l) => l }
 
             println(s"TUTU: $tutuId")
             Datomic.transact(
@@ -112,7 +112,7 @@ class DatomicSchema2Spec extends Specification {
             ) map { tx =>
               println(s"Retracted data... TX: $tx")
 
-              Datomic.q(Query.pure("""
+              Datomic.q(Query("""
                 [ :find ?e
                   :where  [ ?e :person/name "tutu" ] 
                 ]
