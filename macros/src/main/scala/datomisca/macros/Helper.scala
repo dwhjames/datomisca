@@ -20,6 +20,7 @@ package macros
 import scala.language.experimental.macros
 import scala.reflect.macros.Context
 
+import scala.collection.mutable
 import scala.collection.JavaConverters._
 
 import java.{lang => jl}
@@ -30,7 +31,7 @@ import clojure.{lang => clj}
 private[datomisca] class Helper[C <: Context](val c: C) {
   import c.universe._
 
-  def literalEDN(edn: Any): c.Tree =
+  def literalEDN(edn: Any, stk: mutable.Stack[c.Tree] = mutable.Stack.empty[c.Tree]): c.Tree =
     edn match {
       case b: java.lang.Boolean =>
         literalBoolean(b)
@@ -39,7 +40,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       case c: java.lang.Character =>
         literalCharacter(c)
       case s: clj.Symbol =>
-        literalCljSymbol(s)
+        literalCljSymbol(s, stk)
       case k: clj.Keyword =>
         literalCljKeyword(k)
       case l: java.lang.Long =>
@@ -53,13 +54,13 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       case r: clj.Ratio =>
         literalCljRatio(r)
       case coll: clj.PersistentVector =>
-        literalVector(coll)
+        literalVector(coll, stk)
       case coll: clj.PersistentList =>
-        literalList(coll)
+        literalList(coll, stk)
       case coll: clj.IPersistentMap =>
-        literalMap(coll)
+        literalMap(coll, stk)
       case coll: clj.PersistentHashSet =>
-        literalSet(coll)
+        literalSet(coll, stk)
       case x =>
         if (x == null)
           c.abort(c.enclosingPosition, "nil is not supported")
@@ -72,12 +73,21 @@ private[datomisca] class Helper[C <: Context](val c: C) {
     q"new java.lang.Boolean(${b.booleanValue})"
 
 
-  def literalCljSymbol(s: clj.Symbol): c.Tree = {
+  def literalCljSymbol(s: clj.Symbol, stk: mutable.Stack[c.Tree]): c.Tree = {
     val m = s.meta
-    if (m == null)
-      q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()})"
-    else {
-      val metaT = literalMap(m)
+    if (m == null) {
+      if (s.getName() == "!")
+        try {
+          val t = stk.pop()
+          q"datomic.Util.read($t.toString)"
+        } catch {
+          case ex: NoSuchElementException =>
+            throw new IllegalArgumentException("The symbol '!' is reserved by Datomisca")
+        }
+      else
+        q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()})"
+    } else {
+      val metaT = literalMap(m, stk)
       q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()}).withMeta($metaT).asInstanceOf[clojure.lang.Symbol]"
     }
   }
@@ -111,26 +121,25 @@ private[datomisca] class Helper[C <: Context](val c: C) {
     q"java.lang.Character.valueOf(${char.charValue()})"
 
 
-  def literalVector(coll: clj.PersistentVector): c.Tree = {
-    val args = coll.iterator.asScala.map(literalEDN).toList
+  def literalVector(coll: clj.PersistentVector, stk: mutable.Stack[c.Tree]): c.Tree = {
+    val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
     q"clojure.lang.PersistentVector.create(java.util.Arrays.asList(..$args))"
   }
 
 
-  def literalList(coll: clj.PersistentList): c.Tree = {
-    val args = coll.iterator.asScala.map(literalEDN).toList
+  def literalList(coll: clj.PersistentList, stk: mutable.Stack[c.Tree]): c.Tree = {
+    val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
     q"clojure.lang.PersistentList.create(java.util.Arrays.asList(..$args))"
   }
 
-
-  def literalMap(coll: clj.IPersistentMap): c.Tree = {
+  def literalMap(coll: clj.IPersistentMap, stk: mutable.Stack[c.Tree]): c.Tree = {
     val freshName = newTermName(c.fresh("map$"))
     val builder = List.newBuilder[c.Tree]
     builder += q"val $freshName = new java.util.HashMap[AnyRef, AnyRef](${coll.count()})"
     for (o <- coll.iterator.asScala) {
        val e = o.asInstanceOf[clj.MapEntry]
-       val keyT = literalEDN(e.key())
-       val valT = literalEDN(e.`val`())
+       val keyT = literalEDN(e.key(), stk)
+       val valT = literalEDN(e.`val`(), stk)
        builder += q"${freshName}.put($keyT, $valT)"
     }
     builder += q"clojure.lang.PersistentArrayMap.create($freshName)"
@@ -138,8 +147,8 @@ private[datomisca] class Helper[C <: Context](val c: C) {
   }
 
 
-  def literalSet(coll: clj.PersistentHashSet): c.Tree = {
-    val args = coll.iterator.asScala.map(literalEDN).toList
+  def literalSet(coll: clj.PersistentHashSet, stk: mutable.Stack[c.Tree]): c.Tree = {
+    val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
     q"clojure.lang.PersistentHashSet.create(java.util.Arrays.asList(..$args))"
   }
 

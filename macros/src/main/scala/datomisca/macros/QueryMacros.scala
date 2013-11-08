@@ -131,7 +131,24 @@ private[datomisca] object QueryMacros {
             c.abort(c.enclosingPosition, ex.getMessage)
         }
 
-      case _ =>
+      case q"scala.StringContext.apply(..$parts).s(..$args)" =>
+        val partsWithPlaceholders = q"""Seq(..$parts).mkString(" ! ")"""
+        val strWithPlaceHolders = c.eval(c.Expr[String](c.resetAllAttrs(partsWithPlaceholders.duplicate)))
+
+        val edn = withClojure { datomic.Util.read(strWithPlaceHolders) }
+
+        val argsStack = mutable.Stack.concat(args)
+
+        try {
+          val (query, inputSize, outputSize) = validateDatalog(edn)
+          val helper = new Helper[c.type](c)
+          val t = helper.literalEDN(query, argsStack)
+          helper.literalQuery(t, inputSize, outputSize)
+        } catch {
+          case ex: IllegalArgumentException =>
+            c.abort(c.enclosingPosition, ex.getMessage)
+        }
+      case t =>
         c.abort(c.enclosingPosition, "Expected a string literal")
     }
   }
