@@ -78,12 +78,46 @@ private[datomisca] object MacroImpl {
     edn.tree match {
       case Literal(Constant(s: String)) =>
         val edn = readEDN(c, s)
+        validateCljRules(c, edn)
         val helper = new Helper[c.type](c)
         helper.literalQueryRules(helper.literalEDN(edn))
+
+      case q"scala.StringContext.apply(..$parts).s(..$args)" =>
+        val partsWithPlaceholders = q"""Seq(..$parts).mkString(" ! ")"""
+        val strWithPlaceHolders = c.eval(c.Expr[String](c.resetAllAttrs(partsWithPlaceholders.duplicate)))
+        val edn = readEDN(c, strWithPlaceHolders)
+        validateCljRules(c, edn)
+        val argsStack = mutable.Stack.concat(args)
+        val helper = new Helper[c.type](c)
+        helper.literalQueryRules(helper.literalEDN(edn, argsStack))
+
       case _ =>
         abortWithMessage(c, "Expected a string literal")
     }
   }
+
+
+  private def validateCljRules(c: Context, edn: AnyRef): Unit =
+    edn match {
+      case vector: clj.PersistentVector =>
+        vector.iterator.asScala foreach {
+          case vector: clj.PersistentVector =>
+            if (vector.count == 0) abortWithMessage(c, "Expected a rule as a non-empty vector of clauses, found an empty rule")
+            vector.iterator.asScala foreach { x =>
+              if (x.isInstanceOf[clj.IPersistentVector] || x.isInstanceOf[clj.IPersistentList])
+                if (x.asInstanceOf[clj.IPersistentCollection].count > 0)
+                  ()
+                else
+                  abortWithMessage(c, s"Expected a clause as a non-empty vector or list, found an empty clause")
+              else
+                abortWithMessage(c, s"Expected a clause as a vector or list, found value $x with ${x.getClass}")
+            }
+          case x =>
+            abortWithMessage(c, s"Expected a rule as a vector, found value $x with ${x.getClass}")
+        }
+      case x =>
+        abortWithMessage(c, s"Expected a vector of rules, found value $x with ${x.getClass}")
+    }
 
 
   def cljQueryImpl(c: Context)(edn: c.Expr[String]): c.Expr[AbstractQuery] = {
@@ -100,11 +134,8 @@ private[datomisca] object MacroImpl {
       case q"scala.StringContext.apply(..$parts).s(..$args)" =>
         val partsWithPlaceholders = q"""Seq(..$parts).mkString(" ! ")"""
         val strWithPlaceHolders = c.eval(c.Expr[String](c.resetAllAttrs(partsWithPlaceholders.duplicate)))
-
         val edn = readEDN(c, strWithPlaceHolders)
-
         val argsStack = mutable.Stack.concat(args)
-
         val (query, inputSize, outputSize) = validateDatalog(c, edn)
         val helper = new Helper[c.type](c)
         val t = helper.literalEDN(query, argsStack)
