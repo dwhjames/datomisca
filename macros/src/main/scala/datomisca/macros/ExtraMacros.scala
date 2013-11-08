@@ -18,10 +18,6 @@ package datomisca
 package macros
 
 import scala.language.experimental.macros
-import scala.reflect.macros.Context
-import scala.reflect.internal.util.{Position, OffsetPosition}
-
-import clojure.{lang => clj}
 
 
 private[datomisca] trait ExtraMacros {
@@ -31,35 +27,5 @@ private[datomisca] trait ExtraMacros {
     * @param q the Clojure string
     * @return parsed [[Keyword]]
     */
-  def KW(q: String): Keyword = macro ExtraMacros.KWImpl
-}
-
-private[datomisca] object ExtraMacros {
-
-  // class loader hack to get Clojure to initialize
-  private def withClojure[T](block: => T): T = {
-    val t = Thread.currentThread()
-    val cl = t.getContextClassLoader
-    t.setContextClassLoader(this.getClass.getClassLoader)
-    try block finally t.setContextClassLoader(cl)
-  }
-
-
-  def KWImpl(c: Context)(q: c.Expr[String]): c.Expr[Keyword] = {
-    import c.universe._
-
-    q.tree match {
-      case Literal(Constant(s: String)) =>
-        withClojure { datomic.Util.read(s) } match {
-          case kw: clj.Keyword =>
-            val helper = new Helper[c.type](c)
-            helper.literalDatomiscaKeyword(kw)
-          case _ =>
-            c.abort(c.enclosingPosition, "Not a valid Clojure keyword")
-        }
-      case _ =>
-        c.abort(c.enclosingPosition, "Expected a string literal")
-    }
-  }
-
+  def KW(q: String): Keyword = macro MacroImpl.KWImpl
 }

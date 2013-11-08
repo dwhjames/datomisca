@@ -31,6 +31,9 @@ import clojure.{lang => clj}
 private[datomisca] class Helper[C <: Context](val c: C) {
   import c.universe._
 
+  private def abortWithMessage(message: String) =
+    c.abort(c.enclosingPosition, message)
+
   def literalEDN(edn: Any, stk: mutable.Stack[c.Tree] = mutable.Stack.empty[c.Tree]): c.Tree =
     edn match {
       case b: java.lang.Boolean =>
@@ -63,9 +66,9 @@ private[datomisca] class Helper[C <: Context](val c: C) {
         literalSet(coll, stk)
       case x =>
         if (x == null)
-          c.abort(c.enclosingPosition, "nil is not supported")
+          abortWithMessage("nil is not supported")
         else
-          c.abort(c.enclosingPosition, s"unexpected value $x with type ${x.getClass}")
+          abortWithMessage(s"unexpected value $x with ${x.getClass}")
     }
 
 
@@ -82,7 +85,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
           q"datomic.Util.read($t.toString)"
         } catch {
           case ex: NoSuchElementException =>
-            throw new IllegalArgumentException("The symbol '!' is reserved by Datomisca")
+            abortWithMessage("The symbol '!' is reserved by Datomisca")
         }
       else
         q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()})"
