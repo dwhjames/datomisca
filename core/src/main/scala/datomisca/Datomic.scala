@@ -16,7 +16,10 @@
 
 package datomisca
 
+import scala.collection.JavaConverters._
 import scala.util.{Try, Success, Failure}
+
+import clojure.{lang => clj}
 
 
 /** Main object containing:
@@ -76,7 +79,6 @@ object Datomic
     * {{{
     * val ops = Datomic.parseOps("""
     * ;; comment blabla
-    * [
     *   [:db/add #db/id[:db.part/user] :db/ident :character/weak]
     *   ;; comment blabla
     *   [:db/add #db/id[:db.part/user] :db/ident :character/dumb]
@@ -93,12 +95,18 @@ object Datomic
     *   { :db/id #db/id[:db.part/user], :person/name "toto",
     *     :person/age 30, :person/character [ :character/_weak, :character/dumb-toto ]
     *   }
-    * ]""")
+    * """)
     * }}}
     *
     * @param q the Clojure string
     * @return a sequence of operations or an error
     */
-  // def parseOps(q: String): Try[Seq[Operation]] = ???
+  def parseOps(ops: String): Try[Seq[Operation]] = Try {
+    datomic.Util.readAll(new java.io.StringReader(ops)).asInstanceOf[java.util.List[AnyRef]].asScala map { obj =>
+      new Operation {
+        override val toNative = obj
+      }
+    }
+  }
 
 }
