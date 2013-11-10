@@ -16,18 +16,16 @@
 
 package datomisca
 
-import org.specs2.mutable._
-
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
+import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.concurrent.ScalaFutures
 
 
-@RunWith(classOf[JUnitRunner])
-class SchemaManagerSpec extends Specification {
+class SchemaManagerSpec
+  extends FlatSpec
+     with Matchers
+     with ScalaFutures
+     with DatomicFixture
+{
 
   val schemaTag = Datomic.KW(":my-schema-tag")
 
@@ -66,47 +64,27 @@ class SchemaManagerSpec extends Specification {
           Seq(SchemaC.txData))
     )
 
-  "Schema Manager" should {
+  "Schema Manager" should "provision schemas if needed" in withDatomicDB { implicit conn =>
 
-    val uri = "datomic:mem://SchemaManagerSpec"
-    println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
-    implicit val conn = Datomic.connect(uri)
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { _ =>
+      implicit val db = conn.database
 
-    "provision schemas if needed" in {
+      SchemaManager.hasAttribute(SchemaA.attrA.ident) should be (true)
+      SchemaManager.hasAttribute(SchemaB.attrB.ident) should be (false)
 
-      Await.result(
-        for {
-          _ <- SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)
-        } yield {
-          implicit val db = conn.database
-
-          SchemaManager.hasAttribute(SchemaA.attrA.ident) must beTrue
-          SchemaManager.hasAttribute(SchemaB.attrB.ident) must beFalse
-
-          SchemaManager.hasSchema(schemaTag, SchemaA.name) must beTrue
-          SchemaManager.hasSchema(schemaTag, SchemaB.name) must beFalse
-        },
-        Duration("10 seconds")
-      )
+      SchemaManager.hasSchema(schemaTag, SchemaA.name) should be (true)
+      SchemaManager.hasSchema(schemaTag, SchemaB.name) should be (false)
+    }
 
 
-      Await.result(
-        for {
-          _ <- SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)
-        } yield {
-          implicit val db = conn.database
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { _ =>
+      implicit val db = conn.database
 
-          SchemaManager.hasAttribute(SchemaB.attrB.ident) must beTrue
-          SchemaManager.hasAttribute(SchemaC.attrC.ident) must beTrue
+      SchemaManager.hasAttribute(SchemaB.attrB.ident) should be (true)
+      SchemaManager.hasAttribute(SchemaC.attrC.ident) should be (true)
 
-          SchemaManager.hasSchema(schemaTag, SchemaB.name) must beTrue
-          SchemaManager.hasSchema(schemaTag, SchemaC.name) must beTrue
-        },
-        Duration("10 seconds")
-      )
-
-      success
+      SchemaManager.hasSchema(schemaTag, SchemaB.name) should be (true)
+      SchemaManager.hasSchema(schemaTag, SchemaC.name) should be (true)
     }
   }
-
 }
