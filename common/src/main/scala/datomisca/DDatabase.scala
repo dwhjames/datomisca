@@ -17,6 +17,7 @@
 package datomisca
 
 import scala.annotation.implicitNotFound
+import scala.concurrent.blocking
 
 import java.util.{Date => JDate}
 
@@ -83,7 +84,9 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @return an entity.
     */
   def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): DEntity =
-    new DEntity(underlying.entity(ev.conv(id)))
+    new DEntity(blocking {
+      underlying.entity(ev.conv(id))
+    })
 
   /** Returns the entity for the given keyword.
     *
@@ -96,7 +99,9 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @return an entity.
     */
   def entity(kw: Keyword): DEntity =
-    new DEntity(underlying.entity(kw.toNative))
+    new DEntity(blocking {
+      underlying.entity(kw.toNative)
+    })
 
 
   /** Returns the value of the database as of some point t, inclusive.
@@ -135,7 +140,9 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @throws Exception if no entity is found.
     */
   def entid(kw: Keyword): Long =
-    Option { underlying.entid(kw.toNative) } match {
+    Option {
+      blocking { underlying.entid(kw.toNative) }
+    } match {
       case None      => throw new DatomiscaException(s"entity id for keyword $kw not found")
       case Some(eid) => eid.asInstanceOf[Long]
     }
@@ -170,7 +177,9 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @throws Exception if no keyword is found
     */
   def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
-    Option { underlying.ident(ev.conv(id)) } match {
+    Option {
+      blocking { underlying.ident(ev.conv(id)) }
+    } match {
       case None     => throw new DatomiscaException(s"ident keyword for entity id $id not found")
       case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
     }

@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.concurrent.blocking
+
 
 class DEntity(val entity: datomic.Entity) extends DatomicData {
   def toNative = entity
@@ -23,7 +25,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
   def id: Long = as[Long](Namespace.DB / "id")
 
   def touch() = {
-    entity.touch()
+    blocking { entity.touch() }
     this
   }
 
@@ -32,7 +34,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def get(keyword: Keyword): Option[DatomicData] =
     Option {
-      entity.get(keyword.toNative)
+      blocking { entity.get(keyword.toNative) }
     } map (DatomicData.toDatomicData(_))
 
   def apply(keyword: String): DatomicData =
@@ -40,7 +42,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def get(keyword: String): Option[DatomicData] =
     Option {
-      entity.get(keyword)
+      blocking { entity.get(keyword) }
     } map (DatomicData.toDatomicData(_))
 
   def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
@@ -52,7 +54,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def keySet: Set[String] = {
     val builder = Set.newBuilder[String]
-    val iter = entity.keySet.iterator
+    val iter = blocking { entity.keySet } .iterator
     while (iter.hasNext) {
       builder += iter.next()
     }
@@ -61,10 +63,12 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def toMap: Map[String, DatomicData] = {
     val builder = Map.newBuilder[String, DatomicData]
-    val iter = entity.keySet.iterator
+    val iter = blocking { entity.keySet } .iterator
     while (iter.hasNext) {
       val key = iter.next()
-      builder += (key -> DatomicData.toDatomicData(entity.get(key)))
+      builder += (key -> DatomicData.toDatomicData(
+        blocking { entity.get(key) }
+      ))
     }
     builder.result
   }
