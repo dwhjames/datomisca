@@ -20,14 +20,13 @@ import java.{util => ju}
 import java.util.{concurrent => juc}
 
 class TxReportQueue(
-    val database: DDatabase,
     val queue:    juc.BlockingQueue[ju.Map[_, _]]
 ) {
 
 
   lazy val stream: Stream[Option[TxReport]] = queue2Stream[ju.Map[_, _]](queue).map{ 
     case None => None
-    case Some(javaMap) => Some(TxReport.toTxReport(javaMap)(database))
+    case Some(javaMap) => Some(new TxReport(javaMap))
   }
 
   private def queue2Stream[A](queue: juc.BlockingQueue[A]): Stream[Option[A]] = {

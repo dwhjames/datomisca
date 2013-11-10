@@ -91,17 +91,14 @@ class Connection(
       }
 
     future map { javaMap: java.util.Map[_, _] =>
-      TxReport.toTxReport(javaMap)(database)
+      new TxReport(javaMap)
     }
   }
 
   def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
   def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
-  def txReportQueue: TxReportQueue = new TxReportQueue(
-      database = database,
-      queue    = connection.txReportQueue
-    )
+  def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
 
   def removeTxReportQueue: Unit = connection.removeTxReportQueue
 

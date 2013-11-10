@@ -18,12 +18,28 @@
 package datomisca
 
 
-class TxReport(
-    val dbBefore: DDatabase,
-    val dbAfter:  DDatabase,
-    val txData:   Seq[DDatom],
-    protected val tempids: AnyRef
-) {
+class TxReport(rawReport: java.util.Map[_, _]) {
+  import scala.collection.JavaConverters._
+  import datomic.Connection.{DB_BEFORE, DB_AFTER, TX_DATA, TEMPIDS}
+  import datomic.db.Db
+
+  def dbBefore: DDatabase =
+    DDatabase(rawReport.get(DB_BEFORE).asInstanceOf[Db])
+
+  def dbAfter: DDatabase =
+    DDatabase(rawReport.get(DB_AFTER).asInstanceOf[Db])
+
+  lazy val txData: Seq[DDatom] = {
+    val db = dbAfter
+    val builder = Seq.newBuilder[DDatom]
+    val iter = rawReport.get(TX_DATA).asInstanceOf[java.util.List[datomic.Datom]].iterator
+    while (iter.hasNext) {
+      builder += new DDatom(iter.next(), db)
+    }
+    builder.result()
+  }
+
+  private val tempids = rawReport.get(TEMPIDS).asInstanceOf[AnyRef]
 
   def resolve(id: DId): Long =
     resolveOpt(id) getOrElse { throw new TempidNotResolved(id) }
@@ -60,32 +76,4 @@ class TxReport(
     txData: $txData,
     tempids: $tempids
   }"""
-}
-
-
-object TxReport {
-  /** Converts a java.util.Map[_,_] returns by connection.transact into a TxReport 
-    * It requires an implicit DDatabase because it must resolve the keyword from Datom (from Integer in the map)
-    */
-  def toTxReport(javaMap: java.util.Map[_, _])(implicit database: DDatabase): TxReport = {
-    import scala.collection.JavaConverters._
-    import datomic.Connection._
-    import datomic.db.Db
-
-    new TxReport(
-      dbBefore = DDatabase(
-          javaMap.get(DB_BEFORE).asInstanceOf[Db]
-        ),
-      dbAfter  = DDatabase(
-          javaMap.get(DB_AFTER).asInstanceOf[Db]
-        ),
-      txData =
-        javaMap.get(TX_DATA)
-               .asInstanceOf[java.util.List[datomic.Datom]]
-               .asScala
-               .map(new DDatom(_, database))
-               .toSeq,
-      tempids = javaMap.get(TEMPIDS).asInstanceOf[AnyRef]
-    )
-  }
 }

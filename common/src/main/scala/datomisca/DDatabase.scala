@@ -199,7 +199,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
     val javaMap: java.util.Map[_, _] = underlying.`with`(datomicOps)
 
-    TxReport.toTxReport(javaMap)(this)
+    new TxReport(javaMap)
   }
 
   /** Returns the value of the database containing only Datoms
