@@ -19,11 +19,12 @@ package datomisca
 import java.{util => ju}
 
 
-private[datomisca] trait QueryExecutor extends QueryExecutorPure with QueryExecutorAuto
+private[datomisca] trait QueryExecutor extends TypedQueryExecutor
 
 /* DATOMIC QUERY */
 private[datomisca] object QueryExecutor {
 
+  /*
   private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]) =
     new Iterable[IndexedSeq[DatomicData]] {
       private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
@@ -43,11 +44,12 @@ private[datomisca] object QueryExecutor {
         }
       }
     }
+  */
 
-  private[datomisca] def directQueryOut[OutArgs](q: Query, in: Seq[AnyRef])(implicit outConv: QueryResultToTuple[OutArgs]): Iterable[OutArgs] = {
+  private[datomisca] def execute[OutArgs](q: AbstractQuery, in: Seq[AnyRef])(implicit outConv: QueryResultToTuple[OutArgs]): Iterable[OutArgs] = {
     import scala.collection.JavaConverters._
     new Iterable[OutArgs] {
-      private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
+      private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.query, in: _*)
       override def iterator = new Iterator[OutArgs] {
         private val jIter: ju.Iterator[ju.List[AnyRef]] = jColl.iterator
         override def hasNext = jIter.hasNext
@@ -55,11 +57,6 @@ private[datomisca] object QueryExecutor {
       }
     }
   }
-}
-
-private[datomisca] trait QueryExecutorPure {
-  def q(query: PureQuery, in: DatomicData*): Iterable[IndexedSeq[DatomicData]] =
-    QueryExecutor.directQuery(query, in.map(_.toNative))
 }
 
 private[datomisca] trait QueryResultToTuple[T] {

@@ -78,30 +78,6 @@ class DatomicSyntaxSugarSpec extends Specification {
         )).toString
       )
 
-      Entity.addEDN("""{
-        :db/id $id
-        :person/name "toto"
-        :person/age 30
-        :person/character [ $weak $dumb ]
-      }""").toString must beEqualTo(
-        AddEntity(id, Map(
-          Keyword(person, "name")      -> DString("toto"),
-          Keyword(person, "age")       -> DLong(30L),
-          Keyword(person, "character") -> DColl(weak.ref, dumb.ref)
-        )).toString
-      )
-
-      Datomic.transact(
-        Entity.addEDN("""{
-          :db/id ${DId(Partition.USER)}
-          :person/name "toto"
-          :person/age 30
-          :person/character [ $weak $dumb ]
-        }""")
-      ) map { tx =>
-        println(s"Provisioned data... TX: $tx")
-      }
-
       success
     }
   }

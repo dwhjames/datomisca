@@ -16,43 +16,11 @@
 
 package datomisca
 
-import scala.util.parsing.input.Positional
-
-
-/* DATOMIC RULES */
-trait Rule extends Positional
-
-trait Term
-
-final case class Var(name: String) extends Term {
-  override def toString = "?" + name
-}
-
-final case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Term with Namespaceable with Positional
+final case class Keyword(override val name: String, override val ns: Option[Namespace] = None) extends Namespaceable
 
 object Keyword {
   def apply(name: String, ns: Namespace) = new Keyword(name, Some(ns))
   def apply(ns: Namespace, name: String) = new Keyword(name, Some(ns))
 
   def apply(kw: clojure.lang.Keyword) = new Keyword(kw.getName, Some(Namespace(kw.getNamespace)))
-}
-
-final case class Const(underlying: DatomicData) extends Term {
-  override def toString = underlying.toString
-}
-
-case object Empty extends Term {
-  override def toString = "_"
-}
-
-sealed trait DataSource extends Term {
-  def name: String
-
-  override def toString = "$" + name
-}
-
-final case class ExternalDS(override val name: String) extends DataSource
-
-case object ImplicitDS extends DataSource {
-  def name = ""
 }

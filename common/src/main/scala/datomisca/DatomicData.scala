@@ -334,20 +334,9 @@ object DColl {
 }
 
 
-final case class DRuleAlias(name: String, args: Seq[Var], rules: Seq[Rule]) extends DatomicData {
-  override def toNative = toString
-  override def toString = "[ [%s %s] %s ]".format(
-    name, 
-    args.map(_.toString).mkString("", " ", ""),
-    rules.map(_.toString).mkString("", " ", "")
-  )
-}
-
-final case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
-  override def toNative = toString
-  override def toString = "[ %s ]".format(
-    aliases.map(_.toString).mkString("", " ", "")
-  )
+final class DRules(edn: clojure.lang.IPersistentVector) extends DatomicData {
+  override def toNative = edn
+  override def toString = edn.toString
 }
 
 

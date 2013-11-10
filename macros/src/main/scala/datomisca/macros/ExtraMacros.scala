@@ -18,8 +18,6 @@ package datomisca
 package macros
 
 import scala.language.experimental.macros
-import scala.reflect.macros.Context
-import scala.reflect.internal.util.{Position, OffsetPosition}
 
 
 private[datomisca] trait ExtraMacros {
@@ -29,33 +27,5 @@ private[datomisca] trait ExtraMacros {
     * @param q the Clojure string
     * @return parsed [[Keyword]]
     */
-  def KW(q: String): Keyword = macro ExtraMacros.KWImpl
-}
-
-private[datomisca] object ExtraMacros {
-
-  def KWImpl(c: Context)(q: c.Expr[String]) : c.Expr[Keyword] = {
-    import c.universe._
-
-    val inc = new Helper[c.type](c)
-
-    q.tree match {
-      case Literal(Constant(s: String)) =>
-        DatomicParser.parseKeywordSafe(s) match {
-          case Left(PositionFailure(msg, offsetLine, offsetCol)) =>
-            val treePos = q.tree.pos.asInstanceOf[scala.reflect.internal.util.Position]
-
-            val offsetPos = new OffsetPosition(
-              treePos.source,
-              inc.computeOffset(treePos, offsetLine, offsetCol)
-            )
-            c.abort(offsetPos.asInstanceOf[c.Position], msg)
-          case Right(kw) => c.Expr[Keyword]( inc.incept(kw) )
-        }
-
-      case _ => c.abort(c.enclosingPosition, "Only accepts String")
-    }
-
-  }
-
+  def KW(q: String): Keyword = macro MacroImpl.KWImpl
 }
