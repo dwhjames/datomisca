@@ -18,6 +18,7 @@
 package datomisca
 
 import scala.concurrent._
+import scala.util.control.NonFatal
 
 import datomic.ListenableFuture
 
@@ -83,10 +84,14 @@ class Connection(
 
     val datomicOps = ops.map( _.toNative ).asJava
 
-    val future = Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+    val future = try {
+        Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+      } catch {
+        case NonFatal(ex) => Future.failed(ex)
+      }
 
-    future.flatMap{ javaMap: java.util.Map[_, _] =>
-      Future(TxReport.toTxReport(javaMap)(database))
+    future map { javaMap: java.util.Map[_, _] =>
+      TxReport.toTxReport(javaMap)(database)
     }
   }
 
