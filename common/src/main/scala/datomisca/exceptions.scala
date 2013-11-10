@@ -16,17 +16,48 @@
 
 package datomisca
 
+import clojure.{lang => clj}
 
-class DatomicException(msg: String) extends Exception(msg)
+
+class DatomiscaException(message: String, cause: Throwable) extends RuntimeException(message, cause) {
+  def this(message: String) {
+    this(message, null)
+  }
+}
 
 class TempidNotResolved(id: DId)
-  extends DatomicException(s"Datomic Error: entity not found with id($id)")
+  extends DatomiscaException(s"entity not found with id($id)")
 
-class UnexpectedDatomicTypeException(typeName: String)
-  extends DatomicException(s"Datomic Error: unresolved datomic type $typeName")
+class UnsupportedDatomicTypeException(cls: Class[_])
+  extends DatomiscaException(s"Datomic returned un supported ${cls.getName}")
 
 class EntityKeyNotFoundException(keyword: String)
-  extends DatomicException(s"The keyword $keyword not found in the entity")
+  extends DatomiscaException(s"the keyword $keyword not found in the entity map")
 
-class EntityMappingException(msg: String)
-  extends DatomicException(s"Datomic Error: $msg")
+class EntityMappingException(message: String)
+  extends DatomiscaException(message)
+
+
+object ExceptionInfo {
+
+  def apply(t: Throwable): Boolean = t match {
+    case _: clj.IExceptionInfo => true
+    case _ => false
+  }
+
+  def getData(ex: clj.IExceptionInfo): Map[String, String] = {
+    val builder = Map.newBuilder[String, String]
+    var iter = ex.getData.iterator
+    while (iter.hasNext) {
+      val entry = iter.next.asInstanceOf[clj.IMapEntry]
+      builder += (entry.key.toString -> entry.`val`.toString)
+    }
+    builder.result
+  }
+
+  def unapply(t: Throwable): Option[(Throwable, Map[String, String])] = t match {
+    case ex: clj.IExceptionInfo =>
+      Some (ex, getData(ex))
+    case _ => None
+  }
+}

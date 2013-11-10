@@ -136,7 +136,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     */
   def entid(kw: Keyword): Long =
     Option { underlying.entid(kw.toNative) } match {
-      case None      => throw new Exception(s"DDatabase.entid: entity id for keyword $kw not found")
+      case None      => throw new DatomiscaException(s"entity id for keyword $kw not found")
       case Some(eid) => eid.asInstanceOf[Long]
     }
 
@@ -171,7 +171,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     */
   def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
     Option { underlying.ident(ev.conv(id)) } match {
-      case None     => throw new Exception("DDatabase.ident: keyword not found")
+      case None     => throw new DatomiscaException(s"ident keyword for entity id $id not found")
       case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
     }
 

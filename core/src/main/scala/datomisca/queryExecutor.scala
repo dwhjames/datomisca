@@ -16,18 +16,44 @@
 
 package datomisca
 
+import scala.util.control.NonFatal
+
 import java.{util => ju}
+
+
+class QueryProcessingException(rootCause: Throwable, chain: Seq[String])
+  extends DatomiscaException(s"""query failed with root cause: ${rootCause.getMessage}; in processing chain: ${chain.mkString("[", "; ", "]")}""", rootCause)
+
+class QueryException(cause: Throwable)
+  extends DatomiscaException(s"query failed with cause: ${cause.getMessage}", cause)
 
 
 private[datomisca] trait QueryExecutor extends TypedQueryExecutor
 
+
 /* DATOMIC QUERY */
 private[datomisca] object QueryExecutor {
 
+  private def execQuery(q: AbstractQuery, in: Seq[AnyRef]): ju.Collection[ju.List[AnyRef]] =
+    try {
+      datomic.Peer.q(q.query, in: _*)
+    } catch {
+      case ex: Throwable if ex.getMessage startsWith "processing" =>
+        val builder = Seq.newBuilder[String]
+        var e = ex
+        while (e.getCause != null) {
+          builder += e.getMessage
+          e = e.getCause
+        }
+        throw new QueryProcessingException(e, builder.result)
+      case NonFatal(ex) =>
+        throw new QueryException(ex)
+    }
+
   /*
-  private[datomisca] def directQuery(q: Query, in: Seq[AnyRef]) =
+  private[datomisca] def directQuery(q: AbstractQuery, in: Seq[AnyRef]) =
     new Iterable[IndexedSeq[DatomicData]] {
-      private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.toString, in: _*)
+      private val jColl: ju.Collection[ju.List[AnyRef]] = execQuery(q, in)
       override def iterator = new Iterator[IndexedSeq[DatomicData]] {
         private val jIter: ju.Iterator[ju.List[AnyRef]] = jColl.iterator
         override def hasNext = jIter.hasNext
@@ -49,7 +75,7 @@ private[datomisca] object QueryExecutor {
   private[datomisca] def execute[OutArgs](q: AbstractQuery, in: Seq[AnyRef])(implicit outConv: QueryResultToTuple[OutArgs]): Iterable[OutArgs] = {
     import scala.collection.JavaConverters._
     new Iterable[OutArgs] {
-      private val jColl: ju.Collection[ju.List[AnyRef]] = datomic.Peer.q(q.query, in: _*)
+      private val jColl: ju.Collection[ju.List[AnyRef]] = execQuery(q, in)
       override def iterator = new Iterator[OutArgs] {
         private val jIter: ju.Iterator[ju.List[AnyRef]] = jColl.iterator
         override def hasNext = jIter.hasNext
