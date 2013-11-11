@@ -9,14 +9,15 @@ import sbtunidoc.Plugin._
 object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.5.3",
+      version       := "0.6-RC1",
       organization  := "com.pellucid",
       scalaVersion  := "2.10.2",
       scalacOptions ++= Seq(
           "-deprecation",
           "-feature",
           "-unchecked"
-        )
+        ),
+      addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
     )
 
   lazy val datomisca = Project(
@@ -56,20 +57,20 @@ object DatomiscaBuild extends Build {
     ) dependsOn(common, core, extras, macros)
 
 
-  val typesafeRepo = Seq(
+  val repositories = Seq(
     "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/"
-  )
+    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/",
 
-  val datomicRepo = Seq(
-    "clojars"   at "https://clojars.org/repo",
+    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+
+    "clojars" at "https://clojars.org/repo",
     "couchbase" at "http://files.couchbase.com/maven2"
   )
 
   lazy val sharedSettings =
     buildSettings ++
     Seq(
-      resolvers ++= typesafeRepo ++ datomicRepo,
+      resolvers ++= repositories,
       libraryDependencies ++= Dependencies.shared,
       shellPrompt := CustomShellPrompt.customPrompt
     )
@@ -82,15 +83,29 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "datomisca",
 
-      scalacOptions in ScalaUnidoc += "-Ymacro-no-expand",
+      // disable some aggregation tasks for subprojects
+      aggregate in Keys.doc          := false,
+      aggregate in Keys.`package`    := false,
+      aggregate in Keys.packageBin   := false,
+      aggregate in Keys.packageDoc   := false,
+      aggregate in Keys.packageSrc   := false,
+      aggregate in Keys.publish      := false,
+      aggregate in Keys.publishLocal := false,
 
-      publishArtifact in (Compile, packageDoc) := false,
+      // substitue unidoc as the way to generate documentation
+      packageDoc in Compile <<= packageDoc in ScalaUnidoc,
+      artifact in (ScalaUnidoc, packageDoc) := {
+        val previous: Artifact = (artifact in (ScalaUnidoc, packageDoc)).value
+        previous.copy(classifier = Some("javadoc"))
+      },
 
+      // map subproject classes into root project
       mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
 
+      // map subproject sources into root project
       mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
@@ -110,15 +125,15 @@ object DatomiscaBuild extends Build {
   lazy val commonProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca common"
+      name := "datomisca-common"
     )
 
   lazy val macrosProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca macros",
+      name := "datomisca-macros",
 
-      libraryDependencies <+= scalaVersion("org.scala-lang" % "scala-compiler" % _)
+      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
     )
 
   lazy val mapGenSourceSettings =
@@ -133,7 +148,7 @@ object DatomiscaBuild extends Build {
     subProjectSettings ++
     mapGenSourceSettings ++
     Seq(
-      name := "Datomisca core",
+      name := "datomisca-core",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
     )
@@ -142,7 +157,7 @@ object DatomiscaBuild extends Build {
     subProjectSettings ++
     mapGenSourceSettings ++
     Seq(
-      name := "Datomisca extras",
+      name := "datomisca-extras",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
     )
@@ -150,7 +165,7 @@ object DatomiscaBuild extends Build {
   lazy val testsProjectSettings =
     subProjectSettings ++
     Seq(
-      name := "Datomisca tests",
+      name := "datomisca-tests",
 
       libraryDependencies ++= Dependencies.test,
 
@@ -162,7 +177,7 @@ object DatomiscaBuild extends Build {
 object Dependencies {
 
   object Compile {
-    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4020.26"    %    "provided" exclude("org.slf4j", "slf4j-nop")
+    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4260"    %    "provided" exclude("org.slf4j", "slf4j-nop")
   }
   import Compile._
 

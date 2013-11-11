@@ -16,18 +16,20 @@
 
 package datomisca
 
+import java.{util => ju}
+import java.util.{concurrent => juc}
 
-trait TxReportQueue {
-  implicit def database: DDatabase
+class TxReportQueue(
+    val queue:    juc.BlockingQueue[ju.Map[_, _]]
+) {
 
-  def queue: java.util.concurrent.BlockingQueue[java.util.Map[_, _]]
 
-  lazy val stream: Stream[Option[TxReport]] = queue2Stream[java.util.Map[_, _]](queue).map{ 
+  lazy val stream: Stream[Option[TxReport]] = queue2Stream[ju.Map[_, _]](queue).map{ 
     case None => None
-    case Some(javaMap) => Some(TxReport.toTxReport(javaMap)(database))
+    case Some(javaMap) => Some(new TxReport(javaMap))
   }
 
-  private def queue2Stream[A](queue: java.util.concurrent.BlockingQueue[A]): Stream[Option[A]] = {
+  private def queue2Stream[A](queue: juc.BlockingQueue[A]): Stream[Option[A]] = {
     def toStream: Stream[Option[A]] = {
       Option(queue.poll()) match {
         case None => Stream.cons(None, toStream)

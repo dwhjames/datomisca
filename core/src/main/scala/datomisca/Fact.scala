@@ -34,7 +34,8 @@ object Fact extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def add[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: ToDId[T]) = AddFact(ev.to(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def add[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: AsEntityId[T]) =
+    AddFact(ev.conv(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Creates a single Retract operation targeting a given [[DId]]
     *
@@ -50,7 +51,8 @@ object Fact extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: FromFinalId[T]) = RetractFact(ev.from(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: AsPermanentEntityId[T]) =
+    RetractFact(ev.conv(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
 
   /** Helper: creates a special AddToEntity for creating a new Partition
     *
@@ -62,8 +64,8 @@ object Fact extends DatomicTypeWrapper {
     */
   def partition(partition: Partition) =
     new AddEntity(DId(Partition.DB), Map(
-      Namespace.DB / "ident" -> DString(partition.toString),
-      Namespace.DB.INSTALL / "_partition" -> DString("db.part/db")
+      Namespace.DB / "ident"              -> DKeyword(partition.keyword),
+      Namespace.DB.INSTALL / "_partition" -> DKeyword(Partition.DB.keyword)
     ))
 
 }

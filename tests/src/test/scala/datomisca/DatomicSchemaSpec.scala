@@ -81,7 +81,7 @@ class DatomicSchemaSpec extends Specification {
           println(s"Provisioned data... TX: $tx")
         }
 
-        Datomic.q(Query.pure("""
+        Datomic.q(Query("""
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
@@ -92,7 +92,7 @@ class DatomicSchemaSpec extends Specification {
             ) map { tx => 
               println("Retracted data... TX:%s".format(tx))
 
-              Datomic.q(Query.pure("""
+              Datomic.q(Query("""
                 [ :find ?e
                   :where  [ ?e :person/name "toto" ] 
                 ]

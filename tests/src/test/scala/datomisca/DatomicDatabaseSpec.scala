@@ -40,7 +40,7 @@ class DatomicDatabaseSpec extends Specification {
 
       val schema = Datomic.parseOps("""
         ;; stories
-        [{:db/id #db/id[:db.part/db]
+         {:db/id #db/id[:db.part/db]
           :db/ident :story/title
           :db/valueType :db.type/string
           :db/cardinality :db.cardinality/one
@@ -57,10 +57,10 @@ class DatomicDatabaseSpec extends Specification {
           :db/ident :story/slug
           :db/valueType :db.type/string
           :db/cardinality :db.cardinality/one
-          :db.install/_attribute :db.part/db}]
+          :db.install/_attribute :db.part/db}
 
         ;; comments
-        [{:db/id #db/id[:db.part/db]
+         {:db/id #db/id[:db.part/db]
           :db/ident :comments
           :db/valueType :db.type/ref
           :db/cardinality :db.cardinality/many
@@ -75,10 +75,10 @@ class DatomicDatabaseSpec extends Specification {
           :db/ident :comment/author
           :db/valueType :db.type/ref
           :db/cardinality :db.cardinality/one
-          :db.install/_attribute :db.part/db}]
+          :db.install/_attribute :db.part/db}
 
         ;; users
-        [{:db/id #db/id[:db.part/db]
+         {:db/id #db/id[:db.part/db]
           :db/ident :user/firstName
           :db/index true
           :db/valueType :db.type/string
@@ -114,12 +114,12 @@ class DatomicDatabaseSpec extends Specification {
           :db/valueType :db.type/instant
           :db/cardinality :db.cardinality/one
           :db/index true
-          :db.install/_attribute :db.part/db}]
+          :db.install/_attribute :db.part/db}
       """)
 
       val data = Datomic.parseOps("""
         ;; stories
-        [{:db/id #db/id [:db.part/user]
+         {:db/id #db/id [:db.part/user]
           :story/title "Teach Yourself Programming in Ten Years"
           :story/url "http://norvig.com/21-days.html"}
          {:db/id #db/id [:db.part/user]
@@ -127,17 +127,17 @@ class DatomicDatabaseSpec extends Specification {
           :story/url "http://clojure.org/rationale"}
          {:db/id #db/id [:db.part/user]
           :story/title "Beating the Averages"
-          :story/url "http://www.paulgraham.com/avg.html"}]
+          :story/url "http://www.paulgraham.com/avg.html"}
 
         ;; users
-        [{:db/id #db/id [:db.part/user]
+         {:db/id #db/id [:db.part/user]
           :user/firstName "Stu"
           :user/lastName "Halloway"
           :user/email "stuarthalloway@datomic.com"}
          {:db/id #db/id [:db.part/user]
           :user/firstName "Ed"
           :user/lastName "Itor"
-          :user/email "editor@example.com"}]
+          :user/email "editor@example.com"}
 
         """)
 

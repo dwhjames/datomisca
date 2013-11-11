@@ -19,7 +19,7 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
-case class Partition(keyword: Keyword) {
+final case class Partition(keyword: Keyword) {
   override def toString = keyword.toString
 }
 

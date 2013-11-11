@@ -24,9 +24,9 @@ import scala.language.implicitConversions
 /**
  * Combination operator
  */
-case class ~[A,B](_1:A, _2:B)
+final case class ~[A,B](_1:A, _2:B)
 
-trait Variant[M[_]]
+sealed trait Variant[M[_]]
 
 trait Functor[M[_]] extends Variant[M] {
   def fmap[A, B](ma: M[A], f: A => B): M[B]

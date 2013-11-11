@@ -576,8 +576,8 @@ class DatomicTxSpec extends Specification {
         val id = tx.resolve(idToto)
         Datomic.database.entity(id) !== beNull
         
-        Datomic.database.entity(1234L) must throwA[datomisca.EntityNotFoundException]
-        tx.resolveEntity(DId(Partition.USER)) must throwA[datomisca.EntityNotFoundException]
+        Datomic.database.entity(1234L).keySet must beEmpty
+        tx.resolveEntity(DId(Partition.USER)).keySet must beEmpty
       }
 
       success
@@ -606,6 +606,36 @@ class DatomicTxSpec extends Specification {
 
       success
     }
+
+     "11 - get txReport extract" in {
+      implicit val conn = Datomic.connect(uri)  
+
+      implicit val personReader = (
+        PersonSchema.name.read[String] and 
+        PersonSchema.age .read[Long]
+      )(Person)
+
+      val idToto = DId(Partition.USER)
+
+      val fut = Datomic.transact(
+        Entity.add(idToto)(
+          person / "name" -> "toto",
+          person / "age"  -> 30
+        )
+      ) map { tx => 
+         val entries = tx.txData.collect{ case DDatom(_,k,v,_,_) => (k,v)}.toMap
+         entries.size must beEqualTo(3)
+         entries(person / "age") must beEqualTo(DLong(30))
+         entries(person / "name")  must beEqualTo(DString("toto"))
+         entries(PersonSchema.name.ident)  must beEqualTo(DString("toto"))
+         
+         tx.txData.collectFirst{ case DDatom(_,_,DLong(age),_,_) => age} must beEqualTo(Some(30))
+         tx.txData.collectFirst{ case DDatom(_,PersonSchema.name.ident,DString(name),_,_) => name} must beEqualTo(Some("toto"))
+      }
+
+      Await.result(fut,Duration("2 seconds"))
+    }
+
   }
 
 }

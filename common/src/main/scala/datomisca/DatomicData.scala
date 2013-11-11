@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.annotation.implicitNotFound
+
 
 /* DATOMIC TYPES */
 trait DatomicData extends Nativeable {
@@ -32,6 +34,8 @@ private[datomisca] object DatomicData {
     case b: java.lang.Boolean => DBoolean(b)
     // :db.type/long
     case l: java.lang.Long => DLong(l)
+    // attribute id
+    case i: java.lang.Integer => DLong(i.toLong)
     // :db.type/float
     case f: java.lang.Float => DFloat(f)
     // :db.type/double
@@ -63,82 +67,82 @@ private[datomisca] object DatomicData {
         }
       })
     // otherwise
-    case v => throw new UnexpectedDatomicTypeException(v.getClass.getName)
+    case v => throw new UnsupportedDatomicTypeException(v.getClass)
   }
 }
 
-case class DString(underlying: String) extends DatomicData {
+final case class DString(underlying: String) extends DatomicData {
   override def toString = "\""+ underlying + "\""
   def toNative: AnyRef = underlying: java.lang.String
 }
 
-case class DBoolean(underlying: Boolean) extends DatomicData {
+final case class DBoolean(underlying: Boolean) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Boolean
   def toBoolean = underlying
 }
 
-case class DLong(underlying: Long) extends DatomicData {
+final case class DLong(underlying: Long) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Long
   def toLong = underlying
 }
 
-case class DFloat(underlying: Float) extends DatomicData {
+final case class DFloat(underlying: Float) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Float
   def toFloat = underlying
 }
 
-case class DDouble(underlying: Double) extends DatomicData {
+final case class DDouble(underlying: Double) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: java.lang.Double
   def toDouble = underlying
 }
 
-case class DBigInt(underlying: BigInt) extends DatomicData {
+final case class DBigInt(underlying: BigInt) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying.underlying
   def toBigInt = underlying
 }
 
-case class DBigDec(underlying: BigDecimal) extends DatomicData {
+final case class DBigDec(underlying: BigDecimal) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying.underlying
   def toBigDecimal = underlying
 }
 
-case class DInstant(underlying: java.util.Date) extends DatomicData {
+final case class DInstant(underlying: java.util.Date) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
   def toDate = underlying
 }
 
-case class DUuid(underlying: java.util.UUID) extends DatomicData {
+final case class DUuid(underlying: java.util.UUID) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
   def toUUID = underlying
 }
 
-case class DUri(underlying: java.net.URI) extends DatomicData {
+final case class DUri(underlying: java.net.URI) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying
   def toURI = underlying
 }
 
-case class DBytes(underlying: Array[Byte]) extends DatomicData {
+final case class DBytes(underlying: Array[Byte]) extends DatomicData {
   override def toString = underlying.toString
   def toNative: AnyRef = underlying: AnyRef
   def toBytes = underlying
 }
 
-case class DKeyword(underlying: Keyword) extends DatomicData {
+final case class DKeyword(underlying: Keyword) extends DatomicData {
   override def toString = underlying.toString
   override def toNative = underlying.toNative
   def toKeyword = underlying
 }
 
-case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
+final case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
   override def toString = underlying match {
     case Left(kw) => kw.toString
     case Right(id) => id.toString
@@ -152,12 +156,12 @@ case class DRef(underlying: Either[Keyword, DId]) extends DatomicData {
 
   def toId = underlying match {
     case Right(id) => id
-    case _         => throw new DatomicException("DRef was not an Id but a Keyword")
+    case _         => throw new DatomiscaException("DRef was not an Id but a Keyword")
   }
 
   def toKeyword = underlying match {
     case Left(kw)  => kw
-    case _         => throw new DatomicException("DRef was not an Keyword but an DId") 
+    case _         => throw new DatomiscaException("DRef was not an Keyword but an DId")
   }
 }
 
@@ -179,6 +183,7 @@ object DRef {
   }
 }
 
+@implicitNotFound("Cannot use type ${T} as the type of a Datomic reference")
 sealed trait ToDRef[T] {
   def toDRef(t: T): DRef
 }
@@ -198,14 +203,14 @@ object ToDRef {
 
 sealed trait DId extends DatomicData
 
-case class FinalId(underlying: Long) extends DId {
+final case class FinalId(underlying: Long) extends DId {
   //def toNative: AnyRef = underlying
   override lazy val toNative: AnyRef = underlying: java.lang.Long
 
   override def toString = toNative.toString
 }
 
-case class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
+final case class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
   //def toNative: AnyRef = underlying
   override lazy val toNative: AnyRef = dbId
 
@@ -220,32 +225,96 @@ object DId {
 
   def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
   def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
-  def apply[T](id: T)(implicit ev: ToDId[T]) = ev.to(id)
+  def apply[T](id: T)(implicit ev: AsEntityId[T]) = ev.conv(id)
 }
 
-sealed trait ToDId[T] {
-  def to(t: T): DId
+/**
+  * A conversion type class for entity ids.
+  *
+  * A type class for converting the various types that can be treated
+  * as temporary or permanent ids for entities.
+  *
+  * @tparam T
+  *     the type of the id to convert.
+  */
+@implicitNotFound("Cannot convert value of type ${T} to a Datomic entity id")
+sealed trait AsEntityId[T] {
+
+  /**
+    * Convert to an entity id.
+    *
+    * @param t
+    *     an id value to convert.
+    * @return the abstracted id.
+    */
+  protected[datomisca] def conv(t: T): DId
 }
 
-object ToDId {
-  implicit val long:          ToDId[Long]  = new ToDId[Long]  { override def to(l: Long)  = new FinalId(l) }
-  implicit val dlong:         ToDId[DLong] = new ToDId[DLong] { override def to(l: DLong) = new FinalId(l.underlying) }
-  implicit def dId[I <: DId]: ToDId[I]     = new ToDId[I]     { override def to(i: I)     = i }
+/**
+  * The three cases for converting entity ids.
+  */
+object AsEntityId {
+
+  /** Any type viewable as a Long can be an entity id. */
+  implicit def long[L](implicit toLong: L => Long): AsEntityId[L] =
+    new AsEntityId[L] {
+      override protected[datomisca] def conv(l: L) = new FinalId(toLong(l))
+    }
+
+  /** A [[DLong]] can be an entity id. */
+  implicit val dlong: AsEntityId[DLong] =
+    new AsEntityId[DLong] {
+      override protected[datomisca] def conv(l: DLong) = new FinalId(l.underlying)
+    }
+
+  /** Any subtype of [[DId]] can be a permament entity id. */
+  implicit def dId[I <: DId]: AsEntityId[I] =
+    new AsEntityId[I] {
+      override protected[datomisca] def conv(i: I) = i
+    }
 }
 
-trait FromFinalId[T] {
-  def from(t: T): Long
+/**
+  * A conversion type class for permanent entity ids.
+  *
+  * A type class for converting from the various types
+  * that can be used as permanent entity ids.
+  *
+  * @tparam T
+  *     the type of the id to convert.
+  */
+@implicitNotFound("Cannot convert value of type ${T} to a permanent Datomic entity id")
+sealed trait AsPermanentEntityId[T] {
+  protected[datomisca] def conv(t: T): Long
 }
 
-object FromFinalId {
-  implicit val long    = new FromFinalId[Long]    { override def from(l: Long)    = l }
-  implicit val dlong   = new FromFinalId[DLong]   { override def from(l: DLong)   = l.underlying }
-  implicit val finalid = new FromFinalId[FinalId] { override def from(l: FinalId) = l.underlying }
+/**
+  * The three cases for converting permanent entity ids.
+  */
+object AsPermanentEntityId {
+
+  /** Any type viewable as a Long can be a permanent entity id. */
+  implicit def long[L](implicit toLong: L => Long) =
+    new AsPermanentEntityId[L] {
+      override protected[datomisca] def conv(l: L) = toLong(l)
+    }
+
+  /** A [[DLong]] can be a permament entity id. */
+  implicit val dlong =
+    new AsPermanentEntityId[DLong] {
+      override protected[datomisca] def conv(l: DLong) = l.underlying
+    }
+
+  /** A [[FinalId]] can be a permament entity id. */
+  implicit val finalid =
+    new AsPermanentEntityId[FinalId] {
+      override protected[datomisca] def conv(l: FinalId) = l.underlying
+    }
 }
 
 
 
-class DColl(coll: Iterable[DatomicData]) extends DatomicData {
+final class DColl(coll: Iterable[DatomicData]) extends DatomicData {
   def toNative: AnyRef =
     datomic.Util.list(coll.map(_.toNative).toSeq : _*)
 
@@ -265,49 +334,29 @@ object DColl {
 }
 
 
-case class DRuleAlias(name: String, args: Seq[Var], rules: Seq[Rule]) extends DatomicData {
-  override def toNative = toString
-  override def toString = "[ [%s %s] %s ]".format(
-    name, 
-    args.map(_.toString).mkString("", " ", ""),
-    rules.map(_.toString).mkString("", " ", "")
-  )
+final class DRules(edn: clojure.lang.IPersistentVector) extends DatomicData {
+  override def toNative = edn
+  override def toString = edn.toString
 }
 
-case class DRuleAliases(aliases: Seq[DRuleAlias]) extends DatomicData {
-  override def toNative = toString
-  override def toString = "[ %s ]".format(
-    aliases.map(_.toString).mkString("", " ", "")
-  )
-}
 
-trait DDatom extends DatomicData{
-  val id:         Long
-  val attr:       Keyword
-  val attrId:     Long
-  val value:      DatomicData
-  val tx:         Long
-  val added:      Boolean
-  val underlying: datomic.Datom
+final class DDatom(
+    val underlying: datomic.Datom,
+    val database: DDatabase
+) extends DatomicData {
+
+  def id:     Long        = underlying.e.asInstanceOf[Long]
+  def attr:   Keyword     = database.ident(attrId)
+  def attrId: Int         = underlying.a.asInstanceOf[Integer]
+  def value:  DatomicData = DatomicData.toDatomicData(underlying.v)
+  def tx:     Long        = underlying.tx.asInstanceOf[Long]
+  def added:  Boolean     = underlying.added
 
   override def toNative = underlying
 
   override def toString = "Datom(e[%s] a[%s] v[%s] tx[%s] added[%s])".format(id, attr, value, tx, added)
 }
 
-object DDatom{
-  def apply(d: datomic.Datom)(implicit db: DDatabase) = new DDatom{
-    lazy val id = d.e.asInstanceOf[Long]
-    lazy val attr = db.ident(d.a.asInstanceOf[Integer].toLong)
-    lazy val attrId = d.a.asInstanceOf[Integer].toLong
-    lazy val value = DatomicData.toDatomicData(d.v)
-    lazy val tx = d.tx.asInstanceOf[Long]
-    lazy val added = d.added.asInstanceOf[Boolean]
-    lazy val underlying = d
-  }
+object DDatom {
+   def unapply(da:DDatom):Option[(Long,Keyword,DatomicData,Long,Boolean)] = Some((da.id,da.attr,da.value,da.tx,da.added))
 }
-
-
-
-
-

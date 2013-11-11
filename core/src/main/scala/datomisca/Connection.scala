@@ -18,36 +18,87 @@
 package datomisca
 
 import scala.concurrent._
+import scala.util.control.NonFatal
 
 import datomic.ListenableFuture
 
 
-trait Connection {
-  self =>
-  def connection: datomic.Connection
+class Connection(
+  val connection: datomic.Connection
+) {
 
   def database: DDatabase = DDatabase(connection.db())
+
+  /**
+    * Used to coordinate with other peers.
+    *
+    * Returns a future that will acquire a
+    * database value guaranteed to include all transactions that were
+    * complete at the time sync was called.  Communicates with the
+    * transactor.
+    *
+    * db is the preferred way to get a database value, as it does not
+    * need to wait nor block. Only use sync when coordination is
+    * required, and prefer the one-argument version when you have a
+    * basis t.
+    *
+    * (Copied from the Datomic docs.)
+    *
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a
+    * database value guaranteed to include all transactions that were
+    * complete at the time sync was called.
+    */
+  def sync()(implicit exec: ExecutionContext): Future[DDatabase] =
+    Connection.bridgeDatomicFuture(connection.sync()) map DDatabase.apply
+
+  /**
+    * Used to coordinate with other peers.
+    *
+    * Returns a future that will acquire a
+    * database value with basisT >= t. Does not communicate with the
+    * transactor.
+    *
+    * db is the preferred way to get a database value, as it does not
+    * need to wait nor block. Only use sync when coordination is
+    * required, and prefer the one-argument version when you have a
+    * basis t.
+    *
+    * (Copied from the Datomic docs.)
+    *
+    * @param t
+    *     a transaction number.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a
+    * database value guaranteed to include all transactions that were
+    * complete at the time sync was called.
+    */
+  def sync(t: Long)(implicit exec: ExecutionContext): Future[DDatabase] =
+    Connection.bridgeDatomicFuture(connection.sync(t)) map DDatabase.apply
+
 
   def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
     import scala.collection.JavaConverters._
 
     val datomicOps = ops.map( _.toNative ).asJava
 
-    val future = Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+    val future = try {
+        Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+      } catch {
+        case NonFatal(ex) => Future.failed(ex)
+      }
 
-    future.flatMap{ javaMap: java.util.Map[_, _] =>
-      Future(TxReport.toTxReport(javaMap)(database))
+    future map { javaMap: java.util.Map[_, _] =>
+      new TxReport(javaMap)
     }
   }
 
   def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
   def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
-  def txReportQueue: TxReportQueue = new TxReportQueue {
-    override implicit val database = self.database
-
-    override val queue = connection.txReportQueue
-  }
+  def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
 
   def removeTxReportQueue: Unit = connection.removeTxReportQueue
 
@@ -64,13 +115,19 @@ trait Connection {
     * (e.g. application servers) will never call release.
     */
   def release(): Unit = connection.release()
+
+  /** Retrieves a value of the log for reading.
+    *
+    * Note: the mem db has no log, and thus for it log will return null.
+    *
+    * (Copied from Datomic docs.)
+    *
+    * @return the current value of the log.
+    */
+  def log(): Log = new Log(connection.log(), database)
 }
 
 object Connection {
-  def apply(conn: datomic.Connection) = new Connection {
-    def connection = conn
-  }
-
 
   private[datomisca] def bridgeDatomicFuture[T](listenF: ListenableFuture[T])(implicit ex: ExecutionContext): Future[T] = {
     val p = Promise[T]

@@ -64,7 +64,7 @@ object SchemaManager {
       val (requires, txDatas) = schemaMap(schemaName)
       ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { _ =>
         if (txDatas.isEmpty) {
-          throw new RuntimeException(s"No schema data provided for schema ${schemaName}")
+          throw new DatomiscaException(s"No schema data provided for schema ${schemaName}")
         } else if (hasSchema(schemaTag, schemaName)(conn.database)) {
           Future.successful(())
         } else {

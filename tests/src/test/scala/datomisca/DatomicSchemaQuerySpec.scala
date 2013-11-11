@@ -101,9 +101,9 @@ class DatomicSchemaQuerySpec extends Specification {
   "Datomic" should {
     "1 - pure query" in {
       implicit val conn = Datomic.connect(uri)
-      val query = Query("""
+      val query = Query(s"""
         [ :find ?e ?n 
-          :in $ ?char
+          :in $$ ?char
           :where  [ ?e ${name} ?n ] 
                   [ ?e ${character} ?char ]
         ]

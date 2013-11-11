@@ -16,86 +16,162 @@
 
 package datomisca
 
+import scala.annotation.implicitNotFound
+
+import java.util.{Date => JDate}
+
+/**
+  * A conversion type class for point in time values.
+  *
+  * A type class for converting from various point in time values.
+  * Basis T values as Long, transaction entity ids as Long, transaction
+  * time stamps as java.util.Date, and transaction time stamps as
+  * [[DInstant]].
+  *
+  * @tparam T
+  *     the type of the point in time.
+  */
+@implicitNotFound("Cannot use a value of type ${T} as a point in time")
+sealed trait AsPointT[T] {
+
+  /**
+    * Convert from a point in time.
+    *
+    * @param t
+    *     a point in time.
+    * @return an upcast of the point in time.
+    */
+  protected[datomisca] def conv(t: T): Any
+}
+
+/**
+  * The three cases for converting points in time.
+  */
+object AsPointT {
+
+  /** Basis T and transaction entity id values as Long are points in time. */
+  implicit val long =
+    new AsPointT[Long] {
+      override protected[datomisca] def conv(l: Long) = l
+    }
+
+  /** Transaction time stamps as java.util.Date are points in time. */
+  implicit val jDate =
+    new AsPointT[JDate] {
+      override protected[datomisca] def conv(date: JDate) = date
+    }
+
+  /** Transaction time stamps as [[DInstant]] are points in time. */
+  implicit val dInstant =
+    new AsPointT[DInstant] {
+      override protected[datomisca] def conv(instant: DInstant) = instant.underlying
+    }
+}
 
 class DDatabase(val underlying: datomic.Database) extends DatomicData {
   self => 
 
-  /** Returns the entity for the given entity id
+
+  /** Returns the entity for the given entity id.
     *
-    * @param eid an entity id
-    * @return an entity
-    * @throws EntityNotFoundException if there is no such entity
+    * This will return an empty [[DEntity]], if there
+    * are no facts about the given entity id. The
+    * :db/id of the entity will be the given id.
+    *
+    * @param id
+    *     an entity id.
+    * @return an entity.
     */
-  def entity(eid: Long): DEntity =
-    wrapEntity(eid.toString, underlying.entity(eid))
+  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): DEntity =
+    new DEntity(underlying.entity(ev.conv(id)))
 
-  def entity(e: DLong):   DEntity = entity(e.underlying)
-  def entity(e: FinalId): DEntity = entity(e.underlying)
-
-  /** Returns the entity for the given keyword
+  /** Returns the entity for the given keyword.
     *
-    * @param kw a keyword
-    * @return an entity
-    * @throws EntityNotFoundException if there is no such entity
+    * This will return an empty [[DEntity]], if there
+    * are no facts about the given entity ident. The
+    * :db/id of the entity will null.
+    *
+    * @param kw
+    *   a keyword.
+    * @return an entity.
     */
   def entity(kw: Keyword): DEntity =
-    wrapEntity(kw.toString, underlying.entity(kw.toNative))
-
-  private def wrapEntity(id: String, entity: datomic.Entity): DEntity =
-    if (entity.keySet.isEmpty)
-      throw new EntityNotFoundException(id)
-    else
-      DEntity(entity)
+    new DEntity(underlying.entity(kw.toNative))
 
 
-  /**
-    * @param date a Date
-    * @return the value of the database as of some date
+  /** Returns the value of the database as of some point t, inclusive.
+    *
+    * @param t
+    *     a transactor number, transaction id, or date.
+    * @return the value of the database as of some point t, inclusive.
     */
-  def asOf(date: java.util.Date): DDatabase = DDatabase(underlying.asOf(date))
-  def asOf(date: DInstant):       DDatabase = asOf(date.underlying)
+  def asOf[T](t: T)(implicit ev: AsPointT[T]): DDatabase =
+    DDatabase(underlying.asOf(ev.conv(t)))
 
-  /**
-    * @param date a Date
-    * @return the value of the database since some date
+
+  /** Returns the value of the database since some point t, exclusive.
+    *
+    * @param t
+    *     a transactor number, or transaction id.
+    * @return the value of the database since some point t, exclusive.
     */
-  def since(date: java.util.Date): DDatabase = DDatabase(underlying.since(date))
-  def since(date: DInstant): DDatabase = since(date.underlying)
+  def since[T](t: T)(implicit ev: AsPointT[T]): DDatabase =
+    DDatabase(underlying.since(ev.conv(t)))
 
-  /**
-    * @param eid an entity id
-    * @return the entity id
-    * @throws Exception if no entity is found
+
+  /** Returns the entity id passed.
+    *
+    * @param id
+    *     an entity id.
+    * @return the entity id passed.
     */
-  def entid(eid: Long): Long =
-    Option { underlying.entid(eid) } match {
-      case None      => throw new Exception(s"DDatabase.entid: entity id $eid not found")
-      case Some(eid) => eid.asInstanceOf[Long]
-    }
-
-  def entid(eid: DLong): Long = entid(eid.underlying)
+  def entid[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long =
+    underlying.entid(ev.conv(id)).asInstanceOf[Long]
 
   /** Returns the entity id associated with a symbolic keyword
     *
-    * @param kw a keyword
-    * @return the entity id
-    * @throws Exception if no entity is found
+    * @param kw a keyword.
+    * @return the entity id.
+    * @throws Exception if no entity is found.
     */
   def entid(kw: Keyword): Long =
     Option { underlying.entid(kw.toNative) } match {
-      case None      => throw new Exception(s"DDatabase.entid: entity id for keyword $kw not found")
+      case None      => throw new DatomiscaException(s"entity id for keyword $kw not found")
       case Some(eid) => eid.asInstanceOf[Long]
     }
 
+  /**
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t.
+    *
+    * Returns a fabricated entity id in the supplied partition whose
+    * T component is at or after the supplied t. Entity ids sort by
+    * partition, then T component, such T components interleaving with
+    * transaction numbers. Thus this method can be used to fabricate a
+    * time-based entity id component for use in e.g. seekDatoms.
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param partition
+    *     a partition name.
+    * @param t
+    *     a transaction number, transaction id, or date.
+    * @return a fabricated entity id at or after some point t.
+    * @see [[seekDatoms]]
+    */
+  def entidAt[T](partition: Partition, t: T)(implicit ev: AsPointT[T]): Long =
+    underlying.entidAt(partition.keyword.toNative, ev.conv(t)).asInstanceOf[Long]
+
+
   /** Returns the symbolic keyword associated with an id
     *
-    * @param eid an entity id
+    * @param id an entity id
     * @return a keyword
     * @throws Exception if no keyword is found
     */
-  def ident(eid: Long): Keyword =
-    Option { underlying.ident(eid) } match {
-      case None     => throw new Exception("DDatabase.ident: keyword not found")
+  def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
+    Option { underlying.ident(ev.conv(id)) } match {
+      case None     => throw new DatomiscaException(s"ident keyword for entity id $id not found")
       case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
     }
 
@@ -123,7 +199,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
     val javaMap: java.util.Map[_, _] = underlying.`with`(datomicOps)
 
-    TxReport.toTxReport(javaMap)(this)
+    new TxReport(javaMap)
   }
 
   /** Returns the value of the database containing only Datoms
@@ -140,7 +216,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
       new datomic.Database.Predicate[datomic.Datom](){
         def apply(db: datomic.Database, d: datomic.Datom): Boolean = {
           val ddb = DDatabase(db)
-          filterFn(ddb, DDatom(d)(ddb))
+          filterFn(ddb, new DDatom(d, ddb))
         }
       }
     ))
@@ -150,7 +226,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     DDatabase(underlying.filter(
       new datomic.Database.Predicate[datomic.Datom](){
         def apply(db: datomic.Database, d: datomic.Datom): Boolean = {
-          filterFn(DDatom(d)(self))
+          filterFn(new DDatom(d, self))
         }
       }
     ))
@@ -158,17 +234,106 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
 
   /** Combines `entity()` and `entity.touch()`
     *
-    * @param eid an entity id
+    * @param id an entity id
     * @return a touched entity
     */
-  def touch(eid: Long):  DEntity = entity(eid).touch()
-  def touch(eid: DLong): DEntity = entity(eid).touch()
+  def touch[T : AsPermanentEntityId](id: T): DEntity = entity(id).touch()
 
-  def datoms(index: Keyword, components: Keyword*): Seq[DDatom] = {
-    //import scala.collection.JavaConverters._
-    import scala.collection.JavaConversions._
-    underlying.datoms(index.toNative, components.map(_.toNative): _*).toSeq.map( d => DDatom(d)(this) )
-  }
+
+  /**
+    * Raw access to the index data, by index.
+    *
+    * Raw access to the index data, by index. The index must be supplied,
+    * and, optionally, one or more leading components of the index can be
+    * supplied to narrow the result.
+    *  - [[DDatabase.EAVT]] and [[DDatabase.AEVT]] indexes will contain all datoms
+    *  - [[DDatabase.AVET]] contains datoms for attributes where :db/index = true.
+    *  - [[DDatabase.VAET]] contains datoms for attributes of :db.type/ref (it is the reverse index)
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param index
+    *     the index to use.
+    * @param components
+    *     optional leading components of the index to match.
+    * @return an iterable collection of [[DDatom]].
+    */
+  def datoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
+    new Iterable[DDatom] {
+      private val jIterable = underlying.datoms(index.toNative, components.map(_.toNative): _*)
+      override def iterator = new Iterator[DDatom] {
+        private val jIter = jIterable.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new DDatom(jIter.next(), self)
+      }
+    }
+
+
+  /**
+    * Raw access to the index data, by index.
+    *
+    * Raw access to the index data, by index. The index must be supplied,
+    * and, optionally, one or more leading components of the index can be
+    * supplied for the initial search. Note that, unlike the datoms method,
+    * there need not be an exact match on the supplied components. The
+    * iteration will begin at or after the point in the index where the
+    * components would reside. Further, the iteration is not bound by the
+    * supplied components, and will only terminate at the end of the index.
+    * Thus you will have to supply your own termination logic, as you rarely
+    * want the entire index. As such, seekDatoms is for more advanced
+    * applications, and datoms should be preferred wherever it is adequate.
+    *  - [[DDatabase.EAVT]] and [[DDatabase.AEVT]] indexes will contain all datoms
+    *  - [[DDatabase.AVET]] contains datoms for attributes where :db/index = true.
+    *  - [[DDatabase.VAET]] contains datoms for attributes of :db.type/ref (it is the reverse index)
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param index
+    *     the index to use.
+    * @param components
+    *     optional leading components of the index to search for.
+    * @return an iterable collection of [[DDatom]].
+    * @see entidAt
+    */
+  def seekDatoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
+    new Iterable[DDatom] {
+      private val jIterable = underlying.seekDatoms(index.toNative, components.map(_.toNative): _*)
+      override def iterator = new Iterator[DDatom] {
+        private val jIter = jIterable.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new DDatom(jIter.next(), self)
+      }
+    }
+
+
+  /**
+    * Raw access to the index data for an indexed attribute.
+    *
+    * Returns a range of datoms in index specified by attrid,
+    * starting at start, or from beginning if start is null,
+    * and ending before end, or through end of attr index if
+    * end is null
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param attr
+    *     attribute keyword (attribute must be indexed or unique).
+    * @param start
+    *     some start value or none if beginning.
+    * @param end
+    *     some end value (non-inclusive), or None if through end.
+    * @return an iterable collection of [[DDatom]].
+    */
+  def indexRange(attr: Keyword, start: Option[AnyRef] = None, end: Option[AnyRef] = None): Iterable[DDatom] =
+    new Iterable[DDatom] {
+      private val jIterable = underlying.indexRange(attr.toNative, start.orNull, end.orNull)
+      override def iterator = new Iterator[DDatom] {
+        private val jIter = jIterable.iterator
+        override def hasNext = jIter.hasNext
+        override def next() = new DDatom(jIter.next(), self)
+      }
+    }
+
 
   /** Returns a special database containing all assertions
     * and retractions across time.

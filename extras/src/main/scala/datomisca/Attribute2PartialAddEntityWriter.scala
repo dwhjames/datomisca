@@ -16,7 +16,10 @@
 
 package datomisca
 
+import scala.annotation.implicitNotFound
 
+
+@implicitNotFound("There is no writer for type ${Dest} given an attribute with Datomic type ${DD} and cardinality ${Card}")
 trait Attribute2PartialAddEntityWriter[DD <: DatomicData, Card <: Cardinality, Dest] {
   def convert(attr: Attribute[DD, Card]): PartialAddEntityWriter[Dest]
 }
@@ -26,7 +29,7 @@ object Attribute2PartialAddEntityWriter {
   implicit def attr2PartialAddEntityWriterOne[DD <: DatomicData, T](implicit conv: ToDatomic[DD, T]) =
     new Attribute2PartialAddEntityWriter[DD, Cardinality.one.type, T] {
       override def convert(attr: Attribute[DD, Cardinality.one.type]) = new PartialAddEntityWriter[T] {
-        override def write(t: T) = PartialAddEntity( Map( attr.ident -> conv.to(t) ) )
+        override def write(t: T) = new PartialAddEntity(Map(attr.ident -> conv.to(t)))
       }
     }
 
@@ -39,7 +42,7 @@ object Attribute2PartialAddEntityWriter {
           else {
             val builder = Iterable.newBuilder[DatomicData]
             for (e <- c) builder += conv.to(e)
-            PartialAddEntity( Map( attr.ident -> DColl(builder.result) ) )
+            new PartialAddEntity(Map(attr.ident -> DColl(builder.result)))
           }
       }
     }
@@ -47,14 +50,14 @@ object Attribute2PartialAddEntityWriter {
   implicit def refAttr2PartialAddEntityWriterOne[T](implicit ev: ToDRef[T]) =
     new Attribute2PartialAddEntityWriter[DRef, Cardinality.one.type, T] {
       override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new PartialAddEntityWriter[T] {
-        override def write(t: T) = PartialAddEntity( Map( attr.ident -> ev.toDRef(t) ) )
+        override def write(t: T) = new PartialAddEntity(Map(attr.ident -> ev.toDRef(t)))
       }
     }
 
   implicit def refAttr2PartialAddEntityWriterSingleton[T](implicit ev: ToDRef[T]) =
     new Attribute2PartialAddEntityWriter[DRef, Cardinality.many.type, T] {
       override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new PartialAddEntityWriter[T] {
-        override def write(t: T) = PartialAddEntity( Map( attr.ident -> ev.toDRef(t) ) )
+        override def write(t: T) = new PartialAddEntity(Map(attr.ident -> ev.toDRef(t)))
       }
     }
 
@@ -67,7 +70,7 @@ object Attribute2PartialAddEntityWriter {
           else {
             val builder = Iterable.newBuilder[DatomicData]
             for (e <- c) builder += conv.toDRef(e)
-            PartialAddEntity( Map( attr.ident -> DColl(builder.result) ) )
+            new PartialAddEntity(Map(attr.ident -> DColl(builder.result)))
           }
       }
     }
