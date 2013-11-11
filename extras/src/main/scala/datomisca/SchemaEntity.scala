@@ -35,6 +35,14 @@ object SchemaEntity {
       this
     }
 
+    def ++=(partial: PartialAddEntity): this.type = {
+      builder ++= partial.props
+      this
+    }
+
+    def partial(): PartialAddEntity =
+      new PartialAddEntity(builder.result())
+
     def withId[T](id: T)(implicit ev: AsEntityId[T]): AddEntity =
       new AddEntity(ev.conv(id), builder.result)
   }
