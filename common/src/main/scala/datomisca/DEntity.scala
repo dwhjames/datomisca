@@ -34,7 +34,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def get(keyword: Keyword): Option[DatomicData] =
     Option {
-      blocking { entity.get(keyword.toNative) }
+      entity.get(keyword.toNative)
     } map (DatomicData.toDatomicData(_))
 
   def apply(keyword: String): DatomicData =
@@ -42,7 +42,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
 
   def get(keyword: String): Option[DatomicData] =
     Option {
-      blocking { entity.get(keyword) }
+      entity.get(keyword)
     } map (DatomicData.toDatomicData(_))
 
   def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
@@ -66,9 +66,7 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     val iter = blocking { entity.keySet } .iterator
     while (iter.hasNext) {
       val key = iter.next()
-      builder += (key -> DatomicData.toDatomicData(
-        blocking { entity.get(key) }
-      ))
+      builder += (key -> DatomicData.toDatomicData(entity.get(key)))
     }
     builder.result
   }
