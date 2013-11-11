@@ -229,7 +229,7 @@ class DatomicQuery2Spec extends Specification {
            println(result)
         
         }
-      } should  not (throwA[UnexpectedDatomicTypeException])
+      } should  not (throwA[UnsupportedDatomicTypeException])
      
     }
   }
