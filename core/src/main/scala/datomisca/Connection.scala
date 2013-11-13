@@ -23,9 +23,7 @@ import scala.util.control.NonFatal
 import datomic.ListenableFuture
 
 
-class Connection(
-  val connection: datomic.Connection
-) {
+class Connection(val connection: datomic.Connection) extends AnyVal {
 
   def database: DDatabase = DDatabase(connection.db())
 
@@ -124,7 +122,7 @@ class Connection(
     *
     * @return the current value of the log.
     */
-  def log(): Log = new Log(connection.log(), database)
+  def log(): Log = new Log(connection.log())
 }
 
 object Connection {

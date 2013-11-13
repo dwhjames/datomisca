@@ -30,11 +30,10 @@ class TxReport(rawReport: java.util.Map[_, _]) {
     DDatabase(rawReport.get(DB_AFTER).asInstanceOf[Db])
 
   lazy val txData: Seq[DDatom] = {
-    val db = dbAfter
     val builder = Seq.newBuilder[DDatom]
     val iter = rawReport.get(TX_DATA).asInstanceOf[java.util.List[datomic.Datom]].iterator
     while (iter.hasNext) {
-      builder += new DDatom(iter.next(), db)
+      builder += new DDatom(iter.next())
     }
     builder.result()
   }

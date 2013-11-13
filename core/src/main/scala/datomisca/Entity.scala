@@ -53,7 +53,7 @@ object Entity extends DatomicTypeWrapper {
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     */
   def add[T](id: T)(props: (Keyword, DWrapper)*)(implicit ev: AsEntityId[T]) = {
-    val builder = Map.newBuilder[Keyword, DatomicData]
+    val builder = Map.newBuilder[Keyword, AnyRef]
     for (p <- props) builder += (p._1 -> p._2.asInstanceOf[DWrapperImpl].underlying)
     new AddEntity(ev.conv(id), builder.result)
   }
@@ -79,7 +79,7 @@ object Entity extends DatomicTypeWrapper {
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param props the map containing all tupled (keyword, value)
     */
-  def add[T](id: T, props: Map[Keyword, DatomicData])(implicit ev: AsEntityId[T]) =
+  def add[T](id: T, props: Map[Keyword, AnyRef])(implicit ev: AsEntityId[T]) =
     new AddEntity(ev.conv(id), props)
 
 

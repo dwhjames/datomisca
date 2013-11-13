@@ -19,7 +19,7 @@ package datomisca
 import scala.concurrent.blocking
 
 
-class DEntity(val entity: datomic.Entity) extends DatomicData {
+class DEntity(val entity: datomic.Entity) extends AnyVal {
   def toNative = entity
 
   def id: Long = as[Long](Namespace.DB / "id")
@@ -29,28 +29,29 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     this
   }
 
-  def apply(keyword: Keyword): DatomicData =
+  def apply(keyword: Keyword): Any =
     get(keyword) getOrElse { throw new EntityKeyNotFoundException(keyword.toString) }
 
-  def get(keyword: Keyword): Option[DatomicData] =
+  def get(keyword: Keyword): Option[Any] =
     Option {
       entity.get(keyword.toNative)
-    } map (DatomicData.toDatomicData(_))
+    } map (DatomicData.toScala(_))
 
-  def apply(keyword: String): DatomicData =
+  def apply(keyword: String): Any =
     get(keyword) getOrElse { throw new EntityKeyNotFoundException(keyword) }
 
-  def get(keyword: String): Option[DatomicData] =
+  def get(keyword: String): Option[Any] =
     Option {
       entity.get(keyword)
-    } map (DatomicData.toDatomicData(_))
+    } map (DatomicData.toScala(_))
 
   def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
-    fdat.from(apply(keyword))
-
+    getAs[T](keyword) getOrElse { throw new EntityKeyNotFoundException(keyword.toString) }
 
   def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] =
-    get(keyword) map (fdat.from(_))
+    Option {
+      entity.get(keyword.toNative)
+    } map (fdat.from)
 
   def keySet: Set[String] = {
     val builder = Set.newBuilder[String]
@@ -61,12 +62,12 @@ class DEntity(val entity: datomic.Entity) extends DatomicData {
     builder.result
   }
 
-  def toMap: Map[String, DatomicData] = {
-    val builder = Map.newBuilder[String, DatomicData]
+  def toMap: Map[String, Any] = {
+    val builder = Map.newBuilder[String, Any]
     val iter = blocking { entity.keySet } .iterator
     while (iter.hasNext) {
       val key = iter.next()
-      builder += (key -> DatomicData.toDatomicData(entity.get(key)))
+      builder += (key -> DatomicData.toScala(entity.get(key)))
     }
     builder.result
   }

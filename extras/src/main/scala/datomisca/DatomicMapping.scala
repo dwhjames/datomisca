@@ -40,8 +40,8 @@ object DatomicMapping
       case Some(a) => Attribute2PartialAddEntityWriter.attr2PartialAddEntityWriterOne.convert(ID).to(a)
     } }*/
 
-  implicit def attributeOps[DD <: DatomicData, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
+  implicit def attributeOps[DD <: AnyRef, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
 
-  implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
-    ToDatomic[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
+  // implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
+  //   ToDatomic[java.lang.Long, C]{ (ref: C) => witness(ref).id: java.lang.Long }
 }

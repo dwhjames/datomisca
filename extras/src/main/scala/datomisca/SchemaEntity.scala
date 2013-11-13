@@ -25,9 +25,9 @@ object SchemaEntity {
 
   class SchemaEntityBuilder {
 
-    private val builder = Map.newBuilder[Keyword, DatomicData]
+    private val builder = Map.newBuilder[Keyword, AnyRef]
 
-    def +=[DD <: DatomicData, Card <: Cardinality, A]
+    def +=[DD <: AnyRef, Card <: Cardinality, A]
           (attrVal: (Attribute[DD, Card], A))
           (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A])
           : this.type = {

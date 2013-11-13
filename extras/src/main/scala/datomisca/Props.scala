@@ -20,10 +20,10 @@ package datomisca
 sealed trait Props {
   def convert: PartialAddEntity
 
-  private def ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
+  private def ::[DD <: AnyRef, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Props = PropsLink(prop, this, attrC)
 
-  def +[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
+  def +[DD <: AnyRef, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]) = {
     def step(cur: Props): Props = {
       cur match {
@@ -35,7 +35,7 @@ sealed trait Props {
     step(this)
   }
 
-  def -[DD <: DatomicData, Card <: Cardinality](attr: Attribute[DD, Card]) = {
+  def -[DD <: AnyRef, Card <: Cardinality](attr: Attribute[DD, Card]) = {
     def step(cur: Props): Props = {
       cur match {
         case PropsLink(head, tail, ac) => if(head._1 == attr) tail else (head :: step(tail))(ac)
@@ -61,7 +61,7 @@ sealed trait Props {
 object Props {
   def apply() = PropsNil
 
-  def apply[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))  
+  def apply[DD <: AnyRef, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))  
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Props = {
       prop :: PropsNil
   }
@@ -71,7 +71,7 @@ case object PropsNil extends Props {
   def convert: PartialAddEntity = PartialAddEntity.empty
 }
 
-final case class PropsLink[DD <: DatomicData, Card <: Cardinality, A](
+final case class PropsLink[DD <: AnyRef, Card <: Cardinality, A](
   head: (Attribute[DD, Card], A), 
   tail: Props, 
   attrC: Attribute2PartialAddEntityWriter[DD, Card, A]

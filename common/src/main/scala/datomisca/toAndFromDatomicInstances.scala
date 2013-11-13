@@ -16,9 +16,13 @@
 
 package datomisca
 
+import java.{lang => jl}
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
+import java.{util => ju}
 import java.util.{Date, UUID}
 import java.net.URI
+
+import clojure.{lang => clj}
 
 
 /**
@@ -32,18 +36,20 @@ import java.net.URI
   */
 private[datomisca] trait FromDatomicInjImplicits {
 
-  implicit val DString2String:          FromDatomicInj[DString,  String]      = FromDatomicInj(_.underlying)
-  implicit val DBoolean2Boolean:        FromDatomicInj[DBoolean, Boolean]     = FromDatomicInj(_.underlying)
-  implicit val DLong2Long:              FromDatomicInj[DLong,    Long]        = FromDatomicInj(_.underlying)
-  implicit val DFloat2Float:            FromDatomicInj[DFloat,   Float]       = FromDatomicInj(_.underlying)
-  implicit val DDouble2Double:          FromDatomicInj[DDouble,  Double]      = FromDatomicInj(_.underlying)
-  implicit val DBigInt2BigInt:          FromDatomicInj[DBigInt,  BigInt]      = FromDatomicInj(_.underlying)
-  implicit val DBigDec2BigDec:          FromDatomicInj[DBigDec,  BigDecimal]  = FromDatomicInj(_.underlying)
-  implicit val DInstant2Date:           FromDatomicInj[DInstant, Date]        = FromDatomicInj(_.underlying)
-  implicit val DUuid2UUID:              FromDatomicInj[DUuid,    UUID]        = FromDatomicInj(_.underlying)
-  implicit val DUri2URI:                FromDatomicInj[DUri,     URI]         = FromDatomicInj(_.underlying)
-  implicit val DBytes2Bytes:            FromDatomicInj[DBytes,   Array[Byte]] = FromDatomicInj(_.underlying)
-  implicit val DKeyword2Keyword:        FromDatomicInj[DKeyword, Keyword]     = FromDatomicInj(_.underlying)
+  implicit val DString2String:          FromDatomicInj[String,      String]      = FromDatomicInj(identity)
+  implicit val DBoolean2Boolean:        FromDatomicInj[jl.Boolean,  Boolean]     = FromDatomicInj(b => b)
+  implicit val DLong2Long:              FromDatomicInj[jl.Long,     Long]        = FromDatomicInj(l => l)
+  implicit val DDouble2Double:          FromDatomicInj[jl.Double,   Double]      = FromDatomicInj(d => d)
+  implicit val DFloat2Float:            FromDatomicInj[jl.Float,    Float]       = FromDatomicInj(f => f)
+  implicit val DBigInt2BigInt:          FromDatomicInj[JBigInt,     BigInt]      = FromDatomicInj(i => new BigInt(i))
+  implicit val DBigDec2BigDec:          FromDatomicInj[JBigDecimal, BigDecimal]  = FromDatomicInj(d => new BigDecimal(d))
+  implicit val DInstant2Date:           FromDatomicInj[Date,        Date]        = FromDatomicInj(identity)
+  implicit val DUuid2UUID:              FromDatomicInj[UUID,        UUID]        = FromDatomicInj(identity)
+  implicit val DUri2URI:                FromDatomicInj[URI,         URI]         = FromDatomicInj(identity)
+  implicit val DBytes2Bytes:            FromDatomicInj[Array[Byte], Array[Byte]] = FromDatomicInj(identity)
+  implicit val DKeyword2Keyword:        FromDatomicInj[clj.Keyword, Keyword]     = FromDatomicInj(k => Keyword(k))
+
+  implicit val entity2DEntity: FromDatomicInj[datomic.Entity, DEntity] = FromDatomicInj(e => new DEntity(e))
 
 }
 
@@ -55,23 +61,37 @@ private[datomisca] trait FromDatomicInjImplicits {
   */
 trait FromDatomicImplicits {
 
-  implicit def FromDatomicInj2FromDatomic[DD <: DatomicData, T]
+  implicit def FromDatomicInj2FromDatomic[DD <: AnyRef, T]
       (implicit fd: FromDatomicInj[DD, T]): FromDatomic[DD, T] = 
       FromDatomic[DD, T](fd.from(_))
 
-  implicit val DLong2Int:               FromDatomic[DLong,    Int]            = FromDatomic(_.underlying.toInt)
-  implicit val DLong2Char:              FromDatomic[DLong,    Short]          = FromDatomic(_.underlying.toShort)
-  implicit val DLong2Short:             FromDatomic[DLong,    Char]           = FromDatomic(_.underlying.toChar)
-  implicit val DLong2Byte:              FromDatomic[DLong,    Byte]           = FromDatomic(_.underlying.toByte)
-  implicit val DBigInt2JBigInt:         FromDatomic[DBigInt,  JBigInt]        = FromDatomic(_.underlying.underlying)
-  implicit val DBigDec2JBigDec:         FromDatomic[DBigDec,  JBigDecimal]    = FromDatomic(_.underlying.underlying)
+  implicit val DLong2Int:               FromDatomic[jl.Long,     Int]         = FromDatomic(_.toInt)
+  implicit val DLong2Char:              FromDatomic[jl.Long,     Short]       = FromDatomic(_.toShort)
+  implicit val DLong2Short:             FromDatomic[jl.Long,     Char]        = FromDatomic(_.toChar)
+  implicit val DLong2Byte:              FromDatomic[jl.Long,     Byte]        = FromDatomic(_.toByte)
+  implicit val DBigInt2JBigInt:         FromDatomic[JBigInt,  JBigInt]     = FromDatomic(identity)
+  implicit val DBigDec2JBigDec:         FromDatomic[JBigDecimal, JBigDecimal] = FromDatomic(identity)
 
-  implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
+  // implicit def DD2DD[DD <: DatomicData] = FromDatomic[DD, DD]( dd => dd )
 
-  implicit def DD2DCollTyped[T](implicit conv: FromDatomicCast[T]): FromDatomic[DColl, Set[T]] = new FromDatomic[DColl, Set[T]] {
-    override def from(d: DColl) = {
+  implicit def JavaSetToScalaSet[T](implicit conv: FromDatomicCast[T]): FromDatomic[ju.Set[AnyRef], Set[T]] = new FromDatomic[ju.Set[AnyRef], Set[T]] {
+    override def from(l: ju.Set[AnyRef]) = {
       val builder = Set.newBuilder[T]
-      for (e <- d.toIterable) builder += conv.from(e)
+      val iter = l.iterator
+      while (iter.hasNext) {
+        builder += conv.from(iter.next())
+      }
+      builder.result
+    }
+  }
+
+  implicit def JavaListToScalaSeq[T](implicit conv: FromDatomicCast[T]): FromDatomic[ju.List[AnyRef], Seq[T]] = new FromDatomic[ju.List[AnyRef], Seq[T]] {
+    override def from(l: ju.List[AnyRef]) = {
+      val builder = Seq.newBuilder[T]
+      val iter = l.iterator
+      while (iter.hasNext) {
+        builder += conv.from(iter.next())
+      }
       builder.result
     }
   }
@@ -85,8 +105,8 @@ trait FromDatomicImplicits {
   * from DatomicData => T
   */
 trait FromDatomicCastImplicits {
-  implicit def FromDatomic2FromDatomicCast[DD <: DatomicData, A](implicit fdat: FromDatomic[DD, A]) = 
-    FromDatomicCast{ (dd: DatomicData) => fdat.from(dd.asInstanceOf[DD]) }
+  implicit def FromDatomic2FromDatomicCast[DD <: AnyRef, A](implicit fdat: FromDatomic[DD, A]) =
+    FromDatomicCast{ (dd: Any) => fdat.from(dd.asInstanceOf[DD]) }
 }
 
 
@@ -100,18 +120,19 @@ trait FromDatomicCastImplicits {
   * is a partial function.
   */
 trait ToDatomicInjImplicits {
-  implicit val String2DString   = ToDatomicInj[DString,  String]      ((s: String)      => DString(s))
-  implicit val Boolean2DBoolean = ToDatomicInj[DBoolean, Boolean]     ((b: Boolean)     => DBoolean(b))
-  implicit val Long2DLong       = ToDatomicInj[DLong,    Long]        ((l: Long)        => DLong(l))
-  implicit val Float2DFloat     = ToDatomicInj[DFloat,   Float]       ((b: Float)       => DFloat(b))
-  implicit val Double2DDouble   = ToDatomicInj[DDouble,  Double]      ((b: Double)      => DDouble(b))
-  implicit val BigInt2DBigInt   = ToDatomicInj[DBigInt,  BigInt]      ((i: BigInt)      => DBigInt(i))
-  implicit val BigDec2DBigDec   = ToDatomicInj[DBigDec,  BigDecimal]  ((i: BigDecimal)  => DBigDec(i))
-  implicit val Date2DDate       = ToDatomicInj[DInstant, Date]        ((d: Date)        => DInstant(d))
-  implicit val UUID2DUuid       = ToDatomicInj[DUuid,    UUID]        ((u: UUID)        => DUuid(u))
-  implicit val URI2DUri         = ToDatomicInj[DUri,     URI]         ((u: URI)         => DUri(u))
-  implicit val Bytes2DBytes     = ToDatomicInj[DBytes,   Array[Byte]] ((a: Array[Byte]) => DBytes(a))
-  implicit val Keyword2DKeyword = ToDatomicInj[DKeyword, Keyword]     ((k: Keyword)     => DKeyword(k))
+  implicit val String2DString   = ToDatomicInj[String,  String](identity)
+  implicit val Boolean2DBoolean = ToDatomicInj[jl.Boolean, Boolean](identity)
+  implicit val Long2DLong       = ToDatomicInj[jl.Long,    Long](identity)
+  implicit val Double2DDouble   = ToDatomicInj[jl.Double,  Double](identity)
+  implicit val Float2DFloat     = ToDatomicInj[jl.Float,   Float](identity)
+  implicit val BigInt2DBigInt   = ToDatomicInj[JBigInt,  BigInt]((i: BigInt) => i.bigInteger)
+  implicit val BigDec2DBigDec   = ToDatomicInj[JBigDecimal, BigDecimal]((i: BigDecimal) => i.bigDecimal)
+  implicit val Date2DDate       = ToDatomicInj[Date, Date](identity)
+  implicit val UUID2DUuid       = ToDatomicInj[UUID,    UUID](identity)
+  implicit val URI2DUri         = ToDatomicInj[URI,     URI](identity)
+  implicit val Bytes2DBytes     = ToDatomicInj[Array[Byte],   Array[Byte]](identity)
+  implicit val Keyword2DKeyword = ToDatomicInj[clj.Keyword, Keyword]((k: Keyword) => k.toNative.asInstanceOf[clj.Keyword])
+
 }
 
 /**
@@ -121,31 +142,28 @@ trait ToDatomicInjImplicits {
   * But it is still a function (unlike FromDatomic)
   */
 trait ToDatomicImplicits {
-  implicit def ToDatomicInj2ToDatomic[DD <: DatomicData, T]
+  implicit def ToDatomicInj2ToDatomic[DD <: AnyRef, T]
       (implicit tdat: ToDatomicInj[DD, T]): ToDatomic[DD, T] = 
       ToDatomic[DD, T](tdat.to(_))
 
-  implicit val Int2DLong        = ToDatomic[DLong,    Int]         ((l: Int)         => DLong(l))
-  implicit val Short2DLong      = ToDatomic[DLong,    Short]       ((s: Short)       => DLong(s))
-  implicit val Char2DLong       = ToDatomic[DLong,    Char]        ((c: Char)        => DLong(c))
-  implicit val Byte2DLong       = ToDatomic[DLong,    Byte]        ((b: Byte)        => DLong(b))
-  implicit val JBigInt2DBigInt  = ToDatomic[DBigInt,  JBigInt]     ((i: JBigInt)     => DBigInt(i))
-  implicit val JBigDec2DBigDec  = ToDatomic[DBigDec,  JBigDecimal] ((i: JBigDecimal) => DBigDec(i))
+  implicit val Int2DLong        = ToDatomic[jl.Long, Int](_.toLong)
+  implicit val Short2DLong      = ToDatomic[jl.Long, Short](_.toLong)
+  implicit val Char2DLong       = ToDatomic[jl.Long, Char](_.toLong)
+  implicit val Byte2DLong       = ToDatomic[jl.Long, Byte](_.toLong)
+  implicit val JBigInt2DBigInt  = ToDatomic[JBigInt,  JBigInt](identity)
+  implicit val JBigDec2DBigDec  = ToDatomic[JBigDecimal,  JBigDecimal](identity)
 
 
-  implicit def KeywordIdentified2DRef[T <: KeywordIdentified] = ToDatomic[DRef, T] { (x: T) => DRef(x.ident) }
-  implicit def TempIdentified2DRef   [T <: TempIdentified]    = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
-  implicit def FinalIdentified2DRef  [T <: FinalIdentified]   = ToDatomic[DRef, T] { (x: T) => DRef(x.id) }
-
-  implicit def DDatomicData[DD <: DatomicData] = ToDatomic[DD, DD]( dd => dd )
-
-  implicit def DColl2SetWrites[C, A](implicit ev: C <:< Traversable[A], conv: ToDatomicCast[A]) = new ToDatomic[DColl, C] {
+  implicit def DColl2SetWrites[C, A](implicit ev: C <:< Traversable[A], conv: ToDatomicCast[A]) = new ToDatomic[ju.List[AnyRef], C] {
     override def to(c: C) = {
-      val builder = Iterable.newBuilder[DatomicData]
+      val builder = Seq.newBuilder[AnyRef]
       for (e <- c) builder += conv.to(e)
-      DColl(builder.result)
+      datomic.Util.list(builder.result: _*).asInstanceOf[ju.List[AnyRef]]
     }
   }
+
+  implicit val dbConv = ToDatomic[datomic.Database, DDatabase](_.underlying)
+  implicit val rulesConv = ToDatomic[clojure.lang.IPersistentCollection, DRules](_.edn)
 
 }
 
@@ -153,8 +171,15 @@ trait ToDatomicImplicits {
   * ToDatomicCast fixes the return type of ToDatomic as DatomicData
   */
 trait ToDatomicCastImplicits {
-  implicit def DDWriter2ToDatomicCast[DD <: DatomicData, A](implicit tdat: ToDatomic[DD, A]) = 
-    ToDatomicCast[A] { (a: A) => tdat.to(a): DatomicData }
+  implicit def DDWriter2ToDatomicCast[DD <: AnyRef, A](implicit tdat: ToDatomic[DD, A]) = 
+    ToDatomicCast[A] { (a: A) => tdat.to(a): AnyRef }
+
+  implicit def DIdCast[I <: DId] = ToDatomicCast[I] { (i: I) => i.toNative }
+  implicit def KeywordIdentified2DRef[I <: KeywordIdentified] = ToDatomicCast[I] { (i: I) => i.ident.toNative }
+  implicit def TempIdentified2DRef   [I <: TempIdentified]    = ToDatomicCast[I] { (i: I) => i.id.toNative }
+  implicit def FinalIdentified2DRef  [I <: FinalIdentified]   = ToDatomicCast[I] { (i: I) => i.id: java.lang.Long }
+
+  implicit val JavaListCast = ToDatomicCast[ju.List[AnyRef]](identity)
 }
 
 

@@ -32,20 +32,22 @@ private[datomisca] class ExciseEntity(
   def before(tx: Long) = new ExciseEntity(this.id, this.excisionId, this.attrs, Some(Right(tx)))
 
   lazy val props = {
-    var m: Map[Keyword, DatomicData] = Map(
-      Keyword("id", Namespace.DB) -> excisionId,
-      Keyword("excise", Namespace.DB) -> FinalId(id)
-    )
+    val builder = Map.newBuilder[AnyRef, AnyRef]
 
-    if(!attrs.isEmpty) 
-      m = m + (Keyword("attrs", Namespace.DB.EXCISE) -> DColl(attrs.map(DKeyword.apply)))
+    builder += (Keyword("id", Namespace.DB).toNative -> excisionId.toNative)
+    builder += (Keyword("excise", Namespace.DB).toNative -> (id: java.lang.Long))
 
-    before.foreach{
-      case Left(d: Date) => m = m + (Keyword("before", Namespace.DB.EXCISE) -> DInstant(d))
-      case Right(tx: Long) => m = m + (Keyword("beforeT", Namespace.DB.EXCISE) -> DLong(tx))
+    if(!attrs.isEmpty)
+      builder += (Keyword("attrs", Namespace.DB.EXCISE).toNative -> datomic.Util.list(attrs.map(_.toNative).toSeq:_*))
+
+    before foreach {
+      case Left(d: Date) =>
+        builder += (Keyword("before", Namespace.DB.EXCISE).toNative -> d)
+      case Right(tx: Long) =>
+        builder += (Keyword("beforeT", Namespace.DB.EXCISE).toNative -> (tx: java.lang.Long))
     }
 
-    m.map{ case (kw, dd) => (kw.toNative, dd.toNative) }.asJava
+    builder.result().asJava
   }
 
   def toNative: AnyRef = {
@@ -74,14 +76,14 @@ private[datomisca] class ExciseAttr(
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, excisionId.toNative,
           Keyword("excise", Namespace.DB).toNative, attr.toNative,
-          Keyword("before", Namespace.DB.EXCISE).toNative, DInstant(d).toNative
+          Keyword("before", Namespace.DB.EXCISE).toNative, d
         )
 
       case Some(Right(tx)) =>
         datomic.Util.map(
           Keyword("id", Namespace.DB).toNative, excisionId.toNative,
           Keyword("excise", Namespace.DB).toNative, attr.toNative,
-          Keyword("beforeT", Namespace.DB.EXCISE).toNative, DLong(tx).toNative
+          Keyword("beforeT", Namespace.DB.EXCISE).toNative, (tx: java.lang.Long)
         )
     }
 

@@ -19,7 +19,7 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
-final case class Attribute[DD <: DatomicData, Card <: Cardinality](
+final case class Attribute[DD, Card <: Cardinality](
     override val ident: Keyword,
     valueType:   SchemaType[DD],
     cardinality: Card,
@@ -44,21 +44,21 @@ final case class Attribute[DD <: DatomicData, Card <: Cardinality](
   override val ns = ident.ns
 
   lazy val toAddOps: AddEntity = {
-    val mb = new scala.collection.mutable.MapBuilder[Keyword, DatomicData, Map[Keyword, DatomicData]](Map(
-      Attribute.id -> id,
-      Attribute.ident -> DKeyword(ident),
-      Attribute.valueType -> DKeyword(valueType.keyword),
-      Attribute.cardinality -> DKeyword(cardinality.keyword)
+    val mb = new scala.collection.mutable.MapBuilder[Keyword, AnyRef, Map[Keyword, AnyRef]](Map(
+      Attribute.id          -> id,
+      Attribute.ident       -> ident.toNative,
+      Attribute.valueType   -> valueType.keyword.toNative,
+      Attribute.cardinality -> cardinality.keyword.toNative
     ))
-    if(doc.isDefined) mb += Attribute.doc -> DString(doc.get)
-    if(unique.isDefined) mb += Attribute.unique -> DKeyword(unique.get.keyword)
-    if(index.isDefined) mb += Attribute.index -> DBoolean(index.get)
-    if(fulltext.isDefined) mb += Attribute.fulltext -> DBoolean(fulltext.get)
-    if(isComponent.isDefined) mb += Attribute.isComponent -> DBoolean(isComponent.get)
-    if(noHistory.isDefined) mb += Attribute.noHistory -> DBoolean(noHistory.get)
+    if(doc.isDefined) mb += Attribute.doc -> doc.get
+    if(unique.isDefined) mb += Attribute.unique -> unique.get.keyword.toNative
+    if(index.isDefined) mb += Attribute.index -> (index.get: java.lang.Boolean)
+    if(fulltext.isDefined) mb += Attribute.fulltext -> (fulltext.get: java.lang.Boolean)
+    if(isComponent.isDefined) mb += Attribute.isComponent -> (isComponent.get: java.lang.Boolean)
+    if(noHistory.isDefined) mb += Attribute.noHistory -> (noHistory.get: java.lang.Boolean)
     
     // installing attribute
-    mb += Attribute.installAttr -> DKeyword(Partition.DB.keyword)
+    mb += Attribute.installAttr -> Partition.DB.keyword.toNative
 
     AddEntity(id, mb.result())
   }
@@ -69,16 +69,16 @@ final case class Attribute[DD <: DatomicData, Card <: Cardinality](
   def stringify = s"""
 { 
   ${Attribute.id} $id
-  ${Attribute.ident} ${DKeyword(ident)}
-  ${Attribute.valueType} ${DKeyword(valueType.keyword)}
-  ${Attribute.cardinality} ${DKeyword(cardinality.keyword)}""" +
-  ( if(doc.isDefined) { "\n  " + Attribute.doc + " " + DString(doc.get) } else { "" } ) +
-  ( if(unique.isDefined) { "\n  " + Attribute.unique + " " + DKeyword(unique.get.keyword) } else { "" } ) +
-  ( if(index.isDefined) { "\n  " + Attribute.index + " " + DBoolean(index.get) } else { "" }) +
-  ( if(fulltext.isDefined) { "\n  " + Attribute.fulltext + " " + DBoolean(fulltext.get) } else { "" }) +
-  ( if(isComponent.isDefined) { "\n  " + Attribute.isComponent + " " + DBoolean(isComponent.get) } else { "" }) +
-  ( if(noHistory.isDefined) { "\n  " + Attribute.noHistory + " " + DBoolean(noHistory.get) } else { "" }) +
-  "\n  " + Attribute.installAttr + " " + DKeyword(Partition.DB.keyword) + 
+  ${Attribute.ident} ${ident}
+  ${Attribute.valueType} ${valueType.keyword}
+  ${Attribute.cardinality} ${cardinality.keyword}""" +
+  ( if(doc.isDefined) { "\n  " + Attribute.doc + " " + doc.get } else { "" } ) +
+  ( if(unique.isDefined) { "\n  " + Attribute.unique + " " + unique.get.keyword } else { "" } ) +
+  ( if(index.isDefined) { "\n  " + Attribute.index + " " + index.get } else { "" }) +
+  ( if(fulltext.isDefined) { "\n  " + Attribute.fulltext + " " + fulltext.get } else { "" }) +
+  ( if(isComponent.isDefined) { "\n  " + Attribute.isComponent + " " + isComponent.get } else { "" }) +
+  ( if(noHistory.isDefined) { "\n  " + Attribute.noHistory + " " + noHistory.get } else { "" }) +
+  "\n  " + Attribute.installAttr + " " + Partition.DB.keyword + 
   "\n}"
 
 } 

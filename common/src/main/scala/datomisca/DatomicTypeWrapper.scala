@@ -24,6 +24,6 @@ trait DatomicTypeWrapper {
   implicit def toDWrapper[T](t: T)(implicit td: ToDatomicCast[T]): DWrapper = new DWrapperImpl(td.to(t))
 
   trait DWrapper extends NotNull
-  private[datomisca] class DWrapperImpl(val underlying: DatomicData) extends DWrapper
+  private[datomisca] class DWrapperImpl(val underlying: AnyRef) extends DWrapper
 
 }

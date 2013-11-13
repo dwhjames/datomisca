@@ -30,7 +30,7 @@ package object datomisca {
       * @return the value of the attribute for this entity
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
-    def apply[DD <: DatomicData, Card <: Cardinality, T]
+    def apply[DD <: AnyRef, Card <: Cardinality, T]
              (attr: Attribute[DD, Card])
              (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
              : T =
@@ -39,7 +39,7 @@ package object datomisca {
     /**
       * An optional version of apply
       */
-    def get[DD <: DatomicData, Card <: Cardinality, T]
+    def get[DD <: AnyRef, Card <: Cardinality, T]
            (attr: Attribute[DD, Card])
            (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
            : Option[T] =
@@ -60,7 +60,7 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def read[T] = new {
-      def apply[DD <: DatomicData, Card <: Cardinality]
+      def apply[DD <: AnyRef, Card <: Cardinality]
                (attr: Attribute[DD, Card])
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : T =
@@ -71,7 +71,7 @@ package object datomisca {
       * An optional version of read
       */
     def readOpt[T] = new {
-      def apply[DD <: DatomicData, Card <: Cardinality]
+      def apply[DD <: AnyRef, Card <: Cardinality]
                (attr: Attribute[DD, Card])
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : Option[T] =
@@ -88,8 +88,8 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def idView[T]
-              (attr: Attribute[DRef, Cardinality.one.type])
-              (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.one.type, IdView[T]])
+              (attr: Attribute[DRef.type, Cardinality.one.type])
+              (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, IdView[T]])
               : IdView[T] =
       read[IdView[T]](attr)
 
@@ -97,8 +97,8 @@ package object datomisca {
       * An optional version of idView
       */
     def getIdView[T]
-                 (attr: Attribute[DRef, Cardinality.one.type])
-                 (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.one.type, IdView[T]])
+                 (attr: Attribute[DRef.type, Cardinality.one.type])
+                 (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, IdView[T]])
                  : Option[IdView[T]] =
       readOpt[IdView[T]](attr)
 
@@ -108,8 +108,8 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def idViews[T]
-               (attr: Attribute[DRef, Cardinality.many.type])
-               (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[IdView[T]]])
+               (attr: Attribute[DRef.type, Cardinality.many.type])
+               (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[IdView[T]]])
                : Set[IdView[T]] =
       read[Set[IdView[T]]](attr)
 
@@ -117,8 +117,8 @@ package object datomisca {
       * An optional version of idViews
       */
     def getIdViews[T]
-                  (attr: Attribute[DRef, Cardinality.many.type])
-                  (implicit attrC: Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[IdView[T]]])
+                  (attr: Attribute[DRef.type, Cardinality.many.type])
+                  (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[IdView[T]]])
                   : Option[Set[IdView[T]]] =
       readOpt[Set[IdView[T]]](attr)
   }

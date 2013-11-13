@@ -23,12 +23,12 @@ import scala.annotation.implicitNotFound
   * - used when precise type inference by compiler
   */
 @implicitNotFound("There is no unique conversion from Datomic data type ${DD} to type ${A}")
-private[datomisca] trait FromDatomicInj[DD <: DatomicData, A] {
+private[datomisca] trait FromDatomicInj[DD <: AnyRef, A] {
   def from(dd: DD): A
 }
 
 private[datomisca] object FromDatomicInj extends FromDatomicInjImplicits {
-  def apply[DD <: DatomicData, A](f: DD => A) = new FromDatomicInj[DD, A]{
+  def apply[DD <: AnyRef, A](f: DD => A) = new FromDatomicInj[DD, A]{
     def from(dd: DD): A = f(dd)
   }
 }
@@ -38,12 +38,12 @@ private[datomisca] object FromDatomicInj extends FromDatomicInjImplicits {
   * - n DD => 1 Scala type
   */
 @implicitNotFound("There is no conversion from Datomic data type ${DD} to type ${A}. Consider implementing an instance of the FromDatomic type class.")
-trait FromDatomic[DD <: DatomicData, A] {
+trait FromDatomic[DD <: AnyRef, A] {
   def from(dd: DD): A
 }
 
 object FromDatomic extends FromDatomicImplicits {
-  def apply[DD <: DatomicData, A](f: DD => A) = new FromDatomic[DD, A]{
+  def apply[DD <: AnyRef, A](f: DD => A) = new FromDatomic[DD, A]{
     def from(dd: DD): A = f(dd)
   }
 }
@@ -55,12 +55,12 @@ object FromDatomic extends FromDatomicImplicits {
   */
 @implicitNotFound("There is no cast available from Datomic data to type ${A}")
 trait FromDatomicCast[A] {
-  def from(dd: DatomicData): A
+  def from(dd: Any): A
 }
 
 object FromDatomicCast extends FromDatomicCastImplicits {
-  def apply[A](f: DatomicData => A) = new FromDatomicCast[A] {
-    def from(dd: DatomicData): A = f(dd)
+  def apply[A](f: Any => A) = new FromDatomicCast[A] {
+    def from(dd: Any): A = f(dd)
   }
 }
 
@@ -68,12 +68,12 @@ object FromDatomicCast extends FromDatomicCastImplicits {
   * 1 Scala type => 1 DD
   */
 @implicitNotFound("There is no unique conversion from type ${A} to Datomic data type ${DD}")
-trait ToDatomicInj[DD <: DatomicData, A] {
+trait ToDatomicInj[DD <: AnyRef, A] {
   def to(a: A): DD
 }
 
 object ToDatomicInj extends ToDatomicInjImplicits {
-  def apply[DD <: DatomicData, A](f: A => DD) = new ToDatomicInj[DD, A] {
+  def apply[DD <: AnyRef, A](f: A => DD) = new ToDatomicInj[DD, A] {
     def to(a: A) = f(a)
   }
 }
@@ -82,12 +82,12 @@ object ToDatomicInj extends ToDatomicInjImplicits {
   * n Scala type => 1 DD
   */
 @implicitNotFound("There is no conversion from type ${A} to Datomic data type ${DD}. Consider implementing an instance of the ToDatomic type class.")
-trait ToDatomic[DD <: DatomicData, A] {
+trait ToDatomic[DD <: AnyRef, A] {
   def to(a: A): DD
 }
 
 object ToDatomic extends ToDatomicImplicits{
-  def apply[DD <: DatomicData, A](f: A => DD) = new ToDatomic[DD, A] {
+  def apply[DD <: AnyRef, A](f: A => DD) = new ToDatomic[DD, A] {
     def to(a: A) = f(a)
   }
 }
@@ -97,11 +97,11 @@ object ToDatomic extends ToDatomicImplicits{
   */
 @implicitNotFound("There is no cast available from type ${A} to Datomic data")
 trait ToDatomicCast[A] {
-  def to(a: A): DatomicData
+  def to(a: A): AnyRef
 }
 
 object ToDatomicCast extends ToDatomicCastImplicits {
-  def apply[A](f: A => DatomicData) = new ToDatomicCast[A] {
-    def to(a: A): DatomicData = f(a)
+  def apply[A](f: A => AnyRef) = new ToDatomicCast[A] {
+    def to(a: A): AnyRef = f(a)
   }
 }

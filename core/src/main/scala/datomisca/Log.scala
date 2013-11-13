@@ -26,7 +26,7 @@ import java.util.{Date => JDate}
   *   the underlying log.
   * @see [[http://docs.datomic.com/log.html Log API]]
   */
-class Log(val log: datomic.Log, db: DDatabase) {
+class Log(val log: datomic.Log) {
 
   /** A transaction in the log
     *
@@ -41,7 +41,6 @@ class Log(val log: datomic.Log, db: DDatabase) {
     /** An iterable of the [[DDatom]]s asserted or retracted by the transaction. */
     val datoms: Iterable[DDatom]
   }
-
   /** Returns a range of transactions in log.
     *
     * Returns a range of transactions in log, starting at startT, or from
@@ -77,7 +76,7 @@ class Log(val log: datomic.Log, db: DDatabase) {
           override def iterator = new Iterator[DDatom] {
             private val jIterDatoms = jIterableDatoms.iterator
             override def hasNext = jIterDatoms.hasNext
-            override def next() = new DDatom(jIterDatoms.next(), db)
+            override def next() = new DDatom(jIterDatoms.next())
           }
         }
       }

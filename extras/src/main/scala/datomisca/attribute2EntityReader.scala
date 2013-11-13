@@ -19,7 +19,7 @@ package datomisca
 import scala.annotation.implicitNotFound
 
 @implicitNotFound("There is no unique reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}")
-trait Attribute2EntityReaderInj[DD <: DatomicData, Card <: Cardinality, T] {
+trait Attribute2EntityReaderInj[DD <: AnyRef, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card]): EntityReader[T]
 }
 
@@ -32,17 +32,17 @@ object Attribute2EntityReaderInj {
    * precise type.
    */
   implicit val attr2EntityReaderDRef2DD =
-    new Attribute2EntityReaderInj[DRef, Cardinality.one.type, DatomicData] {
-      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[DatomicData] {
+    new Attribute2EntityReaderInj[DRef.type, Cardinality.one.type, Any] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.one.type]) = new EntityReader[Any] {
         override def read(entity: DEntity) = entity(attr.ident)
       }
     }
   // similarly for multi-valued attributes
   implicit val attr2EntityReaderManyDRef2DD =
-    new Attribute2EntityReaderInj[DRef, Cardinality.many.type, Set[DatomicData]] {
-      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[DatomicData]] {
+    new Attribute2EntityReaderInj[DRef.type, Cardinality.many.type, Set[Any]] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.many.type]) = new EntityReader[Set[Any]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case c: DColl => c.toSet } getOrElse (Set.empty)
+          entity.get(attr.ident) map { case c: Iterable[Any] => c.toSet } getOrElse (Set.empty)
       }
     }
 
@@ -51,7 +51,7 @@ object Attribute2EntityReaderInj {
    * and from that subtype, FromDatomicInj uniquely determines
    * the result type A
    */
-  implicit def attr2EntityReaderOne[DD <: DatomicData, A](implicit conv: FromDatomicInj[DD, A]) =
+  implicit def attr2EntityReaderOne[DD <: AnyRef, A](implicit conv: FromDatomicInj[DD, A]) =
     new Attribute2EntityReaderInj[DD, Cardinality.one.type, A] {
       override def convert(attr: Attribute[DD, Cardinality.one.type]) = new EntityReader[A] {
         override def read(entity: DEntity) = {
@@ -61,13 +61,13 @@ object Attribute2EntityReaderInj {
       }
     }
   // similarly for multi-valued attributes
-  implicit def attr2EntityReaderMany[DD <: DatomicData, A](implicit conv: FromDatomicInj[DD, A]) =
+  implicit def attr2EntityReaderMany[DD <: AnyRef, A](implicit conv: FromDatomicInj[DD, A]) =
     new Attribute2EntityReaderInj[DD, Cardinality.many.type, Set[A]] {
       override def convert(attr: Attribute[DD, Cardinality.many.type]) = new EntityReader[Set[A]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case c: DColl =>
+          entity.get(attr.ident) map { case c: Iterable[_] =>
             val builder = Set.newBuilder[A]
-            for (e <- c.toIterable) builder += conv.from(e.asInstanceOf[DD])
+            for (e <- c) builder += conv.from(e.asInstanceOf[DD])
             builder.result
           } getOrElse (Set.empty)
       }
@@ -77,13 +77,13 @@ object Attribute2EntityReaderInj {
 
 
 @implicitNotFound("There is no type-casting reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}")
-trait Attribute2EntityReaderCast[DD <: DatomicData, Card <: Cardinality, T] {
+trait Attribute2EntityReaderCast[DD <: AnyRef, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card]): EntityReader[T]
 }
 
 object Attribute2EntityReaderCast {
 
-  implicit def attr2EntityReaderCastOne[DD <: DatomicData, A](implicit conv: FromDatomic[DD, A]) =
+  implicit def attr2EntityReaderCastOne[DD <: AnyRef, A](implicit conv: FromDatomic[DD, A]) =
     new Attribute2EntityReaderCast[DD, Cardinality.one.type, A] {
       override def convert(attr: Attribute[DD, Cardinality.one.type]) = new EntityReader[A] {
         override def read(entity: DEntity) = {
@@ -93,13 +93,13 @@ object Attribute2EntityReaderCast {
       }
     }
 
-  implicit def attr2EntityReaderCastMany[DD <: DatomicData, A](implicit conv: FromDatomic[DD, A]) =
+  implicit def attr2EntityReaderCastMany[DD <: AnyRef, A](implicit conv: FromDatomic[DD, A]) =
     new Attribute2EntityReaderCast[DD, Cardinality.many.type, Set[A]] {
       override def convert(attr: Attribute[DD, Cardinality.many.type]) = new EntityReader[Set[A]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case c: DColl =>
+          entity.get(attr.ident) map { case c: Iterable[_] =>
             val builder = Set.newBuilder[A]
-            for (e <- c.toIterable) builder += conv.from(e.asInstanceOf[DD])
+            for (e <- c) builder += conv.from(e.asInstanceOf[DD])
             builder.result
           } getOrElse (Set.empty)
       }
@@ -107,19 +107,19 @@ object Attribute2EntityReaderCast {
 
 
   implicit val attr2EntityReaderCastIdOnly =
-    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, Long] {
-      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[Long] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, Long] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.one.type]) = new EntityReader[Long] {
         override def read(entity: DEntity) =
           entity(attr.ident).asInstanceOf[DEntity].id
       }
     }
 
   implicit val attr2EntityReaderCastManyIdOnly =
-    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[Long]] {
-      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[Long]] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[Long]] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.many.type]) = new EntityReader[Set[Long]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case DColl(elems) =>
-            elems.map {
+          entity.get(attr.ident) map { case c: Iterable[_] =>
+            c.map {
               case subent: DEntity => subent.id
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
             } .toSet
@@ -128,20 +128,20 @@ object Attribute2EntityReaderCast {
     }
 
   implicit def attr2EntityReaderCastKeyword[K](implicit fromKeyword: Keyword => K) =
-    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, K] {
-      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[K] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, K] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.one.type]) = new EntityReader[K] {
         override def read(entity: DEntity) =
-          fromKeyword(entity(attr.ident).asInstanceOf[DKeyword].underlying)
+          fromKeyword(entity(attr.ident).asInstanceOf[Keyword])
       }
     }
 
   implicit def attr2EntityReaderCastManyKeyword[K](implicit fromKeyword: Keyword => K) =
-    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[K]] {
-      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[K]] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[K]] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.many.type]) = new EntityReader[Set[K]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case DColl(elems) =>
-            elems.map {
-              case DKeyword(keyword) => fromKeyword(keyword)
+          entity.get(attr.ident) map { case c: Iterable[_] =>
+            c.map {
+              case keyword: Keyword => fromKeyword(keyword)
               case _ => throw new EntityMappingException("expected DatomicData to be DKeyword")
             } .toSet
           } getOrElse (Set.empty)
@@ -154,8 +154,8 @@ object Attribute2EntityReaderCast {
    * and then use the entity reader to interpet it
    */
   implicit def attr2EntityReaderOneObj[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, A] {
-      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[A] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, A] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.one.type]) = new EntityReader[A] {
         override def read(entity: DEntity) = {
           val subent = entity(attr.ident).asInstanceOf[DEntity]
           er.read(subent)
@@ -164,11 +164,11 @@ object Attribute2EntityReaderCast {
     }
   // similarly for multi-valued attributes
   implicit def attr2EntityReaderManyObj[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[A]] {
-      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[A]] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[A]] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.many.type]) = new EntityReader[Set[A]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case DColl(elems) =>
-            elems.map {
+          entity.get(attr.ident) map { case c: Iterable[_] =>
+            c.map {
               case subent: DEntity => er.read(subent)
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
             } .toSet
@@ -184,8 +184,8 @@ object Attribute2EntityReaderCast {
    * id of the transformed entity in an IdView
    */
   implicit def attr2EntityReaderOneIdView[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, Cardinality.one.type, IdView[A]] {
-      override def convert(attr: Attribute[DRef, Cardinality.one.type]) = new EntityReader[IdView[A]] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, IdView[A]] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.one.type]) = new EntityReader[IdView[A]] {
         override def read(entity: DEntity) = {
           val subent = entity(attr.ident).asInstanceOf[DEntity]
           IdView(subent.id)(er.read(subent))
@@ -194,11 +194,11 @@ object Attribute2EntityReaderCast {
     }
   // similarly for multi-valued attributes
   implicit def attr2EntityReaderManyIdView[A](implicit er: EntityReader[A]) =
-    new Attribute2EntityReaderCast[DRef, Cardinality.many.type, Set[IdView[A]]] {
-      override def convert(attr: Attribute[DRef, Cardinality.many.type]) = new EntityReader[Set[IdView[A]]] {
+    new Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[IdView[A]]] {
+      override def convert(attr: Attribute[DRef.type, Cardinality.many.type]) = new EntityReader[Set[IdView[A]]] {
         override def read(entity: DEntity) =
-          entity.get(attr.ident) map { case DColl(elems) =>
-            elems.map {
+          entity.get(attr.ident) map { case c: Iterable[_] =>
+            c.map {
               case subent: DEntity => IdView(subent.id)(er.read(subent))
               case _ => throw new EntityMappingException("expected DatomicData to be DEntity")
             } .toSet

@@ -161,13 +161,13 @@ private[datomisca] class Helper[C <: Context](val c: C) {
 
   def literalQuery(query: c.Tree, inputSize: Int, outputSize: Int): c.Expr[AbstractQuery] = {
     val typeArgs =
-      List.fill(inputSize)(tq"datomisca.DatomicData") :+
+      List.fill(inputSize)(tq"AnyRef") :+
       (outputSize match {
         case 0 => tq"Unit"
-        case 1 => tq"datomisca.DatomicData"
+        case 1 => tq"Any"
         case n =>
           val typeName = newTypeName("Tuple" + n)
-          val args = List.fill(n)(tq"datomisca.DatomicData")
+          val args = List.fill(n)(tq"Any")
           tq"$typeName[..$args]"
       })
     val queryClassName =

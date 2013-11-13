@@ -47,7 +47,7 @@ object Datomic
     * val l: DLong = Datomic.toDatomic("5L")
     * }}}
     */
-  def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): DatomicData = tdc.to(t)
+  def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): AnyRef = tdc.to(t)
 
   /** converts a DatomicData to a type given there is the right implicit in the scope
     *
@@ -56,7 +56,7 @@ object Datomic
     * val s: Long = Datomic.fromDatomic(DLong(5L))
     * }}}
     */
-  def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
+  def fromDatomic[DD <: AnyRef, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
 
   /** Helper: creates a [[DColl]] from simple types using DWrapper implicit conversion
     *
@@ -66,7 +66,7 @@ object Datomic
     *
     * @param partition the partition to create
     */
-  def coll(dw: DWrapper*) = DColl(dw.map(_.asInstanceOf[DWrapperImpl].underlying))
+  def list(dw: DWrapper*) = datomic.Util.list(dw.map(_.asInstanceOf[DWrapperImpl].underlying):_*).asInstanceOf[java.util.List[AnyRef]]
 
   /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
     * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated

@@ -25,19 +25,19 @@ sealed trait DataFunction extends Operation {
   def func: Keyword
 }
 
-final case class AddFact(id: DId, attr: Keyword, value: DatomicData) extends DataFunction with TempIdentified {
+final case class AddFact(id: DId, attr: Keyword, value: AnyRef) extends DataFunction with TempIdentified {
   override val func = Keyword("add", Some(Namespace.DB))
   // override val id = fact.id
 
   def toNative: AnyRef =
-    datomic.Util.list(func.toNative, id.toNative, attr.toNative, value.toNative)
+    datomic.Util.list(func.toNative, id.toNative, attr.toNative, value)
 }
 
-final case class RetractFact(id: Long, attr: Keyword, value: DatomicData) extends DataFunction with FinalIdentified {
+final case class RetractFact(id: Long, attr: Keyword, value: AnyRef) extends DataFunction with FinalIdentified {
   override val func = Keyword("retract", Some(Namespace.DB))
 
   def toNative: AnyRef =
-    datomic.Util.list(func.toNative, id: java.lang.Long, attr.toNative, value.toNative)
+    datomic.Util.list(func.toNative, id: java.lang.Long, attr.toNative, value)
 }
 
 final case class RetractEntity(id: Long) extends DataFunction with FinalIdentified {
@@ -50,11 +50,10 @@ final case class RetractEntity(id: Long) extends DataFunction with FinalIdentifi
 }
 
 object RetractEntity {
-  def apply(id: DLong): RetractEntity = RetractEntity(id.underlying)
   val kw = Keyword("retractEntity", Some(Namespace.DB.FN))
 }
 
-class PartialAddEntity(val props: Map[Keyword, DatomicData]) {
+class PartialAddEntity(val props: Map[Keyword, AnyRef]) {
 
   def ++(other: PartialAddEntity) = new PartialAddEntity(props ++ other.props)
 
@@ -67,19 +66,18 @@ object PartialAddEntity {
   def empty: PartialAddEntity = new PartialAddEntity(Map())
 }
 
-final case class AddEntity(id: DId, partialProps: Map[Keyword, DatomicData]) extends PartialAddEntity(partialProps + (Keyword("id", Namespace.DB) -> id)) with Operation with TempIdentified {
+final case class AddEntity(id: DId, partialProps: Map[Keyword, AnyRef]) extends PartialAddEntity(partialProps + (Keyword("id", Namespace.DB) -> id.toNative)) with Operation with TempIdentified {
 
   def toNative: AnyRef = {
     import scala.collection.JavaConverters._
-    props.map{case (k, v) => (k.toNative, v.toNative)}.asJava
+    props.map { case (k, v) => (k.toNative, v) } .asJava
   }
 
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
 final case class AddIdent(ident: Keyword, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
-  lazy val ref = DRef(ident)
-  def toNative = AddFact(DId(partition), Keyword("ident", Namespace.DB), ref).toNative
+  def toNative = AddFact(DId(partition), Keyword("ident", Namespace.DB), ident.toNative).toNative
 
   override def toString = toNative.toString
 }

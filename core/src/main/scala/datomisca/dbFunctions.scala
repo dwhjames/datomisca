@@ -26,7 +26,6 @@ class AddDbFunction(
     requires:  String    = "",
     partition: Partition = Partition.USER
 ) extends Operation with KeywordIdentified {
-  lazy val ref = DRef(ident)
   val kw = Keyword("add", Some(Namespace.DB))
 
   def toNative: AnyRef =
@@ -49,7 +48,7 @@ class AddDbFunction(
 
 abstract class TypedAddDbFunction(fn: AddDbFunction) extends Operation with KeywordIdentified {
   val ident = fn.ident
-  lazy val ref = fn.ref
+  // lazy val ref = fn.ref
   val kw = fn.kw
 
   def toNative: AnyRef = fn.toNative
