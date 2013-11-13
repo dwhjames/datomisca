@@ -258,7 +258,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     *     optional leading components of the index to match.
     * @return an iterable collection of [[DDatom]].
     */
-  def datoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
+  def datoms(index: Keyword, components: DatomicData*): Iterable[DDatom] =
     new Iterable[DDatom] {
       private val jIterable = underlying.datoms(index.toNative, components.map(_.toNative): _*)
       override def iterator = new Iterator[DDatom] {
@@ -295,7 +295,7 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     * @return an iterable collection of [[DDatom]].
     * @see entidAt
     */
-  def seekDatoms(index: Keyword, components: Keyword*): Iterable[DDatom] =
+  def seekDatoms(index: Keyword, components: DatomicData*): Iterable[DDatom] =
     new Iterable[DDatom] {
       private val jIterable = underlying.seekDatoms(index.toNative, components.map(_.toNative): _*)
       override def iterator = new Iterator[DDatom] {
@@ -324,9 +324,9 @@ class DDatabase(val underlying: datomic.Database) extends DatomicData {
     *     some end value (non-inclusive), or None if through end.
     * @return an iterable collection of [[DDatom]].
     */
-  def indexRange(attr: Keyword, start: Option[AnyRef] = None, end: Option[AnyRef] = None): Iterable[DDatom] =
+  def indexRange(attr: Keyword, start: Option[DatomicData] = None, end: Option[DatomicData] = None): Iterable[DDatom] =
     new Iterable[DDatom] {
-      private val jIterable = underlying.indexRange(attr.toNative, start.orNull, end.orNull)
+      private val jIterable = underlying.indexRange(attr.toNative, start.map(_.toNative).orNull, end.map(_.toNative).orNull)
       override def iterator = new Iterator[DDatom] {
         private val jIter = jIterable.iterator
         override def hasNext = jIter.hasNext
