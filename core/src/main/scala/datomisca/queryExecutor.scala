@@ -16,6 +16,7 @@
 
 package datomisca
 
+import scala.concurrent.blocking
 import scala.util.control.NonFatal
 
 import java.{util => ju}
@@ -36,7 +37,9 @@ private[datomisca] object QueryExecutor {
 
   private def execQuery(q: AbstractQuery, in: Seq[AnyRef]): ju.Collection[ju.List[AnyRef]] =
     try {
-      datomic.Peer.q(q.query, in: _*)
+      blocking {
+        datomic.Peer.q(q.query, in: _*)
+      }
     } catch {
       case ex: Throwable if ex.getMessage startsWith "processing" =>
         val builder = Seq.newBuilder[String]
