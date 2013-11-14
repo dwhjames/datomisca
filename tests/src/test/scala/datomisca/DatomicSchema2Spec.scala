@@ -85,7 +85,7 @@ class DatomicSchema2Spec extends Specification {
           [ :find ?e
             :where [ ?e :person/name "toto" ] 
           ]
-          """), Datomic.database).head match { case DLong(l) => l }
+          """), Datomic.database).head match { case l: Long => l }
 
           println(s"TOTO: $totoId")
           Datomic.transact(
@@ -104,7 +104,7 @@ class DatomicSchema2Spec extends Specification {
             [ :find ?e
               :where [ ?e :person/name "tutu" ] 
             ]
-            """), Datomic.database).head match { case DLong(l) => l }
+            """), Datomic.database).head match { case l: Long => l }
 
             println(s"TUTU: $tutuId")
             Datomic.transact(

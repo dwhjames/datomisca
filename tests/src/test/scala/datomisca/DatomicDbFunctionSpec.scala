@@ -52,16 +52,16 @@ class DatomicDbFunctionSpec extends Specification {
       val maybeRes = Datomic.transact(Data.txData).flatMap{ tx =>
         val fooEntity = Datomic.database.entity(Data.foo.ident)
 
-        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
+        fooEntity(Namespace.DB / "ident") must beEqualTo(Datomic.KW(":foo"))
 
         Datomic.transact(
-          InvokeTxFunction(Data.addDocFn.ident)(Data.foo.ref, DString("this is foo's doc"))
+          InvokeTxFunction(Data.addDocFn.ident)(Data.foo.ident, "this is foo's doc")
         ).map{ tx =>
           val fooEntity = Datomic.database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)
 
-          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
-          fooEntity(Namespace.DB / "doc") must beEqualTo(DString("this is foo's doc"))
+          fooEntity(Namespace.DB / "ident") must beEqualTo(Datomic.KW(":foo"))
+          fooEntity(Namespace.DB / "doc") must beEqualTo("this is foo's doc")
 
           success
         }
@@ -160,10 +160,10 @@ class DatomicDbFunctionSpec extends Specification {
 
         val sampleTxData = Seq(issuer, bob, alice)
 
-        def transfer(fromAcc: DLong, toAcc: DLong, transAmount: BigDecimal, note: String): Seq[Operation] = {
+        def transfer(fromAcc: Long, toAcc: Long, transAmount: BigDecimal, note: String): Seq[Operation] = {
           val txId = DId(Partition.TX)
           Seq(
-            InvokeTxFunction(transferFn.ident)(fromAcc, toAcc, DBigDec(transAmount)),
+            InvokeTxFunction(transferFn.ident)(fromAcc: java.lang.Long, toAcc: java.lang.Long, transAmount.bigDecimal),
             Entity.add(txId)(
               Datomic.KW(":db/doc") -> note,
               from.ident    -> fromAcc,
@@ -173,8 +173,8 @@ class DatomicDbFunctionSpec extends Specification {
           )
         }
 
-        def credit(toAcc: DLong, amount: BigDecimal): Operation =
-          InvokeTxFunction(creditFn.ident)(toAcc, DBigDec(amount))
+        def credit(toAcc: Long, amount: BigDecimal): Operation =
+          InvokeTxFunction(creditFn.ident)(toAcc: java.lang.Long, amount.bigDecimal)
       }
 
       object AccountsQueries {
@@ -238,19 +238,19 @@ class DatomicDbFunctionSpec extends Specification {
       )
 
       val issuerId =
-        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, DString("Issuer")).head.as[DLong]
+        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, "Issuer").head.asInstanceOf[Long]
       val bobId =
-        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, DString("Bob")).head.as[DLong]
+        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, "Bob").head.asInstanceOf[Long]
       val aliceId =
-        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, DString("Alice")).head.as[DLong]
+        Datomic.q(AccountsQueries.findAccountByName, Datomic.database, "Alice").head.asInstanceOf[Long]
 
       Await.result(
         for {
-          _ <- Datomic.transact(AccountsTxData.transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
+          _ <- Datomic.transact(AccountsTxData.transfer(issuerId, aliceId, 77, "Issuance to Alice"))
           _ =  Thread.sleep(2000)
-          _ <- Datomic.transact(AccountsTxData.transfer(issuerId, bobId,   BigDecimal(23), "Issuance to Bob"))
+          _ <- Datomic.transact(AccountsTxData.transfer(issuerId, bobId,   23, "Issuance to Bob"))
           _ =  Thread.sleep(2000)
-          _ <- Datomic.transact(AccountsTxData.transfer(aliceId, bobId,    BigDecimal(7),  "Dinner"))
+          _ <- Datomic.transact(AccountsTxData.transfer(aliceId, bobId,    7,  "Dinner"))
         } yield (),
         Duration("10 seconds")
       )
@@ -283,7 +283,7 @@ class DatomicDbFunctionSpec extends Specification {
       val maybeRes = Datomic.transact(Data.txData).flatMap{ tx =>
         val fooEntity = Datomic.database.entity(Data.foo.ident)
 
-        fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
+        fooEntity(Namespace.DB / "ident") must beEqualTo(Datomic.KW(":foo"))
 
         Datomic.transact(
           InvokeTxFunction(Data.addDocFn)(Data.foo, "this is foo's doc")
@@ -291,9 +291,8 @@ class DatomicDbFunctionSpec extends Specification {
           val fooEntity = Datomic.database.entity(Data.foo.ident)
           //println("fooEntityModif:"+fooEntity.toMap)
 
-          fooEntity(Namespace.DB / "ident") must beEqualTo(DKeyword(Datomic.KW(":foo")))
-          fooEntity(Namespace.DB / "doc") must beEqualTo(DString("this is foo's doc"))
-
+          fooEntity(Namespace.DB / "ident") must beEqualTo(Datomic.KW(":foo"))
+          fooEntity(Namespace.DB / "doc") must beEqualTo("this is foo's doc")
           success
         }
 

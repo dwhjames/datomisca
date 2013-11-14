@@ -62,7 +62,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       println("BEGIN:"+Datomic.database.basisT)
 
@@ -75,8 +75,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent)
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent)
         }
 
       }
@@ -99,7 +99,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       println("BEGIN:"+Datomic.database.basisT)
 
@@ -112,8 +112,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent)
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent)
         }
 
       }
@@ -136,7 +136,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       println("BEGIN:"+Datomic.database.basisT)
 
@@ -149,8 +149,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent)
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent)
         }
 
       }
@@ -175,7 +175,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       println("BEGIN:"+Datomic.database.basisT)
 
@@ -188,8 +188,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }
@@ -214,7 +214,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       println("BEGIN:"+Datomic.database.basisT)
 
@@ -227,8 +227,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }
@@ -253,7 +253,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       println("BEGIN:"+Datomic.database.basisT)
 
@@ -266,8 +266,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }
@@ -292,7 +292,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age", basisT)
@@ -302,8 +302,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }
@@ -328,7 +328,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age", new java.util.Date)
@@ -338,8 +338,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }
@@ -364,7 +364,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age")
@@ -374,8 +374,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }
@@ -400,7 +400,7 @@ class DatomicExcisionSpec extends Specification {
         ]
       """)
 
-      val DLong(e) = Datomic.q(query, Datomic.database, DString("toto")).head
+      val e = Datomic.q(query, Datomic.database, "toto").head.asInstanceOf[Long]
 
       val maybeRes = Datomic.transact(
         Excise.attribute( person / "age", DId(Partition.USER), basisT)
@@ -410,8 +410,8 @@ class DatomicExcisionSpec extends Specification {
 
         Datomic.q(Query("""
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
-        """), Datomic.database, DLong(e)).head match {
-          case DLong(ent) => println("found excision entity:"+ent); success
+        """), Datomic.database, e).head match {
+          case ent: Long => println("found excision entity:"+ent); success
         }
 
       }

@@ -75,7 +75,7 @@ class DatomicTransactSpec extends Specification {
                   [ ?e :person/character :person.character/violent ]
         ]
       """), Datomic.database).map {
-        case (DLong(e), DString(n)) => 
+        case (e: Long, n: String) => 
         println(s"PART ${datomic.Peer.part(e.underlying).getClass}")
         val entity = Datomic.database.entity(e)
         println(s"Q2 entity: $e name: $n - e: ${entity.get(person / "character")}")

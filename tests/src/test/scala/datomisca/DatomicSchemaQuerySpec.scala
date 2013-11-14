@@ -112,9 +112,9 @@ class DatomicSchemaQuerySpec extends Specification {
       Datomic.q(
         query, 
         Datomic.database, 
-        DRef(Datomic.KW(":person.character/violent"))
+        Datomic.KW(":person.character/violent")
       ) map {
-        case (DLong(e), DString(n)) => 
+        case (e: Long, n: String) => 
           val entity = Datomic.database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }

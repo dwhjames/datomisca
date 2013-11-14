@@ -25,6 +25,7 @@ import org.specs2.runner.JUnitRunner
 
 import Datomic.{toDatomic, fromDatomic}
 
+import java.{lang => jl}
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import java.util.{Date, UUID}
 import java.net.URI
@@ -52,57 +53,34 @@ class ToFromDatomicSpec extends Specification {
 
   "ToDatomicCast" can {
 
-    "write DatomicData as itself" in {
-      toDatomic(DString("string")) must beAnInstanceOf[DString]
-      toDatomic(DBoolean(true))    must beAnInstanceOf[DBoolean]
-      toDatomic(DLong(1L))         must beAnInstanceOf[DLong]
-      toDatomic(DFloat(1.0f))      must beAnInstanceOf[DFloat]
-      toDatomic(DDouble(1.0))      must beAnInstanceOf[DDouble]
-
-      toDatomic(DBigInt(BigInt(1)))     must beAnInstanceOf[DBigInt]
-      toDatomic(DBigDec(BigDecimal(1))) must beAnInstanceOf[DBigDec]
-
-      toDatomic(DInstant(new Date)) must beAnInstanceOf[DInstant]
-
-      toDatomic(DUuid(UUID.randomUUID())) must beAnInstanceOf[DUuid]
-
-      toDatomic(DUri(new URI("urn:isbn:096139210x"))) must beAnInstanceOf[DUri]
-
-      toDatomic(DBytes(Array(Byte.MinValue))) must beAnInstanceOf[DBytes]
-
-      toDatomic(DKeyword(Datomic.KW(":my-kw"))) must beAnInstanceOf[DKeyword]
-
-      success
-    }
-
     "write Scala types as DatomicData" in {
-      toDatomic("string") must beAnInstanceOf[DString]
-      toDatomic(true)     must beAnInstanceOf[DBoolean]
+      toDatomic("string") must beAnInstanceOf[String]
+      toDatomic(true)     must beAnInstanceOf[jl.Boolean]
 
-      toDatomic(Long .MinValue) must beAnInstanceOf[DLong]
-      toDatomic(Int  .MinValue) must beAnInstanceOf[DLong]
-      toDatomic(Short.MinValue) must beAnInstanceOf[DLong]
-      toDatomic(Char .MinValue) must beAnInstanceOf[DLong]
-      toDatomic(Byte .MinValue) must beAnInstanceOf[DLong]
+      toDatomic(Long .MinValue) must beAnInstanceOf[jl.Long]
+      toDatomic(Int  .MinValue) must beAnInstanceOf[jl.Long]
+      toDatomic(Short.MinValue) must beAnInstanceOf[jl.Long]
+      toDatomic(Char .MinValue) must beAnInstanceOf[jl.Long]
+      toDatomic(Byte .MinValue) must beAnInstanceOf[jl.Long]
 
-      toDatomic(1.0f) must beAnInstanceOf[DFloat]
-      toDatomic(1.0)  must beAnInstanceOf[DDouble]
+      toDatomic(1.0f) must beAnInstanceOf[jl.Float]
+      toDatomic(1.0)  must beAnInstanceOf[jl.Double]
 
-      toDatomic(BigInt(1))            must beAnInstanceOf[DBigInt]
-      toDatomic(BigInt(1).bigInteger) must beAnInstanceOf[DBigInt]
+      toDatomic(BigInt(1))            must beAnInstanceOf[JBigInt]
+      toDatomic(BigInt(1).bigInteger) must beAnInstanceOf[JBigInt]
 
-      toDatomic(BigDecimal(1))            must beAnInstanceOf[DBigDec]
-      toDatomic(BigDecimal(1).bigDecimal) must beAnInstanceOf[DBigDec]
+      toDatomic(BigDecimal(1))            must beAnInstanceOf[JBigDecimal]
+      toDatomic(BigDecimal(1).bigDecimal) must beAnInstanceOf[JBigDecimal]
 
-      toDatomic(new Date) must beAnInstanceOf[DInstant]
+      toDatomic(new Date) must beAnInstanceOf[Date]
 
-      toDatomic(UUID.randomUUID()) must beAnInstanceOf[DUuid]
+      toDatomic(UUID.randomUUID()) must beAnInstanceOf[UUID]
 
-      toDatomic(new URI("urn:isbn:096139210x")) must beAnInstanceOf[DUri]
+      toDatomic(new URI("urn:isbn:096139210x")) must beAnInstanceOf[URI]
 
-      toDatomic(Array(Byte.MinValue)) must beAnInstanceOf[DBytes]
+      toDatomic(Array(Byte.MinValue)) must beAnInstanceOf[Array[Byte]]
 
-      toDatomic(Datomic.KW(":my-kw")) must beAnInstanceOf[DKeyword]
+      toDatomic(Datomic.KW(":my-kw")) must beAnInstanceOf[clojure.lang.Keyword]
 
       success
     }
@@ -148,10 +126,6 @@ class ToFromDatomicSpec extends Specification {
       /*
        * we simply need the following code to compile
        */
-      SchemaFact.add(id)(attrref -> DRef(Datomic.KW(":my-kw")))
-      SchemaFact.add(id)(attrref -> DRef(1L))
-      SchemaFact.add(id)(attrref -> DRef(DId(1L)))
-      SchemaFact.add(id)(attrref -> DRef(DId(Partition.USER)))
 
       SchemaFact.add(id)(attrref -> DId(1L))
       SchemaFact.add(id)(attrref -> DId(Partition.USER))
@@ -182,70 +156,6 @@ class ToFromDatomicSpec extends Specification {
 
       success
     }
-  }
-
-  "FromDatomicCast" can {
-
-    "read DatomicData as itself" in {
-
-      DString("string").as[DString]
-      DBoolean(true)   .as[DBoolean]
-      DLong(1L)        .as[DLong]
-      DFloat(1.0f)     .as[DFloat]
-      DDouble(1.0)     .as[DDouble]
-
-      DBigInt(BigInt(1))    .as[DBigInt]
-      DBigDec(BigDecimal(1)).as[DBigDec]
-
-      DInstant(new Date).as[DInstant]
-
-      DUuid(UUID.randomUUID()).as[DUuid]
-
-      DUri(new URI("urn:isbn:096139210x")).as[DUri]
-
-      DBytes(Array(Byte.MinValue)).as[DBytes]
-
-      DKeyword(Datomic.KW(":my-kw")).as[DKeyword]
-
-      success
-    }
-
-    "read DatomicData as its underlying Scala type" in {
-
-      DString("string").as[String]
-      DBoolean(true)   .as[Boolean]
-      DLong(1L)        .as[Long]
-      DLong(1L)        .as[Int]
-      DLong(1L)        .as[Short]
-      DLong(1L)        .as[Char]
-      DLong(1L)        .as[Byte]
-      DFloat(1.0f)     .as[Float]
-      DDouble(1.0)     .as[Double]
-
-      DBigInt(BigInt(1))    .as[BigInt]
-      DBigDec(BigDecimal(1)).as[BigDecimal]
-
-      DBigInt(BigInt(1))    .as[JBigInt]
-      DBigDec(BigDecimal(1)).as[JBigDecimal]
-
-      DInstant(new Date).as[Date]
-
-      DUuid(UUID.randomUUID()).as[UUID]
-
-      DUri(new URI("urn:isbn:096139210x")).as[URI]
-
-      DBytes(Array(Byte.MinValue)).as[Array[Byte]]
-
-      DKeyword(Datomic.KW(":my-kw")).as[Keyword]
-
-      success
-    }
-
-    "bad conversions throw ClassCastException" in {
-      { DString("string").as[DLong] } must throwA[ClassCastException]
-      success
-    }
-
   }
 
   "FromDatomic" can {
@@ -281,53 +191,30 @@ class ToFromDatomicSpec extends Specification {
 
       success
     }
-
-    "read the specific DatomicData type of an attribute" in {
-
-      val entity = DEntity(null)
-
-      {
-        // core
-        val string  = entity.read[DString](attrstring)
-        val boolean = entity.read[DBoolean](attrboolean)
-        val long    = entity.read[DLong](attrlong)
-        val bigint  = entity.read[DBigInt](attrbigint)
-        val float   = entity.read[DFloat](attrfloat)
-        val double  = entity.read[DDouble](attrdouble)
-        val bigdec  = entity.read[DBigDec](attrbigdec)
-        val instant = entity.read[DInstant](attrinstant)
-        val uuid    = entity.read[DUuid](attruuid)
-        val uri     = entity.read[DUri](attruri)
-        val bytes   = entity.read[DBytes](attrbytes)
-        val keyword = entity.read[DKeyword](attrkeyword)
-      } must throwA[NullPointerException]
-
-      success
-    }
   }
 
   "FromDatomicInj" can {
 
     "convert DatomicData into its underlying Scala type" in {
 
-      val string:  String  = fromDatomic(DString("string"))
-      val boolean: Boolean = fromDatomic(DBoolean(true))
-      val long:    Long    = fromDatomic(DLong(1L))
-      val float:   Float   = fromDatomic(DFloat(1.0f))
-      val double:  Double  = fromDatomic(DDouble(1.0))
+      val string:  String  = fromDatomic("string")
+      val boolean: Boolean = fromDatomic(true: jl.Boolean)
+      val long:    Long    = fromDatomic(1L: jl.Long)
+      val float:   Float   = fromDatomic(1.0f: jl.Float)
+      val double:  Double  = fromDatomic(1.0: jl.Double)
 
-      val bigint: BigInt     = fromDatomic(DBigInt(BigInt(1)))
-      val bigdec: BigDecimal = fromDatomic(DBigDec(BigDecimal(1)))
+      val bigint: BigInt     = fromDatomic(BigInt(1).bigInteger)
+      val bigdec: BigDecimal = fromDatomic(BigDecimal(1).bigDecimal)
 
-      val date: Date = fromDatomic(DInstant(new Date))
+      val date: Date = fromDatomic(new Date)
 
-      val uuid: UUID = fromDatomic(DUuid(UUID.randomUUID()))
+      val uuid: UUID = fromDatomic(UUID.randomUUID())
 
-      val uri: URI = fromDatomic(DUri(new URI("urn:isbn:096139210x")))
+      val uri: URI = fromDatomic(new URI("urn:isbn:096139210x"))
 
-      val bytes: Array[Byte] = fromDatomic(DBytes(Array(Byte.MinValue)))
+      val bytes: Array[Byte] = fromDatomic(Array(Byte.MinValue))
 
-      val keyword: Keyword = fromDatomic(DKeyword(Datomic.KW(":my-kw")))
+      val keyword: Keyword = fromDatomic(clojure.lang.Keyword.intern("my-kw"))
 
       success
     }

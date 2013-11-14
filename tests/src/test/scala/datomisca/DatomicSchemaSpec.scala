@@ -86,7 +86,7 @@ class DatomicSchemaSpec extends Specification {
             :where [ ?e :person/name "toto" ] 
           ]
         """), Datomic.database) map {
-          case List(DLong(totoId)) => 
+          case totoId: Long => 
             Datomic.transact(
               Entity.retract(totoId)
             ) map { tx => 
