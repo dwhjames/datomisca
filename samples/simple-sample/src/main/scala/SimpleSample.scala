@@ -81,10 +81,10 @@ object GettingStarted {
           ]
         """)
 
-        val results = Datomic.q(queryFindByName, Datomic.database, DString("John"))
+        val results = Datomic.q(queryFindByName, Datomic.database, "John")
         println(results)
         results.headOption.map{
-          case (e: DLong, age: DLong) =>
+          case (e: Long, age: Long) =>
             // retrieves again the entity directly by its ID
             val entity = Datomic.database.entity(e)
 
