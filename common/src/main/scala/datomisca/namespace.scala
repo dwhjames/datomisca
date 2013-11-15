@@ -20,7 +20,7 @@ package datomisca
 case class Namespace(name: String) {
   override def toString = name
 
-  def /(name: String) = Keyword(name, Some(this))
+  def /(name: String) = clojure.lang.Keyword.intern(this.name, name)
 }
 
 object Namespace {
@@ -33,13 +33,4 @@ object Namespace {
     val FN = Namespace("db.fn")
     val EXCISE = Namespace("db.excise")
   } 
-}
-
-trait Namespaceable extends Nativeable {
-  def name: String
-  def ns: Option[Namespace] = None
-
-  override def toString = ":" + ( if(ns.isDefined) {ns.get + "/"} else "" ) + name
-
-  def toNative: AnyRef = clojure.lang.Keyword.intern(( if(ns.isDefined) {ns.get + "/"} else "" ) + name )
 }

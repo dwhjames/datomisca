@@ -16,6 +16,8 @@
 
 package datomisca
 
+import clojure.lang.Keyword
+
 
 class AddDbFunction(
     val ident: Keyword,
@@ -26,19 +28,19 @@ class AddDbFunction(
     requires:  String    = "",
     partition: Partition = Partition.USER
 ) extends Operation with KeywordIdentified {
-  val kw = Keyword("add", Some(Namespace.DB))
+  val kw = Namespace.DB / "add"
 
   def toNative: AnyRef =
     datomic.Util.map(
-      Keyword("id", Some(Namespace.DB)).toNative,    DId(partition).toNative,
-      Keyword("ident", Some(Namespace.DB)).toNative, ident.toNative,
-      Keyword("fn", Some(Namespace.DB)).toNative,    datomic.Peer.function(
+      Namespace.DB / "id",    DId(partition).toNative,
+      Namespace.DB / "ident", ident,
+      Namespace.DB / "fn",    datomic.Peer.function(
         datomic.Util.map(
-          Keyword("lang").toNative,     lang,
-          Keyword("imports").toNative,  datomic.Util.read(imports),
-          Keyword("requires").toNative, datomic.Util.read(requires),
-          Keyword("params").toNative,   datomic.Util.list(params: _*),
-          Keyword("code").toNative,     code
+          Keyword.intern("lang"),     lang,
+          Keyword.intern("imports"),  datomic.Util.read(imports),
+          Keyword.intern("requires"), datomic.Util.read(requires),
+          Keyword.intern("params"),   datomic.Util.list(params: _*),
+          Keyword.intern("code"),     code
         )
       )
     )

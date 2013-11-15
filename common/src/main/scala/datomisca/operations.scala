@@ -18,6 +18,8 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
+import clojure.lang.Keyword
+
 
 trait Operation extends Nativeable
 
@@ -26,31 +28,31 @@ sealed trait DataFunction extends Operation {
 }
 
 final case class AddFact(id: DId, attr: Keyword, value: AnyRef) extends DataFunction with TempIdentified {
-  override val func = Keyword("add", Some(Namespace.DB))
+  override val func = Namespace.DB / "add"
   // override val id = fact.id
 
   def toNative: AnyRef =
-    datomic.Util.list(func.toNative, id.toNative, attr.toNative, value)
+    datomic.Util.list(func, id.toNative, attr, value)
 }
 
 final case class RetractFact(id: Long, attr: Keyword, value: AnyRef) extends DataFunction with FinalIdentified {
-  override val func = Keyword("retract", Some(Namespace.DB))
+  override val func = Namespace.DB / "retract"
 
   def toNative: AnyRef =
-    datomic.Util.list(func.toNative, id: java.lang.Long, attr.toNative, value)
+    datomic.Util.list(func, id: java.lang.Long, attr, value)
 }
 
 final case class RetractEntity(id: Long) extends DataFunction with FinalIdentified {
   override val func = RetractEntity.kw
 
   def toNative: AnyRef =
-    datomic.Util.list(func.toNative, id: java.lang.Long)
+    datomic.Util.list(func, id: java.lang.Long)
 
   //override def toString = toNative.toString
 }
 
 object RetractEntity {
-  val kw = Keyword("retractEntity", Some(Namespace.DB.FN))
+  val kw = Namespace.DB.FN / "retractEntity"
 }
 
 class PartialAddEntity(val props: Map[Keyword, AnyRef]) {
@@ -66,18 +68,18 @@ object PartialAddEntity {
   def empty: PartialAddEntity = new PartialAddEntity(Map())
 }
 
-final case class AddEntity(id: DId, partialProps: Map[Keyword, AnyRef]) extends PartialAddEntity(partialProps + (Keyword("id", Namespace.DB) -> id.toNative)) with Operation with TempIdentified {
+final case class AddEntity(id: DId, partialProps: Map[Keyword, AnyRef]) extends PartialAddEntity(partialProps + (Namespace.DB / "id" -> id.toNative)) with Operation with TempIdentified {
 
   def toNative: AnyRef = {
     import scala.collection.JavaConverters._
-    props.map { case (k, v) => (k.toNative, v) } .asJava
+    props.asJava
   }
 
   override def toString = props.map{ case (kw, dd) => kw.toString + " " + dd.toString }.mkString("{\n", "\n  ", "\n}")
 }
 
 final case class AddIdent(ident: Keyword, partition: Partition = Partition.USER) extends Operation with KeywordIdentified {
-  def toNative = AddFact(DId(partition), Keyword("ident", Namespace.DB), ident.toNative).toNative
+  def toNative = AddFact(DId(partition), Namespace.DB / "ident", ident).toNative
 
   override def toString = toNative.toString
 }

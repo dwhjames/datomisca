@@ -23,6 +23,7 @@ import scala.reflect.macros.Context
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+import clojure.lang.Keyword
 import clojure.{lang => clj}
 
 
@@ -60,9 +61,9 @@ private[datomisca] object MacroImpl {
     q.tree match {
       case Literal(Constant(s: String)) =>
         readEDN(c, s) match {
-          case kw: clj.Keyword =>
+          case kw: Keyword =>
             val helper = new Helper[c.type](c)
-            helper.literalDatomiscaKeyword(kw)
+            c.Expr[Keyword](helper.literalCljKeyword(kw))
           case _ =>
             abortWithMessage(c, "Not a valid Clojure keyword")
         }

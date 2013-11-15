@@ -16,6 +16,8 @@
 
 package datomisca
 
+import clojure.lang.Keyword
+
 
 object Entity extends DatomicTypeWrapper {
   /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)

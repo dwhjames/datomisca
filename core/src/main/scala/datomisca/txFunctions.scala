@@ -16,6 +16,8 @@
 
 package datomisca
 
+import clojure.lang.Keyword
+
 
 /*
  * Construct a database function intended to be used as a transaction function.
@@ -47,7 +49,7 @@ class InvokeTxFunction(
 ) extends Operation {
   def toNative: AnyRef = {
     datomic.Util.list(
-      (fn.toNative +: args): _*
+      (fn +: args): _*
     )
   }
 }

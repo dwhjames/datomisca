@@ -23,6 +23,7 @@ import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import java.util.{Date, UUID}
 import java.net.URI
 
+import clojure.lang.Keyword
 import clojure.{lang => clj}
 
 
@@ -32,55 +33,55 @@ sealed trait SchemaType[DD] {
 
 object SchemaType {
   object string extends SchemaType[String] {
-    val keyword = Keyword(Namespace.DB.TYPE, "string")
+    val keyword = Namespace.DB.TYPE / "string"
   }
 
   object boolean extends SchemaType[jl.Boolean] {
-    val keyword = Keyword(Namespace.DB.TYPE, "boolean")
+    val keyword = Namespace.DB.TYPE / "boolean"
   }
 
   object long extends SchemaType[jl.Long] {
-    val keyword = Keyword(Namespace.DB.TYPE, "long")
+    val keyword = Namespace.DB.TYPE / "long"
   }
 
   object bigint extends SchemaType[JBigInt] {
-    val keyword = Keyword(Namespace.DB.TYPE, "bigint")
+    val keyword = Namespace.DB.TYPE / "bigint"
   }
 
   object float extends SchemaType[jl.Float] {
-    val keyword = Keyword(Namespace.DB.TYPE, "float")
+    val keyword = Namespace.DB.TYPE / "float"
   }
 
   object double extends SchemaType[jl.Double] {
-    val keyword = Keyword(Namespace.DB.TYPE, "double")
+    val keyword = Namespace.DB.TYPE / "double"
   }
 
   object bigdec extends SchemaType[JBigDecimal] {
-    val keyword = Keyword(Namespace.DB.TYPE, "bigdec")
+    val keyword = Namespace.DB.TYPE / "bigdec"
   }
 
   object ref extends SchemaType[DRef.type] {
-    val keyword = Keyword(Namespace.DB.TYPE, "ref")
+    val keyword = Namespace.DB.TYPE / "ref"
   }
 
   object instant extends SchemaType[Date] {
-    val keyword = Keyword(Namespace.DB.TYPE, "instant")
+    val keyword = Namespace.DB.TYPE / "instant"
   }
 
   object uuid extends SchemaType[UUID] {
-    val keyword = Keyword(Namespace.DB.TYPE, "uuid")
+    val keyword = Namespace.DB.TYPE / "uuid"
   }
 
   object uri extends SchemaType[URI] {
-    val keyword = Keyword(Namespace.DB.TYPE, "uri")
+    val keyword = Namespace.DB.TYPE / "uri"
   }
 
   object bytes extends SchemaType[Array[Byte]] {
-    val keyword = Keyword(Namespace.DB.TYPE, "bytes")
+    val keyword = Namespace.DB.TYPE / "bytes"
   }
 
-  object keyword extends SchemaType[clj.Keyword] {
-    val keyword = Keyword(Namespace.DB.TYPE, "keyword")
+  object keyword extends SchemaType[Keyword] {
+    val keyword = Namespace.DB.TYPE / "keyword"
   }
 }
 
@@ -90,11 +91,11 @@ sealed trait Cardinality {
 
 object Cardinality {
   case object one extends Cardinality {
-    val keyword = Keyword(Namespace.DB.CARDINALITY, "one")
+    val keyword = Namespace.DB.CARDINALITY / "one"
   }
 
   case object many extends Cardinality {
-    val keyword = Keyword(Namespace.DB.CARDINALITY, "many")
+    val keyword = Namespace.DB.CARDINALITY / "many"
   }
 }
 
@@ -104,9 +105,9 @@ sealed trait Unique {
 
 object Unique {
   case object value extends Unique {
-    val keyword = Keyword(Namespace.DB.UNIQUE, "value")
+    val keyword = Namespace.DB.UNIQUE / "value"
   }
   case object identity extends Unique {
-    val keyword = Keyword(Namespace.DB.UNIQUE, "identity")
+    val keyword = Namespace.DB.UNIQUE / "identity"
   }
 }

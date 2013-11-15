@@ -20,6 +20,8 @@ import scala.annotation.implicitNotFound
 
 import java.util.{Date => JDate}
 
+import clojure.lang.Keyword
+
 /**
   * A conversion type class for point in time values.
   *
@@ -97,7 +99,7 @@ class DDatabase(val underlying: datomic.Database) {
     * @return an entity.
     */
   def entity(kw: Keyword): DEntity =
-    new DEntity(underlying.entity(kw.toNative))
+    new DEntity(underlying.entity(kw))
 
 
   /** Returns the value of the database as of some point t, inclusive.
@@ -136,7 +138,7 @@ class DDatabase(val underlying: datomic.Database) {
     * @throws Exception if no entity is found.
     */
   def entid(kw: Keyword): Long =
-    Option { underlying.entid(kw.toNative) } match {
+    Option { underlying.entid(kw) } match {
       case None      => throw new DatomiscaException(s"entity id for keyword $kw not found")
       case Some(eid) => eid.asInstanceOf[Long]
     }
@@ -161,7 +163,7 @@ class DDatabase(val underlying: datomic.Database) {
     * @see [[seekDatoms]]
     */
   def entidAt[T](partition: Partition, t: T)(implicit ev: AsPointT[T]): Long =
-    underlying.entidAt(partition.keyword.toNative, ev.conv(t)).asInstanceOf[Long]
+    underlying.entidAt(partition.keyword, ev.conv(t)).asInstanceOf[Long]
 
 
   /** Returns the symbolic keyword associated with an id
@@ -173,7 +175,7 @@ class DDatabase(val underlying: datomic.Database) {
   def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
     Option { underlying.ident(ev.conv(id)) } match {
       case None     => throw new DatomiscaException(s"ident keyword for entity id $id not found")
-      case Some(kw) => Keyword(kw.asInstanceOf[clojure.lang.Keyword])
+      case Some(kw) => kw.asInstanceOf[Keyword]
     }
 
   /** Returns the symbolic keyword
@@ -182,7 +184,7 @@ class DDatabase(val underlying: datomic.Database) {
     * @return a keyword
     */
   def ident(kw: Keyword): Keyword =
-    Keyword(underlying.ident(kw.toNative).asInstanceOf[clojure.lang.Keyword])
+    underlying.ident(kw).asInstanceOf[Keyword]
 
   /** Applies transaction data to the database
     *
@@ -261,7 +263,7 @@ class DDatabase(val underlying: datomic.Database) {
     */
   def datoms(index: Keyword, components: AnyRef*): Iterable[DDatom] =
     new Iterable[DDatom] {
-      private val jIterable = underlying.datoms(index.toNative, components: _*)
+      private val jIterable = underlying.datoms(index, components: _*)
       override def iterator = new Iterator[DDatom] {
         private val jIter = jIterable.iterator
         override def hasNext = jIter.hasNext
@@ -298,7 +300,7 @@ class DDatabase(val underlying: datomic.Database) {
     */
   def seekDatoms(index: Keyword, components: AnyRef*): Iterable[DDatom] =
     new Iterable[DDatom] {
-      private val jIterable = underlying.seekDatoms(index.toNative, components: _*)
+      private val jIterable = underlying.seekDatoms(index, components: _*)
       override def iterator = new Iterator[DDatom] {
         private val jIter = jIterable.iterator
         override def hasNext = jIter.hasNext
@@ -327,7 +329,7 @@ class DDatabase(val underlying: datomic.Database) {
     */
   def indexRange(attr: Keyword, start: Option[AnyRef] = None, end: Option[AnyRef] = None): Iterable[DDatom] =
     new Iterable[DDatom] {
-      private val jIterable = underlying.indexRange(attr.toNative, start.orNull, end.orNull)
+      private val jIterable = underlying.indexRange(attr, start.orNull, end.orNull)
       override def iterator = new Iterator[DDatom] {
         private val jIter = jIterable.iterator
         override def hasNext = jIter.hasNext
@@ -397,11 +399,11 @@ object DDatabase {
   def apply(underlying: datomic.Database) = new DDatabase(underlying)
 
   // Index component contains all datoms
-  val EAVT = Keyword("eavt")
+  val EAVT = datomic.Database.EAVT.asInstanceOf[Keyword]
   // Index component contains all datoms
-  val AEVT = Keyword("aevt")
+  val AEVT = datomic.Database.AEVT.asInstanceOf[Keyword]
   // Index component contains datoms for attributes where :db/index = true
-  val AVET = Keyword("avet")
+  val AVET = datomic.Database.AVET.asInstanceOf[Keyword]
   // Index component contains datoms for attributes of :db.type/ref
-  val VAET = Keyword("vaet")
+  val VAET = datomic.Database.VAET.asInstanceOf[Keyword]
 } 

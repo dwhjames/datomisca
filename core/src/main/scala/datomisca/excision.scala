@@ -21,6 +21,8 @@ import scala.collection.JavaConverters._
 
 import java.util.Date
 
+import clojure.lang.Keyword
+
 
 private[datomisca] class ExciseEntity(
     val id:     Long,
@@ -34,17 +36,17 @@ private[datomisca] class ExciseEntity(
   lazy val props = {
     val builder = Map.newBuilder[AnyRef, AnyRef]
 
-    builder += (Keyword("id", Namespace.DB).toNative -> excisionId.toNative)
-    builder += (Keyword("excise", Namespace.DB).toNative -> (id: java.lang.Long))
+    builder += ((Namespace.DB / "id") -> excisionId.toNative)
+    builder += ((Namespace.DB / "excise") -> (id: java.lang.Long))
 
     if(!attrs.isEmpty)
-      builder += (Keyword("attrs", Namespace.DB.EXCISE).toNative -> datomic.Util.list(attrs.map(_.toNative).toSeq:_*))
+      builder += ((Namespace.DB.EXCISE / "attrs") -> datomic.Util.list(attrs.toSeq:_*))
 
     before foreach {
       case Left(d: Date) =>
-        builder += (Keyword("before", Namespace.DB.EXCISE).toNative -> d)
+        builder += ((Namespace.DB.EXCISE / "before") -> d)
       case Right(tx: Long) =>
-        builder += (Keyword("beforeT", Namespace.DB.EXCISE).toNative -> (tx: java.lang.Long))
+        builder += ((Namespace.DB.EXCISE / "beforeT") -> (tx: java.lang.Long))
     }
 
     builder.result().asJava
@@ -69,21 +71,21 @@ private[datomisca] class ExciseAttr(
     before match {
       case None => // BE CAREFUL it excises All Values of An Attribute
         datomic.Util.map(
-          Keyword("id", Namespace.DB).toNative, excisionId.toNative,
-          Keyword("excise", Namespace.DB).toNative, attr.toNative
+          (Namespace.DB / "id"), excisionId.toNative,
+          (Namespace.DB / "excise"), attr
         )
       case Some(Left(d)) =>
         datomic.Util.map(
-          Keyword("id", Namespace.DB).toNative, excisionId.toNative,
-          Keyword("excise", Namespace.DB).toNative, attr.toNative,
-          Keyword("before", Namespace.DB.EXCISE).toNative, d
+          (Namespace.DB / "id"), excisionId.toNative,
+          (Namespace.DB / "excise"), attr,
+          (Namespace.DB.EXCISE / "before"), d
         )
 
       case Some(Right(tx)) =>
         datomic.Util.map(
-          Keyword("id", Namespace.DB).toNative, excisionId.toNative,
-          Keyword("excise", Namespace.DB).toNative, attr.toNative,
-          Keyword("beforeT", Namespace.DB.EXCISE).toNative, (tx: java.lang.Long)
+          (Namespace.DB / "id"), excisionId.toNative,
+          (Namespace.DB / "excise"), attr,
+          (Namespace.DB.EXCISE / "beforeT"), (tx: java.lang.Long)
         )
     }
 

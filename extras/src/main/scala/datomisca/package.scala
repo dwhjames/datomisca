@@ -18,6 +18,8 @@ import scala.language.reflectiveCalls
 
 package object datomisca {
 
+  type Keyword = clojure.lang.Keyword
+
   implicit class RichDEntity(entity: DEntity) {
 
     /**

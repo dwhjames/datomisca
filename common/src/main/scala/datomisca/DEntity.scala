@@ -18,6 +18,8 @@ package datomisca
 
 import scala.concurrent.blocking
 
+import clojure.lang.Keyword
+
 
 class DEntity(val entity: datomic.Entity) extends AnyVal {
   def toNative = entity
@@ -34,7 +36,7 @@ class DEntity(val entity: datomic.Entity) extends AnyVal {
 
   def get(keyword: Keyword): Option[Any] =
     Option {
-      entity.get(keyword.toNative)
+      entity.get(keyword)
     } map (DatomicData.toScala(_))
 
   def apply(keyword: String): Any =
@@ -50,7 +52,7 @@ class DEntity(val entity: datomic.Entity) extends AnyVal {
 
   def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] =
     Option {
-      entity.get(keyword.toNative)
+      entity.get(keyword)
     } map (fdat.from)
 
   def keySet: Set[String] = {

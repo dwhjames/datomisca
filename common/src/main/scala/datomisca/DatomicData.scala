@@ -18,6 +18,8 @@ package datomisca
 
 import scala.annotation.implicitNotFound
 
+import clojure.lang.Keyword
+
 
 private[datomisca] object DatomicData {
 
@@ -46,8 +48,7 @@ private[datomisca] object DatomicData {
     // :db.type/uri
     case u: java.net.URI => u
     // :db.type/keyword
-    case kw: clojure.lang.Keyword => 
-      Keyword(kw.getName, Option(kw.getNamespace).map(Namespace(_)))
+    case kw: Keyword => kw
     // :db.type/bytes
     case bytes: Array[Byte] => bytes
     // an entity map
@@ -88,7 +89,7 @@ object ToDRef {
 
   implicit def keyword2DRef[K](implicit toKeyword: K => Keyword): ToDRef[K] =
     new ToDRef[K] {
-      def toDRef(k: K) = toKeyword(k).toNative
+      def toDRef(k: K) = toKeyword(k)
     }
 
   implicit def tempIdentified2DRef[I <: TempIdentified]: ToDRef[I] =
@@ -103,7 +104,7 @@ object ToDRef {
 
   implicit def keywordIdentified2DRef[I <: KeywordIdentified]: ToDRef[I] =
     new ToDRef[I] {
-      def toDRef(i: I) = i.ident.toNative
+      def toDRef(i: I) = i.ident
     }
 }
 

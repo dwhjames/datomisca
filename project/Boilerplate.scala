@@ -194,6 +194,7 @@ object Boilerplate {
     genHeader +
     ("""|
         |import gen._
+        |import clojure.lang.Keyword
         |
         |private[datomisca] trait AddTxFunctionGen {""" +
            instances + """

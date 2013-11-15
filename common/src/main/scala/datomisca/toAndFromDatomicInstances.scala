@@ -22,6 +22,7 @@ import java.{util => ju}
 import java.util.{Date, UUID}
 import java.net.URI
 
+import clojure.lang.Keyword
 import clojure.{lang => clj}
 
 
@@ -47,7 +48,7 @@ private[datomisca] trait FromDatomicInjImplicits {
   implicit val DUuid2UUID:              FromDatomicInj[UUID,        UUID]        = FromDatomicInj(identity)
   implicit val DUri2URI:                FromDatomicInj[URI,         URI]         = FromDatomicInj(identity)
   implicit val DBytes2Bytes:            FromDatomicInj[Array[Byte], Array[Byte]] = FromDatomicInj(identity)
-  implicit val DKeyword2Keyword:        FromDatomicInj[clj.Keyword, Keyword]     = FromDatomicInj(k => Keyword(k))
+  implicit val DKeyword2Keyword:        FromDatomicInj[Keyword, Keyword]         = FromDatomicInj(identity)
 
   implicit val entity2DEntity: FromDatomicInj[datomic.Entity, DEntity] = FromDatomicInj(e => new DEntity(e))
 
@@ -131,7 +132,7 @@ trait ToDatomicInjImplicits {
   implicit val UUID2DUuid       = ToDatomicInj[UUID,    UUID](identity)
   implicit val URI2DUri         = ToDatomicInj[URI,     URI](identity)
   implicit val Bytes2DBytes     = ToDatomicInj[Array[Byte],   Array[Byte]](identity)
-  implicit val Keyword2DKeyword = ToDatomicInj[clj.Keyword, Keyword]((k: Keyword) => k.toNative.asInstanceOf[clj.Keyword])
+  implicit val Keyword2DKeyword = ToDatomicInj[Keyword, Keyword](identity)
 
 }
 
@@ -175,7 +176,7 @@ trait ToDatomicCastImplicits {
     ToDatomicCast[A] { (a: A) => tdat.to(a): AnyRef }
 
   implicit def DIdCast[I <: DId] = ToDatomicCast[I] { (i: I) => i.toNative }
-  implicit def KeywordIdentified2DRef[I <: KeywordIdentified] = ToDatomicCast[I] { (i: I) => i.ident.toNative }
+  implicit def KeywordIdentified2DRef[I <: KeywordIdentified] = ToDatomicCast[I] { (i: I) => i.ident }
   implicit def TempIdentified2DRef   [I <: TempIdentified]    = ToDatomicCast[I] { (i: I) => i.id.toNative }
   implicit def FinalIdentified2DRef  [I <: FinalIdentified]   = ToDatomicCast[I] { (i: I) => i.id: java.lang.Long }
 

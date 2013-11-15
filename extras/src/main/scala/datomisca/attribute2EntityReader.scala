@@ -18,6 +18,7 @@ package datomisca
 
 import scala.annotation.implicitNotFound
 
+
 @implicitNotFound("There is no unique reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}")
 trait Attribute2EntityReaderInj[DD <: AnyRef, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card]): EntityReader[T]

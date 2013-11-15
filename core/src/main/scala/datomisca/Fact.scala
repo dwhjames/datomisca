@@ -18,6 +18,8 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
+import clojure.lang.Keyword
+
 
 object Fact extends DatomicTypeWrapper {
   /** Creates a single Add operation targeting a given [[DId]]
@@ -64,8 +66,8 @@ object Fact extends DatomicTypeWrapper {
     */
   def partition(partition: Partition) =
     new AddEntity(DId(Partition.DB), Map(
-      Namespace.DB / "ident"              -> partition.keyword.toNative,
-      Namespace.DB.INSTALL / "_partition" -> Partition.DB.keyword.toNative
+      Namespace.DB / "ident"              -> partition.keyword,
+      Namespace.DB.INSTALL / "_partition" -> Partition.DB.keyword
     ))
 
 }

@@ -180,10 +180,4 @@ private[datomisca] class Helper[C <: Context](val c: C) {
     c.Expr[AbstractQuery](q"new $queryClassName[..$typeArgs]($query)")
   }
 
-  def literalDatomiscaKeyword(kw: clj.Keyword): c.Expr[Keyword] =
-    if (kw.getNamespace == null)
-      c.Expr[Keyword](q"new datomisca.Keyword(${kw.getName})")
-    else
-      c.Expr[Keyword](q"new datomisca.Keyword(${kw.getName}, Some(datomisca.Namespace(${kw.getNamespace})))")
-
 }

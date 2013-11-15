@@ -18,14 +18,16 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
+import clojure.lang.Keyword
 
-final case class Partition(keyword: Keyword) {
+
+class Partition(val keyword: Keyword) extends AnyVal {
   override def toString = keyword.toString
 }
 
 object Partition {
-  val DB   = Partition(Keyword("db",   Some(Namespace.DB.PART)))
-  val TX   = Partition(Keyword("tx",   Some(Namespace.DB.PART)))
-  val USER = Partition(Keyword("user", Some(Namespace.DB.PART)))
+  val DB   = new Partition(Namespace.DB.PART / "db")
+  val TX   = new Partition(Namespace.DB.PART / "tx")
+  val USER = new Partition(Namespace.DB.PART / "user")
 }
 
