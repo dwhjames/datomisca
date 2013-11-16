@@ -18,10 +18,6 @@ package datomisca
 
 
 object SchemaEntity {
-  /** AddEntity based on Schema attributes 
-    */
-  def add[T](id: T)(props: Props)(implicit ev: AsEntityId[T]): AddEntity =
-    new AddEntity(ev.conv(id), props.convert.props)
 
   class SchemaEntityBuilder {
 
