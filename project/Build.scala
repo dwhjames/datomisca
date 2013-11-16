@@ -24,37 +24,31 @@ object DatomiscaBuild extends Build {
       id       = "datomisca",
       base     = file("."),
       settings = rootProjectSettings
-    ) aggregate(common, macros, core, extras, tests)
-
-  lazy val common = Project(
-      id       = "common",
-      base     = file("common"),
-      settings = commonProjectSettings
-    )
+    ) aggregate(macros, core, extras, tests)
 
   lazy val macros = Project(
       id       = "macros",
       base     = file("macros"),
       settings = macrosProjectSettings
-    ) dependsOn(common)
+    )
 
   lazy val core = Project(
       id       = "core",
       base     = file("core"),
       settings = coreProjectSettings
-    ) dependsOn(common, macros)
+    ) dependsOn(macros)
 
   lazy val extras = Project(
       id       = "extras",
       base     = file("extras"),
       settings = extrasProjectSettings
-    ) dependsOn(common, core)
+    ) dependsOn(core)
 
   lazy val tests = Project(
       id = "tests",
       base = file("tests"),
       settings = testsProjectSettings
-    ) dependsOn(common, core, extras, macros)
+    ) dependsOn(core, extras, macros)
 
 
   val repositories = Seq(
@@ -100,13 +94,11 @@ object DatomiscaBuild extends Build {
       },
 
       // map subproject classes into root project
-      mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
 
       // map subproject sources into root project
-      mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (extras, Compile, packageSrc),
@@ -120,12 +112,6 @@ object DatomiscaBuild extends Build {
     Seq(
       publish      := (),
       publishLocal := ()
-    )
-
-  lazy val commonProjectSettings =
-    subProjectSettings ++
-    Seq(
-      name := "datomisca-common"
     )
 
   lazy val macrosProjectSettings =

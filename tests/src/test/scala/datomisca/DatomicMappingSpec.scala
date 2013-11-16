@@ -255,7 +255,7 @@ class DatomicMappingSpec extends Specification {
 
           entity.get(PersonSchema.birth) must beEqualTo(Some(birthDate))
 
-          val dogValue0 = entity.getAs[DEntity](person / "dog")
+          val dogValue0 = entity.getAs[Entity](person / "dog")
 
           entity.idView[Dog](PersonSchema.dog) must beEqualTo(IdView(realMedorId)(medor))
 
@@ -356,7 +356,7 @@ class DatomicMappingSpec extends Specification {
       println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
       implicit val conn = Datomic.connect(uri)
 
-      val rd  = PersonSchema.dog.read[IdView[DEntity]]
+      val rd  = PersonSchema.dog.read[IdView[Entity]]
       val rd3 = PersonSchema.dog.read[Long]
 
       success

@@ -26,6 +26,7 @@ import java.net.URI
 import clojure.lang.Keyword
 import clojure.{lang => clj}
 
+object DatomicRef
 
 sealed trait SchemaType[DD] {
   val keyword: Keyword
@@ -60,7 +61,7 @@ object SchemaType {
     val keyword = Namespace.DB.TYPE / "bigdec"
   }
 
-  object ref extends SchemaType[DRef.type] {
+  object ref extends SchemaType[DatomicRef.type] {
     val keyword = Namespace.DB.TYPE / "ref"
   }
 

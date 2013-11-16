@@ -162,7 +162,7 @@ class ToFromDatomicSpec extends Specification {
 
     "cast to a specific Scala type from the DatomicData type of an attribute" in {
 
-      val entity = DEntity(null)
+      val entity = new Entity(null)
 
       {
         // core
@@ -224,7 +224,7 @@ class ToFromDatomicSpec extends Specification {
 
     "uniquely determine the Scala type from the DatomicData type of an attribute" in {
 
-      val entity = DEntity(null)
+      val entity = new Entity(null)
 
       /*
        * we simply need the following code to compile to test that

@@ -50,7 +50,7 @@ private[datomisca] trait FromDatomicInjImplicits {
   implicit val DBytes2Bytes:            FromDatomicInj[Array[Byte], Array[Byte]] = FromDatomicInj(identity)
   implicit val DKeyword2Keyword:        FromDatomicInj[Keyword, Keyword]         = FromDatomicInj(identity)
 
-  implicit val entity2DEntity: FromDatomicInj[datomic.Entity, DEntity] = FromDatomicInj(e => new DEntity(e))
+  implicit val entity2Entity: FromDatomicInj[datomic.Entity, Entity] = FromDatomicInj(e => new Entity(e))
 
 }
 
@@ -163,8 +163,8 @@ trait ToDatomicImplicits {
     }
   }
 
-  implicit val dbConv = ToDatomic[datomic.Database, DDatabase](_.underlying)
-  implicit val rulesConv = ToDatomic[clojure.lang.IPersistentCollection, DRules](_.edn)
+  implicit val dbConv = ToDatomic[datomic.Database, Database](_.underlying)
+  implicit val rulesConv = ToDatomic[clojure.lang.IPersistentCollection, QueryRules](_.edn)
 
 }
 

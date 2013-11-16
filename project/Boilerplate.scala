@@ -128,7 +128,7 @@ object Boilerplate {
   def genQueryResultToTupleInstances = {
     def genInstance(arity: Int) = {
       val typeParams = Seq.fill(arity)("Any").mkString("(", ", ", ")")
-      val body = ((0 until arity) map (n => "DatomicData.toScala(l.get("+n+"))")).mkString("(", ", ", ")")
+      val body = ((0 until arity) map (n => "Convert.toScala(l.get("+n+"))")).mkString("(", ", ", ")")
 
       ("""|
           |  implicit object QueryResultToTuple"""+arity+" extends QueryResultToTuple["+typeParams+"""] {
@@ -144,7 +144,7 @@ object Boilerplate {
     ("""|
         |private[datomisca] trait QueryResultToTupleInstances {
         |  implicit object QueryResultToTuple1 extends QueryResultToTuple[Any] {
-        |    override def toTuple(l: java.util.List[AnyRef]) = DatomicData.toScala(l.get(0))
+        |    override def toTuple(l: java.util.List[AnyRef]) = Convert.toScala(l.get(0))
         |  }""" +
            instances +
      """|}

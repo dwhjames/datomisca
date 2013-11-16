@@ -20,7 +20,7 @@ package object datomisca {
 
   type Keyword = clojure.lang.Keyword
 
-  implicit class RichDEntity(entity: DEntity) {
+  implicit class RichEntity(entity: Entity) {
 
     /**
       * Get the value of the entity's attribute.
@@ -90,8 +90,8 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def idView[T]
-              (attr: Attribute[DRef.type, Cardinality.one.type])
-              (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, IdView[T]])
+              (attr: Attribute[DatomicRef.type, Cardinality.one.type])
+              (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, IdView[T]])
               : IdView[T] =
       read[IdView[T]](attr)
 
@@ -99,8 +99,8 @@ package object datomisca {
       * An optional version of idView
       */
     def getIdView[T]
-                 (attr: Attribute[DRef.type, Cardinality.one.type])
-                 (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.one.type, IdView[T]])
+                 (attr: Attribute[DatomicRef.type, Cardinality.one.type])
+                 (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, IdView[T]])
                  : Option[IdView[T]] =
       readOpt[IdView[T]](attr)
 
@@ -110,8 +110,8 @@ package object datomisca {
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
     def idViews[T]
-               (attr: Attribute[DRef.type, Cardinality.many.type])
-               (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[IdView[T]]])
+               (attr: Attribute[DatomicRef.type, Cardinality.many.type])
+               (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[T]]])
                : Set[IdView[T]] =
       read[Set[IdView[T]]](attr)
 
@@ -119,8 +119,8 @@ package object datomisca {
       * An optional version of idViews
       */
     def getIdViews[T]
-                  (attr: Attribute[DRef.type, Cardinality.many.type])
-                  (implicit attrC: Attribute2EntityReaderCast[DRef.type, Cardinality.many.type, Set[IdView[T]]])
+                  (attr: Attribute[DatomicRef.type, Cardinality.many.type])
+                  (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[T]]])
                   : Option[Set[IdView[T]]] =
       readOpt[Set[IdView[T]]](attr)
   }

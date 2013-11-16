@@ -344,7 +344,7 @@ class DatomicMapping2Spec extends Specification {
 
           entity.get(PersonSchema.birth) must beEqualTo(Some(birthDate))
 
-          val dogValue0 = entity.getAs[DEntity](person / "dog")
+          val dogValue0 = entity.getAs[Entity](person / "dog")
 
           entity.getIdView[Dog](PersonSchema.dog) must beEqualTo(Some(IdView(realMedorId)(medor.copy(id=Some(realMedorId)))))
 

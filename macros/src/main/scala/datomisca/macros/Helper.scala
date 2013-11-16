@@ -156,8 +156,8 @@ private[datomisca] class Helper[C <: Context](val c: C) {
   }
 
 
-  def literalQueryRules(rules: c.Tree): c.Expr[DRules] =
-    c.Expr[DRules](q"new datomisca.DRules($rules)")
+  def literalQueryRules(rules: c.Tree): c.Expr[QueryRules] =
+    c.Expr[QueryRules](q"new datomisca.QueryRules($rules)")
 
   def literalQuery(query: c.Tree, inputSize: Int, outputSize: Int): c.Expr[AbstractQuery] = {
     val typeArgs =

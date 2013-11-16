@@ -73,7 +73,7 @@ private[datomisca] object MacroImpl {
   }
 
 
-  def cljRulesImpl(c: Context)(edn: c.Expr[String]): c.Expr[DRules] = {
+  def cljRulesImpl(c: Context)(edn: c.Expr[String]): c.Expr[QueryRules] = {
     import c.universe._
 
     edn.tree match {

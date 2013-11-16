@@ -623,15 +623,15 @@ class DatomicTxSpec extends Specification {
           person / "age"  -> 30
         )
       ) map { tx => 
-         val entries = tx.txData.collect{ case DDatom(_,k,v,_,_) => (k.toLong, v)}.toMap
+         val entries = tx.txData.collect{ case Datom(_,k,v,_,_) => (k.toLong, v)}.toMap
          val db = tx.dbAfter
          entries.size must beEqualTo(3)
          entries(db.entid(person / "age")) must beEqualTo(30)
          entries(db.entid(person / "name"))  must beEqualTo("toto")
          entries(db.entid(PersonSchema.name.ident))  must beEqualTo("toto")
          
-         tx.txData.collectFirst{ case DDatom(_,_, age: Long,_,_) => age} must beEqualTo(Some(30))
-         tx.txData.collectFirst{ case DDatom(_,k , name: String ,_,_) if db.ident(k) == PersonSchema.name.ident => name} must beEqualTo(Some("toto"))
+         tx.txData.collectFirst{ case Datom(_,_, age: Long,_,_) => age} must beEqualTo(Some(30))
+         tx.txData.collectFirst{ case Datom(_,k , name: String ,_,_) if db.ident(k) == PersonSchema.name.ident => name} must beEqualTo(Some("toto"))
       }
 
       Await.result(fut,Duration("2 seconds"))

@@ -210,8 +210,8 @@ object Accounts {
     val dumpTx: (Any => Unit) = {
       case eid: Long =>
         val entity = Datomic.database.entity(eid)
-        def getName(entity: DEntity, kw: Keyword) =
-          entity.as[DEntity](kw).as[String](name.ident)
+        def getName(entity: Entity, kw: Keyword) =
+          entity.as[Entity](kw).as[String](name.ident)
         println(
           entity.toMap +
           (from.ident.toString -> getName(entity, from.ident)) +

@@ -178,7 +178,7 @@ class DatomicDatabaseSpec extends Specification {
               Datomic.database.touch(e)
           }
 
-          val datoms = Datomic.database.datoms(DDatabase.AEVT, user / "passwordHash")
+          val datoms = Datomic.database.datoms(Database.AEVT, user / "passwordHash")
           println(s"Datoms: $datoms")
 
           ///////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ private[datomisca] class AttributeOps[DD <: AnyRef, Card <: Cardinality](attr: A
     a2er.convert(attr)
 
   def readOpt[A](implicit a2er: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[Option[A]] =
-    EntityReader[Option[A]] { e: DEntity => 
+    EntityReader[Option[A]] { e: Entity => 
       // searches attributes in the entity before reading it
       e.get(attr.ident) match {
         case None => None

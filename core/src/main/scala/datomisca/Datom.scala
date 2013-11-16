@@ -16,10 +16,19 @@
 
 package datomisca
 
-abstract class AbstractQuery(val query: clojure.lang.IPersistentMap)
 
-final class QueryRules(val edn: clojure.lang.IPersistentVector) extends AnyVal {
-  override def toString = edn.toString
+final class Datom(val underlying: datomic.Datom) extends AnyVal {
+
+  def id:     Long    = underlying.e.asInstanceOf[Long]
+  def attrId: Int     = underlying.a.asInstanceOf[Integer]
+  def value:  Any     = Convert.toScala(underlying.v)
+  def tx:     Long    = underlying.tx.asInstanceOf[Long]
+  def added:  Boolean = underlying.added
+
+  override def toString = s"Datom(e[$id] a[$attrId] v[$value] tx[$tx] added[$added])"
 }
 
-object Query extends macros.QueryMacros
+object Datom {
+   def unapply(da: Datom): Option[(Long, Int, Any, Long, Boolean)] =
+    Some((da.id,da.attrId,da.value,da.tx,da.added))
+}

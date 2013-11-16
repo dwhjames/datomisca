@@ -23,17 +23,17 @@ class TxReport(rawReport: java.util.Map[_, _]) {
   import datomic.Connection.{DB_BEFORE, DB_AFTER, TX_DATA, TEMPIDS}
   import datomic.db.Db
 
-  def dbBefore: DDatabase =
-    DDatabase(rawReport.get(DB_BEFORE).asInstanceOf[Db])
+  def dbBefore: Database =
+    new Database(rawReport.get(DB_BEFORE).asInstanceOf[Db])
 
-  def dbAfter: DDatabase =
-    DDatabase(rawReport.get(DB_AFTER).asInstanceOf[Db])
+  def dbAfter: Database =
+    new Database(rawReport.get(DB_AFTER).asInstanceOf[Db])
 
-  lazy val txData: Seq[DDatom] = {
-    val builder = Seq.newBuilder[DDatom]
+  lazy val txData: Seq[Datom] = {
+    val builder = Seq.newBuilder[Datom]
     val iter = rawReport.get(TX_DATA).asInstanceOf[java.util.List[datomic.Datom]].iterator
     while (iter.hasNext) {
-      builder += new DDatom(iter.next())
+      builder += new Datom(iter.next())
     }
     builder.result()
   }
@@ -59,7 +59,7 @@ class TxReport(rawReport: java.util.Map[_, _]) {
   def resolveOpt(ids: DId*): Seq[Option[Long]] =
     ids map { resolveOpt(_) }
 
-  def resolveEntity(id: DId): DEntity =
+  def resolveEntity(id: DId): Entity =
     dbAfter.entity(resolve(id))
 
   lazy val tempidMap = new Map[DId, Long] {

@@ -31,15 +31,15 @@ class Log(val log: datomic.Log) {
   /** A transaction in the log
     *
     * A transaction consists of the T point of the transaction, along with the
-    * collection of [[DDatom]]s asserts or retracted by the transaction.
+    * collection of [[Datom]]s asserts or retracted by the transaction.
     */
   trait Tx {
 
     /** The T point of the transaction. */
     val t: Long
 
-    /** An iterable of the [[DDatom]]s asserted or retracted by the transaction. */
-    val datoms: Iterable[DDatom]
+    /** An iterable of the [[Datom]]s asserted or retracted by the transaction. */
+    val datoms: Iterable[Datom]
   }
   /** Returns a range of transactions in log.
     *
@@ -69,14 +69,14 @@ class Log(val log: datomic.Log) {
       override def next() = new Tx {
         private val javaMap: java.util.Map[_, _] = jIter.next()
         override val t = javaMap.get(datomic.Log.T).asInstanceOf[Long]
-        override val datoms = new Iterable[DDatom] {
+        override val datoms = new Iterable[Datom] {
           private val jIterableDatoms =
             javaMap.get(datomic.Log.DATA)
                    .asInstanceOf[java.lang.Iterable[datomic.Datom]]
-          override def iterator = new Iterator[DDatom] {
+          override def iterator = new Iterator[Datom] {
             private val jIterDatoms = jIterableDatoms.iterator
             override def hasNext = jIterDatoms.hasNext
-            override def next() = new DDatom(jIterDatoms.next())
+            override def next() = new Datom(jIterDatoms.next())
           }
         }
       }

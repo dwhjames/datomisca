@@ -25,7 +25,7 @@ import datomic.ListenableFuture
 
 class Connection(val connection: datomic.Connection) extends AnyVal {
 
-  def database: DDatabase = DDatabase(connection.db())
+  def database: Database = new Database(connection.db())
 
   /**
     * Used to coordinate with other peers.
@@ -48,8 +48,8 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.
     */
-  def sync()(implicit exec: ExecutionContext): Future[DDatabase] =
-    Connection.bridgeDatomicFuture(connection.sync()) map DDatabase.apply
+  def sync()(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.sync()) map (new Database(_))
 
   /**
     * Used to coordinate with other peers.
@@ -73,8 +73,8 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.
     */
-  def sync(t: Long)(implicit exec: ExecutionContext): Future[DDatabase] =
-    Connection.bridgeDatomicFuture(connection.sync(t)) map DDatabase.apply
+  def sync(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.sync(t)) map (new Database(_))
 
 
   def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
