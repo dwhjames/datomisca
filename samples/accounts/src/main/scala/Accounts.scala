@@ -87,7 +87,7 @@ object AccountsTxData {
 
   val sampleTxData = Seq(issuer, bob, alice)
 
-  def transfer(fromAcc: Long, toAcc: Long, transAmount: BigDecimal, note: String): Seq[Operation] = {
+  def transfer(fromAcc: Long, toAcc: Long, transAmount: BigDecimal, note: String): Seq[TxData] = {
     val txId = DId(Partition.TX)
     Seq(
       InvokeTxFunction(transferFn.ident)(fromAcc: java.lang.Long, toAcc: java.lang.Long, transAmount.bigDecimal),
@@ -100,7 +100,7 @@ object AccountsTxData {
     )
   }
 
-  def credit(toAcc: Long, amount: BigDecimal): Operation =
+  def credit(toAcc: Long, amount: BigDecimal): TxData =
     InvokeTxFunction(creditFn.ident)(toAcc: java.lang.Long, amount.bigDecimal)
 }
 

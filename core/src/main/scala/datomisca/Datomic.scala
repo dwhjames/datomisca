@@ -73,7 +73,7 @@ object Datomic
     * at runtime'''
     *
     * You can then directly copy some Clojure code in a String and get it parsed at runtime. This is why
-    * it returns a `Try[Seq[Operation]]`
+    * it returns a `Try[Seq[TxData]]`
     * It also manages comments.
     *
     * {{{
@@ -101,10 +101,10 @@ object Datomic
     * @param q the Clojure string
     * @return a sequence of operations or an error
     */
-  def parseOps(ops: String): Try[Seq[Operation]] = Try {
+  def parseOps(ops: String): Try[Seq[TxData]] = Try {
     datomic.Util.readAll(new java.io.StringReader(ops)).asInstanceOf[java.util.List[AnyRef]].asScala map { obj =>
-      new Operation {
-        override val toNative = obj
+      new TxData {
+        override val toTxData = obj
       }
     }
   }

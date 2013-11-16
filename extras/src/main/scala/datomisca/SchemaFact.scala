@@ -25,7 +25,7 @@ object SchemaFact {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: AnyRef) = partial.props.head
-    AddFact(ev.conv(id), kw, value)
+    new AddFact(ev.conv(id), kw, value)
   }
 
   /** retract based on Schema attributes 
@@ -35,7 +35,7 @@ object SchemaFact {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
     val (kw: Keyword, value: AnyRef) = partial.props.head
-    RetractFact(ev.conv(id), kw, value)
+    new RetractFact(ev.conv(id), kw, value)
   }
 
 }

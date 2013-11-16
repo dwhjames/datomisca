@@ -77,13 +77,9 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     Connection.bridgeDatomicFuture(connection.sync(t)) map (new Database(_))
 
 
-  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
-    import scala.collection.JavaConverters._
-
-    val datomicOps = ops.map( _.toNative ).asJava
-
+  def transact(ops: Seq[TxData])(implicit ex: ExecutionContext): Future[TxReport] = {
     val future = try {
-        Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+        Connection.bridgeDatomicFuture(connection.transactAsync(datomic.Util.list(ops.map(_.toTxData):_*)))
       } catch {
         case NonFatal(ex) => Future.failed(ex)
       }
@@ -93,8 +89,8 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     }
   }
 
-  def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
+  def transact(op: TxData)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
+  def transact(op: TxData, ops: TxData *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
   def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
 

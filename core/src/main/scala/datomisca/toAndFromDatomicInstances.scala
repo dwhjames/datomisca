@@ -175,9 +175,9 @@ trait ToDatomicCastImplicits {
   implicit def DDWriter2ToDatomicCast[DD <: AnyRef, A](implicit tdat: ToDatomic[DD, A]) = 
     ToDatomicCast[A] { (a: A) => tdat.to(a): AnyRef }
 
-  implicit def DIdCast[I <: DId] = ToDatomicCast[I] { (i: I) => i.toNative }
+  implicit def DIdCast[I <: DId] = ToDatomicCast[I] { (i: I) => i.toDatomicId }
   implicit def KeywordIdentified2DRef[I <: KeywordIdentified] = ToDatomicCast[I] { (i: I) => i.ident }
-  implicit def TempIdentified2DRef   [I <: TempIdentified]    = ToDatomicCast[I] { (i: I) => i.id.toNative }
+  implicit def TempIdentified2DRef   [I <: TempIdentified]    = ToDatomicCast[I] { (i: I) => i.id.toDatomicId }
   implicit def FinalIdentified2DRef  [I <: FinalIdentified]   = ToDatomicCast[I] { (i: I) => i.id: java.lang.Long }
 
   implicit val JavaListCast = ToDatomicCast[ju.List[AnyRef]](identity)

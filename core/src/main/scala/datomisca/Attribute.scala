@@ -31,7 +31,7 @@ final case class Attribute[DD, Card <: Cardinality](
     fulltext:    Option[Boolean] = None,
     isComponent: Option[Boolean] = None,
     noHistory:   Option[Boolean] = None
-) extends Operation with KeywordIdentified {
+) extends TxData with KeywordIdentified {
 
   def withDoc(str: String)        = copy( doc = Some(str) )
   def withUnique(u: Unique)       = copy( unique = Some(u) )
@@ -60,10 +60,10 @@ final case class Attribute[DD, Card <: Cardinality](
     // installing attribute
     mb += Attribute.installAttr -> Partition.DB.keyword
 
-    AddEntity(id, mb.result())
+    new AddEntity(id, mb.result())
   }
   
-  override def toNative: AnyRef = toAddOps.toNative
+  override def toTxData: AnyRef = toAddOps.toTxData
   override def toString = ident.toString
 
   def stringify = s"""

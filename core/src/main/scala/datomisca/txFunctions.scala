@@ -46,8 +46,8 @@ object AddTxFunction extends AddTxFunctionGen {
 class InvokeTxFunction(
     fn:   Keyword,
     args: Seq[AnyRef]
-) extends Operation {
-  def toNative: AnyRef = {
+) extends TxData {
+  def toTxData: AnyRef = {
     datomic.Util.list(
       (fn +: args): _*
     )

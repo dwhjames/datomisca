@@ -139,7 +139,7 @@ class DatomicTxSpec extends Specification {
       ) flatMap { tx => 
         println(s"Provisioned data... TX: $tx")
 
-        println(s"Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
+        println(s"Resolved Id for toto: temp(${idToto}) real(${tx.resolve(idToto)})")
 
         val totoId = tx.resolve(idToto)
         Datomic.transact(
@@ -201,7 +201,7 @@ class DatomicTxSpec extends Specification {
       ) flatMap { tx => 
         println(s"2 Provisioned data... TX: $tx")
 
-        println(s"2 Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
+        println(s"2 Resolved Id for toto: temp(${idToto}) real(${tx.resolve(idToto)})")
         val totoId = tx.resolve(toto)
         Datomic.transact(
           Entity.add(idTutu)(

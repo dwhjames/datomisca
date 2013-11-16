@@ -27,12 +27,11 @@ class AddDbFunction(
     imports:   String    = "",
     requires:  String    = "",
     partition: Partition = Partition.USER
-) extends Operation with KeywordIdentified {
-  val kw = Namespace.DB / "add"
+) extends TxData with KeywordIdentified {
 
-  def toNative: AnyRef =
+  def toTxData: AnyRef =
     datomic.Util.map(
-      Namespace.DB / "id",    DId(partition).toNative,
+      Namespace.DB / "id",    DId(partition).toDatomicId,
       Namespace.DB / "ident", ident,
       Namespace.DB / "fn",    datomic.Peer.function(
         datomic.Util.map(
@@ -45,15 +44,13 @@ class AddDbFunction(
       )
     )
 
-  override def toString = toNative.toString
+  override def toString = toTxData.toString
 }
 
-abstract class TypedAddDbFunction(fn: AddDbFunction) extends Operation with KeywordIdentified {
-  val ident = fn.ident
-  // lazy val ref = fn.ref
-  val kw = fn.kw
+abstract class TypedAddDbFunction(fn: AddDbFunction) extends TxData with KeywordIdentified {
+  override val ident = fn.ident
 
-  def toNative: AnyRef = fn.toNative
+  def toTxData: AnyRef = fn.toTxData
 }
 // TypedAddDbFunction 0-22 in managed source
 

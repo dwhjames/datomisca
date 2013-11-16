@@ -17,18 +17,20 @@
 package datomisca
 
 
-sealed trait DId extends Nativeable
+sealed trait DId extends Any {
+  def toDatomicId: AnyRef
+}
 
-final class FinalId(val underlying: Long) extends DId {
-  override def toNative: AnyRef = underlying: java.lang.Long
+final class FinalId(val underlying: Long) extends AnyVal with DId {
+  override def toDatomicId: AnyRef = underlying: java.lang.Long
 
-  override def toString = toNative.toString
+  override def toString = underlying.toString
 }
 
 final class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
-  override val toNative: AnyRef = dbId
+  override val toDatomicId: AnyRef = dbId
 
-  override def toString = toNative.toString
+  override def toString = toDatomicId.toString
 }
 
 object DId {

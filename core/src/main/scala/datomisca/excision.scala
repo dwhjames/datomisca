@@ -29,14 +29,14 @@ private[datomisca] class ExciseEntity(
     excisionId: TempId = DId(Partition.USER),
     attrs:      Set[Keyword] = Set(),
     before:     Option[Either[Date, Long]] = None
-) extends Operation with FinalIdentified {
+) extends TxData with FinalIdentified {
   def before(d: Date) = new ExciseEntity(this.id, this.excisionId, this.attrs, Some(Left(d)))
   def before(tx: Long) = new ExciseEntity(this.id, this.excisionId, this.attrs, Some(Right(tx)))
 
   lazy val props = {
     val builder = Map.newBuilder[AnyRef, AnyRef]
 
-    builder += ((Namespace.DB / "id") -> excisionId.toNative)
+    builder += ((Namespace.DB / "id") -> excisionId.toDatomicId)
     builder += ((Namespace.DB / "excise") -> (id: java.lang.Long))
 
     if(!attrs.isEmpty)
@@ -52,7 +52,7 @@ private[datomisca] class ExciseEntity(
     builder.result().asJava
   }
 
-  def toNative: AnyRef = {
+  def toTxData: AnyRef = {
     props
   }
 
@@ -63,7 +63,7 @@ private[datomisca] class ExciseAttr(
     attr:       Keyword,
     excisionId: TempId = DId(Partition.USER),
     before:     Option[Either[Date, Long]]
-) extends Operation {
+) extends TxData {
   def before(d: Date) = new ExciseAttr(this.attr, this.excisionId, Some(Left(d)))
   def before(tx: Long) = new ExciseAttr(this.attr, this.excisionId, Some(Right(tx)))
 
@@ -71,25 +71,25 @@ private[datomisca] class ExciseAttr(
     before match {
       case None => // BE CAREFUL it excises All Values of An Attribute
         datomic.Util.map(
-          (Namespace.DB / "id"), excisionId.toNative,
+          (Namespace.DB / "id"), excisionId.toDatomicId,
           (Namespace.DB / "excise"), attr
         )
       case Some(Left(d)) =>
         datomic.Util.map(
-          (Namespace.DB / "id"), excisionId.toNative,
+          (Namespace.DB / "id"), excisionId.toDatomicId,
           (Namespace.DB / "excise"), attr,
           (Namespace.DB.EXCISE / "before"), d
         )
 
       case Some(Right(tx)) =>
         datomic.Util.map(
-          (Namespace.DB / "id"), excisionId.toNative,
+          (Namespace.DB / "id"), excisionId.toDatomicId,
           (Namespace.DB / "excise"), attr,
           (Namespace.DB.EXCISE / "beforeT"), (tx: java.lang.Long)
         )
     }
 
-  def toNative: AnyRef = {
+  def toTxData: AnyRef = {
     props
   }
 
@@ -102,77 +102,58 @@ object Excise {
     * @param excisionId the temporary ID of the excision entity 
     * @param attr attribute to excised from entity (partial excision)
     */
-  def entity(id: Long, excisionId: TempId, attrs: Keyword*) = new ExciseEntity(id, excisionId, attrs.toSet)
-  def entity(id: Long, attrs: Keyword*) = new ExciseEntity(id = id, attrs = attrs.toSet)
+  def entity[T](id: T, excisionId: TempId, attr: Keyword, attrs: Keyword*)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), excisionId, (attr +: attrs).toSet)
+  def entity[T](id: T, attr: Keyword, attrs: Keyword*)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), attrs = (attr +: attrs).toSet)
 
   /** Create operations to excise a full entity
     * @param id the targeted [[DId]] which must be a Long or [[FinalId]]
     * @param excisionId the temporary ID of the excision entity
     */
-  def entity(id: Long, excisionId: TempId) = new ExciseEntity(id, excisionId)
-  def entity(id: Long) = new ExciseEntity(id)
+  def entity[T](id: T, excisionId: TempId)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), excisionId)
+  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id))
 
   /** Create operations to excise entity restricting excision to datoms created before a tx
     * @param id the targeted [[DId]] which must be a Long
     * @param excisionId the temporary ID of the excision entity
     * @param before the transaction id before which datoms excision is limited
     */
-  def entity(id: Long, excisionId: TempId, before: Long) = new ExciseEntity(id=id, excisionId=excisionId, before=Some(Right(before)))
-  def entity(id: Long, before: Long) = new ExciseEntity(id=id, before=Some(Right(before)))
+  def entity[T](id: T, excisionId: TempId, before: Long)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), excisionId=excisionId, before=Some(Right(before)))
+  def entity[T](id: T, before: Long)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), before=Some(Right(before)))
 
   /** Create operations to excise entity restricting excision to datoms created before a date
     * @param id the targeted [[DId]] which must be a Long
     * @param excisionId the temporary ID of the excision entity
     * @param before the instant before which datoms excision is limited
     */
-  def entity(id: Long, excisionId: TempId, before: Date) = new ExciseEntity(id=id, excisionId=excisionId, before=Some(Left(before)))
-  def entity(id: Long, before: Date) = new ExciseEntity(id=id, before=Some(Left(before)))
+  def entity[T](id: T, excisionId: TempId, before: Date)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), excisionId=excisionId, before=Some(Left(before)))
+  def entity[T](id: T, before: Date)(implicit ev: AsPermanentEntityId[T]) =
+    new ExciseEntity(ev.conv(id), before=Some(Left(before)))
 
-  /** Create operations to excise partialy an entity
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param excisionId the temporary ID of the excision entity
-    * @param attr attribute to excised from entity (partial excision)
-    */
-  def entity(id: FinalId, excisionId: TempId, attrs: Keyword*) = new ExciseEntity(id.underlying, excisionId, attrs.toSet)
-  def entity(id: FinalId, attrs: Keyword*) = new ExciseEntity(id=id.underlying, attrs=attrs.toSet)
-
-  /** Create operations to excise a full entity
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param excisionId the temporary ID of the excision entity
-    */
-  def entity(id: FinalId, excisionId: TempId) = new ExciseEntity(id.underlying, excisionId)
-  def entity(id: FinalId) = new ExciseEntity(id=id.underlying)
-
-  /** Create operations to excise entity restricting excision to datoms created before a transaction
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param excisionId the temporary ID of the excision entity
-    * @param before the transaction before which datoms excision is limited
-    */
-  def entity(id: FinalId, excisionId: TempId, before: Long) = new ExciseEntity(id=id.underlying, excisionId=excisionId, before=Some(Right(before)))
-  def entity(id: FinalId, before: Long) = new ExciseEntity(id=id.underlying, before=Some(Right(before)))
-
-  /** Create operations to excise entity restricting excision to datoms created before a date
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
-    * @param excisionId the temporary ID of the excision entity
-    * @param before the instant before which datoms excision is limited
-    */
-  def entity(id: FinalId, excisionId: TempId, before: Date) = new ExciseEntity(id=id.underlying, excisionId=excisionId, before=Some(Left(before)))
-  def entity(id: FinalId, before: Date) = new ExciseEntity(id=id.underlying, before=Some(Left(before)))
 
   /** Create operations to excise all attributes restricting to datoms created before a date
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param excisionId the temporary ID of the excision entity
     * @param before the instant before which datoms excision is limited
     */
-  def attribute(attr: Keyword, excisionId: TempId, before: Date) = new ExciseAttr(attr=attr, excisionId=excisionId, before=Some(Left(before)))
-  def attribute(attr: Keyword, before: Date) = new ExciseAttr(attr=attr, before=Some(Left(before)))
+  def attribute(attr: Keyword, excisionId: TempId, before: Date) =
+    new ExciseAttr(attr=attr, excisionId=excisionId, before=Some(Left(before)))
+  def attribute(attr: Keyword, before: Date) =
+    new ExciseAttr(attr=attr, before=Some(Left(before)))
 
   /** Create operations to excise all attributes restricting to datoms created before a transaction
     * @param id the targeted [[DId]] which must be a [[FinalId]]
     * @param excisionId the temporary ID of the excision entity
     * @param before the transaction before which datoms excision is limited
     */
-  def attribute(attr: Keyword, excisionId: TempId, before: Long) = new ExciseAttr(attr=attr, excisionId=excisionId, before=Some(Right(before)))
+  def attribute(attr: Keyword, excisionId: TempId, before: Long) =
+    new ExciseAttr(attr=attr, excisionId=excisionId, before=Some(Right(before)))
   def attribute(attr: Keyword, before: Long) = new ExciseAttr(attr=attr, before=Some(Right(before)))
 
 

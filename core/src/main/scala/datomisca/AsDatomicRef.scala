@@ -35,7 +35,7 @@ object AsDatomicRef {
 
   implicit def dId[I <: DId]: AsDatomicRef[I] =
     new AsDatomicRef[I] {
-      def toDatomicRef(i:  I) = i.toNative
+      def toDatomicRef(i:  I) = i.toDatomicId
     }
 
   implicit def keyword[K](implicit toKeyword: K => Keyword): AsDatomicRef[K] =
@@ -45,7 +45,7 @@ object AsDatomicRef {
 
   implicit def tempIdentified[I <: TempIdentified]: AsDatomicRef[I] =
     new AsDatomicRef[I] {
-      def toDatomicRef(i: I) = i.id.toNative
+      def toDatomicRef(i: I) = i.id.toDatomicId
     }
 
   implicit def finalIdentified[I <: FinalIdentified]: AsDatomicRef[I] =

@@ -22,7 +22,6 @@ import clojure.lang.Keyword
 
 
 class Entity(val entity: datomic.Entity) extends AnyVal {
-  def toNative = entity
 
   def id: Long = as[Long](Namespace.DB / "id")
 
@@ -90,7 +89,7 @@ object Entity extends DatomicTypeWrapper {
     * @param id the DLong of a targeted real [[DId]]
     */
   def retract[T](id: T)(implicit ev: AsPermanentEntityId[T]) =
-    RetractEntity(ev.conv(id))
+    new RetractEntity(ev.conv(id))
 
   /** Creates a Multiple-"Add" targeting a single [[DId]]
     *

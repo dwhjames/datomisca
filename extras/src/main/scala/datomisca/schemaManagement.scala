@@ -56,7 +56,7 @@ object SchemaManager {
 
   private[datomisca] def ensureSchemas(
       schemaTag:   Keyword,
-      schemaMap:   Map[String, (Seq[String], Seq[Seq[Operation]])],
+      schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
      (implicit conn: Connection)
      : Future[Unit] = {
@@ -84,7 +84,7 @@ object SchemaManager {
 
   def installSchema(
       schemaTag:   Keyword,
-      schemaMap:   Map[String, (Seq[String], Seq[Seq[Operation]])],
+      schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
      (implicit conn: Connection)
      : Future[Unit] =

@@ -142,13 +142,8 @@ class Database(val underlying: datomic.Database) {
     * @param ops a sequence of tranaction data
     * @return a transaction report
     */
-  def withData(ops: Seq[Operation]): TxReport = {
-    import scala.collection.JavaConverters._
-
-    val datomicOps = ops.map( _.toNative ).toList.asJava
-
-    val javaMap: java.util.Map[_, _] = underlying.`with`(datomicOps)
-
+  def withData(ops: Seq[TxData]): TxReport = {
+    val javaMap: java.util.Map[_, _] = underlying.`with`(datomic.Util.list(ops.map(_.toTxData): _*))
     new TxReport(javaMap)
   }
 

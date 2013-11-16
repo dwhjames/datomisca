@@ -44,13 +44,13 @@ private[datomisca] trait TransactOps {
     * }
     * }}}
     *
-    * @param ops a sequence of [[Operation]]
+    * @param ops a sequence of [[TxData]]
     * @param connection the implicit [[Connection]]
     * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     *
     */
-  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
+  def transact(ops: Seq[TxData])(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
 
   /** Performs an Datomic async transaction with single operation.
     *
@@ -64,12 +64,12 @@ private[datomisca] trait TransactOps {
     *     ...
     * }
     * }}}
-    * @param op the [[Operation]]
+    * @param op the [[TxData]]
     * @param connection the implicit [[Connection]]
     * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     */
-  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
+  def transact(op: TxData)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
 
   /** Performs an Datomic async transaction with multiple operations.
     *
@@ -88,13 +88,13 @@ private[datomisca] trait TransactOps {
     * }
     * }}}
     *
-    * @param op 1st [[Operation]]
-    * @param ops Other [[Operation]]s
+    * @param op 1st [[TxData]]
+    * @param ops Other [[TxData]]s
     * @param connection the implicit [[Connection]]
     * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     */
-  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
+  def transact(op: TxData, ops: TxData*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
   /** Applies a sequence of operations to current database without applying the transaction.
     *
@@ -119,5 +119,5 @@ private[datomisca] trait TransactOps {
     * }}}
     *
     */
-  //def withData(ops: Seq[Operation])(implicit connection: Connection): TxReport = connection.database.withData(ops)
+  //def withData(ops: Seq[TxData])(implicit connection: Connection): TxReport = connection.database.withData(ops)
 }

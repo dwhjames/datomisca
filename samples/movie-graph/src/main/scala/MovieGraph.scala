@@ -63,7 +63,7 @@ object MovieGraphData {
 
   val graphNodesTxData = actors ++ movies
 
-  def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[Operation]] = Seq(
+  def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[TxData]] = Seq(
     Seq(
       SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> tempIds(The_Matrix.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Trinity")

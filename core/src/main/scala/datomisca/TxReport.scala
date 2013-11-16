@@ -51,7 +51,7 @@ class TxReport(rawReport: java.util.Map[_, _]) {
 
   def resolveOpt(id: DId): Option[Long] =
     Option {
-      datomic.Peer.resolveTempid(dbAfter.underlying, tempids, id.toNative)
+      datomic.Peer.resolveTempid(dbAfter.underlying, tempids, id.toDatomicId)
     } map { id =>
       id.asInstanceOf[Long]
     }
