@@ -23,6 +23,7 @@ sealed trait Props {
   private def ::[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Props = PropsLink(prop, this, attrC)
 
+  @deprecated(message = "Use SchemaEntity.newBuilder instead.", since = "0.6")
   def +[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]) = {
     def step(cur: Props): Props = {
@@ -46,6 +47,7 @@ sealed trait Props {
     step(this)
   }
 
+  @deprecated(message = "Use SchemaEntity.newBuilder instead.", since = "0.6")
   def ++(other: Props): Props = {
     def step(cur: Props): Props = {
       cur match {
@@ -59,8 +61,10 @@ sealed trait Props {
 }
 
 object Props {
+  @deprecated(message = "Use SchemaEntity.newBuilder instead.", since = "0.6")
   def apply() = PropsNil
 
+  @deprecated(message = "Use SchemaEntity.newBuilder instead.", since = "0.6")
   def apply[DD <: DatomicData, Card <: Cardinality, A](prop: (Attribute[DD, Card], A))  
     (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): Props = {
       prop :: PropsNil

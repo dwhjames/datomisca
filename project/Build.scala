@@ -9,7 +9,7 @@ import sbtunidoc.Plugin._
 object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.6-RC2",
+      version       := "0.6",
       organization  := "com.pellucid",
       scalaVersion  := "2.10.2",
       scalacOptions ++= Seq(
@@ -55,6 +55,11 @@ object DatomiscaBuild extends Build {
       base = file("tests"),
       settings = testsProjectSettings
     ) dependsOn(common, core, extras, macros)
+
+  lazy val integrationTests = Project(
+      id       = "integrationTests",
+      base     = file("integration")
+    ) dependsOn (common, core, extras, macros) configs (IntegrationTest) settings (integrationTestsProjectSettings:_*)
 
 
   val repositories = Seq(
@@ -172,6 +177,17 @@ object DatomiscaBuild extends Build {
       fork in Test := true
     )
 
+  lazy val integrationTestsProjectSettings =
+    subProjectSettings ++
+    Defaults.itSettings ++
+    Seq(
+      name := "datomisca-tests",
+
+      libraryDependencies ++= Dependencies.integrationTest,
+
+      fork in IntegrationTest := true
+    )
+
 }
 
 object Dependencies {
@@ -187,8 +203,14 @@ object Dependencies {
   }
   import Test._
 
+  object IntegrationTest {
+    val scalaTest = "org.scalatest" % "scalatest_2.10" % "2.0" % "it"
+  }
+  import IntegrationTest._
+
   val shared = Seq(datomic)
   val test   = Seq(specs2, junit)
+  val integrationTest = Seq(scalaTest)
 }
 
 object CustomShellPrompt {
