@@ -176,7 +176,6 @@ class DatomicTxSpec extends Specification {
         Duration("2 seconds")
       )
 
-      success
     }
 
     "2 - resolve id of an inserted entity" in {
@@ -237,7 +236,6 @@ class DatomicTxSpec extends Specification {
         Duration("2 seconds")
       )
 
-      success
     }
 
     "3 - convert a simple case class to AddEntity" in {
@@ -371,8 +369,6 @@ class DatomicTxSpec extends Specification {
         fut,
         Duration("2 seconds")
       )
-
-      success
     }
 
 
