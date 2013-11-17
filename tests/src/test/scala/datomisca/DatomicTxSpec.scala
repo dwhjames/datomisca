@@ -419,7 +419,6 @@ class DatomicTxSpec extends Specification {
         Duration("2 seconds")
       )
 
-      success
     }
 
     /*
