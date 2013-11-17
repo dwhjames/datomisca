@@ -248,13 +248,12 @@ class DatomicMapping2Spec extends Specification {
                 )
                 val Person(id, name, age, birth, characters, specialChar, dog, doggies) = DatomicMapping.fromEntity(entity)(personReader)
                 println(s"Found person with id $id name $name and age $age and birth $birth characters $characters specialChar $specialChar dog $dog doggies $doggies")
+                name must beEqualTo("toto")
             }
           }
         },
         Duration("2 seconds")
       )
-
-      success
 
     }
 
