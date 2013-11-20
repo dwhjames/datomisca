@@ -46,7 +46,7 @@ class DatabaseFilteringSpec
     Datomic.q(countStories, db).head should equal (4)
 
     val filteredDb = db.filter { (db, datom) =>
-      db.entity(datom.tx).get(":publish/at").isDefined
+      db.entity(datom.tx).get(Datomic.KW(":publish/at")).isDefined
     }
 
     Datomic.q(countStories, filteredDb).head should equal (1)

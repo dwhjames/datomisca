@@ -56,8 +56,11 @@ object Attribute2EntityReaderInj {
     new Attribute2EntityReaderInj[DD, Cardinality.one.type, A] {
       override def convert(attr: Attribute[DD, Cardinality.one.type]) = new EntityReader[A] {
         override def read(entity: Entity) = {
-          val dd = entity(attr.ident).asInstanceOf[DD]
-          conv.from(dd)
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            conv.from(o.asInstanceOf[DD])
+          else
+            throw new EntityKeyNotFoundException(attr.ident.toString)
         }
       }
     }
@@ -65,12 +68,23 @@ object Attribute2EntityReaderInj {
   implicit def attr2EntityReaderMany[DD <: AnyRef, A](implicit conv: FromDatomicInj[DD, A]) =
     new Attribute2EntityReaderInj[DD, Cardinality.many.type, Set[A]] {
       override def convert(attr: Attribute[DD, Cardinality.many.type]) = new EntityReader[Set[A]] {
-        override def read(entity: Entity) =
-          entity.get(attr.ident) map { case c: Iterable[_] =>
-            val builder = Set.newBuilder[A]
-            for (e <- c) builder += conv.from(e.asInstanceOf[DD])
-            builder.result
-          } getOrElse (Set.empty)
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case coll: java.util.Collection[_] =>
+                val builder = Set.newBuilder[A]
+                val iter = coll.iterator
+                while (iter.hasNext) {
+                  builder += conv.from(iter.next().asInstanceOf[DD])
+                }
+                builder.result()
+              case _ =>
+                throw new EntityMappingException("Expected a collection for cardinality many attribute")
+            }
+          else
+            Set.empty[A]
+        }
       }
     }
 
@@ -88,8 +102,11 @@ object Attribute2EntityReaderCast {
     new Attribute2EntityReaderCast[DD, Cardinality.one.type, A] {
       override def convert(attr: Attribute[DD, Cardinality.one.type]) = new EntityReader[A] {
         override def read(entity: Entity) = {
-          val dd = entity(attr.ident).asInstanceOf[DD]
-          conv.from(dd)
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            conv.from(o.asInstanceOf[DD])
+          else
+            throw new EntityKeyNotFoundException(attr.ident.toString)
         }
       }
     }
@@ -97,12 +114,23 @@ object Attribute2EntityReaderCast {
   implicit def attr2EntityReaderCastMany[DD <: AnyRef, A](implicit conv: FromDatomic[DD, A]) =
     new Attribute2EntityReaderCast[DD, Cardinality.many.type, Set[A]] {
       override def convert(attr: Attribute[DD, Cardinality.many.type]) = new EntityReader[Set[A]] {
-        override def read(entity: Entity) =
-          entity.get(attr.ident) map { case c: Iterable[_] =>
-            val builder = Set.newBuilder[A]
-            for (e <- c) builder += conv.from(e.asInstanceOf[DD])
-            builder.result
-          } getOrElse (Set.empty)
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case coll: java.util.Collection[_] =>
+                val builder = Set.newBuilder[A]
+                val iter = coll.iterator
+                while (iter.hasNext) {
+                  builder += conv.from(iter.next().asInstanceOf[DD])
+                }
+                builder.result()
+              case _ =>
+                throw new EntityMappingException("Expected a collection for cardinality many attribute")
+            }
+          else
+            Set.empty[A]
+        }
       }
     }
 
@@ -110,42 +138,102 @@ object Attribute2EntityReaderCast {
   implicit val attr2EntityReaderCastIdOnly =
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, Long] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.one.type]) = new EntityReader[Long] {
-        override def read(entity: Entity) =
-          entity(attr.ident).asInstanceOf[Entity].id
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case e: datomic.Entity =>
+                e.get(clojure.lang.Keyword.intern("db", "id")).asInstanceOf[Long]
+              case k: clojure.lang.Keyword =>
+                val db = entity.entity.db()
+                db.entid(k).asInstanceOf[Long]
+              case _ =>
+                throw new EntityMappingException("Expected an entity or keyword for a reference type attribute")
+            }
+          else
+            throw new EntityKeyNotFoundException(attr.ident.toString)
+        }
       }
     }
 
   implicit val attr2EntityReaderCastManyIdOnly =
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[Long]] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.many.type]) = new EntityReader[Set[Long]] {
-        override def read(entity: Entity) =
-          entity.get(attr.ident) map { case c: Iterable[_] =>
-            c.map {
-              case subent: Entity => subent.id
-              case _ => throw new EntityMappingException("expected DatomicData to be Entity")
-            } .toSet
-          } getOrElse (Set.empty)
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case coll: java.util.Collection[_] =>
+                val builder = Set.newBuilder[Long]
+                val iter = coll.iterator
+                while (iter.hasNext) {
+                  iter.next() match {
+                    case e: datomic.Entity =>
+                      builder += e.get(clojure.lang.Keyword.intern("db", "id")).asInstanceOf[Long]
+                    case k: clojure.lang.Keyword =>
+                      val db = entity.entity.db()
+                      builder += db.entid(k).asInstanceOf[Long]
+                    case _ =>
+                      throw new EntityMappingException("Expected an entity or keyword for a reference type attribute")
+                  }
+                }
+                builder.result()
+              case _ =>
+                throw new EntityMappingException("Expected a collection for cardinality many attribute")
+            }
+          else
+            Set.empty[Long]
+        }
       }
     }
 
   implicit def attr2EntityReaderCastKeyword[K](implicit fromKeyword: Keyword => K) =
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, K] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.one.type]) = new EntityReader[K] {
-        override def read(entity: Entity) =
-          fromKeyword(entity(attr.ident).asInstanceOf[Keyword])
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case k: clojure.lang.Keyword =>
+                fromKeyword(k)
+              case e: datomic.Entity =>
+                throw new EntityMappingException("Expected an ident entity for a reference type attribute, not a regular entity")
+              case _ =>
+                throw new EntityMappingException("Expected an ident entity for a reference type attribute")
+            }
+          else
+            throw new EntityKeyNotFoundException(attr.ident.toString)
+        }
       }
     }
 
   implicit def attr2EntityReaderCastManyKeyword[K](implicit fromKeyword: Keyword => K) =
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[K]] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.many.type]) = new EntityReader[Set[K]] {
-        override def read(entity: Entity) =
-          entity.get(attr.ident) map { case c: Iterable[_] =>
-            c.map {
-              case keyword: Keyword => fromKeyword(keyword)
-              case _ => throw new EntityMappingException("expected DatomicData to be DKeyword")
-            } .toSet
-          } getOrElse (Set.empty)
+        override def read(entity: Entity) = {
+          val o  = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case coll: java.util.Collection[_] =>
+                val builder = Set.newBuilder[K]
+                val iter = coll.iterator
+                while (iter.hasNext) {
+                  iter.next() match {
+                    case k: clojure.lang.Keyword =>
+                      builder += fromKeyword(k)
+                    case e: datomic.Entity =>
+                      throw new EntityMappingException("Expected an ident entity for a reference type attribute, not a regular entity")
+                    case _ =>
+                      throw new EntityMappingException("Expected an ident entity for a reference type attribute")
+                  }
+                }
+                builder.result()
+              case _ =>
+                throw new EntityMappingException("Expected a collection for cardinality many attribute")
+            }
+          else
+            Set.empty[K]
+        }
       }
     }
 
@@ -158,8 +246,18 @@ object Attribute2EntityReaderCast {
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, A] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.one.type]) = new EntityReader[A] {
         override def read(entity: Entity) = {
-          val subent = entity(attr.ident).asInstanceOf[Entity]
-          er.read(subent)
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case e: datomic.Entity =>
+                er.read(new Entity(e))
+              case k: clojure.lang.Keyword =>
+                throw new EntityMappingException("Expected a regular entity for a reference type attribute, not an ident entity")
+              case _ =>
+                throw new EntityMappingException("Expected an entity or keyword for a reference type attribute")
+            }
+          else
+            throw new EntityKeyNotFoundException(attr.ident.toString)
         }
       }
     }
@@ -167,13 +265,30 @@ object Attribute2EntityReaderCast {
   implicit def attr2EntityReaderManyObj[A](implicit er: EntityReader[A]) =
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[A]] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.many.type]) = new EntityReader[Set[A]] {
-        override def read(entity: Entity) =
-          entity.get(attr.ident) map { case c: Iterable[_] =>
-            c.map {
-              case subent: Entity => er.read(subent)
-              case _ => throw new EntityMappingException("expected DatomicData to be Entity")
-            } .toSet
-          } getOrElse (Set.empty)
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case coll: java.util.Collection[_] =>
+                val builder = Set.newBuilder[A]
+                val iter = coll.iterator
+                while (iter.hasNext) {
+                  iter.next() match {
+                    case e: datomic.Entity =>
+                      builder += er.read(new Entity(e))
+                    case k: clojure.lang.Keyword =>
+                      throw new EntityMappingException("Expected a regular entity for a reference type attribute, not an ident entity")
+                    case _ =>
+                      throw new EntityMappingException("Expected an entity or keyword for a reference type attribute")
+                  }
+                }
+                builder.result()
+              case _ =>
+                throw new EntityMappingException("Expected a collection for cardinality many attribute")
+            }
+          else
+            Set.empty[A]
+        }
       }
     }
 
@@ -188,8 +303,19 @@ object Attribute2EntityReaderCast {
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, IdView[A]] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.one.type]) = new EntityReader[IdView[A]] {
         override def read(entity: Entity) = {
-          val subent = entity(attr.ident).asInstanceOf[Entity]
-          IdView(subent.id)(er.read(subent))
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case e: datomic.Entity =>
+                val id = e.get(clojure.lang.Keyword.intern("db", "id")).asInstanceOf[Long]
+                new IdView(er.read(new Entity(e)), id)
+              case k: clojure.lang.Keyword =>
+                throw new EntityMappingException("Expected a regular entity for a reference type attribute, not an ident entity")
+              case _ =>
+                throw new EntityMappingException("Expected an entity or keyword for a reference type attribute")
+            }
+          else
+            throw new EntityKeyNotFoundException(attr.ident.toString)
         }
       }
     }
@@ -197,13 +323,31 @@ object Attribute2EntityReaderCast {
   implicit def attr2EntityReaderManyIdView[A](implicit er: EntityReader[A]) =
     new Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[A]]] {
       override def convert(attr: Attribute[DatomicRef.type, Cardinality.many.type]) = new EntityReader[Set[IdView[A]]] {
-        override def read(entity: Entity) =
-          entity.get(attr.ident) map { case c: Iterable[_] =>
-            c.map {
-              case subent: Entity => IdView(subent.id)(er.read(subent))
-              case _ => throw new EntityMappingException("expected DatomicData to be Entity")
-            } .toSet
-          } getOrElse (Set.empty)
+        override def read(entity: Entity) = {
+          val o = entity.entity.get(attr.ident)
+          if (o ne null)
+            o match {
+              case coll: java.util.Collection[_] =>
+                val builder = Set.newBuilder[IdView[A]]
+                val iter = coll.iterator
+                while (iter.hasNext) {
+                  iter.next() match {
+                    case e: datomic.Entity =>
+                      val id = e.get(clojure.lang.Keyword.intern("db", "id")).asInstanceOf[Long]
+                      builder += new IdView(er.read(new Entity(e)), id)
+                    case k: clojure.lang.Keyword =>
+                      throw new EntityMappingException("Expected a regular entity for a reference type attribute, not an ident entity")
+                    case _ =>
+                      throw new EntityMappingException("Expected an entity or keyword for a reference type attribute")
+                  }
+                }
+                builder.result()
+              case _ =>
+                throw new EntityMappingException("Expected a collection for cardinality many attribute")
+            }
+          else
+            Set.empty[IdView[A]]
+        }
       }
     }
 

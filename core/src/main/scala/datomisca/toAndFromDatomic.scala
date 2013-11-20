@@ -55,12 +55,12 @@ object FromDatomic extends FromDatomicImplicits {
   */
 @implicitNotFound("There is no cast available from Datomic data to type ${A}")
 trait FromDatomicCast[A] {
-  def from(dd: Any): A
+  def from(dd: AnyRef): A
 }
 
 object FromDatomicCast extends FromDatomicCastImplicits {
-  def apply[A](f: Any => A) = new FromDatomicCast[A] {
-    def from(dd: Any): A = f(dd)
+  def apply[A](f: AnyRef => A) = new FromDatomicCast[A] {
+    def from(dd: AnyRef): A = f(dd)
   }
 }
 

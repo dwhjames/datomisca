@@ -30,29 +30,37 @@ class Entity(val entity: datomic.Entity) extends AnyVal {
     this
   }
 
-  def apply(keyword: Keyword): Any =
-    get(keyword) getOrElse { throw new EntityKeyNotFoundException(keyword.toString) }
+  def apply(keyword: Keyword): Any = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      Convert.toScala(o)
+    else
+      throw new EntityKeyNotFoundException(keyword.toString)
+  }
 
-  def get(keyword: Keyword): Option[Any] =
-    Option {
-      entity.get(keyword)
-    } map (Convert.toScala(_))
+  def get(keyword: Keyword): Option[Any] = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      Some(Convert.toScala(o))
+    else
+      None
+  }
 
-  def apply(keyword: String): Any =
-    get(keyword) getOrElse { throw new EntityKeyNotFoundException(keyword) }
+  def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      fdat.from(o)
+    else
+      throw new EntityKeyNotFoundException(keyword.toString)
+  }
 
-  def get(keyword: String): Option[Any] =
-    Option {
-      entity.get(keyword)
-    } map (Convert.toScala(_))
-
-  def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T =
-    getAs[T](keyword) getOrElse { throw new EntityKeyNotFoundException(keyword.toString) }
-
-  def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] =
-    Option {
-      entity.get(keyword)
-    } map (fdat.from)
+  def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      Some(fdat.from(o))
+    else
+      None
+  }
 
   def keySet: Set[String] = {
     val builder = Set.newBuilder[String]
