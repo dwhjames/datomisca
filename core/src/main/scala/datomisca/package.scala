@@ -59,7 +59,9 @@ package object datomisca {
       * @return the value of the attribute for this entity
       * @throws EntityKeyNotFoundException when the attribute does not exist
       */
-    def read[T] = new {
+    def read[T] = new ReadHelper[T]
+
+    class ReadHelper[T] {
       def apply[DD <: AnyRef, Card <: Cardinality]
                (attr: Attribute[DD, Card])
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
@@ -70,13 +72,15 @@ package object datomisca {
     /**
       * An optional version of read
       */
-    def readOpt[T] = new {
+    def readOpt[T] = new ReadOptHelper[T]
+
+    class ReadOptHelper[T] {
       def apply[DD <: AnyRef, Card <: Cardinality]
                (attr: Attribute[DD, Card])
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : Option[T] =
       try {
-        Some(read[T](attr))
+        Some(attrC.convert(attr).read(entity))
       } catch {
         case ex: EntityKeyNotFoundException => None
       }
@@ -91,7 +95,7 @@ package object datomisca {
               (attr: Attribute[DatomicRef.type, Cardinality.one.type])
               (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, IdView[T]])
               : IdView[T] =
-      read[IdView[T]](attr)
+      attrC.convert(attr).read(entity)
 
     /**
       * An optional version of idView
@@ -100,7 +104,11 @@ package object datomisca {
                  (attr: Attribute[DatomicRef.type, Cardinality.one.type])
                  (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, IdView[T]])
                  : Option[IdView[T]] =
-      readOpt[IdView[T]](attr)
+      try {
+        Some(attrC.convert(attr).read(entity))
+      } catch {
+        case ex: EntityKeyNotFoundException => None
+      }
 
     /**
       *
@@ -111,7 +119,7 @@ package object datomisca {
                (attr: Attribute[DatomicRef.type, Cardinality.many.type])
                (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[T]]])
                : Set[IdView[T]] =
-      read[Set[IdView[T]]](attr)
+      attrC.convert(attr).read(entity)
 
     /**
       * An optional version of idViews
@@ -120,7 +128,11 @@ package object datomisca {
                   (attr: Attribute[DatomicRef.type, Cardinality.many.type])
                   (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[T]]])
                   : Option[Set[IdView[T]]] =
-      readOpt[Set[IdView[T]]](attr)
+      try {
+        Some(attrC.convert(attr).read(entity))
+      } catch {
+        case ex: EntityKeyNotFoundException => None
+      }
     }
 
 }
