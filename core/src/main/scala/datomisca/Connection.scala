@@ -20,6 +20,8 @@ package datomisca
 import scala.concurrent._
 import scala.util.control.NonFatal
 
+import java.{util => ju}
+
 import datomic.ListenableFuture
 
 
@@ -77,9 +79,18 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     Connection.bridgeDatomicFuture(connection.sync(t)) map (new Database(_))
 
 
-  def transact(ops: Seq[TxData])(implicit ex: ExecutionContext): Future[TxReport] = {
+  def transact(ops: TraversableOnce[TxData])(implicit ex: ExecutionContext): Future[TxReport] = {
+    val arrayList =
+      if (ops.isInstanceOf[Iterable[TxData]])
+        new ju.ArrayList[AnyRef](ops.size)
+      else
+        new ju.ArrayList[AnyRef]()
+
+    for (op <- ops)
+      arrayList.add(op.toTxData)
+
     val future = try {
-        Connection.bridgeDatomicFuture(connection.transactAsync(datomic.Util.list(ops.map(_.toTxData):_*)))
+        Connection.bridgeDatomicFuture(connection.transactAsync(arrayList))
       } catch {
         case NonFatal(ex) => Future.failed(ex)
       }
@@ -88,9 +99,6 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
       new TxReport(javaMap)
     }
   }
-
-  def transact(op: TxData)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
-  def transact(op: TxData, ops: TxData *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
   def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
 
