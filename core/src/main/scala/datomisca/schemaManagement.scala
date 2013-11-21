@@ -25,7 +25,7 @@ import scala.util.Try
 
 object SchemaManager {
 
-  def hasAttribute(attributeIdent: Keyword)(implicit db: DDatabase): Boolean =
+  def hasAttribute(attributeIdent: Keyword)(implicit db: Database): Boolean =
     Try {
       db.entity(attributeIdent)
     } .map { entity =>
@@ -38,8 +38,8 @@ object SchemaManager {
        :where [?e ?schemaTag ?schemaName]]
     """)
 
-  private[datomisca] def hasSchema(schemaTag: Keyword, schemaName: String)(implicit db: DDatabase): Boolean =
-    ! Datomic.q(schemaTagQuery, db, DKeyword(schemaTag), DString(schemaName)).isEmpty
+  private[datomisca] def hasSchema(schemaTag: Keyword, schemaName: String)(implicit db: Database): Boolean =
+    ! Datomic.q(schemaTagQuery, db, schemaTag, schemaName).isEmpty
 
   private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection): Future[Unit] =
     future {
@@ -56,7 +56,7 @@ object SchemaManager {
 
   private[datomisca] def ensureSchemas(
       schemaTag:   Keyword,
-      schemaMap:   Map[String, (Seq[String], Seq[Seq[Operation]])],
+      schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
      (implicit conn: Connection)
      : Future[Unit] = {
@@ -84,7 +84,7 @@ object SchemaManager {
 
   def installSchema(
       schemaTag:   Keyword,
-      schemaMap:   Map[String, (Seq[String], Seq[Seq[Operation]])],
+      schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
      (implicit conn: Connection)
      : Future[Unit] =

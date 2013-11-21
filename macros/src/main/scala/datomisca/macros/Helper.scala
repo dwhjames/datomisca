@@ -156,18 +156,18 @@ private[datomisca] class Helper[C <: Context](val c: C) {
   }
 
 
-  def literalQueryRules(rules: c.Tree): c.Expr[DRules] =
-    c.Expr[DRules](q"new datomisca.DRules($rules)")
+  def literalQueryRules(rules: c.Tree): c.Expr[QueryRules] =
+    c.Expr[QueryRules](q"new datomisca.QueryRules($rules)")
 
   def literalQuery(query: c.Tree, inputSize: Int, outputSize: Int): c.Expr[AbstractQuery] = {
     val typeArgs =
-      List.fill(inputSize)(tq"datomisca.DatomicData") :+
+      List.fill(inputSize)(tq"AnyRef") :+
       (outputSize match {
         case 0 => tq"Unit"
-        case 1 => tq"datomisca.DatomicData"
+        case 1 => tq"Any"
         case n =>
           val typeName = newTypeName("Tuple" + n)
-          val args = List.fill(n)(tq"datomisca.DatomicData")
+          val args = List.fill(n)(tq"Any")
           tq"$typeName[..$args]"
       })
     val queryClassName =
@@ -179,11 +179,5 @@ private[datomisca] class Helper[C <: Context](val c: C) {
 
     c.Expr[AbstractQuery](q"new $queryClassName[..$typeArgs]($query)")
   }
-
-  def literalDatomiscaKeyword(kw: clj.Keyword): c.Expr[Keyword] =
-    if (kw.getNamespace == null)
-      c.Expr[Keyword](q"new datomisca.Keyword(${kw.getName})")
-    else
-      c.Expr[Keyword](q"new datomisca.Keyword(${kw.getName}, Some(datomisca.Namespace(${kw.getNamespace})))")
 
 }

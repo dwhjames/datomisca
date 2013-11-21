@@ -239,7 +239,7 @@ class DatomicMapping2Spec extends Specification {
                 :where [?e :person/name "toto"]
               ]
             """), Datomic.database).head match {
-              case DLong(e) =>
+              case e: Long =>
                 val entity = Datomic.database.entity(e)
                 println(
                   "dentity age:" + entity.getAs[Long](person / "age") + 
@@ -268,7 +268,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :dog/name "medor"]
         ]
       """), Datomic.database).head match {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           DatomicMapping.fromEntity[Dog](entity) must beEqualTo(medor.copy(id=Some(realMedorId)))
       }
@@ -278,7 +278,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :person/name "toto"]
         ]
       """), Datomic.database).head match {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           val realMedor = medor.copy(id=Some(realMedorId))
           val realDoggy1 = doggy1.copy(id=Some(realDoggy1Id))
@@ -305,7 +305,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :person/name "toto2"]
         ]
       """), Datomic.database).head match {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           DatomicMapping.fromEntity[Person3](entity) must beEqualTo(
             toto2.copy(
@@ -326,7 +326,7 @@ class DatomicMapping2Spec extends Specification {
           :where [?e :person/name "toto"]
         ]
       """), Datomic.database).head match {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
 
           entity(PersonSchema.name) must beEqualTo("toto")
@@ -344,7 +344,7 @@ class DatomicMapping2Spec extends Specification {
 
           entity.get(PersonSchema.birth) must beEqualTo(Some(birthDate))
 
-          val dogValue0 = entity.getAs[DEntity](person / "dog")
+          val dogValue0 = entity.getAs[Entity](person / "dog")
 
           entity.getIdView[Dog](PersonSchema.dog) must beEqualTo(Some(IdView(realMedorId)(medor.copy(id=Some(realMedorId)))))
 
@@ -355,10 +355,10 @@ class DatomicMapping2Spec extends Specification {
             IdView(realDoggy3Id)(doggy3.copy(id=Some(realDoggy3Id)))
           )))
 
-          val writer = PersonSchema.specialChar.write[DRef]
-          writer.write(clever.ref).toMap must beEqualTo(
+          val writer = PersonSchema.specialChar.write[AddIdent]
+          writer.write(clever).toMap must beEqualTo(
             Map(
-              PersonSchema.specialChar.ident -> clever.ref
+              PersonSchema.specialChar.ident -> clever.ident
             )
           )
       }
@@ -366,60 +366,6 @@ class DatomicMapping2Spec extends Specification {
       success
     }
 
-    "create ops from attributes" in {
-      import scala.util.{Try, Success, Failure}
-
-      val id = DId(Partition.USER)
-      
-      /* FIX
-       * Temp id doesn’t make sense for retract
-      val a = SchemaFact.retract(id)( PersonSchema.name -> "toto" )
-      a must beEqualTo(RetractFact( id, person / "name", DString("toto") ))
-
-      val r = SchemaFact.retract(id)( PersonSchema.name -> "toto" )
-      r must beEqualTo(RetractFact( id, person / "name", DString("toto") ))      
-      */
-
-      val e = SchemaEntity.add(id)(Props() +
-        (PersonSchema.name       -> "toto") +
-        (PersonSchema.age        -> 45L) +
-        (PersonSchema.birth      -> birthDate) +
-        (PersonSchema.characters -> Set(violent, weak))
-      )
-      e.toString must beEqualTo(AddEntity( 
-        id, 
-        Map(
-          person / "name"       -> DString("toto"),
-          person / "age"        -> DLong(45),
-          person / "birth"      -> DInstant(birthDate),
-          person / "characters" -> DColl(violent.ref, weak.ref)
-        )
-      ).toString)      
-
-      val props = Props() +
-          (PersonSchema.name       -> "toto") + 
-          (PersonSchema.age        -> 45L) + 
-          (PersonSchema.birth      -> birthDate) +
-          (PersonSchema.characters -> Set(violent, weak)) //+ 
-          //(PersonSchema.specialChar -> clever) + 
-          //(PersonSchema.dog -> medor) +
-          //(PersonSchema.doggies -> Set(doggy1, doggy2, doggy3))
-
-      println(s"Props: $props")
-
-      val ent = SchemaEntity.add(id)(props) 
-      ent.toString must beEqualTo(AddEntity( 
-        id, 
-        Map(
-          person / "name"       -> DString("toto"),
-          person / "age"        -> DLong(45),
-          person / "birth"      -> DInstant(birthDate),
-          person / "characters" -> DColl(violent.ref, weak.ref)
-        )
-      ).toString)
-
-      success
-    }
   }
   
 }

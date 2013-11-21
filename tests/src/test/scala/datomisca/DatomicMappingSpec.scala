@@ -200,7 +200,7 @@ class DatomicMappingSpec extends Specification {
                 :where [?e :person/name "toto"]
               ]
             """), Datomic.database).head match {
-              case DLong(e) =>
+              case e: Long =>
                 val entity = Datomic.database.entity(e)
                 println(
                   "dentity age:" + entity.getAs[Long](person / "age") +
@@ -235,7 +235,7 @@ class DatomicMappingSpec extends Specification {
           :where [?e :person/name "toto"]
         ]
       """), Datomic.database).head match {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
 
           entity(PersonSchema.name) must beEqualTo("toto")
@@ -249,13 +249,13 @@ class DatomicMappingSpec extends Specification {
           entity.as[Long](person / "age") must beEqualTo(30)
 
           val characters  = entity(PersonSchema.characters)
-          val characters2 = entity.getAs[Set[DKeyword]](person / "characters")
+          val characters2 = entity.getAs[Set[Keyword]](person / "characters")
 
           entity.as[java.util.Date](person / "birth") must beEqualTo(birthDate)
 
           entity.get(PersonSchema.birth) must beEqualTo(Some(birthDate))
 
-          val dogValue0 = entity.getAs[DEntity](person / "dog")
+          val dogValue0 = entity.getAs[Entity](person / "dog")
 
           entity.idView[Dog](PersonSchema.dog) must beEqualTo(IdView(realMedorId)(medor))
 
@@ -266,10 +266,10 @@ class DatomicMappingSpec extends Specification {
             IdView(realDoggy3Id)(doggy3)
           )))
 
-          val writer = PersonSchema.specialChar.write[DRef]
-          writer.write(clever.ref).toMap must beEqualTo(
+          val writer = PersonSchema.specialChar.write[AddIdent]
+          writer.write(clever).toMap must beEqualTo(
             Map(
-              PersonSchema.specialChar.ident -> clever.ref
+              PersonSchema.specialChar.ident -> clever.ident
             )
           )
       }
@@ -277,57 +277,6 @@ class DatomicMappingSpec extends Specification {
       success
     }
 
-    "create ops from attributes" in {
-      import scala.util.{Try, Success, Failure}
-
-      val id = DId(Partition.USER)
-
-      val a = SchemaFact.add(id)( PersonSchema.name -> "toto" )
-      a must beEqualTo(AddFact( id, person / "name", DString("toto") ))
-
-      /* FIX
-       * TempId doesn’t make sense for retract
-      val r = SchemaFact.retract(id)( PersonSchema.name -> "toto" )
-      r must beEqualTo(RetractFact( id, person / "name", DString("toto") ))
-      */
-
-      val e = SchemaEntity.add(id)(Props() +
-        (PersonSchema.name       -> "toto") +
-        (PersonSchema.age        -> 45L) +
-        (PersonSchema.birth      -> birthDate) +
-        (PersonSchema.characters -> Set(violent, weak))
-      )
-      e.toString must beEqualTo(AddEntity(
-        id,
-        Map(
-          person / "name"       -> DString("toto"),
-          person / "age"        -> DLong(45),
-          person / "birth"      -> DInstant(birthDate),
-          person / "characters" -> DColl(violent.ref, weak.ref)
-        )
-      ).toString)
-
-      val props = Props() +
-          (PersonSchema.name       -> "toto") +
-          (PersonSchema.age        -> 45L) +
-          (PersonSchema.birth      -> birthDate) +
-          (PersonSchema.characters -> Set(violent, weak))
-
-      println(s"Props: $props")
-
-      val ent = SchemaEntity.add(id)(props)
-      ent.toString must beEqualTo(AddEntity(
-        id,
-        Map(
-          person / "name"       -> DString("toto"),
-          person / "age"        -> DLong(45),
-          person / "birth"      -> DInstant(birthDate),
-          person / "characters" -> DColl(violent.ref, weak.ref)
-        )
-      ).toString)
-
-      success
-    }
 
     "get entity with empty set" in {
 
@@ -374,10 +323,10 @@ class DatomicMappingSpec extends Specification {
                 :where [?e :person/name "toto"]
               ]
             """), Datomic.database).head match {
-              case DLong(e) =>
+              case e: Long =>
                 val entity = Datomic.database.entity(e)
                 println(
-                  "dentity age:" + entity.getAs[DLong](person / "age") +
+                  "dentity age:" + entity.getAs[Long](person / "age") +
                   " name:" + entity(person / "name") +
                   " map:" + entity.toMap
                 )
@@ -407,7 +356,7 @@ class DatomicMappingSpec extends Specification {
       println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
       implicit val conn = Datomic.connect(uri)
 
-      val rd  = PersonSchema.dog.read[IdView[DEntity]]
+      val rd  = PersonSchema.dog.read[IdView[Entity]]
       val rd3 = PersonSchema.dog.read[Long]
 
       success

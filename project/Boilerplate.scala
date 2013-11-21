@@ -38,17 +38,14 @@ object Boilerplate {
     val invokeTxFunctions = dir / "datomisca" / "InvokeTxFunctionGen.scala"
     IO.write(invokeTxFunctions, genInvokeTxFunctions)
 
-    Seq(
-      typedQueries, typedQueryExecutor, queryResultToTupleInstances,
-      typedAddDbFunctions, addTxFunctions, invokeTxFunctions
-    )
-  }
-
-  def genExtras(dir: File) = {
     val builders = dir / "datomisca" / "functional" / "builders.scala"
     IO.write(builders, genBuilders)
 
-    Seq(builders)
+    Seq(
+      typedQueries, typedQueryExecutor, queryResultToTupleInstances,
+      typedAddDbFunctions, addTxFunctions, invokeTxFunctions,
+      builders
+    )
   }
 
   def genHeader = {
@@ -94,14 +91,14 @@ object Boilerplate {
 
   def genTypedQueryExecutor = {
     def genInstance(arity: Int) = {
-      val typeParams = ((1 to arity) map (n => "In"+n)).mkString(", ")
-      val queryParams = ((1 to arity) map (n => "in"+n+": DatomicData")).mkString(", ")
-      val queryArgs = ((1 to arity) map (n => "in"+n+".toNative")).mkString(", ")
+      val typeParamsWithContext = ((1 to arity) map (n => "In"+n+" : ToDatomicCast")).mkString(", ")
+      val typeParams = Seq.fill(arity)("_").mkString(", ") // ((1 to arity) map (n => "In"+n)).mkString(", ")
+      val queryParams = ((1 to arity) map (n => "in"+n+": In"+n)).mkString(", ")
+      val queryArgs = ((1 to arity) map (n => "implicitly[ToDatomicCast[In"+n+"]].to(in"+n+")")).mkString(", ")
 
       ("""|
-          |  def q["""+typeParams+""", Out]
+          |  def q["""+typeParamsWithContext+""", Out : QueryResultToTuple]
           |       (query: TypedQuery"""+arity+"["+typeParams+", Out], "+queryParams+""")
-          |       (implicit outConv: QueryResultToTuple[Out])
           |       : Iterable[Out] =
           |    QueryExecutor.execute[Out](query, Seq("""+queryArgs+"""))
           |""").stripMargin
@@ -115,11 +112,10 @@ object Boilerplate {
         |
         |private[datomisca] trait TypedQueryExecutor {
         |
-        |  def q[Out]
-        |       (query: TypedQuery0[Out], dataSource: DatomicData)
-        |       (implicit conv: QueryResultToTuple[Out])
+        |  def q[In : ToDatomicCast, Out : QueryResultToTuple]
+        |       (query: TypedQuery0[Out], dataSource: In)
         |       : Iterable[Out] =
-        |    QueryExecutor.execute[Out](query, Seq(dataSource.toNative))
+        |    QueryExecutor.execute[Out](query, Seq(implicitly[ToDatomicCast[In]].to(dataSource)))
         |""" +
            instances + """
         |}
@@ -128,8 +124,8 @@ object Boilerplate {
 
   def genQueryResultToTupleInstances = {
     def genInstance(arity: Int) = {
-      val typeParams = Seq.fill(arity)("DatomicData").mkString("(", ", ", ")")
-      val body = ((0 until arity) map (n => "DatomicData.toDatomicData(l.get("+n+"))")).mkString("(", ", ", ")")
+      val typeParams = Seq.fill(arity)("Any").mkString("(", ", ", ")")
+      val body = ((0 until arity) map (n => "Convert.toScala(l.get("+n+"))")).mkString("(", ", ", ")")
 
       ("""|
           |  implicit object QueryResultToTuple"""+arity+" extends QueryResultToTuple["+typeParams+"""] {
@@ -144,8 +140,8 @@ object Boilerplate {
     genHeader +
     ("""|
         |private[datomisca] trait QueryResultToTupleInstances {
-        |  implicit object QueryResultToTuple1 extends QueryResultToTuple[DatomicData] {
-        |    override def toTuple(l: java.util.List[AnyRef]) = DatomicData.toDatomicData(l.get(0))
+        |  implicit object QueryResultToTuple1 extends QueryResultToTuple[Any] {
+        |    override def toTuple(l: java.util.List[AnyRef]) = Convert.toScala(l.get(0))
         |  }""" +
            instances +
      """|}

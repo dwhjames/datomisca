@@ -41,26 +41,29 @@ object MovieGraphData {
 
   val actors = Seq(Carrie_Ann_Moss, Hugo_Weaving, Guy_Peace, Joe_Pantoliano)
 
-  val The_Matrix = SchemaEntity.add(DId(Partition.USER))(Props() +
-    (movieTitle -> "The Matrix") +
-    (movieYear  -> 1999)
-  )
+  val The_Matrix = (
+    SchemaEntity.newBuilder
+      += (movieTitle -> "The Matrix")
+      += (movieYear  -> 1999)
+  ) withId DId(Partition.USER)
 
-  val The_Matrix_Reloaded = SchemaEntity.add(DId(Partition.USER))(Props() +
-    (movieTitle -> "The Matrix Reloaded") +
-    (movieYear  -> 2003)
-  )
+  val The_Matrix_Reloaded = (
+    SchemaEntity.newBuilder
+      += (movieTitle -> "The Matrix Reloaded")
+      += (movieYear  -> 2003)
+  ) withId DId(Partition.USER)
 
-  val Memento = SchemaEntity.add(DId(Partition.USER))(Props() +
-    (movieTitle -> "Memento") +
-    (movieYear  -> 200)
-  )
+  val Memento = (
+    SchemaEntity.newBuilder
+      += (movieTitle -> "Memento")
+      += (movieYear  -> 2000)
+  ) withId DId(Partition.USER)
 
   val movies = Seq(The_Matrix, The_Matrix_Reloaded, Memento)
 
   val graphNodesTxData = actors ++ movies
 
-  def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[Operation]] = Seq(
+  def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[TxData]] = Seq(
     Seq(
       SchemaFact.add(tempIds(Carrie_Ann_Moss.id))(actorActs -> tempIds(The_Matrix.id)),
       SchemaFact.add(DId(Partition.TX))(actorRole -> "Trinity")
@@ -115,9 +118,9 @@ object MovieGraphQueries {
       :where
         [?movie :movie/title ?title]
         [?movie :movie/year  ?year]
-        [(.startsWith ?title ?prefix)]
+        [(.startsWith ^String ?title ?prefix)]
     ]
-  """) // give reflection warning: should be [(.startsWith ^String ?title ?prefix)]
+  """)
 
   val queryFindActorsInTitle = Query("""
     [
@@ -214,32 +217,32 @@ object MovieGraph {
 
       disp {
         println("Find the movie 'The Matrix'")
-        Datomic.q(MovieGraphQueries.queryFindMovieByTitle, Datomic.database, DString("The Matrix"))
+        Datomic.q(MovieGraphQueries.queryFindMovieByTitle, Datomic.database, "The Matrix")
       }
 
       disp {
         println("Find movies with titles that start with 'The Matrix'")
-        Datomic.q(MovieGraphQueries.queryFindMovieByTitlePrefix, Datomic.database, DString("The Matrix"))
+        Datomic.q(MovieGraphQueries.queryFindMovieByTitlePrefix, Datomic.database, "The Matrix")
       }
 
       disp {
         println("Find the actors in the movie 'Memento'")
-        Datomic.q(MovieGraphQueries.queryFindActorsInTitle, Datomic.database, DString("Memento"))
+        Datomic.q(MovieGraphQueries.queryFindActorsInTitle, Datomic.database, "Memento")
       }
 
       disp {
         println("Find the movie roles for actor 'Carrie-Ann Moss'")
-        Datomic.q(MovieGraphQueries.queryFindTitlesAndRolesForActor, Datomic.database, DString("Carrie-Ann Moss"))
+        Datomic.q(MovieGraphQueries.queryFindTitlesAndRolesForActor, Datomic.database, "Carrie-Ann Moss")
       }
 
       disp {
         println("Find the movies that included actors from 'The Matrix Reloaded'")
-        Datomic.q(MovieGraphQueries.queryFindMoviesThatIncludeActorsInGivenMovie, Datomic.database, DString("The Matrix Reloaded"))
+        Datomic.q(MovieGraphQueries.queryFindMoviesThatIncludeActorsInGivenMovie, Datomic.database, "The Matrix Reloaded")
       }
 
       disp {
         println("Find all the movies with a role called 'Agent Smith'")
-        Datomic.q(MovieGraphQueries.queryFindAllMoviesWithRole, Datomic.database, DString("Agent Smith"))
+        Datomic.q(MovieGraphQueries.queryFindAllMoviesWithRole, Datomic.database, "Agent Smith")
       }
     }
 

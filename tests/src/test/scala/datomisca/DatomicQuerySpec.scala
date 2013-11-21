@@ -63,7 +63,7 @@ class DatomicQuerySpec extends Specification {
                   [ ?e :person/character :person.character/violent ]
         ]
       """), Datomic.database) map {
-        case (DLong(e), DString(n)) =>
+        case (e: Long, n: String) =>
           val entity = Datomic.database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
@@ -79,7 +79,7 @@ class DatomicQuerySpec extends Specification {
         [:find ?e :where [?e :person/name]]
       """)
       Datomic.q(q, Datomic.database) map {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
@@ -97,8 +97,8 @@ class DatomicQuerySpec extends Specification {
          :in $ [?names ...]
          :where [?e :person/name ?names]
         ]
-      """), Datomic.database, Datomic.coll("toto", "tata")) map {
-        case DLong(e) =>
+      """), Datomic.database, Seq("toto", "tata")) map {
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           println(s"3 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
@@ -119,12 +119,12 @@ class DatomicQuerySpec extends Specification {
       """)
       Datomic.q(
         q, Datomic.database,
-        DColl(
-          Datomic.coll("toto", 30L),
-          Datomic.coll("tutu", 54L)
+        Datomic.list(
+          Datomic.list("toto", 30L),
+          Datomic.list("tutu", 54L)
         )
       ) map {
-        case (DLong(e), DString(n), DLong(a)) =>
+        case (e: Long, n: String, a: Long) =>
           println(s"4 - entity: $e name: $n - age: $a")
       }
 
@@ -141,7 +141,7 @@ class DatomicQuerySpec extends Specification {
         ]
       """)
       Datomic.q(q, Datomic.database) map {
-        case (DLong(e), DString(n)) =>
+        case (e: Long, n: String) =>
           println(s"5 - entity: $e name: $n")
       }
 
@@ -167,7 +167,7 @@ class DatomicQuerySpec extends Specification {
       """)
 
       Datomic.q(q, Datomic.database, totoRule) map {
-        case (DLong(e), DLong(age)) =>
+        case (e: Long, age: Long) =>
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
       }
@@ -188,7 +188,7 @@ class DatomicQuerySpec extends Specification {
       """)
 
       Datomic.q(q, Datomic.database) map {
-        case (DLong(e), DString(name)) =>
+        case (e: Long, name: String) =>
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
       }
@@ -204,7 +204,7 @@ class DatomicQuerySpec extends Specification {
         [:find ?e :where [?e :person/name]]
       """)
       Datomic.q(q, Datomic.database) map {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           println(s"12 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
@@ -219,8 +219,8 @@ class DatomicQuerySpec extends Specification {
       val q = Query("""
         [:find ?firstname ?lastname :where [?firstname ?lastname]]
       """)
-      Datomic.q(q, DColl(Datomic.coll("John", "Smith"))) map {
-        case (DString(firstname), DString(lastname)) =>
+      Datomic.q(q, Seq(Seq("John", "Smith"))) map {
+        case (firstname: String, lastname: String) =>
           firstname must beEqualTo("John")
           lastname must beEqualTo("Smith")
           println(s"13 - firstname: $firstname lastname: $lastname")
@@ -236,8 +236,8 @@ class DatomicQuerySpec extends Specification {
       val q = Query("""
         [:find ?firstname ?lastname :in $ :where [?firstname ?lastname]]
       """)
-      Datomic.q(q, DColl(Datomic.coll("John", "Smith"))) map {
-        case (DString(firstname), DString(lastname)) =>
+      Datomic.q(q, Seq(Seq("John", "Smith"))) map {
+        case (firstname: String, lastname: String) =>
           firstname must beEqualTo("John")
           lastname must beEqualTo("Smith")
           println(s"14 - firstname: $firstname lastname: $lastname")

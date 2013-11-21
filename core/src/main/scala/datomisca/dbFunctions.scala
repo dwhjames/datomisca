@@ -25,34 +25,30 @@ class AddDbFunction(
     imports:   String    = "",
     requires:  String    = "",
     partition: Partition = Partition.USER
-) extends Operation with KeywordIdentified {
-  lazy val ref = DRef(ident)
-  val kw = Keyword("add", Some(Namespace.DB))
+) extends TxData with KeywordIdentified {
 
-  def toNative: AnyRef =
+  def toTxData: AnyRef =
     datomic.Util.map(
-      Keyword("id", Some(Namespace.DB)).toNative,    DId(partition).toNative,
-      Keyword("ident", Some(Namespace.DB)).toNative, ident.toNative,
-      Keyword("fn", Some(Namespace.DB)).toNative,    datomic.Peer.function(
+      Namespace.DB / "id",    DId(partition).toDatomicId,
+      Namespace.DB / "ident", ident,
+      Namespace.DB / "fn",    datomic.Peer.function(
         datomic.Util.map(
-          Keyword("lang").toNative,     lang,
-          Keyword("imports").toNative,  datomic.Util.read(imports),
-          Keyword("requires").toNative, datomic.Util.read(requires),
-          Keyword("params").toNative,   datomic.Util.list(params: _*),
-          Keyword("code").toNative,     code
+          clojure.lang.Keyword.intern("lang"),     lang,
+          clojure.lang.Keyword.intern("imports"),  datomic.Util.read(imports),
+          clojure.lang.Keyword.intern("requires"), datomic.Util.read(requires),
+          clojure.lang.Keyword.intern("params"),   datomic.Util.list(params: _*),
+          clojure.lang.Keyword.intern("code"),     code
         )
       )
     )
 
-  override def toString = toNative.toString
+  override def toString = toTxData.toString
 }
 
-abstract class TypedAddDbFunction(fn: AddDbFunction) extends Operation with KeywordIdentified {
-  val ident = fn.ident
-  lazy val ref = fn.ref
-  val kw = fn.kw
+abstract class TypedAddDbFunction(fn: AddDbFunction) extends TxData with KeywordIdentified {
+  override val ident = fn.ident
 
-  def toNative: AnyRef = fn.toNative
+  def toTxData: AnyRef = fn.toTxData
 }
 // TypedAddDbFunction 0-22 in managed source
 

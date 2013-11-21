@@ -24,42 +24,30 @@ object DatomiscaBuild extends Build {
       id       = "datomisca",
       base     = file("."),
       settings = rootProjectSettings
-    ) aggregate(common, macros, core, extras, tests)
-
-  lazy val common = Project(
-      id       = "common",
-      base     = file("common"),
-      settings = commonProjectSettings
-    )
+    ) aggregate(macros, core, tests)
 
   lazy val macros = Project(
       id       = "macros",
       base     = file("macros"),
       settings = macrosProjectSettings
-    ) dependsOn(common)
+    )
 
   lazy val core = Project(
       id       = "core",
       base     = file("core"),
       settings = coreProjectSettings
-    ) dependsOn(common, macros)
-
-  lazy val extras = Project(
-      id       = "extras",
-      base     = file("extras"),
-      settings = extrasProjectSettings
-    ) dependsOn(common, core)
+    ) dependsOn(macros)
 
   lazy val tests = Project(
       id = "tests",
       base = file("tests"),
       settings = testsProjectSettings
-    ) dependsOn(common, core, extras, macros)
+    ) dependsOn(core, macros)
 
   lazy val integrationTests = Project(
       id       = "integrationTests",
       base     = file("integration")
-    ) dependsOn (common, core, extras, macros) configs (IntegrationTest) settings (integrationTestsProjectSettings:_*)
+    ) dependsOn (core, macros) configs (IntegrationTest) settings (integrationTestsProjectSettings:_*)
 
 
   val repositories = Seq(
@@ -105,16 +93,12 @@ object DatomiscaBuild extends Build {
       },
 
       // map subproject classes into root project
-      mappings in (Compile, packageBin) <++= mappings in (common, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
-      mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
 
       // map subproject sources into root project
-      mappings in (Compile, packageSrc) <++= mappings in (common, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
-      mappings in (Compile, packageSrc) <++= mappings in (extras, Compile, packageSrc),
 
       licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
       bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("pellucid")
@@ -125,12 +109,6 @@ object DatomiscaBuild extends Build {
     Seq(
       publish      := (),
       publishLocal := ()
-    )
-
-  lazy val commonProjectSettings =
-    subProjectSettings ++
-    Seq(
-      name := "datomisca-common"
     )
 
   lazy val macrosProjectSettings =
@@ -156,15 +134,6 @@ object DatomiscaBuild extends Build {
       name := "datomisca-core",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
-    )
-
-  lazy val extrasProjectSettings =
-    subProjectSettings ++
-    mapGenSourceSettings ++
-    Seq(
-      name := "datomisca-extras",
-
-      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
     )
 
   lazy val testsProjectSettings =

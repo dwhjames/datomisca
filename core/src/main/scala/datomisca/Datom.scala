@@ -16,27 +16,19 @@
 
 package datomisca
 
-import org.specs2.mutable._
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+final class Datom(val underlying: datomic.Datom) extends AnyVal {
 
+  def id:     Long    = underlying.e.asInstanceOf[Long]
+  def attrId: Int     = underlying.a.asInstanceOf[Integer]
+  def value:  Any     = Convert.toScala(underlying.v)
+  def tx:     Long    = underlying.tx.asInstanceOf[Long]
+  def added:  Boolean = underlying.added
 
-@RunWith(classOf[JUnitRunner])
-class DatomicDataSpec extends Specification {
-  "DatomicData" should {
-    "extract KW from DRef" in {
-      val ns = Namespace("foo")
-      DRef(ns / "bar") match {
-        case DRef.IsKeyword(kw) if kw == Datomic.KW(":foo/bar") => success
-        case _ => failure
-      }
-    }
-    "extract ID from DRef" in {
-      DRef(DId(Partition.USER)) match {
-        case DRef.IsId(id) => success
-        case _ => failure
-      }
-    }
-  }
+  override def toString = s"Datom(e[$id] a[$attrId] v[$value] tx[$tx] added[$added])"
+}
+
+object Datom {
+   def unapply(da: Datom): Option[(Long, Int, Any, Long, Boolean)] =
+    Some((da.id,da.attrId,da.value,da.tx,da.added))
 }

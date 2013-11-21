@@ -43,17 +43,17 @@ object AddTxFunction extends AddTxFunctionGen {
 
 class InvokeTxFunction(
     fn:   Keyword,
-    args: Seq[DatomicData]
-) extends Operation {
-  def toNative: AnyRef = {
+    args: Seq[AnyRef]
+) extends TxData {
+  def toTxData: AnyRef = {
     datomic.Util.list(
-      (fn +: args).map(_.toNative): _*
+      (fn +: args): _*
     )
   }
 }
 
 object InvokeTxFunction extends InvokeTxFunctionGen {
-  def apply(fn: Keyword)(args: DatomicData*) = new InvokeTxFunction(fn, args)
+  def apply(fn: Keyword)(args: AnyRef*) = new InvokeTxFunction(fn, args)
 
   def apply(fn: gen.TypedAddDbFunction0)() =
     new InvokeTxFunction(fn.ident, Seq.empty)

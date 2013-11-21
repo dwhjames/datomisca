@@ -20,22 +20,22 @@ package datomisca
 object SchemaFact {
   /** add based on Schema attributes 
     */
-  def add[T, DD <: DatomicData, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
+  def add[T, DD <: AnyRef, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
     (implicit ev: AsEntityId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): AddFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
-    val (kw: Keyword, value: DatomicData) = partial.props.head
-    AddFact(ev.conv(id), kw, value)
+    val (kw: Keyword, value: AnyRef) = partial.props.head
+    new AddFact(ev.conv(id), kw, value)
   }
 
   /** retract based on Schema attributes 
     */
-  def retract[T, DD <: DatomicData, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
+  def retract[T, DD <: AnyRef, Card <: Cardinality, A](id: T)(prop: (Attribute[DD, Card], A))
     (implicit ev: AsPermanentEntityId[T], attrC: Attribute2PartialAddEntityWriter[DD, Card, A]): RetractFact = {
     val entityWriter = attrC.convert(prop._1)
     val partial = entityWriter.write(prop._2)
-    val (kw: Keyword, value: DatomicData) = partial.props.head
-    RetractFact(ev.conv(id), kw, value)
+    val (kw: Keyword, value: AnyRef) = partial.props.head
+    new RetractFact(ev.conv(id), kw, value)
   }
 
 }

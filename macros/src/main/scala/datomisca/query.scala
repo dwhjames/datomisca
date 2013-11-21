@@ -18,4 +18,8 @@ package datomisca
 
 abstract class AbstractQuery(val query: clojure.lang.IPersistentMap)
 
+final class QueryRules(val edn: clojure.lang.IPersistentVector) extends AnyVal {
+  override def toString = edn.toString
+}
+
 object Query extends macros.QueryMacros

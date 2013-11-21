@@ -58,7 +58,7 @@ class AccountsSampleSpec
             balance (+ (${balance} e 0) amount) ]
             (if (>= balance min-balance)
               [[:db/add id ${balance} balance]]
-              (throw (Exception. "Insufficient funds"))))
+              (throw (IllegalStateException. "Insufficient funds"))))
     """}
 
     val transferFn = AddTxFunction.typed[Long, Long, BigDecimal](fn / "transfer") ("db", "from", "to", "amount") ("clojure") {s"""
@@ -101,7 +101,7 @@ class AccountsSampleSpec
 
     val sampleTxData = Seq(issuer, bob, alice)
 
-    def transfer(fromAcc: Long, toAcc: Long, transAmount: BigDecimal, note: String): Seq[Operation] = {
+    def transfer(fromAcc: Long, toAcc: Long, transAmount: BigDecimal, note: String): Seq[TxData] = {
       val txId = DId(Partition.TX)
       Seq(
         InvokeTxFunction(transferFn)(fromAcc, toAcc, transAmount),
@@ -114,7 +114,7 @@ class AccountsSampleSpec
       )
     }
 
-    def credit(toAcc: Long, amount: BigDecimal): Operation =
+    def credit(toAcc: Long, amount: BigDecimal): TxData =
       InvokeTxFunction(creditFn)(toAcc, amount)
   }
 
@@ -172,12 +172,12 @@ class AccountsSampleSpec
       Datomic.transact(AccountsTxData.sampleTxData)
     }
 
-    val DLong(issuerId) =
-      Datomic.q(findAccountByName, conn.database, DString("Issuer")).head
-    val DLong(bobId) =
-      Datomic.q(findAccountByName, conn.database, DString("Bob")).head
-    val DLong(aliceId) =
-      Datomic.q(findAccountByName, conn.database, DString("Alice")).head
+    val issuerId =
+      Datomic.q(findAccountByName, conn.database, "Issuer").head.asInstanceOf[Long]
+    val bobId =
+      Datomic.q(findAccountByName, conn.database, "Bob").head.asInstanceOf[Long]
+    val aliceId =
+      Datomic.q(findAccountByName, conn.database, "Alice").head.asInstanceOf[Long]
 
     await {
       Datomic.transact(transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
@@ -193,13 +193,13 @@ class AccountsSampleSpec
 
     Datomic.q(queryAllTransactions, conn.database) should have size (3)
 
-    Datomic.q(queryAccountTransactions, conn.database, rulesParty, DLong(issuerId)) should have size (2)
+    Datomic.q(queryAccountTransactions, conn.database, rulesParty, issuerId) should have size (2)
 
-    Datomic.q(queryAccountTransactions, conn.database, rulesParty, DLong(bobId)) should have size (2)
+    Datomic.q(queryAccountTransactions, conn.database, rulesParty, bobId) should have size (2)
 
-    Datomic.q(queryAccountTransactions, conn.database, rulesParty, DLong(aliceId)) should have size (2)
+    Datomic.q(queryAccountTransactions, conn.database, rulesParty, aliceId) should have size (2)
 
-    an [Exception] should be thrownBy {
+    an [IllegalStateException] should be thrownBy {
       await {
         Datomic.transact(transfer(aliceId, bobId, BigDecimal(71),  "Car"))
       }

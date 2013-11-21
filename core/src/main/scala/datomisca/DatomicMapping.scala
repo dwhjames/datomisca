@@ -23,7 +23,7 @@ import scala.language.implicitConversions
 object DatomicMapping 
   extends CombinatorImplicits
 {
-  def fromEntity[A](e: DEntity)(implicit er: EntityReader[A]): A = er.read(e)
+  def fromEntity[A](e: Entity)(implicit er: EntityReader[A]): A = er.read(e)
 
   def toEntity[T, A](id: T)(a: A)(implicit ev: AsEntityId[T], ew: PartialAddEntityWriter[A]): AddEntity = new AddEntity(ev.conv(id), ew.write(a).props)
 
@@ -40,8 +40,8 @@ object DatomicMapping
       case Some(a) => Attribute2PartialAddEntityWriter.attr2PartialAddEntityWriterOne.convert(ID).to(a)
     } }*/
 
-  implicit def attributeOps[DD <: DatomicData, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
+  implicit def attributeOps[DD <: AnyRef, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
 
-  implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
-    ToDatomic[DRef, C]{ (ref: C) => DRef(witness(ref).id) }
+  // implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
+  //   ToDatomic[java.lang.Long, C]{ (ref: C) => witness(ref).id: java.lang.Long }
 }

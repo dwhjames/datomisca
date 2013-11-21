@@ -19,6 +19,8 @@ package macros
 
 import scala.language.experimental.macros
 
+import clojure.lang.Keyword
+
 
 private[datomisca] trait ExtraMacros {
   /** Macro-based helper to create Datomic keyword using Clojure-style

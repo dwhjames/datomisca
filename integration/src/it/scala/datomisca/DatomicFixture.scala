@@ -25,8 +25,8 @@ import java.util.UUID.randomUUID
 
 
 trait SampleData {
-  val schema: Seq[Operation]
-  val txData: Seq[Operation]
+  val schema: Seq[TxData]
+  val txData: Seq[TxData]
 }
 
 trait DatomicFixture extends ScalaFutures

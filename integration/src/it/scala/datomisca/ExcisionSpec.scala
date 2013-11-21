@@ -36,7 +36,7 @@ class ExcisionSpec
 
     val dbBefore = conn.database
 
-    val DLong(e) = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, DString(PersonSampleData.toto.name)).head
+    val e = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, PersonSampleData.toto.name).head.asInstanceOf[Long]
 
     val excisionId = DId(Partition.USER)
     whenReady(
@@ -50,7 +50,7 @@ class ExcisionSpec
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
         """),
         dbAfter,
-        DLong(e)).headOption.value should be (DLong(exId))
+        e).headOption.value should be (exId)
     }
   }
 
@@ -58,7 +58,7 @@ class ExcisionSpec
 
     val dbBefore = conn.database
 
-    val DLong(e) = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, DString(PersonSampleData.toto.name)).head
+    val e = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, PersonSampleData.toto.name).head.asInstanceOf[Long]
 
     val excisionId = DId(Partition.USER)
     whenReady(
@@ -76,7 +76,7 @@ class ExcisionSpec
             [?e :db.excise/attrs ${PersonSampleData.Schema.ageAttr}]]
         """),
         dbAfter,
-        DLong(e)).headOption.value should be (DLong(exId))
+        e).headOption.value should be (exId)
     }
   }
 
@@ -99,8 +99,8 @@ class ExcisionSpec
             [?e :db.excise/before ?date]]
         """),
         dbAfter,
-        DKeyword(PersonSampleData.Schema.ageAttr.ident),
-        DInstant(before)).headOption.value should be (DLong(exId))
+        PersonSampleData.Schema.ageAttr,
+        before).headOption.value should be (exId)
     }
   }
 
@@ -123,8 +123,8 @@ class ExcisionSpec
             [?e :db.excise/beforeT ?basisT]]
         """),
         dbAfter,
-        DKeyword(PersonSampleData.Schema.ageAttr.ident),
-        DLong(beforeT)).headOption.value should be (DLong(exId))
+        PersonSampleData.Schema.ageAttr,
+        beforeT).headOption.value should be (exId)
     }
   }
 
@@ -144,7 +144,7 @@ class ExcisionSpec
            :where [?e :db/excise ?excised]]
         """),
         dbAfter,
-        DKeyword(PersonSampleData.Schema.ageAttr.ident)).headOption.value should be (DLong(exId))
+        PersonSampleData.Schema.ageAttr).headOption.value should be (exId)
     }
   }
 }

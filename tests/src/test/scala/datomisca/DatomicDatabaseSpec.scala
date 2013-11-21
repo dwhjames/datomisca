@@ -170,15 +170,15 @@ class DatomicDatabaseSpec extends Specification {
               ]
             """),
             Datomic.database,
-            DKeyword(user / "email"),
-            DString("jdoe@example.com")
+            user / "email",
+            "jdoe@example.com"
           ) map {
-            case DLong(e) =>
+            case e: Long =>
               println(s"Found e: $e")
               Datomic.database.touch(e)
           }
 
-          val datoms = Datomic.database.datoms(DDatabase.AEVT, DKeyword(user / "passwordHash"))
+          val datoms = Datomic.database.datoms(Database.AEVT, user / "passwordHash")
           println(s"Datoms: $datoms")
 
           ///////////////////////////////////////////////////////////////////
@@ -216,7 +216,7 @@ class DatomicDatabaseSpec extends Specification {
               story / "url"   -> "http://blog.datomic.com/2012/10/codeq.html"
             ),
             Entity.add(DId(Partition.TX))(
-              publish / "at" -> DInstant(new java.util.Date())
+              publish / "at" -> new java.util.Date()
             )
           ) map { tx =>
             println(s"end tx: $tx")

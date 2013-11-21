@@ -20,14 +20,14 @@ package datomisca
 import scala.concurrent._
 import scala.util.control.NonFatal
 
+import java.{util => ju}
+
 import datomic.ListenableFuture
 
 
-class Connection(
-  val connection: datomic.Connection
-) {
+class Connection(val connection: datomic.Connection) extends AnyVal {
 
-  def database: DDatabase = DDatabase(connection.db())
+  def database: Database = new Database(connection.db())
 
   /**
     * Used to coordinate with other peers.
@@ -50,8 +50,8 @@ class Connection(
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.
     */
-  def sync()(implicit exec: ExecutionContext): Future[DDatabase] =
-    Connection.bridgeDatomicFuture(connection.sync()) map DDatabase.apply
+  def sync()(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.sync()) map (new Database(_))
 
   /**
     * Used to coordinate with other peers.
@@ -75,17 +75,22 @@ class Connection(
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.
     */
-  def sync(t: Long)(implicit exec: ExecutionContext): Future[DDatabase] =
-    Connection.bridgeDatomicFuture(connection.sync(t)) map DDatabase.apply
+  def sync(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.sync(t)) map (new Database(_))
 
 
-  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
-    import scala.collection.JavaConverters._
+  def transact(ops: TraversableOnce[TxData])(implicit ex: ExecutionContext): Future[TxReport] = {
+    val arrayList =
+      if (ops.isInstanceOf[Iterable[TxData]])
+        new ju.ArrayList[AnyRef](ops.size)
+      else
+        new ju.ArrayList[AnyRef]()
 
-    val datomicOps = ops.map( _.toNative ).asJava
+    for (op <- ops)
+      arrayList.add(op.toTxData)
 
     val future = try {
-        Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+        Connection.bridgeDatomicFuture(connection.transactAsync(arrayList))
       } catch {
         case NonFatal(ex) => Future.failed(ex)
       }
@@ -94,9 +99,6 @@ class Connection(
       new TxReport(javaMap)
     }
   }
-
-  def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
 
   def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
 
@@ -124,7 +126,7 @@ class Connection(
     *
     * @return the current value of the log.
     */
-  def log(): Log = new Log(connection.log(), database)
+  def log(): Log = new Log(connection.log())
 }
 
 object Connection {

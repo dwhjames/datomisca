@@ -139,7 +139,7 @@ class DatomicTxSpec extends Specification {
       ) flatMap { tx => 
         println(s"Provisioned data... TX: $tx")
 
-        println(s"Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
+        println(s"Resolved Id for toto: temp(${idToto}) real(${tx.resolve(idToto)})")
 
         val totoId = tx.resolve(idToto)
         Datomic.transact(
@@ -162,7 +162,7 @@ class DatomicTxSpec extends Specification {
                      [ ?f :person/name "toto" ]
             ]              
           """), Datomic.database) map {
-            case DLong(e) =>
+            case e: Long =>
               val entity = Datomic.database.entity(e)
               val p @ Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"Found person with name $name and age $age")
@@ -201,7 +201,7 @@ class DatomicTxSpec extends Specification {
       ) flatMap { tx => 
         println(s"2 Provisioned data... TX: $tx")
 
-        println(s"2 Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
+        println(s"2 Resolved Id for toto: temp(${idToto}) real(${tx.resolve(idToto)})")
         val totoId = tx.resolve(toto)
         Datomic.transact(
           Entity.add(idTutu)(
@@ -223,7 +223,7 @@ class DatomicTxSpec extends Specification {
                      [ ?f :person/name "toto" ]
             ]
           """), Datomic.database) map {
-            case DLong(e) =>
+            case e: Long =>
               val entity = Datomic.database.entity(e)
               val Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"2 Found person with name $name and age $age")
@@ -623,14 +623,15 @@ class DatomicTxSpec extends Specification {
           person / "age"  -> 30
         )
       ) map { tx => 
-         val entries = tx.txData.collect{ case DDatom(_,k,v,_,_) => (k,v)}.toMap
+         val entries = tx.txData.collect{ case Datom(_,k,v,_,_) => (k.toLong, v)}.toMap
+         val db = tx.dbAfter
          entries.size must beEqualTo(3)
-         entries(person / "age") must beEqualTo(DLong(30))
-         entries(person / "name")  must beEqualTo(DString("toto"))
-         entries(PersonSchema.name.ident)  must beEqualTo(DString("toto"))
+         entries(db.entid(person / "age")) must beEqualTo(30)
+         entries(db.entid(person / "name"))  must beEqualTo("toto")
+         entries(db.entid(PersonSchema.name.ident))  must beEqualTo("toto")
          
-         tx.txData.collectFirst{ case DDatom(_,_,DLong(age),_,_) => age} must beEqualTo(Some(30))
-         tx.txData.collectFirst{ case DDatom(_,PersonSchema.name.ident,DString(name),_,_) => name} must beEqualTo(Some("toto"))
+         tx.txData.collectFirst{ case Datom(_,_, age: Long,_,_) => age} must beEqualTo(Some(30))
+         tx.txData.collectFirst{ case Datom(_,k , name: String ,_,_) if db.ident(k) == PersonSchema.name.ident => name} must beEqualTo(Some("toto"))
       }
 
       Await.result(fut,Duration("2 seconds"))

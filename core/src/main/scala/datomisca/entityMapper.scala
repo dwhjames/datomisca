@@ -26,7 +26,7 @@ sealed trait EntityMapper[A]
 @implicitNotFound("Cannot find a Datomic entity reader for type ${A}. Consider implementing an instance of the EntityReader type class.")
 trait EntityReader[A] extends EntityMapper[A] {
   self => 
-  def read(e: DEntity): A
+  def read(e: Entity): A
 
   def map[B](f: A => B): EntityReader[B] = EntityReader[B] { e =>
     f(self.read(e))
@@ -67,21 +67,21 @@ trait EntityReader[A] extends EntityMapper[A] {
 }
 
 object EntityReader {
-  def apply[A]( f: DEntity => A ) = new EntityReader[A] {
-    def read(e: DEntity): A = f(e)
+  def apply[A]( f: Entity => A ) = new EntityReader[A] {
+    def read(e: Entity): A = f(e)
   }
 
   implicit object EntityReaderMonad extends Monad[EntityReader] {
-    def unit[A](a: A) = EntityReader[A]{ (e: DEntity) => a }
+    def unit[A](a: A) = EntityReader[A]{ (e: Entity) => a }
     def bind[A, B](ma: EntityReader[A], f: A => EntityReader[B]) = 
-      EntityReader[B]{ (e: DEntity) => f(ma.read(e)).read(e) }
+      EntityReader[B]{ (e: Entity) => f(ma.read(e)).read(e) }
   }
 
   implicit object EntityReaderFunctor extends Functor[EntityReader] {
     def fmap[A, B](ereader: EntityReader[A], f: A => B) = EntityReader{ e => f(ereader.read(e)) }
   }
 
-  implicit val DEntityReader: EntityReader[DEntity] = EntityReader{ e: DEntity => e }
+  implicit val entityReader: EntityReader[Entity] = EntityReader{ e: Entity => e }
 }
 
 

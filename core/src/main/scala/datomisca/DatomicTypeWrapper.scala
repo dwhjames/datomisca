@@ -16,16 +16,14 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
 
+trait DatomicTypeWrapper {
+  import scala.language.implicitConversions
 
-final case class Partition(keyword: Keyword) {
-  override def toString = keyword.toString
+  /** implicit converters to simplify conversion from Scala Types to Datomic Type */
+  implicit def toDWrapper[T](t: T)(implicit td: ToDatomicCast[T]): DWrapper = new DWrapperImpl(td.to(t))
+
+  trait DWrapper extends NotNull
+  private[datomisca] class DWrapperImpl(val underlying: AnyRef) extends DWrapper
+
 }
-
-object Partition {
-  val DB   = Partition(Keyword("db",   Some(Namespace.DB.PART)))
-  val TX   = Partition(Keyword("tx",   Some(Namespace.DB.PART)))
-  val USER = Partition(Keyword("user", Some(Namespace.DB.PART)))
-}
-
