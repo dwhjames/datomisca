@@ -16,8 +16,6 @@
 
 package datomisca
 
-import clojure.lang.Keyword
-
 
 class AddDbFunction(
     val ident: Keyword,
@@ -35,11 +33,11 @@ class AddDbFunction(
       Namespace.DB / "ident", ident,
       Namespace.DB / "fn",    datomic.Peer.function(
         datomic.Util.map(
-          Keyword.intern("lang"),     lang,
-          Keyword.intern("imports"),  datomic.Util.read(imports),
-          Keyword.intern("requires"), datomic.Util.read(requires),
-          Keyword.intern("params"),   datomic.Util.list(params: _*),
-          Keyword.intern("code"),     code
+          clojure.lang.Keyword.intern("lang"),     lang,
+          clojure.lang.Keyword.intern("imports"),  datomic.Util.read(imports),
+          clojure.lang.Keyword.intern("requires"), datomic.Util.read(requires),
+          clojure.lang.Keyword.intern("params"),   datomic.Util.list(params: _*),
+          clojure.lang.Keyword.intern("code"),     code
         )
       )
     )

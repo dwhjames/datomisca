@@ -21,8 +21,6 @@ import scala.collection.JavaConverters._
 
 import java.util.Date
 
-import clojure.lang.Keyword
-
 
 private[datomisca] class ExciseEntity(
     val id:     Long,

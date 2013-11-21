@@ -18,8 +18,6 @@ package datomisca
 
 import scala.concurrent.blocking
 
-import clojure.lang.Keyword
-
 
 class Entity(val entity: datomic.Entity) extends AnyVal {
 

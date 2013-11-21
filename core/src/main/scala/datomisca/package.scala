@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import scala.language.reflectiveCalls
-
 package object datomisca {
 
   type Keyword = clojure.lang.Keyword
@@ -66,7 +64,7 @@ package object datomisca {
                (attr: Attribute[DD, Card])
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : T =
-      attrC.convert(attr).read(entity)
+        attrC.convert(attr).read(entity)
     }
 
     /**
@@ -123,5 +121,6 @@ package object datomisca {
                   (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[T]]])
                   : Option[Set[IdView[T]]] =
       readOpt[Set[IdView[T]]](attr)
-  }
+    }
+
 }

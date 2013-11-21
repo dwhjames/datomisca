@@ -16,8 +16,6 @@
 
 package datomisca
 
-import clojure.lang.Keyword
-
 
 trait TempIdentified {
   def id: DId

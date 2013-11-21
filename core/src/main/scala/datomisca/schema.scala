@@ -23,8 +23,8 @@ import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import java.util.{Date, UUID}
 import java.net.URI
 
-import clojure.lang.Keyword
 import clojure.{lang => clj}
+
 
 object DatomicRef
 

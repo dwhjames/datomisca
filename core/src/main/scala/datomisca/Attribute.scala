@@ -18,8 +18,6 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
-import clojure.lang.Keyword
-
 
 final case class Attribute[DD, Card <: Cardinality](
     override val ident: Keyword,

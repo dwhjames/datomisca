@@ -38,17 +38,14 @@ object Boilerplate {
     val invokeTxFunctions = dir / "datomisca" / "InvokeTxFunctionGen.scala"
     IO.write(invokeTxFunctions, genInvokeTxFunctions)
 
-    Seq(
-      typedQueries, typedQueryExecutor, queryResultToTupleInstances,
-      typedAddDbFunctions, addTxFunctions, invokeTxFunctions
-    )
-  }
-
-  def genExtras(dir: File) = {
     val builders = dir / "datomisca" / "functional" / "builders.scala"
     IO.write(builders, genBuilders)
 
-    Seq(builders)
+    Seq(
+      typedQueries, typedQueryExecutor, queryResultToTupleInstances,
+      typedAddDbFunctions, addTxFunctions, invokeTxFunctions,
+      builders
+    )
   }
 
   def genHeader = {
@@ -194,7 +191,6 @@ object Boilerplate {
     genHeader +
     ("""|
         |import gen._
-        |import clojure.lang.Keyword
         |
         |private[datomisca] trait AddTxFunctionGen {""" +
            instances + """

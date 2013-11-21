@@ -24,7 +24,7 @@ object DatomiscaBuild extends Build {
       id       = "datomisca",
       base     = file("."),
       settings = rootProjectSettings
-    ) aggregate(macros, core, extras, tests)
+    ) aggregate(macros, core, tests)
 
   lazy val macros = Project(
       id       = "macros",
@@ -38,22 +38,16 @@ object DatomiscaBuild extends Build {
       settings = coreProjectSettings
     ) dependsOn(macros)
 
-  lazy val extras = Project(
-      id       = "extras",
-      base     = file("extras"),
-      settings = extrasProjectSettings
-    ) dependsOn(core)
-
   lazy val tests = Project(
       id = "tests",
       base = file("tests"),
       settings = testsProjectSettings
-    ) dependsOn(core, extras, macros)
+    ) dependsOn(core, macros)
 
   lazy val integrationTests = Project(
       id       = "integrationTests",
       base     = file("integration")
-    ) dependsOn (core, extras, macros) configs (IntegrationTest) settings (integrationTestsProjectSettings:_*)
+    ) dependsOn (core, macros) configs (IntegrationTest) settings (integrationTestsProjectSettings:_*)
 
 
   val repositories = Seq(
@@ -101,12 +95,10 @@ object DatomiscaBuild extends Build {
       // map subproject classes into root project
       mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin),
       mappings in (Compile, packageBin) <++= mappings in (core,   Compile, packageBin),
-      mappings in (Compile, packageBin) <++= mappings in (extras, Compile, packageBin),
 
       // map subproject sources into root project
       mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc),
       mappings in (Compile, packageSrc) <++= mappings in (core,   Compile, packageSrc),
-      mappings in (Compile, packageSrc) <++= mappings in (extras, Compile, packageSrc),
 
       licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
       bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("pellucid")
@@ -142,15 +134,6 @@ object DatomiscaBuild extends Build {
       name := "datomisca-core",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
-    )
-
-  lazy val extrasProjectSettings =
-    subProjectSettings ++
-    mapGenSourceSettings ++
-    Seq(
-      name := "datomisca-extras",
-
-      (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genExtras
     )
 
   lazy val testsProjectSettings =

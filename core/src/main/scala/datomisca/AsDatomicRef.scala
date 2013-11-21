@@ -18,8 +18,6 @@ package datomisca
 
 import scala.annotation.implicitNotFound
 
-import clojure.lang.Keyword
-
 
 @implicitNotFound("Cannot use type ${T} as the type of a Datomic reference")
 sealed trait AsDatomicRef[T] {

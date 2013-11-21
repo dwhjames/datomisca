@@ -18,8 +18,6 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
-import clojure.lang.Keyword
-
 
 trait TxData {
   def toTxData: AnyRef

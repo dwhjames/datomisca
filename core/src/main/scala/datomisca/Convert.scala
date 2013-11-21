@@ -16,8 +16,6 @@
 
 package datomisca
 
-import clojure.lang.Keyword
-
 
 private[datomisca] object Convert {
 
@@ -45,7 +43,7 @@ private[datomisca] object Convert {
     // :db.type/uri
     case u: java.net.URI => u
     // :db.type/keyword
-    case kw: Keyword => kw
+    case kw: clojure.lang.Keyword => kw
     // :db.type/bytes
     case bytes: Array[Byte] => bytes
     // an entity map

@@ -18,8 +18,6 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
-import clojure.lang.Keyword
-
 
 object Fact extends DatomicTypeWrapper {
   /** Creates a single Add operation targeting a given [[DId]]

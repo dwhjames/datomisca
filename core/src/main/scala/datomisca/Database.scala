@@ -16,8 +16,6 @@
 
 package datomisca
 
-import clojure.lang.Keyword
-
 
 class Database(val underlying: datomic.Database) {
 

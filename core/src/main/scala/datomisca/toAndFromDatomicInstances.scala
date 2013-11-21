@@ -22,7 +22,6 @@ import java.{util => ju}
 import java.util.{Date, UUID}
 import java.net.URI
 
-import clojure.lang.Keyword
 import clojure.{lang => clj}
 
 
