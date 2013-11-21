@@ -17,7 +17,7 @@
 package datomisca
 
 
-class Database(val underlying: datomic.Database) {
+class Database(val underlying: datomic.Database) extends AnyVal {
 
 
   /** Returns the entity for the given entity id.
