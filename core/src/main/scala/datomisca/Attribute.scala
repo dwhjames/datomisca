@@ -19,6 +19,11 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
+/** The representation of Datomic attributes
+  *
+  * @constructor construct an attribute out of an ident, valueType,
+  *     cardinality, and other optional components
+  */
 final case class Attribute[DD, Card <: Cardinality](
     override val ident: Keyword,
     valueType:   SchemaType[DD],
@@ -31,11 +36,22 @@ final case class Attribute[DD, Card <: Cardinality](
     noHistory:   Option[Boolean] = None
 ) extends TxData with KeywordIdentified {
 
+  /** Extend this attribute with a documentation string. */
   def withDoc(str: String)        = copy( doc = Some(str) )
+
+  /** Extend this attribute with a uniqueness constraint. */
   def withUnique(u: Unique)       = copy( unique = Some(u) )
+
+  /** Extend this attribute with an indexing property */
   def withIndex(b: Boolean)       = copy( index = Some(b) )
+
+  /** Extend this attribute with a full text indexing property */
   def withFullText(b: Boolean)    = copy( fulltext = Some(b) )
+
+  /** Extend this attribute with a component relationship constraint. */
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
+
+  /** Extend this attribute with a no history property */
   def withNoHistory(b: Boolean)   = copy( noHistory = Some(b) )
 
   def reverse(implicit ev: =:=[DatomicRef.type, DD]): Attribute[DatomicRef.type, Cardinality.many.type] =

@@ -22,64 +22,50 @@ import scala.language.experimental.macros
 
 private[datomisca] trait QueryMacros {
 
-  /** Creates a macro-based compile-time typed query from a String:
-    *    - syntax validation is performed.
-    *    - determines number of input(M) parameters
-    *    - determines number of output(N) parameters
-    *    - creates a TypedQueryN[DatomicData, ...M-times, TupleN[DatomicData, ...N-times]]
-    *
-    * '''Keep in mind a query is an immutable data structure that you can manipulate'''
-    *
-    * When an [[AbstractQuery]] is executed, it returns a `Iterable[TupleN[DatomicData, DatomicData, ...]]` where X corresponds
-    * to the number of output parameters
+  /** Parse a string as a Datalog query.
     *
     * {{{
-    * val q = Datomic.Query("""
-    *   [
-    *    :find ?e ?name ?age
-    *    :in $ [[?name ?age]]
-    *    :where [?e :person/name ?name]
-    *           [?e :person/age ?age]
-    *   ]
+    * val query = Query("""
+    *   [:find ?e
+    *    :where [?e :db/doc]]
     * """)
-    *
-    * Datomic.q(
-    *   q, database,
-    *   DColl(
-    *     Datomic.coll("toto", 30L),
-    *     Datomic.coll("tutu", 54L)
-    *   )
-    * ) map {
-    *   case (DLong(e), DString(n), DLong(a)) =>
-    *      ...
-    * }
     * }}}
+    *
+    * Implemented as a macro. The string is parsed at compile time,
+    * so any parsing errors will result in compliation failure. The
+    * parsing checks that the string is valid EDN, and a further round
+    * of minimal validate is performed to ensure that the EDN has the
+    * expected structure to be a Datalog query.
+    *
+    * The macro also determines the input and output arity of the query.
+    * The declared return type of the macro is [[AbstractQuery]], but the
+    * concrete return type is of the form
+    *   {{{ TypedQueryN[AnyRef, ..., TupleN[Any, ...]] }}}
+    *
+    *
+    * When the resulting query is executed, it returns a `Iterable[TupleN[Any, ...]]`
+    *
+    * @param edn a Datalog query as a string
+    * @return an arity-typed query as a data structure
     */
   def apply(edn: String) = macro MacroImpl.cljQueryImpl
 
 
-  /** Macro-based helper to create Rule alias to be used in Queries.
+  /** Parse a string a collection of Datalog rules.
+    *
+    * Macro-based helper to create Rule alias to be used in Queries.
     * {{{
-    * val totoRule = Datomic.Query.rules("""
-    *   [[[toto ?e]
-    *     [?e :person/name "toto"]
-    *   ]]
+    * val rules = Datomic.Query.rules("""
+    *   [[[doc ?e ?d]
+    *     [?e :db/doc ?d]]]
     * """)
-    *
-    * val q = Datomic.typedQuery[Args2, Args2]("""
-    *   [
-    *     :find ?e ?age
-    *     :in $ %
-    *     :where [?e :person/age ?age]
-    *            (toto ?e)
-    *   ]
-    * """)
-    *
-    * Datomic.query(q, database, totoRule) map {
-    *   case (DLong(e), DLong(age)) =>
-    *     ...
-    * }
     * }}}
+    *
+    * Implemented as a macro. The string is parse at compile time,
+    * so any parsing errors will result in complation failure.
+    *
+    * @param edn Datalog rules as a string
+    * @return Datalog rules as a data structure
     */
   def rules(edn: String) = macro MacroImpl.cljRulesImpl
 }
