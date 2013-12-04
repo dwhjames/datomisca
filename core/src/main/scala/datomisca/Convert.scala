@@ -56,6 +56,9 @@ private[datomisca] object Convert {
           override def hasNext = jIter.hasNext
           override def next() = toScala(jIter.next())
         }
+        override def isEmpty = coll.isEmpty
+        override def size = coll.size
+        override def toString = coll.toString
       }
     // otherwise
     case v => throw new UnsupportedDatomicTypeException(v.getClass)

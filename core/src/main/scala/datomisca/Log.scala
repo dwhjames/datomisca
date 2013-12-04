@@ -81,6 +81,9 @@ class Log(val log: datomic.Log) {
         }
       }
     }
+    override def equals(arg: Any) = jIterable.equals(arg)
+    override def hashCode = jIterable.hashCode
+    override def toString = s"${classOf[Log].getName}.txRange.Iterable@${Integer.toHexString(jIterable.hashCode)}"
   }
 
 }
