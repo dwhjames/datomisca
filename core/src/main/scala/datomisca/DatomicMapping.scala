@@ -29,19 +29,7 @@ object DatomicMapping
 
   val ID = Attribute( Namespace.DB / "id", SchemaType.long, Cardinality.one)
 
-  val readId    = new AttributeOps(ID).read[Long]   (Attribute2EntityReaderCast.attr2EntityReaderCastOne)
-  val readIdOpt = new AttributeOps(ID).readOpt[Long](Attribute2EntityReaderCast.attr2EntityReaderCastOne)
+  val readId    = ID.read[Long]   (Attribute2EntityReaderCast.attr2EntityReaderCastOne)
+  val readIdOpt = ID.readOpt[Long](Attribute2EntityReaderCast.attr2EntityReaderCastOne)
 
-  /*val writeId = new AttributeOps(ID).write[Long](Attribute2PartialAddEntityWriter.attr2PartialAddEntityWriterOne)
-
-  def writeIdOpt(partition: Partition = Partition.USER) = 
-    PartialAddEntityWriter[Option[Long]] { a => a match {
-      case None => Attribute2PartialAddEntityWriter.attr2PartialAddEntityWriterOne.convert(ID).to(DId(partition))
-      case Some(a) => Attribute2PartialAddEntityWriter.attr2PartialAddEntityWriterOne.convert(ID).to(a)
-    } }*/
-
-  implicit def attributeOps[DD <: AnyRef, C <: Cardinality](attr: Attribute[DD, C]) = new AttributeOps(attr)
-
-  // implicit def DRef2RefWrites[C, A](implicit witness: C <:< IdView[A]) =
-  //   ToDatomic[java.lang.Long, C]{ (ref: C) => witness(ref).id: java.lang.Long }
 }

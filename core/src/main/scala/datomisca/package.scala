@@ -133,6 +133,32 @@ package object datomisca {
       } catch {
         case ex: EntityKeyNotFoundException => None
       }
-    }
+
+  }
+
+
+  implicit class RichAttribute[DD <: AnyRef, Card <: Cardinality](val attribute: Attribute[DD, Card]) extends AnyVal {
+
+    def read[A](implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
+      ev.convert(attribute)
+
+    def readOpt[A](implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[Option[A]] =
+      EntityReader[Option[A]] { e: Entity =>
+        if (e.contains(attribute.ident))
+          Some(ev.convert(attribute).read(e))
+        else
+          None
+      }
+
+    def write[A](implicit ev: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[A] =
+      ev.convert(attribute)
+
+    def writeOpt[A](implicit ev: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[Option[A]] = 
+      PartialAddEntityWriter[Option[A]] {
+        case None    => PartialAddEntity.empty
+        case Some(a) => ev.convert(attribute).write(a)
+      }
+
+  }
 
 }
