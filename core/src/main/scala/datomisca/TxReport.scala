@@ -69,10 +69,13 @@ class TxReport(rawReport: java.util.Map[_, _]) {
     override def -(k: DId) = throw new UnsupportedOperationException
   }
 
-  override def toString = s"""TxReport{
-    dbBefore: ${dbBefore.basisT},
-    dbAfter: ${dbAfter.basisT},
-    txData: $txData,
-    tempids: $tempids
-  }"""
+  override def toString =
+    s"""TxReport {
+       |  dbBefore: ${dbBefore},
+       |  dbBefore.basisT: ${dbBefore.basisT}
+       |  dbAfter: ${dbAfter},
+       |  dbAfter.basisT: ${dbAfter.basisT},
+       |  txData: $txData,
+       |  tempids: $tempids
+       |}""".stripMargin
 }

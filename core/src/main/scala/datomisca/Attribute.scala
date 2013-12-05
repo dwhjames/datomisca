@@ -64,20 +64,34 @@ final case class Attribute[DD, Card <: Cardinality](
   override def toTxData: AnyRef = toAddOps.toTxData
   override def toString = ident.toString
 
-  def stringify = s"""
-{ 
-  ${Attribute.id} $id
-  ${Attribute.ident} ${ident}
-  ${Attribute.valueType} ${valueType.keyword}
-  ${Attribute.cardinality} ${cardinality.keyword}""" +
-  ( if(doc.isDefined) { "\n  " + Attribute.doc + " " + doc.get } else { "" } ) +
-  ( if(unique.isDefined) { "\n  " + Attribute.unique + " " + unique.get.keyword } else { "" } ) +
-  ( if(index.isDefined) { "\n  " + Attribute.index + " " + index.get } else { "" }) +
-  ( if(fulltext.isDefined) { "\n  " + Attribute.fulltext + " " + fulltext.get } else { "" }) +
-  ( if(isComponent.isDefined) { "\n  " + Attribute.isComponent + " " + isComponent.get } else { "" }) +
-  ( if(noHistory.isDefined) { "\n  " + Attribute.noHistory + " " + noHistory.get } else { "" }) +
-  "\n  " + Attribute.installAttr + " " + Partition.DB.keyword + 
-  "\n}"
+  def toEDNString: String = {
+    val builder = new StringBuilder(100)
+    (builder append '{'
+        append Attribute.id          append ' ' append id                append ", "
+        append Attribute.ident       append ' ' append ident             append ", "
+        append Attribute.valueType   append ' ' append valueType.keyword append ", "
+        append Attribute.cardinality append ' ' append cardinality.keyword)
+    if (doc.isDefined) (
+      builder append ", " append Attribute.doc append ' ' append doc.get
+    )
+    if (unique.isDefined) (
+      builder append ", " append Attribute.unique append ' ' append unique.get
+    )
+    if (index.isDefined) (
+      builder append ", " append Attribute.index append ' ' append index.get
+    )
+    if (fulltext.isDefined) (
+      builder append ", " append Attribute.fulltext append ' ' append fulltext.get
+    )
+    if (isComponent.isDefined) (
+      builder append ", " append Attribute.isComponent append ' ' append isComponent.get
+    )
+    if (noHistory.isDefined) (
+      builder append ", " append Attribute.noHistory append ' ' append noHistory.get
+    )
+    builder append '}'
+    builder.result()
+  }
 
 } 
 
