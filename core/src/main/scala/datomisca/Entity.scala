@@ -28,6 +28,9 @@ class Entity(val entity: datomic.Entity) extends AnyVal {
     this
   }
 
+  def contains(keyword: Keyword): Boolean =
+    entity.get(keyword) ne null
+
   def apply(keyword: Keyword): Any = {
     val o = entity.get(keyword)
     if (o ne null)
