@@ -25,7 +25,6 @@ final class Datom(val underlying: datomic.Datom) extends AnyVal {
   def tx:     Long    = underlying.tx.asInstanceOf[Long]
   def added:  Boolean = underlying.added
 
-  override def toString = s"Datom(e[$id] a[$attrId] v[$value] tx[$tx] added[$added])"
 }
 
 object Datom {

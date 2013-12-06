@@ -209,6 +209,9 @@ class Database(val underlying: datomic.Database) extends AnyVal {
         override def hasNext = jIter.hasNext
         override def next() = new Datom(jIter.next())
       }
+      override def equals(arg: Any) = jIterable.equals(arg)
+      override def hashCode = jIterable.hashCode
+      override def toString = s"${classOf[Database].getName}.datoms.Iterable@${Integer.toHexString(jIterable.hashCode)}"
     }
 
 
@@ -246,6 +249,9 @@ class Database(val underlying: datomic.Database) extends AnyVal {
         override def hasNext = jIter.hasNext
         override def next() = new Datom(jIter.next())
       }
+      override def equals(arg: Any) = jIterable.equals(arg)
+      override def hashCode = jIterable.hashCode
+      override def toString = s"${classOf[Database].getName}.seekDatoms.Iterable@${Integer.toHexString(jIterable.hashCode)}"
     }
 
 
@@ -275,6 +281,9 @@ class Database(val underlying: datomic.Database) extends AnyVal {
         override def hasNext = jIter.hasNext
         override def next() = new Datom(jIter.next())
       }
+      override def equals(arg: Any) = jIterable.equals(arg)
+      override def hashCode = jIterable.hashCode
+      override def toString = s"${classOf[Database].getName}.indexRange.Iterable@${Integer.toHexString(jIterable.hashCode)}"
     }
 
 
@@ -330,7 +339,6 @@ class Database(val underlying: datomic.Database) extends AnyVal {
   // indexRange
   // invoke
 
-  override def toString = underlying.toString
 }
 
 object Database {

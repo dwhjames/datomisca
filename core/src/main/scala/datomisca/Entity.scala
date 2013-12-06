@@ -79,6 +79,8 @@ class Entity(val entity: datomic.Entity) extends AnyVal {
     builder.result
   }
 
+  override def toString = entity.toString
+
 }
 
 
