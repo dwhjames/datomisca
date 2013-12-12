@@ -16,6 +16,8 @@
 
 package datomisca
 
+import java.util.UUID
+
 
 /** Regroups most basic [[http://docs.datomic.com/javadoc/datomic/Peer.html datomic.Peer]] functions.
   *
@@ -66,6 +68,18 @@ private[datomisca] trait PeerOps {
     */
   def deleteDatabase(uri: String): Boolean = datomic.Peer.deleteDatabase(uri)
 
+
+  /** Returns the partition of this entity id
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param entityId
+    * @return the partition of the given entity id
+    */
+  def part[T](entityId: T)(implicit ev: AsPermanentEntityId[T]): Long =
+    datomic.Peer.part(ev.conv(entityId)).asInstanceOf[Long]
+
+
   /** Renames an existing database using uri
     * @param uri the URI of the DB
     * @param newName the new name
@@ -83,4 +97,48 @@ private[datomisca] trait PeerOps {
     * to true.
     */
   def shutdown(shutdownClojure: Boolean): Unit = datomic.Peer.shutdown(shutdownClojure)
+
+
+  /** Constructs a semi-sequential UUID useful for creating UUIDs that don’t fragment indexes
+    *
+    * (Copied from Datomic docs)
+    *
+    * @return a UUID whose most signigicant 32 bits are currentTimeMillis rounded to seconds
+    */
+  def squuid(): UUID =
+    datomic.Peer.squuid()
+
+
+  /** Get the time part of a squuid
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param squuid a UUID created by squuid()
+    * @return the time in the format of System.currentTimeMillis
+    */
+  def squuidTimeMillis(squuid: UUID): Long =
+    datomic.Peer.squuidTimeMillis(squuid)
+
+
+  /** Returns the t value associated with this tx
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param tx a transaction entity id
+    * @return a database basis T point
+    */
+  def toT(tx: Long): Long =
+    datomic.Peer.toT(tx: java.lang.Long)
+
+
+  /** Returns the tx associated with this t value.
+    *
+    * (Copied from Datomic docs)
+    *
+    * @param t a database basis T point
+    * @return a transaction entity id
+    */
+  def toTx(t: Long): Long =
+    datomic.Peer.toTx(t).asInstanceOf[Long]
+
 }
