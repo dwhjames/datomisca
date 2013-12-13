@@ -38,6 +38,13 @@ final case class Attribute[DD, Card <: Cardinality](
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
   def withNoHistory(b: Boolean)   = copy( noHistory = Some(b) )
 
+  def reverse(implicit ev: =:=[DatomicRef.type, DD]): Attribute[DatomicRef.type, Cardinality.many.type] =
+    copy(
+      ident       = clojure.lang.Keyword.intern(ident.getNamespace, "_" + ident.getName),
+      valueType   = SchemaType.ref,
+      cardinality = Cardinality.many
+    )
+
   // using partiton :db.part/db
   val id = DId(Partition.DB)
 
