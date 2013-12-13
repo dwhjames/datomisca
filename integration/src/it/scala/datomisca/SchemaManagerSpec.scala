@@ -66,8 +66,10 @@ class SchemaManagerSpec
 
   "Schema Manager" should "provision schemas if needed" in withDatomicDB { implicit conn =>
 
-    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { _ =>
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { changed =>
       implicit val db = conn.database
+
+      changed should be (true)
 
       SchemaManager.hasAttribute(SchemaA.attrA.ident) should be (true)
       SchemaManager.hasAttribute(SchemaB.attrB.ident) should be (false)
@@ -76,6 +78,9 @@ class SchemaManagerSpec
       SchemaManager.hasSchema(schemaTag, SchemaB.name) should be (false)
     }
 
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { changed =>
+      changed should be (false)
+    }
 
     whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { _ =>
       implicit val db = conn.database
