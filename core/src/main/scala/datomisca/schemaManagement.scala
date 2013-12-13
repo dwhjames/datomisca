@@ -41,17 +41,17 @@ object SchemaManager {
   private[datomisca] def hasSchema(schemaTag: Keyword, schemaName: String)(implicit db: Database): Boolean =
     ! Datomic.q(schemaTagQuery, db, schemaTag, schemaName).isEmpty
 
-  private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection): Future[Unit] =
+  private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection): Future[Boolean] =
     future {
       hasAttribute(schemaTag)(conn.database)
     } flatMap {
-      case true  => Future.successful(())
+      case true  => Future.successful(false)
       case false =>
         Datomic.transact(
           Attribute(schemaTag, SchemaType.string, Cardinality.one)
             .withDoc("Name of schema installed by this transaction")
             .withIndex(true)
-        ) map { _ => () }
+        ) map { _ => true }
     }
 
   private[datomisca] def ensureSchemas(
@@ -59,14 +59,14 @@ object SchemaManager {
       schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
      (implicit conn: Connection)
-     : Future[Unit] = {
+     : Future[Boolean] = {
     Future.traverse(schemaNames) { schemaName =>
       val (requires, txDatas) = schemaMap(schemaName)
       ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { _ =>
         if (txDatas.isEmpty) {
           throw new DatomiscaException(s"No schema data provided for schema ${schemaName}")
         } else if (hasSchema(schemaTag, schemaName)(conn.database)) {
-          Future.successful(())
+          Future.successful(false)
         } else {
           Future.traverse(txDatas) { txData =>
             Datomic.transact(
@@ -75,11 +75,11 @@ object SchemaManager {
               // required for this schema fragment, then each
               // transaction is tagged.
               Fact.add(DId(Partition.TX))(schemaTag -> schemaName)
-            ) map { _ => () }
-          }
+            )
+          } map { _ => true }
         }
       }
-    } map { _ => () }
+    } map { s => s.exists(identity) }
   }
 
   def installSchema(
@@ -87,10 +87,10 @@ object SchemaManager {
       schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
      (implicit conn: Connection)
-     : Future[Unit] =
+     : Future[Boolean] =
     for {
-      _ <- ensureSchemaTag(schemaTag)
-      _ <- ensureSchemas(schemaTag, schemaMap, schemaNames: _*)
-    } yield ()
+      tag <- ensureSchemaTag(schemaTag)
+      schema <- ensureSchemas(schemaTag, schemaMap, schemaNames: _*)
+    } yield ( tag || schema )
 
 }
