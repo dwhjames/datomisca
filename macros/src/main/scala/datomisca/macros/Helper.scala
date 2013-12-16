@@ -73,7 +73,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
 
 
   def literalBoolean(b: jl.Boolean): c.Tree =
-    q"new java.lang.Boolean(${b.booleanValue})"
+    q"new _root_.java.lang.Boolean(${b.booleanValue})"
 
 
   def literalCljSymbol(s: clj.Symbol, stk: mutable.Stack[c.Tree]): c.Tree = {
@@ -82,82 +82,82 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       if (s.getName() == "!")
         try {
           val t = stk.pop()
-          q"datomic.Util.read($t.toString)"
+          q"_root_.datomic.Util.read($t.toString)"
         } catch {
           case ex: NoSuchElementException =>
             abortWithMessage("The symbol '!' is reserved by Datomisca")
         }
       else
-        q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()})"
+        q"_root_.clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()})"
     } else {
       val metaT = literalMap(m, stk)
-      q"clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()}).withMeta($metaT).asInstanceOf[clojure.lang.Symbol]"
+      q"_root_.clojure.lang.Symbol.intern(${s.getNamespace()}, ${s.getName()}).withMeta($metaT).asInstanceOf[clojure.lang.Symbol]"
     }
   }
 
 
   def literalCljKeyword(k: clj.Keyword): c.Tree =
-    q"clojure.lang.Keyword.intern(${k.getNamespace()}, ${k.getName()})"
+    q"_root_.clojure.lang.Keyword.intern(${k.getNamespace()}, ${k.getName()})"
 
 
   def literalLong(l: jl.Long): c.Tree =
-    q"new java.lang.Long(${l.longValue})"
+    q"new _root_.java.lang.Long(${l.longValue})"
 
 
   def literalDouble(d: jl.Double): c.Tree =
-    q"new java.lang.Double(${d.doubleValue})"
+    q"new _root_.java.lang.Double(${d.doubleValue})"
 
 
   def literalCljBigInt(k: clj.BigInt): c.Tree =
-    q"clojure.lang.BigInt.fromBigInteger(new java.math.BigInteger(${k.toString}))"
+    q"_root_.clojure.lang.BigInt.fromBigInteger(new _root_._root_.java.math.BigInteger(${k.toString}))"
 
 
   def literalCljRatio(r: clj.Ratio): c.Tree =
-    q"new clojure.lang.Ratio(new java.math.BigInteger(${r.numerator.toString}), new java.math.BigInteger(${r.denominator.toString}))"
+    q"new _root_.clojure.lang.Ratio(new _root_.java.math.BigInteger(${r.numerator.toString}), new _root_.java.math.BigInteger(${r.denominator.toString}))"
 
 
   def literalBigDecimal(d: jm.BigDecimal): c.Tree =
-    q"new java.math.BigDecimal(${d.toString})"
+    q"new _root_.java.math.BigDecimal(${d.toString})"
 
 
   def literalCharacter(char: jl.Character): c.Tree =
-    q"java.lang.Character.valueOf(${char.charValue()})"
+    q"_root_.java.lang.Character.valueOf(${char.charValue()})"
 
 
   def literalVector(coll: clj.PersistentVector, stk: mutable.Stack[c.Tree]): c.Tree = {
     val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
-    q"clojure.lang.PersistentVector.create(java.util.Arrays.asList(..$args))"
+    q"_root_.clojure.lang.PersistentVector.create(_root_.java.util.Arrays.asList(..$args))"
   }
 
 
   def literalList(coll: clj.PersistentList, stk: mutable.Stack[c.Tree]): c.Tree = {
     val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
-    q"clojure.lang.PersistentList.create(java.util.Arrays.asList(..$args))"
+    q"_root_.clojure.lang.PersistentList.create(_root_.java.util.Arrays.asList(..$args))"
   }
 
   def literalMap(coll: clj.IPersistentMap, stk: mutable.Stack[c.Tree]): c.Tree = {
     val freshName = newTermName(c.fresh("map$"))
     val builder = List.newBuilder[c.Tree]
-    builder += q"val $freshName = new java.util.HashMap[AnyRef, AnyRef](${coll.count()})"
+    builder += q"val $freshName = new _root_.java.util.HashMap[AnyRef, AnyRef](${coll.count()})"
     for (o <- coll.iterator.asScala) {
        val e = o.asInstanceOf[clj.MapEntry]
        val keyT = literalEDN(e.key(), stk)
        val valT = literalEDN(e.`val`(), stk)
        builder += q"${freshName}.put($keyT, $valT)"
     }
-    builder += q"clojure.lang.PersistentArrayMap.create($freshName)"
+    builder += q"_root_.clojure.lang.PersistentArrayMap.create($freshName)"
     q"{ ..${builder.result} }"
   }
 
 
   def literalSet(coll: clj.PersistentHashSet, stk: mutable.Stack[c.Tree]): c.Tree = {
     val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
-    q"clojure.lang.PersistentHashSet.create(java.util.Arrays.asList(..$args))"
+    q"_root_.clojure.lang.PersistentHashSet.create(java.util.Arrays.asList(..$args))"
   }
 
 
   def literalQueryRules(rules: c.Tree): c.Expr[QueryRules] =
-    c.Expr[QueryRules](q"new datomisca.QueryRules($rules)")
+    c.Expr[QueryRules](q"new _root_.datomisca.QueryRules($rules)")
 
   def literalQuery(query: c.Tree, inputSize: Int, outputSize: Int): c.Expr[AbstractQuery] = {
     val typeArgs =
@@ -173,7 +173,9 @@ private[datomisca] class Helper[C <: Context](val c: C) {
     val queryClassName =
       Select(
         Select(
-          Ident(newTermName("datomisca")),
+          Select(
+            Ident(newTermName("_root_")),
+            newTermName("datomisca")),
           newTermName("gen")),
         newTypeName("TypedQuery" + inputSize))
 
