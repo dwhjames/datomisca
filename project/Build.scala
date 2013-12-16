@@ -9,7 +9,7 @@ import sbtunidoc.Plugin._
 object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.7-alpha-2",
+      version       := "0.7-alpha-3",
       organization  := "com.pellucid",
       scalaVersion  := "2.10.3",
       scalacOptions ++= Seq(
@@ -17,7 +17,7 @@ object DatomiscaBuild extends Build {
           "-feature",
           "-unchecked"
         ),
-      addCompilerPlugin("org.scala-lang.plugins" % "macro-paradise" % "2.0.0-SNAPSHOT" cross CrossVersion.full)
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M1" cross CrossVersion.full)
     )
 
   lazy val datomisca = Project(
