@@ -88,4 +88,19 @@ class BindingSpec
     res should contain ("John")
     res should contain ("Jane")
   }
+
+  it can "bind a collection of datoms" in withDatomicDB { implicit conn =>
+    val query = Query("""
+        [:find ?e
+         :in $ ?attrId
+         :where [?e ?attrId]]
+      """)
+
+    val ds = conn.database.datoms(Database.AEVT, Attribute.doc)
+
+    val res = Datomic.q(query, ds, conn.database.entid(Attribute.doc))
+
+    res should contain (0)
+  }
+
 }
