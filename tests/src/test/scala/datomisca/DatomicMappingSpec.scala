@@ -209,20 +209,20 @@ class DatomicMappingSpec extends Specification {
                 )
                 val p = DatomicMapping.fromEntity(entity)(personReader)
                 val Person(name, age, birth, characters, dog, doggies) = p
+                println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
                 p must beEqualTo(
                   Person("toto", 30L, birthDate, Set(violent.ident, weak.ident),
                     Some(IdView(realMedorId)(medor)),
                     Set(IdView(realDoggy1Id)(doggy1), IdView(realDoggy2Id)(doggy2), IdView(realDoggy3Id)(doggy3))
                   )
                 )
-                println(s"Found person with name $name and age $age and birth $birth characters $characters dog $dog doggies $doggies")
-            }
+             }
           }
         },
         Duration("2 seconds")
       )
 
-      success
+   
     }
 
     "get entity fields from attributes" in {
@@ -349,7 +349,7 @@ class DatomicMappingSpec extends Specification {
         Duration("2 seconds")
       )
 
-      success
+     
     }
 
     "entity list" in {
@@ -393,7 +393,7 @@ class DatomicMappingSpec extends Specification {
         Duration("2 seconds")
       )
 
-      success
+
     }
   }
 }
