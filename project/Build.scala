@@ -8,6 +8,8 @@ import sbtunidoc.Plugin._
 
 object DatomiscaBuild extends Build {
 
+  val macroParadiseVersion = "2.0.0-M3"
+
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
       version       := "0.7-alpha-5",
       organization  := "com.pellucid",
@@ -17,7 +19,7 @@ object DatomiscaBuild extends Build {
           "-feature",
           "-unchecked"
         ),
-      addCompilerPlugin("org.scalamacros" % "paradise" % "2.0.0-M1" cross CrossVersion.full)
+      addCompilerPlugin("org.scalamacros" % "paradise" % macroParadiseVersion cross CrossVersion.full)
     )
 
   lazy val datomisca = Project(
@@ -116,7 +118,9 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "datomisca-macros",
 
-      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _)
+      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+
+      libraryDependencies += "org.scalamacros" % "quasiquotes" % macroParadiseVersion cross CrossVersion.full
     )
 
   lazy val mapGenSourceSettings =
