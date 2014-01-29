@@ -27,19 +27,30 @@ final class FinalId(val underlying: Long) extends AnyVal with DId {
   override def toString = underlying.toString
 }
 
-final class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
-  override val toDatomicId: AnyRef = dbId
+final class TempId(val underlying: datomic.db.DbId) extends AnyVal with DId {
+  override def toDatomicId: AnyRef = underlying
 
-  override def toString = toDatomicId.toString
+  def part: Partition =
+    new Partition(underlying.get(TempId.part).asInstanceOf[Keyword])
+
+  def idx: Long =
+    underlying.get(TempId.idx).asInstanceOf[java.lang.Long]
+
+  override def toString: String = underlying.toString
+}
+
+private object TempId {
+  private val part: Keyword = clojure.lang.Keyword.intern(null, "part")
+  private val idx:  Keyword = clojure.lang.Keyword.intern(null, "idx")
 }
 
 object DId {
-  def tempid(partition: Partition, id: Option[Long] = None) = id match {
-    case None => datomic.Peer.tempid(partition.keyword)
-    case Some(id) => datomic.Peer.tempid(partition.keyword, id)
-  }
 
-  def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
-  def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
+  def apply(partition: Partition, id: Long) =
+    new TempId(datomic.Peer.tempid(partition.keyword, id).asInstanceOf[datomic.db.DbId])
+
+  def apply(partition: Partition) =
+    new TempId(datomic.Peer.tempid(partition.keyword).asInstanceOf[datomic.db.DbId])
+
   def apply[T](id: T)(implicit ev: AsEntityId[T]) = ev.conv(id)
 }
