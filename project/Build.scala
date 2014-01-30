@@ -11,7 +11,7 @@ object DatomiscaBuild extends Build {
   val macroParadiseVersion = "2.0.0-M3"
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.7-alpha-5",
+      version       := "0.7-alpha-6",
       organization  := "com.pellucid",
       scalaVersion  := "2.10.3",
       scalacOptions ++= Seq(
