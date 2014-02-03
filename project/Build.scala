@@ -8,10 +8,8 @@ import sbtunidoc.Plugin._
 
 object DatomiscaBuild extends Build {
 
-  val macroParadiseVersion = "2.0.0-M3"
-
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.7-alpha-6",
+      version       := "0.7-alpha-7",
       organization  := "com.pellucid",
       scalaVersion  := "2.10.3",
       scalacOptions ++= Seq(
@@ -19,7 +17,7 @@ object DatomiscaBuild extends Build {
           "-feature",
           "-unchecked"
         ),
-      addCompilerPlugin("org.scalamacros" % "paradise" % macroParadiseVersion cross CrossVersion.full)
+      addCompilerPlugin("org.scalamacros" % "paradise" % Dependencies.V.macroParadise cross CrossVersion.full)
     )
 
   lazy val datomisca = Project(
@@ -70,11 +68,23 @@ object DatomiscaBuild extends Build {
       shellPrompt := CustomShellPrompt.customPrompt
     )
 
+  lazy val macroParadiseSettings =
+    Seq(
+      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
+
+      // libraryDependencies += "org.scalamacros" % "quasiquotes" % Dependencies.V.macroParadise cross CrossVersion.full
+      libraryDependencies ++= (
+        if (scalaVersion.value.startsWith("2.10")) List("org.scalamacros" % "quasiquotes" % Dependencies.V.macroParadise cross CrossVersion.full)
+        else Nil
+      )
+    )
+
 
   lazy val rootProjectSettings =
     sharedSettings ++
     unidocSettings ++
     bintray.Plugin.bintraySettings ++
+    macroParadiseSettings ++
     Seq(
       name := "datomisca",
 
@@ -115,12 +125,9 @@ object DatomiscaBuild extends Build {
 
   lazy val macrosProjectSettings =
     subProjectSettings ++
+    macroParadiseSettings ++
     Seq(
-      name := "datomisca-macros",
-
-      libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
-
-      libraryDependencies += "org.scalamacros" % "quasiquotes" % macroParadiseVersion cross CrossVersion.full
+      name := "datomisca-macros"
     )
 
   lazy val mapGenSourceSettings =
@@ -165,19 +172,29 @@ object DatomiscaBuild extends Build {
 
 object Dependencies {
 
+  object V {
+    val macroParadise = "2.0.0-M3"
+
+    val datomic       = "0.8.4260"
+
+    val specs2        = "2.0"
+    val junit         = "4.8"
+    val scalaTest     = "2.0"
+  }
+
   object Compile {
-    val datomic = "com.datomic"    %    "datomic-free"    %    "0.8.4260"    %    "provided" exclude("org.slf4j", "slf4j-nop")
+    val datomic = "com.datomic"    %    "datomic-free"    %    V.datomic    %    "provided" exclude("org.slf4j", "slf4j-nop")
   }
   import Compile._
 
   object Test {
-    val specs2 = "org.specs2"    %%    "specs2"    %    "2.0"    %    "test"
-    val junit  = "junit"         %     "junit"     %    "4.8"     %    "test"
+    val specs2 = "org.specs2"    %%    "specs2"    %    V.specs2    %    "test"
+    val junit  = "junit"         %     "junit"     %    V.junit     %    "test"
   }
   import Test._
 
   object IntegrationTest {
-    val scalaTest = "org.scalatest" % "scalatest_2.10" % "2.0" % "it"
+    val scalaTest = "org.scalatest" % "scalatest_2.10" % V.scalaTest % "it"
   }
   import IntegrationTest._
 
