@@ -29,15 +29,15 @@ final class AddFact(val id: DId, attr: Keyword, value: AnyRef) extends TxData wi
   override def toString = toTxData.toString
 }
 
-final class RetractFact(val id: Long, attr: Keyword, value: AnyRef) extends TxData with FinalIdentified {
+final class RetractFact(val id: FinalDId, attr: Keyword, value: AnyRef) extends TxData with FinalIdentified {
   override def toTxData: AnyRef =
-    datomic.Util.list(Namespace.DB / "retract", id: java.lang.Long, attr, value)
+    datomic.Util.list(Namespace.DB / "retract", id.toDatomic, attr, value)
   override def toString = toTxData.toString
 }
 
-final class RetractEntity(val id: Long) extends TxData with FinalIdentified {
+final class RetractEntity(val id: FinalDId) extends TxData with FinalIdentified {
   def toTxData: AnyRef =
-    datomic.Util.list(Namespace.DB.FN / "retractEntity", id: java.lang.Long)
+    datomic.Util.list(Namespace.DB.FN / "retractEntity", id.toDatomic)
   override def toString = toTxData.toString
 }
 

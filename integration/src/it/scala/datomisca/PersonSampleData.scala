@@ -29,6 +29,7 @@ object PersonSampleData extends SampleData {
       }
     }
 
+    val idAttr = Attribute(ns.person / "id", SchemaType.long, Cardinality.one).withUnique(Unique.identity)
     val nameAttr = Attribute(ns.person / "name", SchemaType.string, Cardinality.one)
                     .withDoc("A person's name")
                     .withFullText(true)
@@ -47,13 +48,14 @@ object PersonSampleData extends SampleData {
   import Schema._
 
   override val schema = Seq(
-    nameAttr, ageAttr, moodAttr,
+    idAttr, nameAttr, ageAttr, moodAttr,
     happyMood, sadMood, excitedMood,
     stressedMood, angryMood
   )
 
 
   val toto = new {
+    val id  = 123
     val name  = "toto"
     val age   = 30L
     val moods = Set(happyMood, excitedMood)
@@ -61,6 +63,7 @@ object PersonSampleData extends SampleData {
 
   val totoTxData = (
     SchemaEntity.newBuilder
+      += (idAttr -> toto.id)
       += (nameAttr -> toto.name)
       += (ageAttr  -> toto.age)
       += (moodAttr -> toto.moods)

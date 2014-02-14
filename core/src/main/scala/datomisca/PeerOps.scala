@@ -77,7 +77,7 @@ private[datomisca] trait PeerOps {
     * @return the partition of the given entity id
     */
   def part[T](entityId: T)(implicit ev: AsPermanentEntityId[T]): Long =
-    datomic.Peer.part(ev.conv(entityId)).asInstanceOf[Long]
+    datomic.Peer.part(ev.conv(entityId).toDatomic).asInstanceOf[Long]
 
 
   /** Renames an existing database using uri

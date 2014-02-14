@@ -30,7 +30,7 @@ import scala.annotation.implicitNotFound
   */
 @implicitNotFound("Cannot convert value of type ${T} to a permanent Datomic entity id")
 sealed trait AsPermanentEntityId[T] {
-  protected[datomisca] def conv(t: T): Long
+  protected[datomisca] def conv(t: T): FinalDId
 }
 
 /**
@@ -41,12 +41,19 @@ object AsPermanentEntityId {
   /** Any type viewable as a Long can be a permanent entity id. */
   implicit def long[L](implicit toLong: L => Long) =
     new AsPermanentEntityId[L] {
-      override protected[datomisca] def conv(l: L) = toLong(l)
+      override protected[datomisca] def conv(l: L) = FinalLongDId(toLong(l))
     }
 
   /** A [[FinalId]] can be a permament entity id. */
   implicit val finalid =
     new AsPermanentEntityId[FinalId] {
-      override protected[datomisca] def conv(l: FinalId) = l.underlying
+      override protected[datomisca] def conv(l: FinalId) = FinalLongDId(l.underlying)
+    }
+
+  /** A [[LookupRef]] can be a permament entity id. */
+  implicit val lookupRefId =
+    new AsPermanentEntityId[LookupRef] {
+      override protected[datomisca] def conv(l: LookupRef) = FinalLookupRefDId(l)
     }
 }
+

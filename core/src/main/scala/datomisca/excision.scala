@@ -23,7 +23,7 @@ import java.util.Date
 
 
 private[datomisca] class ExciseEntity(
-    val id:     Long,
+    val id:     FinalDId,
     excisionId: TempId = DId(Partition.USER),
     attrs:      Set[Keyword] = Set(),
     before:     Option[Either[Date, Long]] = None
@@ -35,7 +35,7 @@ private[datomisca] class ExciseEntity(
     val builder = Map.newBuilder[AnyRef, AnyRef]
 
     builder += ((Namespace.DB / "id") -> excisionId.toDatomicId)
-    builder += ((Namespace.DB / "excise") -> (id: java.lang.Long))
+    builder += ((Namespace.DB / "excise") -> id.toDatomic)
 
     if(!attrs.isEmpty)
       builder += ((Namespace.DB.EXCISE / "attrs") -> datomic.Util.list(attrs.toSeq:_*))

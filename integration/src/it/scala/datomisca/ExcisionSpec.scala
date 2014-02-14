@@ -54,6 +54,28 @@ class ExcisionSpec
     }
   }
 
+  it can "excise entities by lookup ref" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
+
+    val dbBefore = conn.database
+
+    val e = LookupRef(PersonSampleData.Schema.idAttr, PersonSampleData.toto.id.asInstanceOf[AnyRef])
+
+    val excisionId = DId(Partition.USER)
+    whenReady(
+      Datomic.transact(Excise.entity(e, excisionId))
+    ) { txReport =>
+      val exId = txReport.resolve(excisionId)
+      val dbAfter = txReport.dbAfter
+
+      Datomic.q(
+        Query("""
+          [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
+        """),
+        dbAfter,
+        e).headOption.value should be (exId)
+    }
+  }
+
   it can "excise specific attributes of an entity" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
     val dbBefore = conn.database

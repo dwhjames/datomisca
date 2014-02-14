@@ -16,10 +16,20 @@
 
 package datomisca
 
+import scala.language.existentials
+
+import datomic.Util
 
 sealed trait DId extends Any {
   def toDatomicId: AnyRef
 }
+
+private [datomisca] case class FinalDId(longOrLookupRef: Either[Long, LookupRef]) {
+  def toDatomic: AnyRef = longOrLookupRef.fold(_.asInstanceOf[java.lang.Long], _.toDatomicId)
+}
+object FinalLongDId { def apply(l: Long) = FinalDId(Left(l)) }
+object FinalLookupRefDId { def apply(l: LookupRef) = FinalDId(Right(l)) }
+
 
 final class FinalId(val underlying: Long) extends AnyVal with DId {
   override def toDatomicId: AnyRef = underlying: java.lang.Long
@@ -37,6 +47,10 @@ final class TempId(val underlying: datomic.db.DbId) extends AnyVal with DId {
     underlying.get(TempId.idx).asInstanceOf[java.lang.Long]
 
   override def toString: String = underlying.toString
+}
+
+case class LookupRef(attr: Attribute[_, _ <: Cardinality], value: AnyRef) extends DId{
+  override def toDatomicId = Util.list(attr.ident, value)
 }
 
 private object TempId {

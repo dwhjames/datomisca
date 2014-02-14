@@ -22,7 +22,7 @@ trait TempIdentified {
 }
 
 trait FinalIdentified {
-  def id: Long
+  def id: FinalDId
 }
 
 trait KeywordIdentified {
