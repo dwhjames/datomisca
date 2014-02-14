@@ -24,13 +24,6 @@ sealed trait DId extends Any {
   def toDatomicId: AnyRef
 }
 
-private [datomisca] case class FinalDId(longOrLookupRef: Either[Long, LookupRef]) {
-  def toDatomic: AnyRef = longOrLookupRef.fold(_.asInstanceOf[java.lang.Long], _.toDatomicId)
-}
-object FinalLongDId { def apply(l: Long) = FinalDId(Left(l)) }
-object FinalLookupRefDId { def apply(l: LookupRef) = FinalDId(Right(l)) }
-
-
 final class FinalId(val underlying: Long) extends AnyVal with DId {
   override def toDatomicId: AnyRef = underlying: java.lang.Long
 
@@ -49,8 +42,15 @@ final class TempId(val underlying: datomic.db.DbId) extends AnyVal with DId {
   override def toString: String = underlying.toString
 }
 
-case class LookupRef(attr: Attribute[_, _ <: Cardinality], value: AnyRef) extends DId{
-  override def toDatomicId = Util.list(attr.ident, value)
+final class LookupRef(val underlying: java.util.List[_]) extends AnyVal with DId {
+  def toDatomicId = underlying
+  override def toString = underlying.toString
+}
+
+object LookupRef {
+  def apply[DD <: AnyRef, T](attr: Attribute[DD, Cardinality.one.type], value: T)
+                            (implicit toDatomic: ToDatomic[DD, T]) =
+    new LookupRef(Util.list(attr.ident, toDatomic.to(value)))
 }
 
 private object TempId {

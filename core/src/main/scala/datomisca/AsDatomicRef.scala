@@ -48,7 +48,7 @@ object AsDatomicRef {
 
   implicit def finalIdentified[I <: FinalIdentified]: AsDatomicRef[I] =
     new AsDatomicRef[I] {
-      def toDatomicRef(i: I) = i.id.toDatomic
+      def toDatomicRef(i: I) = i.id
     }
 
   implicit def keywordIdentified[I <: KeywordIdentified]: AsDatomicRef[I] =

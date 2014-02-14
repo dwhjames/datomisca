@@ -58,7 +58,7 @@ class ExcisionSpec
 
     val dbBefore = conn.database
 
-    val e = LookupRef(PersonSampleData.Schema.idAttr, PersonSampleData.toto.id.asInstanceOf[AnyRef])
+    val e = LookupRef(PersonSampleData.Schema.idAttr, PersonSampleData.toto.id)
 
     val excisionId = DId(Partition.USER)
     whenReady(

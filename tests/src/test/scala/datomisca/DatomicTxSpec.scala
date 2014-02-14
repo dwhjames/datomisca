@@ -665,7 +665,8 @@ class DatomicTxSpec extends Specification {
       transactSync(ColourPreference.schema:_*)
       val entityId = GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
 
-      transactSync(SchemaFact.retract(LookupRef(ColourPreference.email, "bob@rainbow.org"))(ColourPreference.favouriteColour -> "grey"))
+      val lookupRef: LookupRef = LookupRef(ColourPreference.email, "bob@rainbow.org")
+      transactSync(SchemaFact.retract(lookupRef)(ColourPreference.favouriteColour -> "grey"))
 
       connection.database.entity(entityId).get(ColourPreference.favouriteColour) must beNone
     }

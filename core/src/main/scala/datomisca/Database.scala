@@ -31,7 +31,7 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     * @return an entity.
     */
   def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): Entity =
-    new Entity(underlying.entity(ev.conv(id).toDatomic))
+    new Entity(underlying.entity(ev.conv(id)))
 
   /** Returns the entity for the given keyword.
     *
@@ -74,7 +74,7 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     * @return the entity id passed.
     */
   def entid[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long =
-    underlying.entid(ev.conv(id).toDatomic).asInstanceOf[Long]
+    underlying.entid(ev.conv(id)).asInstanceOf[Long]
 
   /** Returns the entity id associated with a symbolic keyword
     *
@@ -118,7 +118,7 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     * @throws Exception if no keyword is found
     */
   def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
-    Option { underlying.ident(ev.conv(id).toDatomic) } match {
+    Option { underlying.ident(ev.conv(id)) } match {
       case None     => throw new DatomiscaException(s"ident keyword for entity id $id not found")
       case Some(kw) => kw.asInstanceOf[Keyword]
     }
