@@ -16,6 +16,9 @@
 
 package datomisca
 
+import scala.language.existentials
+
+import datomic.Util
 
 sealed trait DId extends Any {
   def toDatomicId: AnyRef
@@ -37,6 +40,17 @@ final class TempId(val underlying: datomic.db.DbId) extends AnyVal with DId {
     underlying.get(TempId.idx).asInstanceOf[java.lang.Long]
 
   override def toString: String = underlying.toString
+}
+
+final class LookupRef(val underlying: java.util.List[_]) extends AnyVal with DId {
+  def toDatomicId = underlying
+  override def toString = underlying.toString
+}
+
+object LookupRef {
+  def apply[DD <: AnyRef, T](attr: Attribute[DD, Cardinality.one.type], value: T)
+                            (implicit toDatomic: ToDatomic[DD, T]) =
+    new LookupRef(Util.list(attr.ident, toDatomic.to(value)))
 }
 
 private object TempId {

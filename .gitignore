@@ -17,5 +17,9 @@ project/plugins/project/
 .classpath
 .project
 
+#Intellij Specific
+.idea
+.idea_modules
+
 .DS_Store
 

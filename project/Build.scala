@@ -175,7 +175,7 @@ object Dependencies {
   object V {
     val macroParadise = "2.0.0-M3"
 
-    val datomic       = "0.8.4260"
+    val datomic       = "0.9.4556"
 
     val specs2        = "2.0"
     val junit         = "4.8"

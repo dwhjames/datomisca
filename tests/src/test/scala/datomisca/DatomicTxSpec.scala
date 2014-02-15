@@ -637,6 +637,67 @@ class DatomicTxSpec extends Specification {
       Await.result(fut,Duration("2 seconds"))
     }
 
+    "12 - upsert an entity using it's lookup ref as id" in {
+      import ColourPreference.Implicits._
+      implicit val connection = Datomic.connect(uri)
+      transactSync(ColourPreference.schema:_*)
+      val entityId = GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
+
+      transactSync(toEntity(LookupRef(ColourPreference.email, "bob@rainbow.org"))(ColourPreference.Entity("robert@rainbow.com", "taupe")))
+
+      fromEntity(connection.database.entity(entityId)) must be_==(ColourPreference.Entity("robert@rainbow.com", "taupe"))
+    }
+
+    "13 - fetch an entity using it's lookup ref as id" in {
+      import ColourPreference.Implicits._
+      implicit val connection = Datomic.connect(uri)
+      transactSync(ColourPreference.schema:_*)
+      GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
+
+      val fetchedEntity = fromEntity(connection.database.entity(LookupRef(ColourPreference.email, "bob@rainbow.org")))
+
+      fetchedEntity must be_==(ColourPreference.Entity("bob@rainbow.org", "grey"))
+    }
+
+    "14 - retract a fact about an entity using it's lookup ref as id" in {
+      import ColourPreference.Implicits._
+      implicit val connection = Datomic.connect(uri)
+      transactSync(ColourPreference.schema:_*)
+      val entityId = GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
+
+      val lookupRef: LookupRef = LookupRef(ColourPreference.email, "bob@rainbow.org")
+      transactSync(SchemaFact.retract(lookupRef)(ColourPreference.favouriteColour -> "grey"))
+
+      connection.database.entity(entityId).get(ColourPreference.favouriteColour) must beNone
+    }
+  }
+
+  private def GIVEN_anEntity[T](entity: T)(implicit connection: Connection, writer: PartialAddEntityWriter[T]) = {
+    val tempId = DId(Partition.USER)
+    val report = Await.result(Datomic.transact(toEntity(tempId)(entity)), Duration("1 second"))
+    report.resolve(tempId)
+  }
+
+  private def transactSync(txData: TxData*)(implicit connection: Connection) = {
+    Await.result(Datomic.transact(txData), Duration("1 second"))
+  }
+
+
+  private object ColourPreference {
+    val org = Namespace("org")
+    val email = Attribute(org / "email", SchemaType.string, Cardinality.one).withUnique(Unique.identity)
+    val favouriteColour = Attribute(org / "favouriteColour", SchemaType.string, Cardinality.one).withUnique(Unique.identity)
+    val schema = Seq(email, favouriteColour)
+    case class Entity(email: String, favouriteColour: String)
+
+    object Implicits {
+      implicit val Writer: PartialAddEntityWriter[Entity] =
+        (email.write[String] ~ favouriteColour.write[String]).apply {
+          (e: Entity) => (e.email, e.favouriteColour)
+        }
+      implicit val Reader: EntityReader[Entity] =
+        (email.read[String] ~ favouriteColour.read[String])(Entity)
+    }
   }
 
 }
