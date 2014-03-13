@@ -123,10 +123,10 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
     SchemaFact.add(id)(attrref -> 1L)
     SchemaFact.add(id)(attrref -> Datomic.KW(":my-kw"))
 
-    SchemaFact.add(id)(attrrefMany -> Set(DId(1L)))
-    SchemaFact.add(id)(attrrefMany -> Seq(DId(Partition.USER)))
-    SchemaFact.add(id)(attrrefMany -> List(1L))
-    SchemaFact.add(id)(attrrefMany -> Iterable(Datomic.KW(":my-kw")))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(DId(1L))) ) withId (id)
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Seq(DId(Partition.USER))) ) withId (id)
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> List(1L)) ) withId (id)
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Iterable(Datomic.KW(":my-kw"))) ) withId (id)
 
     SchemaFact.add(id)(attrrefMany -> DId(1L))
     SchemaFact.add(id)(attrrefMany -> DId(Partition.USER))
@@ -135,15 +135,15 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
 
     val addfact = Fact.add(id)(attrstring.ident -> "str")
     SchemaFact.add(id)(attrref -> addfact)
-    SchemaFact.add(id)(attrrefMany -> Set(addfact))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(addfact)) ) withId (id)
 
     val retractfact = Fact.retract(id)(attrstring.ident -> "str")
     SchemaFact.add(id)(attrref -> retractfact)
-    SchemaFact.add(id)(attrrefMany -> Set(retractfact))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(retractfact)) ) withId (id)
 
     val identEntity = AddIdent(Datomic.KW(":my-kw"))
     SchemaFact.add(id)(attrref -> identEntity)
-    SchemaFact.add(id)(attrrefMany -> Set(identEntity))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(identEntity)) ) withId (id)
 
   }
 
