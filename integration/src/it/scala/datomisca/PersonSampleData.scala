@@ -66,7 +66,7 @@ object PersonSampleData extends SampleData {
       += (idAttr -> toto.id)
       += (nameAttr -> toto.name)
       += (ageAttr  -> toto.age)
-      += (moodAttr -> toto.moods)
+      ++= (moodAttr -> toto.moods)
   ) withId DId(Partition.USER)
 
   val tutu = new {
@@ -79,7 +79,7 @@ object PersonSampleData extends SampleData {
     SchemaEntity.newBuilder
       += (nameAttr -> tutu.name)
       += (ageAttr  -> tutu.age)
-      += (moodAttr -> tutu.moods)
+      ++= (moodAttr -> tutu.moods)
   ) withId DId(Partition.USER)
 
   val tata = new {
@@ -92,7 +92,7 @@ object PersonSampleData extends SampleData {
     SchemaEntity.newBuilder
       += (nameAttr -> tata.name)
       += (ageAttr  -> tata.age)
-      += (moodAttr -> tata.moods)
+      ++= (moodAttr -> tata.moods)
   ) withId DId(Partition.USER)
 
   override val txData = Seq(
