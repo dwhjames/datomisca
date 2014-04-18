@@ -45,6 +45,28 @@ final class TempId(val underlying: datomic.db.DbId) extends AnyVal with DId {
 final class LookupRef(val underlying: java.util.List[_]) extends AnyVal with DId {
   def toDatomicId = underlying
   override def toString = underlying.toString
+
+  /** Returns the referenced entity, or none if the
+    * lookup ref does not resolve.
+    */
+  def entity(implicit db: Database): Option[Entity] = {
+    val e = db.underlying.entity(this.underlying)
+    if (e ne null)
+      Some(new Entity(e))
+    else
+      None
+  }
+
+  /** Returns the referenced entity id, or none if the
+    * lookup ref does not resolve.
+    */
+  def entid(implicit db: Database): Option[Long] = {
+    val l = db.underlying.entid(this.underlying).asInstanceOf[java.lang.Long]
+    if (l ne null)
+      Some(l.asInstanceOf[Long])
+    else
+      None
+  }
 }
 
 object LookupRef {
