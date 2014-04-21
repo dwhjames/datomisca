@@ -9,9 +9,10 @@ import sbtunidoc.Plugin._
 object DatomiscaBuild extends Build {
 
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
-      version       := "0.7-alpha-9",
+      version       := "0.7-alpha-10",
       organization  := "com.pellucid",
-      scalaVersion  := "2.10.3",
+      scalaVersion  := "2.11.1",
+      crossScalaVersions := Seq("2.10.4", "2.11.1"),
       scalacOptions ++= Seq(
           "-deprecation",
           "-feature",
@@ -72,9 +73,8 @@ object DatomiscaBuild extends Build {
     Seq(
       libraryDependencies <+= (scalaVersion)("org.scala-lang" % "scala-reflect" % _),
 
-      // libraryDependencies += "org.scalamacros" % "quasiquotes" % Dependencies.V.macroParadise cross CrossVersion.full
       libraryDependencies ++= (
-        if (scalaVersion.value.startsWith("2.10")) List("org.scalamacros" % "quasiquotes" % Dependencies.V.macroParadise cross CrossVersion.full)
+        if (scalaVersion.value.startsWith("2.10")) List("org.scalamacros" %% "quasiquotes" % Dependencies.V.macroParadise)
         else Nil
       )
     )
@@ -165,6 +165,17 @@ object DatomiscaBuild extends Build {
 
       libraryDependencies ++= Dependencies.integrationTest,
 
+      // add scala-xml dependency when needed (for Scala 2.11 and newer)
+      // this mechanism supports cross-version publishing
+      libraryDependencies := {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+            libraryDependencies.value :+ "org.scala-lang.modules" %% "scala-xml" % "1.0.1"
+          case _ =>
+            libraryDependencies.value
+        }
+      },
+
       fork in IntegrationTest := true
     )
 
@@ -173,13 +184,13 @@ object DatomiscaBuild extends Build {
 object Dependencies {
 
   object V {
-    val macroParadise = "2.0.0-M3"
+    val macroParadise = "2.0.0"
 
-    val datomic       = "0.9.4556"
+    val datomic       = "0.9.4724"
 
-    val specs2        = "2.0"
+    val specs2        = "2.3.11"
     val junit         = "4.8"
-    val scalaTest     = "2.1.0"
+    val scalaTest     = "2.1.3"
   }
 
   object Compile {
@@ -194,7 +205,7 @@ object Dependencies {
   import Test._
 
   object IntegrationTest {
-    val scalaTest = "org.scalatest" % "scalatest_2.10" % V.scalaTest % "it"
+    val scalaTest = "org.scalatest" %% "scalatest" % V.scalaTest % "it"
   }
   import IntegrationTest._
 
