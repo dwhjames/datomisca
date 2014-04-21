@@ -28,6 +28,9 @@ class DatomiscaException(message: String, cause: Throwable) extends RuntimeExcep
 class TempidNotResolved(id: DId)
   extends DatomiscaException(s"entity not found with id($id)")
 
+class UnresolvedLookupRefException(ref: AnyRef)
+  extends DatomiscaException(s"could not resolve lookup ref $ref")
+
 class UnsupportedDatomicTypeException(cls: Class[_])
   extends DatomiscaException(s"Datomic returned un supported ${cls.getName}")
 
