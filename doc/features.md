@@ -80,7 +80,7 @@ Datomisca is also able to manage:
 
 - datalog rules alias
 - query functions
-- cherry on cake: you can use Scala valus in query using `${myval}` as in String Interpolation
+- cherry on cake: you can use Scala values in query using `${myval}` as in String Interpolation
 
 _In the future, based on type-safe Schema presented below, we will also be able to infer parameter types._
 
