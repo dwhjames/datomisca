@@ -16,7 +16,14 @@
 
 package datomisca
 
-abstract class AbstractQuery(val query: clojure.lang.IPersistentMap)
+abstract class AbstractQuery(val query: clojure.lang.IPersistentMap) {
+  override def equals(that: Any): Boolean = that match {
+    case thatQuery: AbstractQuery => this.query.equals(thatQuery.query)
+    case _ => false
+  }
+  override def hashCode: Int = query.hashCode
+  override def toString: String = query.toString
+}
 
 final class QueryRules(val edn: clojure.lang.PersistentVector) extends AnyVal {
   override def toString = edn.toString
