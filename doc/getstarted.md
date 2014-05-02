@@ -5,7 +5,7 @@ title: Getting Started
 
 # Getting Started
 
-Here is a very simple sample to begin with Datomisca.
+Here is a very simple sample to get started with Datomisca.
 
 ## Requirements
 
@@ -19,7 +19,7 @@ You can find this sample in Datomic Github Samples [Getting-Started](https://git
 
 ## #1 Add resolvers to SBT
 
-You can add that in your `build.sbt` or `Build.scala depending on your choice.
+You can add that in your `build.sbt` or `Build.scala` depending on your choice.
 
 ```scala
 resolvers ++= Seq(
@@ -42,7 +42,7 @@ libraryDependencies ++= Seq(
 
 ## #3 Add imports
 
-You could be more precise but following imports ensure you have everything required in your scope including a few required implicits.
+The following imports should be sufficient to get you started.
 
 ```scala
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -89,7 +89,7 @@ Here you create your:
 
 Attributes and enumerated entites are gathered in a schema representing your entity.
 
-Let's create our first entity, a `Person` having four attributes:
+Let's create four attributes to represent a `Person`:
 
 - `name:       SchemaType.string,  Cardinality.one`
 - `home:       SchemaType.string,  Cardinality.one`
@@ -140,15 +140,15 @@ object PersonSchema {
 
 ```
 
- - `Namespace` is just a helper making code clearer when creating keywords.
+ - `Namespace` is just a helper making our code clearer when creating keywords.
  - `Attribute` and `AddIdent` are helpers for creating Datomic schema data.
  - the `PersonSchema` and `ns` objects are our idiom for gathering schema information, but feel free to organize your schemas as you see fit.
 
 
 ## #7 Transact your schema
 
-Now we have a schema, let's insert it into Datomic. This is our first
-operation using Datomic transactor and as you may know, Datomisca manages
+Now we have a schema, let's transact it into our database. This is our first
+operation using the transactor and as you may know, Datomisca manages
 transactor's communication in an asynchronous and non-blocking way based on
 Scala 2.10 Execution Context.
 
@@ -158,11 +158,11 @@ To ask the transaction to perform some operations, we use the following method:
 Datomic.transact(txData: TraversableOnce[TxData])(implicit conn: Connection, ec: ExecutionContext): Future[TxReport]
 ```
 
-As as you can see, it just accepts transaction data and returns a `Future[TxReport]`.
+As you can see, it accepts a collection of transaction data and returns a `Future[TxReport]`.
 
 > If you are unfamilar with Scala Future, then consult [this overview](http://docs.scala-lang.org/overviews/core/futures.html).
 
-So let's insert our schema into Datomic:
+So let's transact our schema into Datomic:
 
 ```scala
 Datomic.transact(PersonSchema.txData) flatMap { tx =>
@@ -172,7 +172,7 @@ Datomic.transact(PersonSchema.txData) flatMap { tx =>
 }
 ```
 
-> We use `flatMap` because we expect to perform other transactions returning other Future so we will compose them.
+> We use `flatMap` because we expect to perform other asynchronous operations upon the completion of the transaction.
 
 
 ## #8 Define your first entity
@@ -205,7 +205,7 @@ The transaction data `john` is equivalent to the following Clojure map.
    :person/hobbies [:person.hobby/movies :person.hobby/travel]})
 ```
 
-In Datomisca, the `DId` type is one of the ways of interacting with entity
+In Datomisca, the `DId` type is one of the ways of constructing entity
 ids, and here we are constructing a temporary entity id in the user partition.
 
 The `SchemaEntity` builder follows Scala’s `Builder` for collections. This is
@@ -241,7 +241,10 @@ val Seq(realId1, realId2, realId3) = tx.resolve(id1, id2, id3)
 
 So now that we have an entity in our DB, let's try to query for it.
 
-In Datomisca, you **write your queries in Datalog exactly in the same way as Clojure**. What Datomisca provides on top of that is that, based on Scala’s 2.10 macros, it **validates the syntax of you query at compile-time and also deduce the number of input/output parameters** (more features are also in the roadmap).
+In Datomisca, you **write your queries in Datalog exactly in the same way as
+Clojure**. Leveraging Scala’s 2.10 macros, Datomisca **validates the syntax of
+your query at compile-time and also deduces the number of input/output
+parameters** (more features are also in the roadmap).
 
 Let's write a "find person by name" query:
 
@@ -255,7 +258,7 @@ val queryFindByName = Query("""
 """)
 ```
 
-- This creates a query awaiting two input parameters (`$` and `?age`) and returning two ouput parameters (`?e` `?home`)
+- This creates a query that accepts two input parameters (`$` and `?age`) and returning two ouput parameters (`?e` and `?home`)
 - the query is a static structure and you can declare it once and reuse it as much as you want.
 - `$` identifies the database as an input data source
 - `?name` is our "by name" input parameter
@@ -300,7 +303,7 @@ will result in a query with a clause
 
 ## #11 Execute a query
 
-You just execute by calling `Datomic.q` on your query with the right input parameters.
+Queries are executed using the `Datomic.q` method, with your query and the appropriate input parameters.
 
 ```scala
 val results = Datomic.q(queryFindByName, conn.database, "John")
@@ -313,7 +316,7 @@ val results = Datomic.q(queryFindByName, conn.database, "John")
 ## #12 Use the query result
 
 The query results are bound to the name `results`.
-According to the input query, the compiler has infered that there should be 2 output parameters. 
+According to the input query, the compiler has inferred that there should be two output parameters.
 
 Thus, `results` is a `Iterable[(Any, Any)]`.
 
@@ -342,7 +345,7 @@ can get the entity from the database and inspect it.
 val entity: Entity = conn.database.entity(eid)
 ```
 
-As before, `conn.database` retrieve the currently available value of the
+As before, `conn.database` retrieves the currently available value of the
 database, and the `entity` method looks up the entity map for a given
 identifier.
 
@@ -363,7 +366,7 @@ val johnBirth: java.util.Date = entity(PersonSchema.birth)
 The attributes possess the type information, so Datomisca computes the correct
 return type.
 
-Datomisca is able to do this for all primitive, of cardinality one or many, but
+Datomisca is able to do this for all primitives, of cardinality one or many, but
 it can’t do this for reference attributes as Datomic will return values of type
 `Entity` in most cases, but `Keyword` if the referenced entity has an ident
 attribute, which is the case here:
