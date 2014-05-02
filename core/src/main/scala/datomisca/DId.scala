@@ -70,6 +70,9 @@ final class LookupRef(val underlying: java.util.List[_]) extends AnyVal with DId
 }
 
 object LookupRef {
+  def apply[T](keyword: Keyword, value: T)(implicit toDatomicCast: ToDatomicCast[T]) =
+    new LookupRef(Util.list(keyword, toDatomicCast.to(value)))
+
   def apply[DD <: AnyRef, T](attr: Attribute[DD, Cardinality.one.type], value: T)
                             (implicit toDatomic: ToDatomic[DD, T]) =
     new LookupRef(Util.list(attr.ident, toDatomic.to(value)))
