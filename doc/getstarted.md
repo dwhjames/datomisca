@@ -30,12 +30,12 @@ resolvers ++= Seq(
 
 ## #2 Add dependencies
 
-> Last stable version is 0.5.1
+> The latest release is {{ site.latestrelease }}
 
 ```scala
 libraryDependencies ++= Seq(
-  "com.pellucid" %% "datomisca" % "0.5.1",
-  "com.datomic" % "datomic-free" % "0.8.4020.26"
+  "com.pellucid" %% "datomisca" % "{{ site.latestrelease }}",
+  "com.datomic" % "datomic-free" % "0.9.4724"
 )
 ```
 

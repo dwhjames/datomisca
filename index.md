@@ -5,7 +5,7 @@ title: Datomisca by Pellucid & Zenexity
 
 # Embrace Datomic the Scala way
 
-#### **News:** 2014-04-21 : [v0.7-alpha-10](doc/releases.html#release-v0.7-alpha-10) released
+#### **News:** 2014-04-21 : [v{{ site.latestrelease }}](doc/releases.html#release-v{{ site.latestrelease }}) released
 
 > For the impatient, head directly to [Getting Started](doc/getstarted.html)
 

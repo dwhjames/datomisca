@@ -72,9 +72,9 @@ This release fixes the broken release _0.7-alpha-6_
 
 ## Usage
 
-_0.7-alpha-10_ has been tested against [Datomic 0.9.4724](http://downloads.datomic.com/free.html)
+_{{ site.latestrelease }}_ has been tested against [Datomic 0.9.4724](http://downloads.datomic.com/free.html)
 
-To use 0.7-alpha-10, just add following to your SBT config:
+To use {{ site.latestrelease }}, just add following to your SBT config:
 
 ```
 resolvers ++= Seq(
@@ -85,7 +85,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.pellucid" %% "datomisca" % "0.7-alpha-10",
+  "com.pellucid" %% "datomisca" % "{{ site.latestrelease }}",
   "com.datomic" % "datomic-free" % "0.9.4724"
 )
 ```

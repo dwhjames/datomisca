@@ -18,3 +18,5 @@ navigation:
   url: doc/play-datomisca.html
 - title: About Us
   url: doc/about-us.html
+
+latestrelease: 0.7-alpha-10
