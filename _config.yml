@@ -14,6 +14,8 @@ navigation:
   url: doc/features.html
 - title: Getting Started
   url: doc/getstarted.html
+- title: Building transaction data
+  url: doc/txdata.html
 - title: Datomisca for Play Framework
   url: doc/play-datomisca.html
 - title: About Us
