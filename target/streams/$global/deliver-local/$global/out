@@ -1,5 +1,0 @@
-[0m[[0minfo[0m] [0m:: delivering :: pellucidanalytics#datomisca_2.10;0.1-SNAPSHOT :: 0.1-SNAPSHOT :: integration :: Wed Jan 30 18:24:28 CET 2013[0m
-[0m[[0mdebug[0m] [0m	options = status=integration pubdate=Wed Jan 30 18:24:28 CET 2013 validate=true resolveDynamicRevisions=true merge=true resolveId=null pubBranch=null[0m
-[0m[[0mdebug[0m] [0mpost 1.3 ivy file: using exact as default matcher[0m
-[0m[[0minfo[0m] [0m	delivering ivy file to /Users/pvo/zenexity/workspaces/workspace_pellucid/datomisca/target/scala-2.10/ivy-0.1-SNAPSHOT.xml[0m
-[0m[[0mdebug[0m] [0m	deliver done (146ms)[0m

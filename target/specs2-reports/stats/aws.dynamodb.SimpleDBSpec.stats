@@ -1,5 +1,0 @@
-<aws.dynamodb.SimpleDBSpec-stats timestamp="1349776383649"><stats expectations="1" examples="1" successes="1" time="25"></stats></aws.dynamodb.SimpleDBSpec-stats>
-<aws.dynamodb.SimpleDBSpec-stats timestamp="1349776420570"><stats expectations="1" examples="1" successes="1" time="18"></stats></aws.dynamodb.SimpleDBSpec-stats>
-<aws.dynamodb.SimpleDBSpec-stats timestamp="1349776659973"><stats expectations="1" examples="1" successes="1" time="58"></stats></aws.dynamodb.SimpleDBSpec-stats>
-<aws.dynamodb.SimpleDBSpec-stats timestamp="1349776911365"><stats expectations="1" examples="1" successes="1" time="19"></stats></aws.dynamodb.SimpleDBSpec-stats>
-<aws.dynamodb.SimpleDBSpec-stats timestamp="1349776955837"><stats expectations="1" examples="1" successes="1" time="31675"></stats></aws.dynamodb.SimpleDBSpec-stats>
