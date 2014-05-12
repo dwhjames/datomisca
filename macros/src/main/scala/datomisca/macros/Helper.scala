@@ -82,7 +82,11 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       if (s.getName() == "!")
         try {
           val t = stk.pop()
-          q"_root_.datomic.Util.read($t.toString)"
+          if (t.tpe =:= typeOf[String]) {
+            q"""_root_.datomic.Util.read("\"%s\"".format($t))"""
+          } else {
+            q"_root_.datomic.Util.read($t.toString)"
+          }
         } catch {
           case ex: NoSuchElementException =>
             abortWithMessage("The symbol '!' is reserved by Datomisca")

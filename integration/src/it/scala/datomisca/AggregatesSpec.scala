@@ -88,12 +88,11 @@ class AggregatesSpec
      :where [?e :object/name ?name]]
   """)
 
-  val findAvgSchemaNameLength = Query("""
+  val findAvgObjectNameLength = Query("""
     [:find (avg ?length)
      :with ?e
      :where
-     [?e :db/ident ?ident]
-     [(name ?ident) ?name]
+     [?e :object/name ?name]
      [(count ?name) ?length]]
   """)
 
@@ -137,7 +136,7 @@ class AggregatesSpec
 
     Datomic.q(choose5, db) should have size (1)
 
-    Datomic.q(findAvgSchemaNameLength, db).headOption.value should equal (5.846153846153846)
+    Datomic.q(findAvgObjectNameLength, db).headOption.value should equal (5.470588235294118)
 
     Datomic.q(countAttributesAndValueTypesInSchema, db) should have size (1)
   }

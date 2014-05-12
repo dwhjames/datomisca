@@ -68,7 +68,7 @@ object AsDatomicRef {
   /** Any subtype of [[FinalIdentified]] is a valid reference type. */
   implicit def finalIdentified[I <: FinalIdentified]: AsDatomicRef[I] =
     new AsDatomicRef[I] {
-      def toDatomicRef(i: I) = i.id: java.lang.Long
+      def toDatomicRef(i: I) = i.id
     }
 
   /** Any subtype of [[KeywordIdentified]] is a valid reference type. */

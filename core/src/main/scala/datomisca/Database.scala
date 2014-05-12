@@ -30,8 +30,13 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     *     an entity id.
     * @return an entity.
     */
-  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): Entity =
-    new Entity(underlying.entity(ev.conv(id)))
+  def entity[T](id: T)(implicit ev: AsPermanentEntityId[T]): Entity = {
+    val e = underlying.entity(ev.conv(id))
+    if (e ne null)
+      new Entity(e)
+    else
+      throw new UnresolvedLookupRefException(ev.conv(id))
+  }
 
   /** Returns the entity for the given keyword.
     *
@@ -73,8 +78,13 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     *     an entity id.
     * @return the entity id passed.
     */
-  def entid[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long =
-    underlying.entid(ev.conv(id)).asInstanceOf[Long]
+  def entid[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long = {
+    val l = underlying.entid(ev.conv(id)).asInstanceOf[java.lang.Long]
+    if (l ne null)
+      l.asInstanceOf[Long]
+    else
+      throw new UnresolvedLookupRefException(ev.conv(id))
+  }
 
   /** Returns the entity id associated with a symbolic keyword
     *

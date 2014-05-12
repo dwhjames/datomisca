@@ -16,6 +16,8 @@
 
 package datomisca
 
+import java.{util => ju}
+
 
 object SchemaEntity {
 
@@ -23,11 +25,38 @@ object SchemaEntity {
 
     private val builder = Map.newBuilder[Keyword, AnyRef]
 
-    def +=[DD <: AnyRef, Card <: Cardinality, A]
-          (attrVal: (Attribute[DD, Card], A))
-          (implicit attrC: Attribute2PartialAddEntityWriter[DD, Card, A])
+    def +=[DD <: AnyRef, Card <: Cardinality, T]
+          (attrVal: (Attribute[DD, Card], T))
+          (implicit ev: Attribute2FactWriter[DD, Card, T])
           : this.type = {
-      builder ++= attrC.convert(attrVal._1).write(attrVal._2).props.toTraversable
+      builder += ev.convert(attrVal)
+      this
+    }
+
+    def +?=[DD <: AnyRef, Card <: Cardinality, T]
+          (attrVal: (Attribute[DD, Card], Option[T]))
+          (implicit ev: Attribute2FactWriter[DD, Card, T])
+          : this.type = {
+      for (t <- attrVal._2) {
+        builder += ev.convert(attrVal._1, t)
+      }
+      this
+    }
+
+    def ++=[DD <: AnyRef, Card <: Cardinality, Coll, T]
+          (attrVal: (Attribute[DD, Card], Coll))
+          (implicit ev1: Coll <:< Traversable[T], ev2: Attribute2FactWriter[DD, Card, T])
+          : this.type = {
+      val attr = attrVal._1
+      val coll = attrVal._2
+      val arrayList: ju.ArrayList[AnyRef] = ev1(coll) match {
+          case t: Iterable[_] => new ju.ArrayList[AnyRef](t.size)
+          case _ => new ju.ArrayList[AnyRef]()
+        }
+      for (t <- coll) {
+        arrayList add ev2.convert(attr, t)._2
+      }
+      builder += (attr.ident -> arrayList)
       this
     }
 

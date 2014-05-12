@@ -18,6 +18,7 @@ package datomisca
 
 import org.scalatest.Suite
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.time.{Span, Millis, Seconds}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -31,6 +32,10 @@ trait SampleData {
 
 trait DatomicFixture extends ScalaFutures
 { self: Suite =>
+
+  // globally set timeout to 10 seconds, with the future being checked every 100ms
+  implicit override val patienceConfig =
+    PatienceConfig(timeout = Span(10, Seconds), interval = Span(100, Millis))
 
   def withDatomicDB(testCode: Connection => Any) {
     val uri = s"datomic:mem://${randomUUID()}"

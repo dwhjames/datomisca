@@ -16,6 +16,9 @@
 
 package datomisca
 
+import scala.language.existentials
+
+import datomic.Util
 
 sealed trait DId extends Any {
   def toDatomicId: AnyRef
@@ -27,19 +30,63 @@ final class FinalId(val underlying: Long) extends AnyVal with DId {
   override def toString = underlying.toString
 }
 
-final class TempId(partition: Partition, id: Option[Long] = None, dbId: AnyRef) extends DId {
-  override val toDatomicId: AnyRef = dbId
+final class TempId(val underlying: datomic.db.DbId) extends AnyVal with DId {
+  override def toDatomicId: AnyRef = underlying
 
-  override def toString = toDatomicId.toString
+  def part: Partition =
+    new Partition(underlying.get(TempId.part).asInstanceOf[Keyword])
+
+  def idx: Long =
+    underlying.get(TempId.idx).asInstanceOf[java.lang.Long]
+
+  override def toString: String = underlying.toString
+}
+
+final class LookupRef(val underlying: java.util.List[_]) extends AnyVal with DId {
+  def toDatomicId = underlying
+  override def toString = underlying.toString
+
+  /** Returns the referenced entity, or none if the
+    * lookup ref does not resolve.
+    */
+  def entity(implicit db: Database): Option[Entity] = {
+    val e = db.underlying.entity(this.underlying)
+    if (e ne null)
+      Some(new Entity(e))
+    else
+      None
+  }
+
+  /** Returns the referenced entity id, or none if the
+    * lookup ref does not resolve.
+    */
+  def entid(implicit db: Database): Option[Long] = {
+    val l = db.underlying.entid(this.underlying).asInstanceOf[java.lang.Long]
+    if (l ne null)
+      Some(l.asInstanceOf[Long])
+    else
+      None
+  }
+}
+
+object LookupRef {
+  def apply[DD <: AnyRef, T](attr: Attribute[DD, Cardinality.one.type], value: T)
+                            (implicit toDatomic: ToDatomic[DD, T]) =
+    new LookupRef(Util.list(attr.ident, toDatomic.to(value)))
+}
+
+private object TempId {
+  private val part: Keyword = clojure.lang.Keyword.intern(null, "part")
+  private val idx:  Keyword = clojure.lang.Keyword.intern(null, "idx")
 }
 
 object DId {
-  def tempid(partition: Partition, id: Option[Long] = None) = id match {
-    case None => datomic.Peer.tempid(partition.keyword)
-    case Some(id) => datomic.Peer.tempid(partition.keyword, id)
-  }
 
-  def apply(partition: Partition, id: Long) = new TempId(partition, Some(id), DId.tempid(partition, Some(id)))
-  def apply(partition: Partition) = new TempId(partition, None, DId.tempid(partition))
+  def apply(partition: Partition, id: Long) =
+    new TempId(datomic.Peer.tempid(partition.keyword, id).asInstanceOf[datomic.db.DbId])
+
+  def apply(partition: Partition) =
+    new TempId(datomic.Peer.tempid(partition.keyword).asInstanceOf[datomic.db.DbId])
+
   def apply[T](id: T)(implicit ev: AsEntityId[T]) = ev.conv(id)
 }

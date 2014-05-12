@@ -66,7 +66,7 @@ final case class Attribute[DD, Card <: Cardinality](
 
   lazy val toAddOps: AddEntity = {
     val mb = new scala.collection.mutable.MapBuilder[Keyword, AnyRef, Map[Keyword, AnyRef]](Map(
-      Attribute.id          -> id,
+      Attribute.id          -> id.toDatomicId,
       Attribute.ident       -> ident,
       Attribute.valueType   -> valueType.keyword,
       Attribute.cardinality -> cardinality.keyword

@@ -85,7 +85,7 @@ private[datomisca] object MacroImpl {
 
       case q"scala.StringContext.apply(..$parts).s(..$args)" =>
         val partsWithPlaceholders = q"""Seq(..$parts).mkString(" ! ")"""
-        val strWithPlaceHolders = c.eval(c.Expr[String](c.resetAllAttrs(partsWithPlaceholders.duplicate)))
+        val strWithPlaceHolders = c.eval(c.Expr[String](c.resetLocalAttrs(partsWithPlaceholders.duplicate)))
         val edn = readEDN(c, strWithPlaceHolders)
         validateCljRules(c, edn)
         val argsStack = mutable.Stack.concat(args)
@@ -134,7 +134,7 @@ private[datomisca] object MacroImpl {
 
       case q"scala.StringContext.apply(..$parts).s(..$args)" =>
         val partsWithPlaceholders = q"""Seq(..$parts).mkString(" ! ")"""
-        val strWithPlaceHolders = c.eval(c.Expr[String](c.resetAllAttrs(partsWithPlaceholders.duplicate)))
+        val strWithPlaceHolders = c.eval(c.Expr[String](c.resetLocalAttrs(partsWithPlaceholders.duplicate)))
         val edn = readEDN(c, strWithPlaceHolders)
         val argsStack = mutable.Stack.concat(args)
         val (query, inputSize, outputSize) = validateDatalog(c, edn)

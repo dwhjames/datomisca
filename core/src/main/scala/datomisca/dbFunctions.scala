@@ -33,11 +33,11 @@ class AddDbFunction(
       Namespace.DB / "ident", ident,
       Namespace.DB / "fn",    datomic.Peer.function(
         datomic.Util.map(
-          clojure.lang.Keyword.intern("lang"),     lang,
-          clojure.lang.Keyword.intern("imports"),  datomic.Util.read(imports),
-          clojure.lang.Keyword.intern("requires"), datomic.Util.read(requires),
-          clojure.lang.Keyword.intern("params"),   datomic.Util.list(params: _*),
-          clojure.lang.Keyword.intern("code"),     code
+          AddDbFunction.lang,     lang,
+          AddDbFunction.imports,  datomic.Util.read(imports),
+          AddDbFunction.requires, datomic.Util.read(requires),
+          AddDbFunction.params,   datomic.Util.list(params: _*),
+          AddDbFunction.code,     code
         )
       )
     )
@@ -56,6 +56,13 @@ abstract class TypedAddDbFunction(fn: AddDbFunction) extends TxData with Keyword
  * Construct a vanila database function.
  */
 object AddDbFunction {
+
+  private val lang:     Keyword = clojure.lang.Keyword.intern(null, "lang")
+  private val imports:  Keyword = clojure.lang.Keyword.intern(null, "imports")
+  private val requires: Keyword = clojure.lang.Keyword.intern(null, "requires")
+  private val params:   Keyword = clojure.lang.Keyword.intern(null, "params")
+  private val code:     Keyword = clojure.lang.Keyword.intern(null, "code")
+
   def apply(kw: Keyword)
            (params: String*)
            (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")

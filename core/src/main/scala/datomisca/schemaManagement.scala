@@ -62,11 +62,11 @@ object SchemaManager {
      : Future[Boolean] = {
     Future.traverse(schemaNames) { schemaName =>
       val (requires, txDatas) = schemaMap(schemaName)
-      ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { _ =>
+      ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { dependentsChanged =>
         if (txDatas.isEmpty) {
           throw new DatomiscaException(s"No schema data provided for schema ${schemaName}")
         } else if (hasSchema(schemaTag, schemaName)(conn.database)) {
-          Future.successful(false)
+          Future.successful(dependentsChanged)
         } else {
           Future.traverse(txDatas) { txData =>
             Datomic.transact(
