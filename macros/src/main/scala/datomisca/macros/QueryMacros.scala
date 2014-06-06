@@ -55,7 +55,7 @@ private[datomisca] trait QueryMacros {
     * }
     * }}}
     */
-  def apply(edn: String) = macro MacroImpl.cljQueryImpl
+  def apply(edn: String): AbstractQuery = macro MacroImpl.cljQueryImpl
 
 
   /** Macro-based helper to create Rule alias to be used in Queries.
@@ -81,5 +81,5 @@ private[datomisca] trait QueryMacros {
     * }
     * }}}
     */
-  def rules(edn: String) = macro MacroImpl.cljRulesImpl
+  def rules(edn: String): QueryRules = macro MacroImpl.cljRulesImpl
 }

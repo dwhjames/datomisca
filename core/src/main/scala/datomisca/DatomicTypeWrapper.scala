@@ -23,7 +23,7 @@ trait DatomicTypeWrapper {
   /** implicit converters to simplify conversion from Scala Types to Datomic Type */
   implicit def toDWrapper[T](t: T)(implicit td: ToDatomicCast[T]): DWrapper = new DWrapperImpl(td.to(t))
 
-  trait DWrapper extends NotNull
+  trait DWrapper extends Any
   private[datomisca] class DWrapperImpl(val underlying: AnyRef) extends DWrapper
 
 }

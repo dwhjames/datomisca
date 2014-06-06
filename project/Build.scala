@@ -14,7 +14,7 @@ object DatomiscaBuild extends Build {
       scalaVersion  := "2.11.1",
       crossScalaVersions := Seq("2.10.4", "2.11.1"),
       scalacOptions ++= Seq(
-          "-deprecation",
+          // "-deprecation",
           "-feature",
           "-unchecked"
         ),
@@ -25,7 +25,7 @@ object DatomiscaBuild extends Build {
       id       = "datomisca",
       base     = file("."),
       settings = rootProjectSettings
-    ) aggregate(macros, core, tests)
+    ) aggregate(macros, core, tests, integrationTests)
 
   lazy val macros = Project(
       id       = "macros",
@@ -143,6 +143,8 @@ object DatomiscaBuild extends Build {
     mapGenSourceSettings ++
     Seq(
       name := "datomisca-core",
+
+      scalacOptions += "-deprecation",
 
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
     )
