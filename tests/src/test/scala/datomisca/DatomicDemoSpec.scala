@@ -20,15 +20,11 @@ import scala.language.reflectiveCalls
 
 import org.specs2.mutable._
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
-@RunWith(classOf[JUnitRunner])
 class DatomicDemoSpec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {

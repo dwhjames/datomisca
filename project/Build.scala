@@ -188,11 +188,10 @@ object Dependencies {
   object V {
     val macroParadise = "2.0.0"
 
-    val datomic       = "0.9.4724"
+    val datomic       = "0.9.4766.16"
 
-    val specs2        = "2.3.11"
-    val junit         = "4.8"
-    val scalaTest     = "2.1.3"
+    val specs2        = "2.3.12"
+    val scalaTest     = "2.1.7"
   }
 
   object Compile {
@@ -202,7 +201,6 @@ object Dependencies {
 
   object Test {
     val specs2 = "org.specs2"    %%    "specs2"    %    V.specs2    %    "test"
-    val junit  = "junit"         %     "junit"     %    V.junit     %    "test"
   }
   import Test._
 
@@ -212,7 +210,7 @@ object Dependencies {
   import IntegrationTest._
 
   val shared = Seq(datomic)
-  val test   = Seq(specs2, junit)
+  val test   = Seq(specs2)
   val integrationTest = Seq(scalaTest)
 }
 
