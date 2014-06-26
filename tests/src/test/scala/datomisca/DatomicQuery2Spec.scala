@@ -18,8 +18,6 @@ package datomisca
 
 import org.specs2.mutable._
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
@@ -27,7 +25,6 @@ import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
-@RunWith(classOf[JUnitRunner])
 class DatomicQuery2Spec extends Specification {
   sequential
   val uri = "datomic:mem://datomicquery2spec"

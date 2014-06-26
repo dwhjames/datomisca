@@ -33,12 +33,11 @@ object Datomic
      with TransactOps
      with DatomicFacilities
      with QueryExecutor
-     with DatomicTypeWrapper
      with macros.ExtraMacros
 
 /** Provides all Datomic Scala specific facilities
   */
-  private[datomisca] trait DatomicFacilities extends DatomicTypeWrapper{
+private[datomisca] trait DatomicFacilities {
 
   /** Converts any value to a DatomicData given there is the right [[ToDatomicCast]] in the scope
     *

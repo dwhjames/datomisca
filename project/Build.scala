@@ -11,9 +11,10 @@ object DatomiscaBuild extends Build {
   lazy val buildSettings = Defaults.defaultSettings ++ Seq(
       version       := "0.7-alpha-10",
       organization  := "com.pellucid",
-      scalaVersion  := "2.10.4",
+      scalaVersion  := "2.11.1",
+      crossScalaVersions := Seq("2.10.4", "2.11.1"),
       scalacOptions ++= Seq(
-          "-deprecation",
+          // "-deprecation",
           "-feature",
           "-unchecked"
         ),
@@ -24,7 +25,7 @@ object DatomiscaBuild extends Build {
       id       = "datomisca",
       base     = file("."),
       settings = rootProjectSettings
-    ) aggregate(macros, core, tests)
+    ) aggregate(macros, core, tests, integrationTests)
 
   lazy val macros = Project(
       id       = "macros",
@@ -143,6 +144,8 @@ object DatomiscaBuild extends Build {
     Seq(
       name := "datomisca-core",
 
+      scalacOptions += "-deprecation",
+
       (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.genCore
     )
 
@@ -164,6 +167,17 @@ object DatomiscaBuild extends Build {
 
       libraryDependencies ++= Dependencies.integrationTest,
 
+      // add scala-xml dependency when needed (for Scala 2.11 and newer)
+      // this mechanism supports cross-version publishing
+      libraryDependencies := {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, scalaMajor)) if scalaMajor >= 11 =>
+            libraryDependencies.value :+ "org.scala-lang.modules" %% "scala-xml" % "1.0.1"
+          case _ =>
+            libraryDependencies.value
+        }
+      },
+
       fork in IntegrationTest := true
     )
 
@@ -174,11 +188,10 @@ object Dependencies {
   object V {
     val macroParadise = "2.0.0"
 
-    val datomic       = "0.9.4724"
+    val datomic       = "0.9.4766.16"
 
-    val specs2        = "2.3.11"
-    val junit         = "4.8"
-    val scalaTest     = "2.1.3"
+    val specs2        = "2.3.12"
+    val scalaTest     = "2.1.7"
   }
 
   object Compile {
@@ -188,7 +201,6 @@ object Dependencies {
 
   object Test {
     val specs2 = "org.specs2"    %%    "specs2"    %    V.specs2    %    "test"
-    val junit  = "junit"         %     "junit"     %    V.junit     %    "test"
   }
   import Test._
 
@@ -198,7 +210,7 @@ object Dependencies {
   import IntegrationTest._
 
   val shared = Seq(datomic)
-  val test   = Seq(specs2, junit)
+  val test   = Seq(specs2)
   val integrationTest = Seq(scalaTest)
 }
 

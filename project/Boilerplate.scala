@@ -179,7 +179,7 @@ object Boilerplate {
           |  def typed"""+methodTypeParams+"""
           |           (kw: Keyword)
           |           """+params+"""
-          |           (lang: String, partition: Partition = Partition.USER, imports: String = "", requires: String = "")
+          |           (lang: String, partition: Partition, imports: String, requires: String)
           |           (code: String) =
           |    new TypedAddDbFunction"""+(arity-1)+classTypeParams+"""(
           |      new AddDbFunction(kw, lang, Seq"""+args+""", code, imports, requires, partition))
