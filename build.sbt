@@ -5,7 +5,7 @@ organization in ThisBuild := "com.pellucid"
 
 licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-version in ThisBuild := "0.7-alpha-10"
+version in ThisBuild := "0.7-alpha-11"
 
 
 scalaVersion in ThisBuild := "2.11.1"
