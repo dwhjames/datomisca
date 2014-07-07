@@ -37,6 +37,8 @@ lazy val datomisca = project.
   in(file(".")).
   aggregate(macros, core, tests, integrationTests)
 
+// needed for aggregated build of unidoc
+MacroSettings.settings
 
 // disable some aggregation tasks for subprojects
 aggregate in doc            := false
