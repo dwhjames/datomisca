@@ -24,7 +24,7 @@ case class Namespace(name: String) {
 }
 
 object Namespace {
-  val DB = new Namespace("db") {
+  object DB extends Namespace("db") {
     val PART = Namespace("db.part")
     val TYPE = Namespace("db.type")
     val CARDINALITY = Namespace("db.cardinality")
