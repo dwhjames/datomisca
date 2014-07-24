@@ -247,8 +247,8 @@ val e = (SchemaEntity.newBuilder
 
 // ERROR at compile-time (field "name" should be a string)
 val e = (SchemaEntity.newBuilder
-  += (PersonSchema.name  -> 123) +
-  += (PersonSchema.age   -> 45L) +
+  += (PersonSchema.name  -> 123)
+  += (PersonSchema.age   -> 45L)
   += (PersonSchema.birth -> birthDate)
 ) withId DId(Partition.USER)
 
