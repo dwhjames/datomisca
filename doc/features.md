@@ -239,18 +239,18 @@ SchemaFact.add(DId(Partition.USER))( PersonSchema.name -> "toto" )
 SchemaFact.add(DId(Partition.USER))( PersonSchema.name -> 123L )   
 
 // OK
-val e = SchemaEntity.add(DId(Partition.USER))( Props() +
-  (PersonSchema.name  -> "toto") +
-  (PersonSchema.age   -> 45L) +
-  (PersonSchema.birth -> birthDate)
-)
+val e = (SchemaEntity.newBuilder
+  += (PersonSchema.name  -> "toto")
+  += (PersonSchema.age   -> 45L)
+  += (PersonSchema.birth -> birthDate)
+) withId DId(Partition.USER)
 
 // ERROR at compile-time (field "name" should be a string)
-val e = SchemaEntity.add(DId(Partition.USER))( Props() +
-  (PersonSchema.name  -> 123) +
-  (PersonSchema.age   -> 45L) +
-  (PersonSchema.birth -> birthDate)
-)
+val e = (SchemaEntity.newBuilder
+  += (PersonSchema.name  -> 123)
+  += (PersonSchema.age   -> 45L)
+  += (PersonSchema.birth -> birthDate)
+) withId DId(Partition.USER)
 
 ```
 
