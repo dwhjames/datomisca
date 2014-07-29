@@ -241,15 +241,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="datomisca.SchemaManager#hasAttribute" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="hasAttribute(attributeIdent:datomisca.Keyword)(implicitdb:datomisca.DDatabase):Boolean"></a>
-      <a id="hasAttribute(Keyword)(DDatabase):Boolean"></a>
+      <a id="hasAttribute(attributeIdent:datomisca.Keyword)(implicitdb:datomisca.Database):Boolean"></a>
+      <a id="hasAttribute(Keyword)(Database):Boolean"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">hasAttribute</span><span class="params">(<span name="attributeIdent">attributeIdent: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="db">db: <a href="DDatabase.html" class="extype" name="datomisca.DDatabase">DDatabase</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+        <span class="name">hasAttribute</span><span class="params">(<span name="attributeIdent">attributeIdent: <a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="db">db: <a href="Database.html" class="extype" name="datomisca.Database">Database</a></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
       </span>
       </h4>
       
@@ -267,15 +267,15 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="datomisca.SchemaManager#installSchema" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="installSchema(schemaTag:datomisca.Keyword,schemaMap:Map[String,(Seq[String],Seq[Seq[datomisca.Operation]])],schemaNames:String*)(implicitconn:datomisca.Connection):scala.concurrent.Future[Unit]"></a>
-      <a id="installSchema(Keyword,Map[String,(Seq[String],Seq[Seq[Operation]])],String*)(Connection):Future[Unit]"></a>
+      <a id="installSchema(schemaTag:datomisca.Keyword,schemaMap:Map[String,(Seq[String],Seq[Seq[datomisca.TxData]])],schemaNames:String*)(implicitconn:datomisca.Connection,implicitec:scala.concurrent.ExecutionContext):scala.concurrent.Future[Boolean]"></a>
+      <a id="installSchema(Keyword,Map[String,(Seq[String],Seq[Seq[TxData]])],String*)(Connection,ExecutionContext):Future[Boolean]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">installSchema</span><span class="params">(<span name="schemaTag">schemaTag: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>, <span name="schemaMap">schemaMap: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, (<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>]])]</span>, <span name="schemaNames">schemaNames: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="conn">conn: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Unit">Unit</span>]</span>
+        <span class="name">installSchema</span><span class="params">(<span name="schemaTag">schemaTag: <a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>, <span name="schemaMap">schemaMap: <span class="extype" name="scala.Predef.Map">Map</span>[<span class="extype" name="scala.Predef.String">String</span>, (<span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Predef.String">String</span>], <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.Seq">Seq</span>[<a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a>]])]</span>, <span name="schemaNames">schemaNames: <span class="extype" name="scala.Predef.String">String</span>*</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="conn">conn: <a href="Connection.html" class="extype" name="datomisca.Connection">Connection</a></span>, <span name="ec">ec: <span class="extype" name="scala.concurrent.ExecutionContext">ExecutionContext</span></span>)</span><span class="result">: <span class="extype" name="scala.concurrent.Future">Future</span>[<span class="extype" name="scala.Boolean">Boolean</span>]</span>
       </span>
       </h4>
       

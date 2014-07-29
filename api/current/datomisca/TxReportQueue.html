@@ -24,7 +24,7 @@
         </head>
         <body class="type">
       <div id="definition">
-        <img src="../lib/trait_big.png" />
+        <img src="../lib/class_big.png" />
         <p id="owner"><a href="package.html" class="extype" name="datomisca">datomisca</a></p>
         <h1>TxReportQueue</h1>
       </div>
@@ -32,7 +32,7 @@
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
         <span class="name">TxReportQueue</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
@@ -77,43 +77,30 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        
-
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="datomisca.TxReportQueue#database" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="database:datomisca.DDatabase"></a>
-      <a id="database:DDatabase"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="datomisca.TxReportQueue#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(queue:java.util.concurrent.BlockingQueue[java.util.Map[_,_]]):datomisca.TxReportQueue"></a>
+      <a id="&lt;init&gt;:TxReportQueue"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">implicit abstract </span>
-        <span class="kind">def</span>
+        <span class="modifier"></span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">database</span><span class="result">: <a href="DDatabase.html" class="extype" name="datomisca.DDatabase">DDatabase</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.TxReportQueue#queue" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="queue:java.util.concurrent.BlockingQueue[java.util.Map[_,_]]"></a>
-      <a id="queue:BlockingQueue[Map[_,_]]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">queue</span><span class="result">: <span class="extype" name="java.util.concurrent.BlockingQueue">BlockingQueue</span>[<span class="extype" name="java.util.Map">Map</span>[_, _]]</span>
+        <span class="name">TxReportQueue</span><span class="params">(<span name="queue">queue: <span class="extype" name="java.util.concurrent.BlockingQueue">BlockingQueue</span>[<span class="extype" name="java.util.Map">Map</span>[_, _]]</span>)</span>
       </span>
       </h4>
       
     </li></ol>
             </div>
 
+        
+
+        
+
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -334,6 +321,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="datomisca.TxReportQueue#queue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="queue:java.util.concurrent.BlockingQueue[java.util.Map[_,_]]"></a>
+      <a id="queue:BlockingQueue[Map[_,_]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">queue</span><span class="result">: <span class="extype" name="java.util.concurrent.BlockingQueue">BlockingQueue</span>[<span class="extype" name="java.util.Map">Map</span>[_, _]]</span>
+      </span>
+      </h4>
+      
     </li><li name="datomisca.TxReportQueue#stream" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="stream:Stream[Option[datomisca.TxReport]]"></a>
       <a id="stream:Stream[Option[TxReport]]"></a>

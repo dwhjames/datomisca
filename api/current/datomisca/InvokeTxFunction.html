@@ -35,13 +35,13 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">InvokeTxFunction</span><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></span>
+        <span class="name">InvokeTxFunction</span><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>, <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="datomisca.InvokeTxFunction"><span>InvokeTxFunction</span></li><li class="in" name="datomisca.Operation"><span>Operation</span></li><li class="in" name="datomisca.Nativeable"><span>Nativeable</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="datomisca.InvokeTxFunction"><span>InvokeTxFunction</span></li><li class="in" name="datomisca.TxData"><span>TxData</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="datomisca.InvokeTxFunction#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(fn:datomisca.Keyword,args:Seq[datomisca.DatomicData]):datomisca.InvokeTxFunction"></a>
+      <a id="&lt;init&gt;(fn:datomisca.Keyword,args:Seq[AnyRef]):datomisca.InvokeTxFunction"></a>
       <a id="&lt;init&gt;:InvokeTxFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">InvokeTxFunction</span><span class="params">(<span name="fn">fn: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>, <span name="args">args: <span class="extype" name="scala.Seq">Seq</span>[<a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>)</span>
+        <span class="name">InvokeTxFunction</span><span class="params">(<span name="fn">fn: <a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>, <span name="args">args: <span class="extype" name="scala.Seq">Seq</span>[<span class="extype" name="scala.AnyRef">AnyRef</span>]</span>)</span>
       </span>
       </h4>
       
@@ -334,19 +334,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="datomisca.InvokeTxFunction#toNative" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toNative:AnyRef"></a>
-      <a id="toNative:AnyRef"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toNative</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.InvokeTxFunction">InvokeTxFunction</a> → <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -360,6 +347,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="datomisca.InvokeTxFunction#toTxData" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toTxData:AnyRef"></a>
+      <a id="toTxData:AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toTxData</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.InvokeTxFunction">InvokeTxFunction</a> → <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -426,10 +426,8 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="datomisca.Operation">
-              <h3>Inherited from <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></h3>
-            </div><div class="parent" name="datomisca.Nativeable">
-              <h3>Inherited from <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></h3>
+        <div class="parent" name="datomisca.TxData">
+              <h3>Inherited from <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></h3>
             </div><div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">

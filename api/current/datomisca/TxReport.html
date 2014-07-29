@@ -24,15 +24,15 @@
         </head>
         <body class="type">
       <div id="definition">
-        <a href="TxReport$.html" title="Go to companion"><img src="../lib/trait_to_object_big.png" /></a>
+        <img src="../lib/class_big.png" />
         <p id="owner"><a href="package.html" class="extype" name="datomisca">datomisca</a></p>
-        <h1><a href="TxReport$.html" title="Go to companion">TxReport</a></h1>
+        <h1>TxReport</h1>
       </div>
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
         <span class="name">TxReport</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
@@ -77,69 +77,30 @@
 
       <div id="template">
         <div id="allMembers">
-        
-
-        
-
-        <div id="values" class="values members">
-              <h3>Abstract Value Members</h3>
-              <ol><li name="datomisca.TxReport#dbAfter" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="dbAfter:datomisca.DDatabase"></a>
-      <a id="dbAfter:DDatabase"></a>
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="datomisca.TxReport#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(rawReport:java.util.Map[_,_]):datomisca.TxReport"></a>
+      <a id="&lt;init&gt;:TxReport"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
+        <span class="modifier"></span>
+        <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">dbAfter</span><span class="result">: <a href="DDatabase.html" class="extype" name="datomisca.DDatabase">DDatabase</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.TxReport#dbBefore" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="dbBefore:datomisca.DDatabase"></a>
-      <a id="dbBefore:DDatabase"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">dbBefore</span><span class="result">: <a href="DDatabase.html" class="extype" name="datomisca.DDatabase">DDatabase</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.TxReport#tempids" visbl="prt" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="tempids:AnyRef"></a>
-      <a id="tempids:AnyRef"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">tempids</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
-    </li><li name="datomisca.TxReport#txData" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="txData:Seq[datomisca.DDatom]"></a>
-      <a id="txData:Seq[DDatom]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">val</span>
-      </span>
-      <span class="symbol">
-        <span class="name">txData</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="DDatom.html" class="extype" name="datomisca.DDatom">DDatom</a>]</span>
+        <span class="name">TxReport</span><span class="params">(<span name="rawReport">rawReport: <span class="extype" name="java.util.Map">Map</span>[_, _]</span>)</span>
       </span>
       </h4>
       
     </li></ol>
             </div>
 
+        
+
+        
+
         <div id="values" class="values members">
-              <h3>Concrete Value Members</h3>
+              <h3>Value Members</h3>
               <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="!=(x$1:AnyRef):Boolean"></a>
       <a id="!=(AnyRef):Boolean"></a>
@@ -237,6 +198,32 @@
     </span>)</span>
               
         </dd></dl></div>
+    </li><li name="datomisca.TxReport#dbAfter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="dbAfter:datomisca.Database"></a>
+      <a id="dbAfter:Database"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dbAfter</span><span class="result">: <a href="Database.html" class="extype" name="datomisca.Database">Database</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.TxReport#dbBefore" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="dbBefore:datomisca.Database"></a>
+      <a id="dbBefore:Database"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">dbBefore</span><span class="result">: <a href="Database.html" class="extype" name="datomisca.Database">Database</a></span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
       <a id="eq(AnyRef):Boolean"></a>
@@ -400,15 +387,15 @@
       </h4>
       
     </li><li name="datomisca.TxReport#resolveEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="resolveEntity(id:datomisca.DId):datomisca.DEntity"></a>
-      <a id="resolveEntity(DId):DEntity"></a>
+      <a id="resolveEntity(id:datomisca.DId):datomisca.Entity"></a>
+      <a id="resolveEntity(DId):Entity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">resolveEntity</span><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>)</span><span class="result">: <a href="DEntity.html" class="extype" name="datomisca.DEntity">DEntity</a></span>
+        <span class="name">resolveEntity</span><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>)</span><span class="result">: <a href="Entity.html" class="extype" name="datomisca.Entity">Entity</a></span>
       </span>
       </h4>
       
@@ -477,6 +464,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.TxReport">TxReport</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="datomisca.TxReport#txData" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="txData:Seq[datomisca.Datom]"></a>
+      <a id="txData:Seq[Datom]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">txData</span><span class="result">: <span class="extype" name="scala.Seq">Seq</span>[<a href="Datom.html" class="extype" name="datomisca.Datom">Datom</a>]</span>
+      </span>
+      </h4>
+      
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>

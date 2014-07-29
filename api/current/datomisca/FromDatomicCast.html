@@ -43,7 +43,13 @@
 Multi-valued &quot;function&quot; (not real function actually)
 which inverse is surjective ToDatomic or ToDatomicCast
 1 DatomicData -&gt; n Scala type
-</p></div><div class="toggleContainer block">
+</p></div><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;There is no cast available from Datomic data to type ${A}&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -88,15 +94,15 @@ which inverse is surjective ToDatomic or ToDatomicCast
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="datomisca.FromDatomicCast#from" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="from(dd:datomisca.DatomicData):A"></a>
-      <a id="from(DatomicData):A"></a>
+      <a id="from(dd:AnyRef):A"></a>
+      <a id="from(AnyRef):A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">from</span><span class="params">(<span name="dd">dd: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="result">: <span class="extype" name="datomisca.FromDatomicCast.A">A</span></span>
+        <span class="name">from</span><span class="params">(<span name="dd">dd: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result">: <span class="extype" name="datomisca.FromDatomicCast.A">A</span></span>
       </span>
       </h4>
       

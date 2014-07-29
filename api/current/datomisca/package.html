@@ -81,8 +81,21 @@
 
         <div id="types" class="types members">
               <h3>Type Members</h3>
-              <ol><li name="datomisca.AddDbFunction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AddDbFunctionextendsOperationwithKeywordIdentified"></a>
+              <ol><li name="datomisca.AbstractQuery" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AbstractQueryextendsAnyRef"></a>
+      <a id="AbstractQuery:AbstractQuery"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="AbstractQuery.html"><span class="name">AbstractQuery</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.AddDbFunction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AddDbFunctionextendsTxDatawithKeywordIdentified"></a>
       <a id="AddDbFunction:AddDbFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -90,107 +103,202 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="AddDbFunction.html"><span class="name">AddDbFunction</span></a><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a></span>
+        <a href="AddDbFunction.html"><span class="name">AddDbFunction</span></a><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a></span>
       </span>
       </h4>
       
     </li><li name="datomisca.AddEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AddEntityextendsPartialAddEntitywithOperationwithTempIdentifiedwithProductwithSerializable"></a>
+      <a id="AddEntityextendsPartialAddEntitywithTxDatawithTempIdentified"></a>
       <a id="AddEntity:AddEntity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="AddEntity.html"><span class="name">AddEntity</span></a><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>, <span name="partialProps">partialProps: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>)</span><span class="result"> extends <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a> with <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a> with <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="AddEntity.html"><span class="name">AddEntity</span></a><span class="result"> extends <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a> with <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a></span>
       </span>
       </h4>
       
     </li><li name="datomisca.AddFact" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AddFactextendsDataFunctionwithTempIdentifiedwithProductwithSerializable"></a>
+      <a id="AddFactextendsTxDatawithTempIdentified"></a>
       <a id="AddFact:AddFact"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="AddFact.html"><span class="name">AddFact</span></a><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>, <span name="attr">attr: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>, <span name="value">value: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="result"> extends <a href="DataFunction.html" class="extype" name="datomisca.DataFunction">DataFunction</a> with <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="AddFact.html"><span class="name">AddFact</span></a><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a></span>
       </span>
       </h4>
       
     </li><li name="datomisca.AddIdent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="AddIdentextendsOperationwithKeywordIdentifiedwithProductwithSerializable"></a>
+      <a id="AddIdentextendsTxDatawithKeywordIdentifiedwithProductwithSerializable"></a>
       <a id="AddIdent:AddIdent"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="AddIdent.html"><span class="name">AddIdent</span></a><span class="params">(<span name="ident">ident: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>, <span name="partition">partition: <a href="Partition.html" class="extype" name="datomisca.Partition">Partition</a> = <span class="symbol">Partition.USER</span></span>)</span><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="AddIdent.html"><span class="name">AddIdent</span></a><span class="params">(<span name="ident">ident: <a href="#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>, <span name="partition">partition: <a href="Partition.html" class="extype" name="datomisca.Partition">Partition</a> = <span class="symbol">Partition.USER</span></span>)</span><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
+    </li><li name="datomisca.AsDatomicRef" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="AsDatomicRef[T]extendsAnyRef"></a>
+      <a id="AsDatomicRef[T]:AsDatomicRef[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AsDatomicRef.html"><span class="name">AsDatomicRef</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;Cannot use type ${T} as the type of a Datomic reference&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.AsEntityId" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AsEntityId[T]extendsAnyRef"></a>
+      <a id="AsEntityId[T]:AsEntityId[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AsEntityId.html"><span class="name">AsEntityId</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A conversion type class for entity ids.</p>
+    </li><li name="datomisca.AsPermanentEntityId" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AsPermanentEntityId[T]extendsAnyRef"></a>
+      <a id="AsPermanentEntityId[T]:AsPermanentEntityId[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AsPermanentEntityId.html"><span class="name">AsPermanentEntityId</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A conversion type class for permanent entity ids.</p>
+    </li><li name="datomisca.AsPointT" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AsPointT[T]extendsAnyRef"></a>
+      <a id="AsPointT[T]:AsPointT[T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AsPointT.html"><span class="name">AsPointT</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">A conversion type class for point in time values.</p>
     </li><li name="datomisca.Attribute" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Attribute[DD&lt;:datomisca.DatomicData,Card&lt;:datomisca.Cardinality]extendsOperationwithTermwithNamespaceablewithKeywordIdentifiedwithProductwithSerializable"></a>
-      <a id="Attribute[DD&lt;:DatomicData,Card&lt;:Cardinality]:Attribute[DD,Card]"></a>
+      <a id="Attribute[DD,Card&lt;:datomisca.Cardinality]extendsTxDatawithKeywordIdentifiedwithProductwithSerializable"></a>
+      <a id="Attribute[DD,Card&lt;:Cardinality]:Attribute[DD,Card]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
-        <a href="Attribute.html"><span class="name">Attribute</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>]</span><span class="params">(<span name="ident">ident: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>, <span name="valueType">valueType: <a href="SchemaType.html" class="extype" name="datomisca.SchemaType">SchemaType</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>, <span name="cardinality">cardinality: <span class="extype" name="datomisca.Attribute.Card">Card</span></span>, <span name="doc">doc: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="unique">unique: <span class="extype" name="scala.Option">Option</span>[<a href="Unique.html" class="extype" name="datomisca.Unique">Unique</a>] = <span class="symbol">scala.None</span></span>, <span name="index">index: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>, <span name="fulltext">fulltext: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>, <span name="isComponent">isComponent: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>, <span name="noHistory">noHistory: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a> with <a href="Term.html" class="extype" name="datomisca.Term">Term</a> with <a href="Namespaceable.html" class="extype" name="datomisca.Namespaceable">Namespaceable</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Attribute.html"><span class="name">Attribute</span></a><span class="tparams">[<span name="DD">DD</span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>]</span><span class="params">(<span name="ident">ident: <a href="#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>, <span name="valueType">valueType: <a href="SchemaType.html" class="extype" name="datomisca.SchemaType">SchemaType</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>, <span name="cardinality">cardinality: <span class="extype" name="datomisca.Attribute.Card">Card</span></span>, <span name="doc">doc: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">scala.None</span></span>, <span name="unique">unique: <span class="extype" name="scala.Option">Option</span>[<a href="Unique.html" class="extype" name="datomisca.Unique">Unique</a>] = <span class="symbol">scala.None</span></span>, <span name="index">index: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>, <span name="fulltext">fulltext: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>, <span name="isComponent">isComponent: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>, <span name="noHistory">noHistory: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Boolean">Boolean</span>] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.Attribute2EntityReaderCast" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Attribute2EntityReaderCast[DD&lt;:datomisca.DatomicData,Card&lt;:datomisca.Cardinality,T]extendsAnyRef"></a>
-      <a id="Attribute2EntityReaderCast[DD&lt;:DatomicData,Card&lt;:Cardinality,T]:Attribute2EntityReaderCast[DD,Card,T]"></a>
+    </li><li name="datomisca.Attribute2EntityReaderCast" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Attribute2EntityReaderCast[DD&lt;:AnyRef,Card&lt;:datomisca.Cardinality,T]extendsAnyRef"></a>
+      <a id="Attribute2EntityReaderCast[DD&lt;:AnyRef,Card&lt;:Cardinality,T]:Attribute2EntityReaderCast[DD,Card,T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Attribute2EntityReaderCast.html"><span class="name">Attribute2EntityReaderCast</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Attribute2EntityReaderCast.html"><span class="name">Attribute2EntityReaderCast</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
       
-    </li><li name="datomisca.Attribute2EntityReaderInj" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Attribute2EntityReaderInj[DD&lt;:datomisca.DatomicData,Card&lt;:datomisca.Cardinality,T]extendsAnyRef"></a>
-      <a id="Attribute2EntityReaderInj[DD&lt;:DatomicData,Card&lt;:Cardinality,T]:Attribute2EntityReaderInj[DD,Card,T]"></a>
+      <span class="defval" name="&quot;There is no type-casting reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.Attribute2EntityReaderInj" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Attribute2EntityReaderInj[DD&lt;:AnyRef,Card&lt;:datomisca.Cardinality,T]extendsAnyRef"></a>
+      <a id="Attribute2EntityReaderInj[DD&lt;:AnyRef,Card&lt;:Cardinality,T]:Attribute2EntityReaderInj[DD,Card,T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Attribute2EntityReaderInj.html"><span class="name">Attribute2EntityReaderInj</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Attribute2EntityReaderInj.html"><span class="name">Attribute2EntityReaderInj</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
       
-    </li><li name="datomisca.Attribute2PartialAddEntityWriter" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="Attribute2PartialAddEntityWriter[DD&lt;:datomisca.DatomicData,Card&lt;:datomisca.Cardinality,Dest]extendsAnyRef"></a>
-      <a id="Attribute2PartialAddEntityWriter[DD&lt;:DatomicData,Card&lt;:Cardinality,Dest]:Attribute2PartialAddEntityWriter[DD,Card,Dest]"></a>
+      <span class="defval" name="&quot;There is no unique reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.Attribute2FactWriter" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Attribute2FactWriter[DD&lt;:AnyRef,Card&lt;:datomisca.Cardinality,T]extendsAnyRef"></a>
+      <a id="Attribute2FactWriter[DD&lt;:AnyRef,Card&lt;:Cardinality,T]:Attribute2FactWriter[DD,Card,T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Attribute2PartialAddEntityWriter.html"><span class="name">Attribute2PartialAddEntityWriter</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="Dest">Dest</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Attribute2FactWriter.html"><span class="name">Attribute2FactWriter</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
       
+      <span class="defval" name="&quot;There is no writer for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card}&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.Attribute2PartialAddEntityWriter" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="Attribute2PartialAddEntityWriter[DD&lt;:AnyRef,Card&lt;:datomisca.Cardinality,T]extendsAnyRef"></a>
+      <a id="Attribute2PartialAddEntityWriter[DD&lt;:AnyRef,Card&lt;:Cardinality,T]:Attribute2PartialAddEntityWriter[DD,Card,T]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Attribute2PartialAddEntityWriter.html"><span class="name">Attribute2PartialAddEntityWriter</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;There is no writer for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card}&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="datomisca.Cardinality" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
       <a id="CardinalityextendsAnyRef"></a>
       <a id="Cardinality:Cardinality"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
@@ -198,164 +306,21 @@
       </span>
       </h4>
       
-    </li><li name="datomisca.Connection" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ConnectionextendsAnyRef"></a>
+    </li><li name="datomisca.Connection" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ConnectionextendsAnyVal"></a>
       <a id="Connection:Connection"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Connection.html"><span class="name">Connection</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Const" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ConstextendsTermwithProductwithSerializable"></a>
-      <a id="Const:Const"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="Const.html"><span class="name">Const</span></a><span class="params">(<span name="underlying">underlying: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="result"> extends <a href="Term.html" class="extype" name="datomisca.Term">Term</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DBigDec" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DBigDecextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DBigDec:DBigDec"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DBigDec.html"><span class="name">DBigDec</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.BigDecimal">BigDecimal</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DBigInt" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DBigIntextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DBigInt:DBigInt"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DBigInt.html"><span class="name">DBigInt</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.BigInt">BigInt</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DBoolean" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DBooleanextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DBoolean:DBoolean"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DBoolean.html"><span class="name">DBoolean</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Boolean">Boolean</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DBytes" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DBytesextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DBytes:DBytes"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DBytes.html"><span class="name">DBytes</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Array">Array</span>[<span class="extype" name="scala.Byte">Byte</span>]</span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DColl" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DCollextendsDatomicData"></a>
-      <a id="DColl:DColl"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DColl.html"><span class="name">DColl</span></a><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DDatabase" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DDatabaseextendsDatomicData"></a>
-      <a id="DDatabase:DDatabase"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="DDatabase.html"><span class="name">DDatabase</span></a><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DDatom" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DDatomextendsDatomicData"></a>
-      <a id="DDatom:DDatom"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="DDatom.html"><span class="name">DDatom</span></a><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DDouble" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DDoubleextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DDouble:DDouble"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DDouble.html"><span class="name">DDouble</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Double">Double</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DEntityextendsDatomicData"></a>
-      <a id="DEntity:DEntity"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="DEntity.html"><span class="name">DEntity</span></a><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DFloat" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DFloatextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DFloat:DFloat"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DFloat.html"><span class="name">DFloat</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Float">Float</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Connection.html"><span class="name">Connection</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
     </li><li name="datomisca.DId" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DIdextendsDatomicData"></a>
+      <a id="DIdextendsAny"></a>
       <a id="DId:DId"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -363,207 +328,77 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="DId.html"><span class="name">DId</span></a><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>
+        <a href="DId.html"><span class="name">DId</span></a><span class="result"> extends <span class="extype" name="scala.Any">Any</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.DInstant" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DInstantextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DInstant:DInstant"></a>
+    </li><li name="datomisca.DWrapper" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="DWrapperextendsAny"></a>
+      <a id="DWrapper:DWrapper"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DInstant.html"><span class="name">DInstant</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="java.util.Date">Date</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DKeyword" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DKeywordextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DKeyword:DKeyword"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DKeyword.html"><span class="name">DKeyword</span></a><span class="params">(<span name="underlying">underlying: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DLong" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DLongextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DLong:DLong"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DLong.html"><span class="name">DLong</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DRefextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DRef:DRef"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DRef.html"><span class="name">DRef</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Either">Either</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DId.html" class="extype" name="datomisca.DId">DId</a>]</span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DRuleAlias" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DRuleAliasextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DRuleAlias:DRuleAlias"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DRuleAlias.html"><span class="name">DRuleAlias</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="args">args: <span class="extype" name="scala.Seq">Seq</span>[<a href="Var.html" class="extype" name="datomisca.Var">Var</a>]</span>, <span name="rules">rules: <span class="extype" name="scala.Seq">Seq</span>[<a href="Rule.html" class="extype" name="datomisca.Rule">Rule</a>]</span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DRuleAliases" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DRuleAliasesextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DRuleAliases:DRuleAliases"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DRuleAliases.html"><span class="name">DRuleAliases</span></a><span class="params">(<span name="aliases">aliases: <span class="extype" name="scala.Seq">Seq</span>[<a href="DRuleAlias.html" class="extype" name="datomisca.DRuleAlias">DRuleAlias</a>]</span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DStringextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DString:DString"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DString.html"><span class="name">DString</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DUri" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DUriextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DUri:DUri"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DUri.html"><span class="name">DUri</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="java.net.URI">URI</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DUuid" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DUuidextendsDatomicDatawithProductwithSerializable"></a>
-      <a id="DUuid:DUuid"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="DUuid.html"><span class="name">DUuid</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="java.util.UUID">UUID</span></span>)</span><span class="result"> extends <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DataFunction" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DataFunctionextendsOperation"></a>
-      <a id="DataFunction:DataFunction"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="DataFunction.html"><span class="name">DataFunction</span></a><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></span>
+        <a href="DWrapper.html"><span class="name">DWrapper</span></a><span class="result"> extends <span class="extype" name="scala.Any">Any</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.DataSource" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DataSourceextendsTerm"></a>
-      <a id="DataSource:DataSource"></a>
+    </li><li name="datomisca.Database" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DatabaseextendsAnyVal"></a>
+      <a id="Database:Database"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DataSource.html"><span class="name">DataSource</span></a><span class="result"> extends <a href="Term.html" class="extype" name="datomisca.Term">Term</a></span>
+        <a href="Database.html"><span class="name">Database</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.DatomicBij" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DatomicBij[DD&lt;:datomisca.DatomicData,A]extendsFromDatomicInj[DD,A]withToDatomicInj[DD,A]"></a>
-      <a id="DatomicBij[DD&lt;:DatomicData,A]:DatomicBij[DD,A]"></a>
+    </li><li name="datomisca.Datom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DatomextendsAnyVal"></a>
+      <a id="Datom:Datom"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DatomicBij.html"><span class="name">DatomicBij</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="datomisca.FromDatomicInj">FromDatomicInj</span>[<span class="extype" name="datomisca.DatomicBij.DD">DD</span>, <span class="extype" name="datomisca.DatomicBij.A">A</span>] with <a href="ToDatomicInj.html" class="extype" name="datomisca.ToDatomicInj">ToDatomicInj</a>[<span class="extype" name="datomisca.DatomicBij.DD">DD</span>, <span class="extype" name="datomisca.DatomicBij.A">A</span>]</span>
+        <a href="Datom.html"><span class="name">Datom</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.DatomicData" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DatomicDataextendsNativeable"></a>
-      <a id="DatomicData:DatomicData"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="DatomicData.html"><span class="name">DatomicData</span></a><span class="result"> extends <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DatomicException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DatomicExceptionextendsException"></a>
-      <a id="DatomicException:DatomicException"></a>
+    </li><li name="datomisca.DatomiscaException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DatomiscaExceptionextendsRuntimeException"></a>
+      <a id="DatomiscaException:DatomiscaException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DatomicException.html"><span class="name">DatomicException</span></a><span class="result"> extends <span class="extype" name="scala.Exception">Exception</span></span>
+        <a href="DatomiscaException.html"><span class="name">DatomiscaException</span></a><span class="result"> extends <span class="extype" name="scala.RuntimeException">RuntimeException</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.DatomicTypeWrapper" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="DatomicTypeWrapperextendsAnyRef"></a>
-      <a id="DatomicTypeWrapper:DatomicTypeWrapper"></a>
+    </li><li name="datomisca.Entity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="EntityextendsAnyVal"></a>
+      <a id="Entity:Entity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="DatomicTypeWrapper.html"><span class="name">DatomicTypeWrapper</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="Entity.html"><span class="name">Entity</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
     </li><li name="datomisca.EntityKeyNotFoundException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="EntityKeyNotFoundExceptionextendsDatomicException"></a>
+      <a id="EntityKeyNotFoundExceptionextendsDatomiscaException"></a>
       <a id="EntityKeyNotFoundException:EntityKeyNotFoundException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -571,7 +406,7 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="EntityKeyNotFoundException.html"><span class="name">EntityKeyNotFoundException</span></a><span class="result"> extends <a href="DatomicException.html" class="extype" name="datomisca.DatomicException">DatomicException</a></span>
+        <a href="EntityKeyNotFoundException.html"><span class="name">EntityKeyNotFoundException</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
       </span>
       </h4>
       
@@ -589,7 +424,7 @@
       </h4>
       
     </li><li name="datomisca.EntityMappingException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="EntityMappingExceptionextendsDatomicException"></a>
+      <a id="EntityMappingExceptionextendsDatomiscaException"></a>
       <a id="EntityMappingException:EntityMappingException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -597,24 +432,11 @@
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="EntityMappingException.html"><span class="name">EntityMappingException</span></a><span class="result"> extends <a href="DatomicException.html" class="extype" name="datomisca.DatomicException">DatomicException</a></span>
+        <a href="EntityMappingException.html"><span class="name">EntityMappingException</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.EntityNotFoundException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="EntityNotFoundExceptionextendsDatomicException"></a>
-      <a id="EntityNotFoundException:EntityNotFoundException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="EntityNotFoundException.html"><span class="name">EntityNotFoundException</span></a><span class="result"> extends <a href="DatomicException.html" class="extype" name="datomisca.DatomicException">DatomicException</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.EntityReader" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+    </li><li name="datomisca.EntityReader" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="EntityReader[A]extendsEntityMapper[A]"></a>
       <a id="EntityReader[A]:EntityReader[A]"></a>
       <h4 class="signature">
@@ -626,30 +448,23 @@
         <a href="EntityReader.html"><span class="name">EntityReader</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="EntityMapper.html" class="extype" name="datomisca.EntityMapper">EntityMapper</a>[<span class="extype" name="datomisca.EntityReader.A">A</span>]</span>
       </span>
       </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
       
-    </li><li name="datomisca.ExternalDS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ExternalDSextendsDataSourcewithProductwithSerializable"></a>
-      <a id="ExternalDS:ExternalDS"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
-      </span>
-      <span class="symbol">
-        <a href="ExternalDS.html"><span class="name">ExternalDS</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="DataSource.html" class="extype" name="datomisca.DataSource">DataSource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
+      <span class="defval" name="&quot;Cannot find a Datomic entity reader for type ${A}. Consider implementing an instance of the EntityReader type class.&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="datomisca.FinalId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FinalIdextendsDIdwithProductwithSerializable"></a>
+      <a id="FinalIdextendsAnyValwithDId"></a>
       <a id="FinalId:FinalId"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="FinalId.html"><span class="name">FinalId</span></a><span class="params">(<span name="underlying">underlying: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result"> extends <a href="DId.html" class="extype" name="datomisca.DId">DId</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="FinalId.html"><span class="name">FinalId</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>
       </span>
       </h4>
       
@@ -667,15 +482,15 @@
       </h4>
       
     </li><li name="datomisca.FromDatomic" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="FromDatomic[DD&lt;:datomisca.DatomicData,A]extendsAnyRef"></a>
-      <a id="FromDatomic[DD&lt;:DatomicData,A]:FromDatomic[DD,A]"></a>
+      <a id="FromDatomic[DD&lt;:AnyRef,A]extendsAnyRef"></a>
+      <a id="FromDatomic[DD&lt;:AnyRef,A]:FromDatomic[DD,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="FromDatomic.html"><span class="name">FromDatomic</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="FromDatomic.html"><span class="name">FromDatomic</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">Surjective for DatomicData to Scala converter :
@@ -729,25 +544,12 @@ from DatomicData =&gt; T
       </h4>
       <p class="comment cmt">A multi-valued function, or relation, from DD =&gt; T,
 So the type T is no longer uniquely determined by DD.</p>
-    </li><li name="datomisca.FromFinalId" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="FromFinalId[T]extendsAnyRef"></a>
-      <a id="FromFinalId[T]:FromFinalId[T]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="FromFinalId.html"><span class="name">FromFinalId</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
     </li><li name="datomisca.IdView" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="IdView[T]extendsProductwithSerializable"></a>
       <a id="IdView[T]:IdView[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">final </span>
         <span class="kind">case class</span>
       </span>
       <span class="symbol">
@@ -756,7 +558,7 @@ So the type T is no longer uniquely determined by DD.</p>
       </h4>
       
     </li><li name="datomisca.InvokeTxFunction" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="InvokeTxFunctionextendsOperation"></a>
+      <a id="InvokeTxFunctionextendsTxData"></a>
       <a id="InvokeTxFunction:InvokeTxFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -764,20 +566,20 @@ So the type T is no longer uniquely determined by DD.</p>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="InvokeTxFunction.html"><span class="name">InvokeTxFunction</span></a><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></span>
+        <a href="InvokeTxFunction.html"><span class="name">InvokeTxFunction</span></a><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></span>
       </span>
       </h4>
       
     </li><li name="datomisca.Keyword" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="KeywordextendsTermwithNamespaceablewithPositionalwithProductwithSerializable"></a>
+      <a id="Keyword=clojure.lang.Keyword"></a>
       <a id="Keyword:Keyword"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">type</span>
       </span>
       <span class="symbol">
-        <a href="Keyword.html"><span class="name">Keyword</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="ns">ns: <span class="extype" name="scala.Option">Option</span>[<a href="Namespace.html" class="extype" name="datomisca.Namespace">Namespace</a>] = <span class="symbol">scala.None</span></span>)</span><span class="result"> extends <a href="Term.html" class="extype" name="datomisca.Term">Term</a> with <a href="Namespaceable.html" class="extype" name="datomisca.Namespaceable">Namespaceable</a> with <span class="extype" name="scala.util.parsing.input.Positional">Positional</span> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">Keyword</span><span class="result"> = <span class="extype" name="clojure.lang.Keyword">clojure.lang.Keyword</span></span>
       </span>
       </h4>
       
@@ -794,6 +596,33 @@ So the type T is no longer uniquely determined by DD.</p>
       </span>
       </h4>
       
+    </li><li name="datomisca.Log" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LogextendsAnyRef"></a>
+      <a id="Log:Log"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Log.html"><span class="name">Log</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <p class="comment cmt">Datomic's database log is a recording of all transaction data in historic
+order, organized for efficient access by transaction.</p>
+    </li><li name="datomisca.LookupRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LookupRefextendsAnyValwithDId"></a>
+      <a id="LookupRef:LookupRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="LookupRef.html"><span class="name">LookupRef</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>
+      </span>
+      </h4>
+      
     </li><li name="datomisca.Namespace" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="NamespaceextendsProductwithSerializable"></a>
       <a id="Namespace:Namespace"></a>
@@ -807,59 +636,20 @@ So the type T is no longer uniquely determined by DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.Namespaceable" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="NamespaceableextendsNativeable"></a>
-      <a id="Namespaceable:Namespaceable"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Namespaceable.html"><span class="name">Namespaceable</span></a><span class="result"> extends <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Nativeable" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="NativeableextendsAnyRef"></a>
-      <a id="Nativeable:Nativeable"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Nativeable.html"><span class="name">Nativeable</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Operation" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="OperationextendsNativeable"></a>
-      <a id="Operation:Operation"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Operation.html"><span class="name">Operation</span></a><span class="result"> extends <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.PartialAddEntity" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+    </li><li name="datomisca.PartialAddEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="PartialAddEntityextendsAnyRef"></a>
       <a id="PartialAddEntity:PartialAddEntity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
         <a href="PartialAddEntity.html"><span class="name">PartialAddEntity</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.PartialAddEntityWriter" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+    </li><li name="datomisca.PartialAddEntityWriter" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="PartialAddEntityWriter[A]extendsEntityMapper[A]"></a>
       <a id="PartialAddEntityWriter[A]:PartialAddEntityWriter[A]"></a>
       <h4 class="signature">
@@ -871,147 +661,140 @@ So the type T is no longer uniquely determined by DD.</p>
         <a href="PartialAddEntityWriter.html"><span class="name">PartialAddEntityWriter</span></a><span class="tparams">[<span name="A">A</span>]</span><span class="result"> extends <a href="EntityMapper.html" class="extype" name="datomisca.EntityMapper">EntityMapper</a>[<span class="extype" name="datomisca.PartialAddEntityWriter.A">A</span>]</span>
       </span>
       </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
       
+      <span class="defval" name="&quot;Cannot find a Datomic entity writer for type ${A}. Consider implementing an instance of the PartialAddEntityWriter type class.&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
     </li><li name="datomisca.Partition" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PartitionextendsProductwithSerializable"></a>
+      <a id="PartitionextendsAnyVal"></a>
       <a id="Partition:Partition"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Partition.html"><span class="name">Partition</span></a><span class="params">(<span name="keyword">keyword: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Partition.html"><span class="name">Partition</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.Props" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="PropsextendsAnyRef"></a>
-      <a id="Props:Props"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed </span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Props.html"><span class="name">Props</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.PropsLink" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PropsLink[DD&lt;:datomisca.DatomicData,Card&lt;:datomisca.Cardinality,A]extendsPropswithProductwithSerializable"></a>
-      <a id="PropsLink[DD&lt;:DatomicData,Card&lt;:Cardinality,A]:PropsLink[DD,Card,A]"></a>
+    </li><li name="datomisca.QueryException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="QueryExceptionextendsDatomiscaException"></a>
+      <a id="QueryException:QueryException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="PropsLink.html"><span class="name">PropsLink</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="A">A</span>]</span><span class="params">(<span name="head">head: (<a href="Attribute.html" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.PropsLink.DD">DD</span>, <span class="extype" name="datomisca.PropsLink.Card">Card</span>], <span class="extype" name="datomisca.PropsLink.A">A</span>)</span>, <span name="tail">tail: <a href="Props.html" class="extype" name="datomisca.Props">Props</a></span>, <span name="attrC">attrC: <a href="Attribute2PartialAddEntityWriter.html" class="extype" name="datomisca.Attribute2PartialAddEntityWriter">Attribute2PartialAddEntityWriter</a>[<span class="extype" name="datomisca.PropsLink.DD">DD</span>, <span class="extype" name="datomisca.PropsLink.Card">Card</span>, <span class="extype" name="datomisca.PropsLink.A">A</span>]</span>)</span><span class="result"> extends <a href="Props.html" class="extype" name="datomisca.Props">Props</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="QueryException.html"><span class="name">QueryException</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.PureQuery" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PureQueryextendsQuerywithProductwithSerializable"></a>
-      <a id="PureQuery:PureQuery"></a>
+    </li><li name="datomisca.QueryProcessingException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="QueryProcessingExceptionextendsDatomiscaException"></a>
+      <a id="QueryProcessingException:QueryProcessingException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="PureQuery.html"><span class="name">PureQuery</span></a><span class="params">(<span name="find">find: <a href="ast/Find.html" class="extype" name="datomisca.ast.Find">Find</a></span>, <span name="wizz">wizz: <span class="extype" name="scala.Option">Option</span>[<a href="ast/With.html" class="extype" name="datomisca.ast.With">With</a>] = <span class="symbol">scala.None</span></span>, <span name="in">in: <span class="extype" name="scala.Option">Option</span>[<a href="ast/In.html" class="extype" name="datomisca.ast.In">In</a>] = <span class="symbol">scala.None</span></span>, <span name="where">where: <a href="ast/Where.html" class="extype" name="datomisca.ast.Where">Where</a></span>)</span><span class="result"> extends <a href="Query.html" class="extype" name="datomisca.Query">Query</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="QueryProcessingException.html"><span class="name">QueryProcessingException</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.Query" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="QueryextendsAnyRef"></a>
-      <a id="Query:Query"></a>
+    </li><li name="datomisca.QueryRules" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="QueryRulesextendsAnyVal"></a>
+      <a id="QueryRules:QueryRules"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Query.html"><span class="name">Query</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="QueryRules.html"><span class="name">QueryRules</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
       </span>
       </h4>
       
     </li><li name="datomisca.RetractEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RetractEntityextendsDataFunctionwithFinalIdentifiedwithProductwithSerializable"></a>
+      <a id="RetractEntityextendsTxDatawithFinalIdentified"></a>
       <a id="RetractEntity:RetractEntity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="RetractEntity.html"><span class="name">RetractEntity</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Long">Long</span></span>)</span><span class="result"> extends <a href="DataFunction.html" class="extype" name="datomisca.DataFunction">DataFunction</a> with <a href="FinalIdentified.html" class="extype" name="datomisca.FinalIdentified">FinalIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RetractEntity.html"><span class="name">RetractEntity</span></a><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="FinalIdentified.html" class="extype" name="datomisca.FinalIdentified">FinalIdentified</a></span>
       </span>
       </h4>
       
     </li><li name="datomisca.RetractFact" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RetractFactextendsDataFunctionwithFinalIdentifiedwithProductwithSerializable"></a>
+      <a id="RetractFactextendsTxDatawithFinalIdentified"></a>
       <a id="RetractFact:RetractFact"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="RetractFact.html"><span class="name">RetractFact</span></a><span class="params">(<span name="id">id: <span class="extype" name="scala.Long">Long</span></span>, <span name="attr">attr: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>, <span name="value">value: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>)</span><span class="result"> extends <a href="DataFunction.html" class="extype" name="datomisca.DataFunction">DataFunction</a> with <a href="FinalIdentified.html" class="extype" name="datomisca.FinalIdentified">FinalIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="RetractFact.html"><span class="name">RetractFact</span></a><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="FinalIdentified.html" class="extype" name="datomisca.FinalIdentified">FinalIdentified</a></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.RichDEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RichDEntityextendsAnyRef"></a>
-      <a id="RichDEntity:RichDEntity"></a>
+    </li><li name="datomisca.RichAttribute" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichAttribute[DD&lt;:AnyRef,Card&lt;:datomisca.Cardinality]extendsAnyVal"></a>
+      <a id="RichAttribute[DD&lt;:AnyRef,Card&lt;:Cardinality]:RichAttribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">implicit final </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="package$$RichAttribute.html"><span class="name">RichAttribute</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.RichEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="RichEntityextendsAnyRef"></a>
+      <a id="RichEntity:RichEntity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">implicit </span>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="package$$RichDEntity.html"><span class="name">RichDEntity</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Rule" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="RuleextendsPositional"></a>
-      <a id="Rule:Rule"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Rule.html"><span class="name">Rule</span></a><span class="result"> extends <span class="extype" name="scala.util.parsing.input.Positional">Positional</span></span>
+        <a href="package$$RichEntity.html"><span class="name">RichEntity</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
     </li><li name="datomisca.SchemaType" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="SchemaType[DD&lt;:datomisca.DatomicData]extendsAnyRef"></a>
-      <a id="SchemaType[DD&lt;:DatomicData]:SchemaType[DD]"></a>
+      <a id="SchemaType[DD]extendsAnyRef"></a>
+      <a id="SchemaType[DD]:SchemaType[DD]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
+        <span class="modifier">sealed </span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="SchemaType.html"><span class="name">SchemaType</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="SchemaType.html"><span class="name">SchemaType</span></a><span class="tparams">[<span name="DD">DD</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
     </li><li name="datomisca.TempId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TempIdextendsDIdwithProductwithSerializable"></a>
+      <a id="TempIdextendsAnyValwithDId"></a>
       <a id="TempId:TempId"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="TempId.html"><span class="name">TempId</span></a><span class="params">(<span name="partition">partition: <a href="Partition.html" class="extype" name="datomisca.Partition">Partition</a></span>, <span name="id">id: <span class="extype" name="scala.Option">Option</span>[<span class="extype" name="scala.Long">Long</span>] = <span class="symbol">scala.None</span></span>, <span name="dbId">dbId: <span class="extype" name="scala.AnyRef">AnyRef</span></span>)</span><span class="result"> extends <a href="DId.html" class="extype" name="datomisca.DId">DId</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="TempId.html"><span class="name">TempId</span></a><span class="result"> extends <span class="extype" name="scala.AnyVal">AnyVal</span> with <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>
       </span>
       </h4>
       
@@ -1029,7 +812,7 @@ So the type T is no longer uniquely determined by DD.</p>
       </h4>
       
     </li><li name="datomisca.TempidNotResolved" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TempidNotResolvedextendsDatomicException"></a>
+      <a id="TempidNotResolvedextendsDatomiscaException"></a>
       <a id="TempidNotResolved:TempidNotResolved"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1037,59 +820,20 @@ So the type T is no longer uniquely determined by DD.</p>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="TempidNotResolved.html"><span class="name">TempidNotResolved</span></a><span class="result"> extends <a href="DatomicException.html" class="extype" name="datomisca.DatomicException">DatomicException</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Term" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TermextendsAnyRef"></a>
-      <a id="Term:Term"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="Term.html"><span class="name">Term</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.ToDId" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ToDId[T]extendsAnyRef"></a>
-      <a id="ToDId[T]:ToDId[T]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed </span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="ToDId.html"><span class="name">ToDId</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.ToDRef" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ToDRef[T]extendsAnyRef"></a>
-      <a id="ToDRef[T]:ToDRef[T]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">sealed </span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="ToDRef.html"><span class="name">ToDRef</span></a><span class="tparams">[<span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="TempidNotResolved.html"><span class="name">TempidNotResolved</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
       </span>
       </h4>
       
     </li><li name="datomisca.ToDatomic" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ToDatomic[DD&lt;:datomisca.DatomicData,A]extendsAnyRef"></a>
-      <a id="ToDatomic[DD&lt;:DatomicData,A]:ToDatomic[DD,A]"></a>
+      <a id="ToDatomic[DD&lt;:AnyRef,A]extendsAnyRef"></a>
+      <a id="ToDatomic[DD&lt;:AnyRef,A]:ToDatomic[DD,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ToDatomic.html"><span class="name">ToDatomic</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="ToDatomic.html"><span class="name">ToDatomic</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">Surjective form of Scala to Specific DatomicData converters
@@ -1142,15 +886,15 @@ and also destroying the injectivity property
 But it is still a function (unlike FromDatomic)
 </p>
     </li><li name="datomisca.ToDatomicInj" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="ToDatomicInj[DD&lt;:datomisca.DatomicData,A]extendsAnyRef"></a>
-      <a id="ToDatomicInj[DD&lt;:DatomicData,A]:ToDatomicInj[DD,A]"></a>
+      <a id="ToDatomicInj[DD&lt;:AnyRef,A]extendsAnyRef"></a>
+      <a id="ToDatomicInj[DD&lt;:AnyRef,A]:ToDatomicInj[DD,A]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="ToDatomicInj.html"><span class="name">ToDatomicInj</span></a><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <a href="ToDatomicInj.html"><span class="name">ToDatomicInj</span></a><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="A">A</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       <p class="comment cmt">Injective form of Scala to Specific DatomicData converters
@@ -1172,26 +916,39 @@ But it is still a function (unlike FromDatomic)
 The implicits here construct a multi-parameter type class,
 and there is a functional dependency from T to DD: T uniquely
 determines DD.</p>
-    </li><li name="datomisca.TxReport" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TxReportextendsAnyRef"></a>
-      <a id="TxReport:TxReport"></a>
+    </li><li name="datomisca.TxData" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="TxDataextendsAnyRef"></a>
+      <a id="TxData:TxData"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
+        <a href="TxData.html"><span class="name">TxData</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.TxReport" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="TxReportextendsAnyRef"></a>
+      <a id="TxReport:TxReport"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
         <a href="TxReport.html"><span class="name">TxReport</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.TxReportQueue" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+    </li><li name="datomisca.TxReportQueue" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="TxReportQueueextendsAnyRef"></a>
       <a id="TxReportQueue:TxReportQueue"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">trait</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
         <a href="TxReportQueue.html"><span class="name">TxReportQueue</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
@@ -1199,7 +956,7 @@ determines DD.</p>
       </h4>
       
     </li><li name="datomisca.TypedAddDbFunction" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TypedAddDbFunctionextendsOperationwithKeywordIdentified"></a>
+      <a id="TypedAddDbFunctionextendsTxDatawithKeywordIdentified"></a>
       <a id="TypedAddDbFunction:TypedAddDbFunction"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -1207,59 +964,46 @@ determines DD.</p>
         <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="TypedAddDbFunction.html"><span class="name">TypedAddDbFunction</span></a><span class="result"> extends <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a></span>
+        <a href="TypedAddDbFunction.html"><span class="name">TypedAddDbFunction</span></a><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.TypedQueryAuto" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="TypedQueryAutoextendsQuery"></a>
-      <a id="TypedQueryAuto:TypedQueryAuto"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">abstract </span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="TypedQueryAuto.html"><span class="name">TypedQueryAuto</span></a><span class="result"> extends <a href="Query.html" class="extype" name="datomisca.Query">Query</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.UnexpectedDatomicTypeException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="UnexpectedDatomicTypeExceptionextendsDatomicException"></a>
-      <a id="UnexpectedDatomicTypeException:UnexpectedDatomicTypeException"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">class</span>
-      </span>
-      <span class="symbol">
-        <a href="UnexpectedDatomicTypeException.html"><span class="name">UnexpectedDatomicTypeException</span></a><span class="result"> extends <a href="DatomicException.html" class="extype" name="datomisca.DatomicException">DatomicException</a></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Unique" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="UniqueextendsProductwithSerializable"></a>
+    </li><li name="datomisca.Unique" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="UniqueextendsAnyRef"></a>
       <a id="Unique:Unique"></a>
       <h4 class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">sealed </span>
+        <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <a href="Unique.html"><span class="name">Unique</span></a><span class="params">(<span name="keyword">keyword: <a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a></span>)</span><span class="result"> extends <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Unique.html"><span class="name">Unique</span></a><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-    </li><li name="datomisca.Var" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="VarextendsTermwithProductwithSerializable"></a>
-      <a id="Var:Var"></a>
+    </li><li name="datomisca.UnresolvedLookupRefException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnresolvedLookupRefExceptionextendsDatomiscaException"></a>
+      <a id="UnresolvedLookupRefException:UnresolvedLookupRefException"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <a href="Var.html"><span class="name">Var</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result"> extends <a href="Term.html" class="extype" name="datomisca.Term">Term</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="UnresolvedLookupRefException.html"><span class="name">UnresolvedLookupRefException</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.UnsupportedDatomicTypeException" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UnsupportedDatomicTypeExceptionextendsDatomiscaException"></a>
+      <a id="UnsupportedDatomicTypeException:UnsupportedDatomicTypeException"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnsupportedDatomicTypeException.html"><span class="name">UnsupportedDatomicTypeException</span></a><span class="result"> extends <a href="DatomiscaException.html" class="extype" name="datomisca.DatomiscaException">DatomiscaException</a></span>
       </span>
       </h4>
       
@@ -1296,6 +1040,58 @@ determines DD.</p>
       </span>
       </h4>
       
+    </li><li name="datomisca.AsDatomicRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AsDatomicRef"></a>
+      <a id="AsDatomicRef:AsDatomicRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="AsDatomicRef$.html"><span class="name">AsDatomicRef</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.AsEntityId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AsEntityId"></a>
+      <a id="AsEntityId:AsEntityId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="AsEntityId$.html"><span class="name">AsEntityId</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">The two cases for converting entity ids.</p>
+    </li><li name="datomisca.AsPermanentEntityId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AsPermanentEntityId"></a>
+      <a id="AsPermanentEntityId:AsPermanentEntityId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="AsPermanentEntityId$.html"><span class="name">AsPermanentEntityId</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">The two cases for converting permanent entity ids.</p>
+    </li><li name="datomisca.AsPointT" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="AsPointT"></a>
+      <a id="AsPointT:AsPointT"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="AsPointT$.html"><span class="name">AsPointT</span></a>
+      </span>
+      </h4>
+      <p class="comment cmt">The two cases for converting points in time.</p>
     </li><li name="datomisca.Attribute" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Attribute"></a>
       <a id="Attribute:Attribute"></a>
@@ -1332,6 +1128,19 @@ determines DD.</p>
       </span>
       <span class="symbol">
         <a href="Attribute2EntityReaderInj$.html"><span class="name">Attribute2EntityReaderInj</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.Attribute2FactWriter" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Attribute2FactWriter"></a>
+      <a id="Attribute2FactWriter:Attribute2FactWriter"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Attribute2FactWriter$.html"><span class="name">Attribute2FactWriter</span></a>
       </span>
       </h4>
       
@@ -1374,58 +1183,6 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.DColl" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DColl"></a>
-      <a id="DColl:DColl"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="DColl$.html"><span class="name">DColl</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DDatabase" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DDatabase"></a>
-      <a id="DDatabase:DDatabase"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="DDatabase$.html"><span class="name">DDatabase</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DDatom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DDatom"></a>
-      <a id="DDatom:DDatom"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="DDatom$.html"><span class="name">DDatom</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.DEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DEntity"></a>
-      <a id="DEntity:DEntity"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="DEntity$.html"><span class="name">DEntity</span></a>
-      </span>
-      </h4>
-      
     </li><li name="datomisca.DId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DId"></a>
       <a id="DId:DId"></a>
@@ -1439,16 +1196,42 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.DRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DRef"></a>
-      <a id="DRef:DRef"></a>
+    </li><li name="datomisca.DWrapper" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DWrapper"></a>
+      <a id="DWrapper:DWrapper"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="DRef$.html"><span class="name">DRef</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="DWrapper$.html"><span class="name">DWrapper</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.Database" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Database"></a>
+      <a id="Database:Database"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Database$.html"><span class="name">Database</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.Datom" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Datom"></a>
+      <a id="Datom:Datom"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Datom$.html"><span class="name">Datom</span></a>
       </span>
       </h4>
       
@@ -1461,23 +1244,10 @@ determines DD.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Datomic$.html"><span class="name">Datomic</span></a><span class="result"> extends <span class="extype" name="datomisca.PeerOps">PeerOps</span> with <span class="extype" name="datomisca.TransactOps">TransactOps</span> with <span class="extype" name="datomisca.DatomicFacilities">DatomicFacilities</span> with <span class="extype" name="datomisca.QueryExecutor">QueryExecutor</span> with <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a> with <span class="extype" name="datomisca.macros.ExtraMacros">ExtraMacros</span> with <a href="macros/OpsMacros.html" class="extype" name="datomisca.macros.OpsMacros">OpsMacros</a></span>
+        <a href="Datomic$.html"><span class="name">Datomic</span></a><span class="result"> extends <span class="extype" name="datomisca.PeerOps">PeerOps</span> with <span class="extype" name="datomisca.TransactOps">TransactOps</span> with <span class="extype" name="datomisca.DatomicFacilities">DatomicFacilities</span> with <span class="extype" name="datomisca.QueryExecutor">QueryExecutor</span> with <span class="extype" name="datomisca.macros.ExtraMacros">ExtraMacros</span></span>
       </span>
       </h4>
       <p class="comment cmt">Main object containing:</p>
-    </li><li name="datomisca.DatomicBij" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="DatomicBij"></a>
-      <a id="DatomicBij:DatomicBij"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="DatomicBij$.html"><span class="name">DatomicBij</span></a>
-      </span>
-      </h4>
-      
     </li><li name="datomisca.DatomicMapping" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="DatomicMapping"></a>
       <a id="DatomicMapping:DatomicMapping"></a>
@@ -1491,16 +1261,16 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.Empty" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Empty"></a>
-      <a id="Empty:Empty"></a>
+    </li><li name="datomisca.DatomicRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="DatomicRef"></a>
+      <a id="DatomicRef:DatomicRef"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Empty$.html"><span class="name">Empty</span></a><span class="result"> extends <a href="Term.html" class="extype" name="datomisca.Term">Term</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="DatomicRef$.html"><span class="name">DatomicRef</span></a>
       </span>
       </h4>
       
@@ -1513,7 +1283,7 @@ determines DD.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Entity$.html"><span class="name">Entity</span></a><span class="result"> extends <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a> with <span class="extype" name="datomisca.macros.EntityOpsMacros">EntityOpsMacros</span></span>
+        <a href="Entity$.html"><span class="name">Entity</span></a>
       </span>
       </h4>
       
@@ -1527,6 +1297,19 @@ determines DD.</p>
       </span>
       <span class="symbol">
         <a href="EntityReader$.html"><span class="name">EntityReader</span></a>
+      </span>
+      </h4>
+      
+    </li><li name="datomisca.ExceptionInfo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ExceptionInfo"></a>
+      <a id="ExceptionInfo:ExceptionInfo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExceptionInfo$.html"><span class="name">ExceptionInfo</span></a>
       </span>
       </h4>
       
@@ -1552,7 +1335,7 @@ determines DD.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Fact$.html"><span class="name">Fact</span></a><span class="result"> extends <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></span>
+        <a href="Fact$.html"><span class="name">Fact</span></a>
       </span>
       </h4>
       
@@ -1582,19 +1365,6 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.FromFinalId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="FromFinalId"></a>
-      <a id="FromFinalId:FromFinalId"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="FromFinalId$.html"><span class="name">FromFinalId</span></a>
-      </span>
-      </h4>
-      
     </li><li name="datomisca.IdView" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="IdView"></a>
       <a id="IdView:IdView"></a>
@@ -1605,19 +1375,6 @@ determines DD.</p>
       </span>
       <span class="symbol">
         <a href="IdView$.html"><span class="name">IdView</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.ImplicitDS" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ImplicitDS"></a>
-      <a id="ImplicitDS:ImplicitDS"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ImplicitDS$.html"><span class="name">ImplicitDS</span></a><span class="result"> extends <a href="DataSource.html" class="extype" name="datomisca.DataSource">DataSource</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -1634,16 +1391,16 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.Keyword" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Keyword"></a>
-      <a id="Keyword:Keyword"></a>
+    </li><li name="datomisca.LookupRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="LookupRef"></a>
+      <a id="LookupRef:LookupRef"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Keyword$.html"><span class="name">Keyword</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="LookupRef$.html"><span class="name">LookupRef</span></a>
       </span>
       </h4>
       
@@ -1695,33 +1452,7 @@ determines DD.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Partition$.html"><span class="name">Partition</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.Props" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="Props"></a>
-      <a id="Props:Props"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="Props$.html"><span class="name">Props</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.PropsNil" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="PropsNil"></a>
-      <a id="PropsNil:PropsNil"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="PropsNil$.html"><span class="name">PropsNil</span></a><span class="result"> extends <a href="Props.html" class="extype" name="datomisca.Props">Props</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <a href="Partition$.html"><span class="name">Partition</span></a>
       </span>
       </h4>
       
@@ -1735,19 +1466,6 @@ determines DD.</p>
       </span>
       <span class="symbol">
         <a href="Query$.html"><span class="name">Query</span></a><span class="result"> extends <span class="extype" name="datomisca.macros.QueryMacros">QueryMacros</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.RetractEntity" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="RetractEntity"></a>
-      <a id="RetractEntity:RetractEntity"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="RetractEntity$.html"><span class="name">RetractEntity</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
       </span>
       </h4>
       
@@ -1803,32 +1521,6 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.ToDId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ToDId"></a>
-      <a id="ToDId:ToDId"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ToDId$.html"><span class="name">ToDId</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.ToDRef" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ToDRef"></a>
-      <a id="ToDRef:ToDRef"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="ToDRef$.html"><span class="name">ToDRef</span></a>
-      </span>
-      </h4>
-      
     </li><li name="datomisca.ToDatomic" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="ToDatomic"></a>
       <a id="ToDatomic:ToDatomic"></a>
@@ -1868,19 +1560,6 @@ determines DD.</p>
       </span>
       </h4>
       
-    </li><li name="datomisca.TxReport" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="TxReport"></a>
-      <a id="TxReport:TxReport"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">object</span>
-      </span>
-      <span class="symbol">
-        <a href="TxReport$.html"><span class="name">TxReport</span></a>
-      </span>
-      </h4>
-      
     </li><li name="datomisca.Unique" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="Unique"></a>
       <a id="Unique:Unique"></a>
@@ -1890,20 +1569,7 @@ determines DD.</p>
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <a href="Unique$.html"><span class="name">Unique</span></a><span class="result"> extends <span class="extype" name="scala.Serializable">Serializable</span></span>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.ast" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="ast"></a>
-      <a id="ast:ast"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="ast/package.html"><span class="name">ast</span></a>
+        <a href="Unique$.html"><span class="name">Unique</span></a>
       </span>
       </h4>
       
@@ -1943,19 +1609,6 @@ determines DD.</p>
       </span>
       <span class="symbol">
         <a href="gen/package.html"><span class="name">gen</span></a>
-      </span>
-      </h4>
-      
-    </li><li name="datomisca.macros" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="macros"></a>
-      <a id="macros:macros"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">package</span>
-      </span>
-      <span class="symbol">
-        <a href="macros/package.html"><span class="name">macros</span></a>
       </span>
       </h4>
       

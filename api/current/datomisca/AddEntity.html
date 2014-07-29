@@ -31,17 +31,17 @@
 
       <h4 id="signature" class="signature">
       <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">case class</span>
+        <span class="modifier">final </span>
+        <span class="kind">class</span>
       </span>
       <span class="symbol">
-        <span class="name">AddEntity</span><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>, <span name="partialProps">partialProps: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>)</span><span class="result"> extends <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a> with <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a> with <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a> with <span class="extype" name="scala.Product">Product</span> with <span class="extype" name="scala.Serializable">Serializable</span></span>
+        <span class="name">AddEntity</span><span class="result"> extends <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a> with <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a></span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><span class="extype" name="scala.Serializable">Serializable</span>, <span class="extype" name="java.io.Serializable">Serializable</span>, <span class="extype" name="scala.Product">Product</span>, <span class="extype" name="scala.Equals">Equals</span>, <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a>, <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a>, <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a>, <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a>, <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a>, <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="datomisca.AddEntity"><span>AddEntity</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="datomisca.TempIdentified"><span>TempIdentified</span></li><li class="in" name="datomisca.Operation"><span>Operation</span></li><li class="in" name="datomisca.Nativeable"><span>Nativeable</span></li><li class="in" name="datomisca.PartialAddEntity"><span>PartialAddEntity</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="datomisca.AddEntity"><span>AddEntity</span></li><li class="in" name="datomisca.TempIdentified"><span>TempIdentified</span></li><li class="in" name="datomisca.TxData"><span>TxData</span></li><li class="in" name="datomisca.PartialAddEntity"><span>PartialAddEntity</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -80,7 +80,7 @@
         <div id="constructors" class="members">
               <h3>Instance Constructors</h3>
               <ol><li name="datomisca.AddEntity#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="&lt;init&gt;(id:datomisca.DId,partialProps:Map[datomisca.Keyword,datomisca.DatomicData]):datomisca.AddEntity"></a>
+      <a id="&lt;init&gt;(id:datomisca.DId,partialProps:Map[datomisca.Keyword,AnyRef]):datomisca.AddEntity"></a>
       <a id="&lt;init&gt;:AddEntity"></a>
       <h4 class="signature">
       <span class="modifier_kind">
@@ -88,7 +88,7 @@
         <span class="kind">new</span>
       </span>
       <span class="symbol">
-        <span class="name">AddEntity</span><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>, <span name="partialProps">partialProps: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>)</span>
+        <span class="name">AddEntity</span><span class="params">(<span name="id">id: <a href="DId.html" class="extype" name="datomisca.DId">DId</a></span>, <span name="partialProps">partialProps: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>]</span>)</span>
       </span>
       </h4>
       
@@ -224,6 +224,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#equals" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="equals(x$1:Any):Boolean"></a>
+      <a id="equals(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">equals</span><span class="params">(<span name="arg0">arg0: <span class="extype" name="scala.Any">Any</span></span>)</span><span class="result">: <span class="extype" name="scala.Boolean">Boolean</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
     </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="finalize():Unit"></a>
       <a id="finalize():Unit"></a>
@@ -253,6 +266,19 @@
       </span>
       <span class="symbol">
         <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef#hashCode" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="hashCode():Int"></a>
+      <a id="hashCode():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">hashCode</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Int">Int</span></span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
@@ -321,32 +347,19 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="datomisca.AddEntity#partialProps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
-      <a id="partialProps:Map[datomisca.Keyword,datomisca.DatomicData]"></a>
-      <a id="partialProps:Map[Keyword,DatomicData]"></a>
+    </li><li name="datomisca.PartialAddEntity#props" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="props:Map[datomisca.Keyword,AnyRef]"></a>
+      <a id="props:Map[Keyword,AnyRef]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">val</span>
       </span>
       <span class="symbol">
-        <span class="name">partialProps</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>
+        <span class="name">props</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>]</span>
       </span>
       </h4>
-      
-    </li><li name="datomisca.AddEntity#props" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="props:scala.collection.immutable.Map[datomisca.Keyword,datomisca.DatomicData]"></a>
-      <a id="props:Map[Keyword,DatomicData]"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">props</span><span class="result">: <span class="extype" name="scala.collection.immutable.Map">Map</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.AddEntity">AddEntity</a> → <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a></dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
       <a id="synchronized[T0](⇒T0):T0"></a>
@@ -361,31 +374,18 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
     </li><li name="datomisca.PartialAddEntity#toMap" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toMap:Map[datomisca.Keyword,datomisca.DatomicData]"></a>
-      <a id="toMap:Map[Keyword,DatomicData]"></a>
+      <a id="toMap:Map[datomisca.Keyword,AnyRef]"></a>
+      <a id="toMap:Map[Keyword,AnyRef]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toMap</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a>]</span>
+        <span class="name">toMap</span><span class="result">: <span class="extype" name="scala.Predef.Map">Map</span>[<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>]</span>
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a></dd></dl></div>
-    </li><li name="datomisca.AddEntity#toNative" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toNative:AnyRef"></a>
-      <a id="toNative:AnyRef"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toNative</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.AddEntity">AddEntity</a> → <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></dd></dl></div>
     </li><li name="datomisca.AddEntity#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -395,10 +395,23 @@
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
       </span>
       </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.AddEntity">AddEntity</a> → AnyRef → Any</dd></dl></div>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.AddEntity">AddEntity</a> → <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="datomisca.AddEntity#toTxData" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toTxData:AnyRef"></a>
+      <a id="toTxData:AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toTxData</span><span class="result">: <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.AddEntity">AddEntity</a> → <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></dd></dl></div>
     </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="wait():Unit"></a>
       <a id="wait():Unit"></a>
@@ -465,20 +478,10 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="scala.Serializable">
-              <h3>Inherited from <span class="extype" name="scala.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="java.io.Serializable">
-              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
-            </div><div class="parent" name="scala.Product">
-              <h3>Inherited from <span class="extype" name="scala.Product">Product</span></h3>
-            </div><div class="parent" name="scala.Equals">
-              <h3>Inherited from <span class="extype" name="scala.Equals">Equals</span></h3>
-            </div><div class="parent" name="datomisca.TempIdentified">
+        <div class="parent" name="datomisca.TempIdentified">
               <h3>Inherited from <a href="TempIdentified.html" class="extype" name="datomisca.TempIdentified">TempIdentified</a></h3>
-            </div><div class="parent" name="datomisca.Operation">
-              <h3>Inherited from <a href="Operation.html" class="extype" name="datomisca.Operation">Operation</a></h3>
-            </div><div class="parent" name="datomisca.Nativeable">
-              <h3>Inherited from <a href="Nativeable.html" class="extype" name="datomisca.Nativeable">Nativeable</a></h3>
+            </div><div class="parent" name="datomisca.TxData">
+              <h3>Inherited from <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></h3>
             </div><div class="parent" name="datomisca.PartialAddEntity">
               <h3>Inherited from <a href="PartialAddEntity.html" class="extype" name="datomisca.PartialAddEntity">PartialAddEntity</a></h3>
             </div><div class="parent" name="scala.AnyRef">

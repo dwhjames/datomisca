@@ -39,7 +39,13 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="datomisca.EntityReader">EntityReader</a>[<span class="extype" name="datomisca.EntityReader.A">A</span>]</dd></dl><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Self Type</dt><dd><a href="" class="extype" name="datomisca.EntityReader">EntityReader</a>[<span class="extype" name="datomisca.EntityReader.A">A</span>]</dd><dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;Cannot find a Datomic entity reader for type ${A}. Consider implementing an instance of the EntityReader type class.&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="EntityMapper.html" class="extype" name="datomisca.EntityMapper">EntityMapper</a>[<span class="extype" name="datomisca.EntityReader.A">A</span>], <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -84,15 +90,15 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="datomisca.EntityReader#read" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="read(e:datomisca.DEntity):A"></a>
-      <a id="read(DEntity):A"></a>
+      <a id="read(e:datomisca.Entity):A"></a>
+      <a id="read(Entity):A"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">read</span><span class="params">(<span name="e">e: <a href="DEntity.html" class="extype" name="datomisca.DEntity">DEntity</a></span>)</span><span class="result">: <span class="extype" name="datomisca.EntityReader.A">A</span></span>
+        <span class="name">read</span><span class="params">(<span name="e">e: <a href="Entity.html" class="extype" name="datomisca.Entity">Entity</a></span>)</span><span class="result">: <span class="extype" name="datomisca.EntityReader.A">A</span></span>
       </span>
       </h4>
       

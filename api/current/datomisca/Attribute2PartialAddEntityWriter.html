@@ -35,11 +35,17 @@
         <span class="kind">trait</span>
       </span>
       <span class="symbol">
-        <span class="name">Attribute2PartialAddEntityWriter</span><span class="tparams">[<span name="DD">DD &lt;: <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="Dest">Dest</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
+        <span class="name">Attribute2PartialAddEntityWriter</span><span class="tparams">[<span name="DD">DD &lt;: <span class="extype" name="scala.AnyRef">AnyRef</span></span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>, <span name="T">T</span>]</span><span class="result"> extends <span class="extype" name="scala.AnyRef">AnyRef</span></span>
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><dl class="attributes block"> <dt>Annotations</dt><dd>
+                <span class="name">@implicitNotFound</span><span class="args">(<span>
+      
+      <span class="defval" name="&quot;There is no writer for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card}&quot;">...</span>
+    </span>)</span>
+              
+        </dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
@@ -84,15 +90,15 @@
         <div id="values" class="values members">
               <h3>Abstract Value Members</h3>
               <ol><li name="datomisca.Attribute2PartialAddEntityWriter#convert" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
-      <a id="convert(attr:datomisca.Attribute[DD,Card]):datomisca.PartialAddEntityWriter[Dest]"></a>
-      <a id="convert(Attribute[DD,Card]):PartialAddEntityWriter[Dest]"></a>
+      <a id="convert(attr:datomisca.Attribute[DD,Card]):datomisca.PartialAddEntityWriter[T]"></a>
+      <a id="convert(Attribute[DD,Card]):PartialAddEntityWriter[T]"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier">abstract </span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">convert</span><span class="params">(<span name="attr">attr: <a href="Attribute.html" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute2PartialAddEntityWriter.DD">DD</span>, <span class="extype" name="datomisca.Attribute2PartialAddEntityWriter.Card">Card</span>]</span>)</span><span class="result">: <a href="PartialAddEntityWriter.html" class="extype" name="datomisca.PartialAddEntityWriter">PartialAddEntityWriter</a>[<span class="extype" name="datomisca.Attribute2PartialAddEntityWriter.Dest">Dest</span>]</span>
+        <span class="name">convert</span><span class="params">(<span name="attr">attr: <a href="Attribute.html" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute2PartialAddEntityWriter.DD">DD</span>, <span class="extype" name="datomisca.Attribute2PartialAddEntityWriter.Card">Card</span>]</span>)</span><span class="result">: <a href="PartialAddEntityWriter.html" class="extype" name="datomisca.PartialAddEntityWriter">PartialAddEntityWriter</a>[<span class="extype" name="datomisca.Attribute2PartialAddEntityWriter.T">T</span>]</span>
       </span>
       </h4>
       

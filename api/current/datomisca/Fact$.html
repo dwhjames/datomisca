@@ -35,13 +35,13 @@
         <span class="kind">object</span>
       </span>
       <span class="symbol">
-        <span class="name">Fact</span><span class="result"> extends <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></span>
+        <span class="name">Fact</span>
       </span>
       </h4>
       
           <div id="comment" class="fullcommenttop"><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
-          <div class="superTypes hiddenContent"><a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a>, <span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
+          <div class="superTypes hiddenContent"><span class="extype" name="scala.AnyRef">AnyRef</span>, <span class="extype" name="scala.Any">Any</span></div>
         </div></div>
         
 
@@ -59,7 +59,7 @@
                 <span class="filtertype">Inherited<br />
                 </span>
                 <ol id="linearization">
-                  <li class="in" name="datomisca.Fact"><span>Fact</span></li><li class="in" name="datomisca.DatomicTypeWrapper"><span>DatomicTypeWrapper</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                  <li class="in" name="datomisca.Fact"><span>Fact</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
                 </ol>
               </div><div id="ancestors">
             <span class="filtertype"></span>
@@ -79,23 +79,7 @@
         <div id="allMembers">
         
 
-        <div id="types" class="types members">
-              <h3>Type Members</h3>
-              <ol><li name="datomisca.DatomicTypeWrapper.DWrapper" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
-      <a id="DWrapperextendsNotNull"></a>
-      <a id="DWrapper:DWrapper"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier"></span>
-        <span class="kind">trait</span>
-      </span>
-      <span class="symbol">
-        <a href="DatomicTypeWrapper$DWrapper.html"><span class="name">DWrapper</span></a><span class="result"> extends <span class="extype" name="scala.NotNull">NotNull</span></span>
-      </span>
-      </h4>
-      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></dd></dl></div>
-    </li></ol>
-            </div>
+        
 
         
 
@@ -167,20 +151,20 @@
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
     </li><li name="datomisca.Fact#add" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="add[T](id:T)(prop:(datomisca.Keyword,datomisca.Fact.DWrapper))(implicitev:datomisca.ToDId[T]):datomisca.AddFact"></a>
-      <a id="add[T](T)((Keyword,DWrapper))(ToDId[T]):AddFact"></a>
+      <a id="add[T,U](id:T)(prop:(datomisca.Keyword,U))(implicitev0:datomisca.AsEntityId[T],implicitev1:datomisca.ToDatomicCast[U]):datomisca.AddFact"></a>
+      <a id="add[T,U](T)((Keyword,U))(AsEntityId[T],ToDatomicCast[U]):AddFact"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">add</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="id">id: <span class="extype" name="datomisca.Fact.add.T">T</span></span>)</span><span class="params">(<span name="prop">prop: (<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="#DWrapperextendsNotNull" class="extmbr" name="datomisca.DatomicTypeWrapper.DWrapper">DWrapper</a>)</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="ToDId.html" class="extype" name="datomisca.ToDId">ToDId</a>[<span class="extype" name="datomisca.Fact.add.T">T</span>]</span>)</span><span class="result">: <a href="AddFact.html" class="extype" name="datomisca.AddFact">AddFact</a></span>
+        <span class="name">add</span><span class="tparams">[<span name="T">T</span>, <span name="U">U</span>]</span><span class="params">(<span name="id">id: <span class="extype" name="datomisca.Fact.add.T">T</span></span>)</span><span class="params">(<span name="prop">prop: (<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, <span class="extype" name="datomisca.Fact.add.U">U</span>)</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev0">ev0: <a href="AsEntityId.html" class="extype" name="datomisca.AsEntityId">AsEntityId</a>[<span class="extype" name="datomisca.Fact.add.T">T</span>]</span>, <span name="ev1">ev1: <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a>[<span class="extype" name="datomisca.Fact.add.U">U</span>]</span>)</span><span class="result">: <a href="AddFact.html" class="extype" name="datomisca.AddFact">AddFact</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Creates a single Add operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><div class="fullcomment"><div class="comment cmt"><p>Creates a single Add operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><p>In Clojure, this is equivalent to:</p><pre>[:db/add entity-id attribute value]</pre><pre><span class="kw">val</span> totoName = Datomic.Fact.add(DId(Partition.USER))( person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>)</pre></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the targeted <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p></dd><dt class="param">prop</dt><dd class="cmt"><p>a tuple (<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, value)<br/>
+      <p class="shortcomment cmt">Creates a single Add operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><div class="fullcomment"><div class="comment cmt"><p>Creates a single Add operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><p>In Clojure, this is equivalent to:</p><pre>[:db/add entity-id attribute value]</pre><pre><span class="kw">val</span> totoName = Datomic.Fact.add(DId(Partition.USER))( person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>)</pre></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the targeted <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p></dd><dt class="param">prop</dt><dd class="cmt"><p>a tuple (<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, value)<br/>
             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-            converted to <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> using <a href="#toDWrapper[T](t:T)(implicittd:datomisca.ToDatomicCast[T]):DatomicTypeWrapper.this.DWrapper" class="extmbr" name="datomisca.Fact#toDWrapper">toDWrapper</a> implicit conversion
+            converted to <span class="extype" name="DatomicData">DatomicData</span> using <span class="extype" name="toDWrapper">toDWrapper</span> implicit conversion
 </p></dd></dl></div>
     </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="asInstanceOf[T0]:T0"></a>
@@ -352,20 +336,20 @@
       <p class="shortcomment cmt">Helper: creates a special AddToEntity for creating a new Partition</p><div class="fullcomment"><div class="comment cmt"><p>Helper: creates a special AddToEntity for creating a new Partition</p><pre><span class="kw">val</span> addPartOp = Datomic.addPartition(Partition(Namespace.DB.PART / <span class="lit">"mypart"</span>))</pre></div><dl class="paramcmts block"><dt class="param">partition</dt><dd class="cmt"><p>the partition to create
 </p></dd></dl></div>
     </li><li name="datomisca.Fact#retract" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="retract[T](id:T)(prop:(datomisca.Keyword,datomisca.Fact.DWrapper))(implicitev:datomisca.FromFinalId[T]):datomisca.RetractFact"></a>
-      <a id="retract[T](T)((Keyword,DWrapper))(FromFinalId[T]):RetractFact"></a>
+      <a id="retract[T,U](id:T)(prop:(datomisca.Keyword,U))(implicitev0:datomisca.AsPermanentEntityId[T],implicitev1:datomisca.ToDatomicCast[U]):datomisca.RetractFact"></a>
+      <a id="retract[T,U](T)((Keyword,U))(AsPermanentEntityId[T],ToDatomicCast[U]):RetractFact"></a>
       <h4 class="signature">
       <span class="modifier_kind">
         <span class="modifier"></span>
         <span class="kind">def</span>
       </span>
       <span class="symbol">
-        <span class="name">retract</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="id">id: <span class="extype" name="datomisca.Fact.retract.T">T</span></span>)</span><span class="params">(<span name="prop">prop: (<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, <a href="#DWrapperextendsNotNull" class="extmbr" name="datomisca.DatomicTypeWrapper.DWrapper">DWrapper</a>)</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="FromFinalId.html" class="extype" name="datomisca.FromFinalId">FromFinalId</a>[<span class="extype" name="datomisca.Fact.retract.T">T</span>]</span>)</span><span class="result">: <a href="RetractFact.html" class="extype" name="datomisca.RetractFact">RetractFact</a></span>
+        <span class="name">retract</span><span class="tparams">[<span name="T">T</span>, <span name="U">U</span>]</span><span class="params">(<span name="id">id: <span class="extype" name="datomisca.Fact.retract.T">T</span></span>)</span><span class="params">(<span name="prop">prop: (<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, <span class="extype" name="datomisca.Fact.retract.U">U</span>)</span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev0">ev0: <a href="AsPermanentEntityId.html" class="extype" name="datomisca.AsPermanentEntityId">AsPermanentEntityId</a>[<span class="extype" name="datomisca.Fact.retract.T">T</span>]</span>, <span name="ev1">ev1: <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a>[<span class="extype" name="datomisca.Fact.retract.U">U</span>]</span>)</span><span class="result">: <a href="RetractFact.html" class="extype" name="datomisca.RetractFact">RetractFact</a></span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Creates a single Retract operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><div class="fullcomment"><div class="comment cmt"><p>Creates a single Retract operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><p>In Clojure, this is equivalent to:</p><pre>[:db/retract entity-id attribute value]</pre><pre><span class="kw">val</span> totoName = Datomic.Fact.retract(DLong(<span class="num">3</span>L))( person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>)</pre></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the targeted <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p></dd><dt class="param">prop</dt><dd class="cmt"><p>a tuple (<a href="Keyword.html" class="extype" name="datomisca.Keyword">Keyword</a>, value)<br/>
+      <p class="shortcomment cmt">Creates a single Retract operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><div class="fullcomment"><div class="comment cmt"><p>Creates a single Retract operation targeting a given <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p><p>In Clojure, this is equivalent to:</p><pre>[:db/retract entity-id attribute value]</pre><pre><span class="kw">val</span> totoName = Datomic.Fact.retract(DLong(<span class="num">3</span>L))( person / <span class="lit">"name"</span> -&gt; <span class="lit">"toto"</span>)</pre></div><dl class="paramcmts block"><dt class="param">id</dt><dd class="cmt"><p>the targeted <a href="DId.html" class="extype" name="datomisca.DId">DId</a></p></dd><dt class="param">prop</dt><dd class="cmt"><p>a tuple (<a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a>, value)<br/>
             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-            converted to <a href="DatomicData.html" class="extype" name="datomisca.DatomicData">DatomicData</a> using <a href="#toDWrapper[T](t:T)(implicittd:datomisca.ToDatomicCast[T]):DatomicTypeWrapper.this.DWrapper" class="extmbr" name="datomisca.Fact#toDWrapper">toDWrapper</a> implicit conversion
+            converted to <span class="extype" name="DatomicData">DatomicData</span> using <span class="extype" name="toDWrapper">toDWrapper</span> implicit conversion
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
@@ -380,19 +364,6 @@
       </span>
       </h4>
       <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
-    </li><li name="datomisca.DatomicTypeWrapper#toDWrapper" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
-      <a id="toDWrapper[T](t:T)(implicittd:datomisca.ToDatomicCast[T]):DatomicTypeWrapper.this.DWrapper"></a>
-      <a id="toDWrapper[T](T)(ToDatomicCast[T]):DWrapper"></a>
-      <h4 class="signature">
-      <span class="modifier_kind">
-        <span class="modifier">implicit </span>
-        <span class="kind">def</span>
-      </span>
-      <span class="symbol">
-        <span class="name">toDWrapper</span><span class="tparams">[<span name="T">T</span>]</span><span class="params">(<span name="t">t: <span class="extype" name="datomisca.DatomicTypeWrapper.toDWrapper.T">T</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="td">td: <a href="ToDatomicCast.html" class="extype" name="datomisca.ToDatomicCast">ToDatomicCast</a>[<span class="extype" name="datomisca.DatomicTypeWrapper.toDWrapper.T">T</span>]</span>)</span><span class="result">: <a href="#DWrapperextendsNotNull" class="extmbr" name="datomisca.DatomicTypeWrapper.DWrapper">DWrapper</a></span>
-      </span>
-      </h4>
-      <p class="shortcomment cmt">implicit converters to simplify conversion from Scala Types to Datomic Type</p><div class="fullcomment"><div class="comment cmt"><p>implicit converters to simplify conversion from Scala Types to Datomic Type</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></dd></dl></div>
     </li><li name="scala.AnyRef#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="toString():String"></a>
       <a id="toString():String"></a>
@@ -472,9 +443,7 @@
         </div>
 
         <div id="inheritedMembers">
-        <div class="parent" name="datomisca.DatomicTypeWrapper">
-              <h3>Inherited from <a href="DatomicTypeWrapper.html" class="extype" name="datomisca.DatomicTypeWrapper">DatomicTypeWrapper</a></h3>
-            </div><div class="parent" name="scala.AnyRef">
+        <div class="parent" name="scala.AnyRef">
               <h3>Inherited from <span class="extype" name="scala.AnyRef">AnyRef</span></h3>
             </div><div class="parent" name="scala.Any">
               <h3>Inherited from <span class="extype" name="scala.Any">Any</span></h3>
