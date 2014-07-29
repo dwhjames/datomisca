@@ -18,8 +18,7 @@ package datomisca
 
 import scala.language.reflectiveCalls
 
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 
 
@@ -41,8 +40,8 @@ object SchemaManager {
   private[datomisca] def hasSchema(schemaTag: Keyword, schemaName: String)(implicit db: Database): Boolean =
     ! Datomic.q(schemaTagQuery, db, schemaTag, schemaName).isEmpty
 
-  private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection): Future[Boolean] =
-    future {
+  private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection, ec: ExecutionContext): Future[Boolean] =
+    Future {
       hasAttribute(schemaTag)(conn.database)
     } flatMap {
       case true  => Future.successful(false)
@@ -58,7 +57,7 @@ object SchemaManager {
       schemaTag:   Keyword,
       schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
-     (implicit conn: Connection)
+     (implicit conn: Connection, ec: ExecutionContext)
      : Future[Boolean] = {
     Future.traverse(schemaNames) { schemaName =>
       val (requires, txDatas) = schemaMap(schemaName)
@@ -86,7 +85,7 @@ object SchemaManager {
       schemaTag:   Keyword,
       schemaMap:   Map[String, (Seq[String], Seq[Seq[TxData]])],
       schemaNames: String*)
-     (implicit conn: Connection)
+     (implicit conn: Connection, ec: ExecutionContext)
      : Future[Boolean] =
     for {
       tag <- ensureSchemaTag(schemaTag)

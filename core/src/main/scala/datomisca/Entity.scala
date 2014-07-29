@@ -87,7 +87,7 @@ class Entity(val entity: datomic.Entity) extends AnyVal {
 }
 
 
-object Entity extends DatomicTypeWrapper {
+object Entity {
   /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
     *
     * In Clojure, this is equivalent to:

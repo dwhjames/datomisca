@@ -19,7 +19,7 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
-object Fact extends DatomicTypeWrapper {
+object Fact {
   /** Creates a single Add operation targeting a given [[DId]]
     *
     * In Clojure, this is equivalent to:
@@ -34,8 +34,8 @@ object Fact extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def add[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: AsEntityId[T]) =
-    new AddFact(ev.conv(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def add[T, U](id: T)(prop: (Keyword, U))(implicit ev0: AsEntityId[T], ev1: ToDatomicCast[U]) =
+    new AddFact(ev0.conv(id), prop._1, ev1.to(prop._2))
 
   /** Creates a single Retract operation targeting a given [[DId]]
     *
@@ -51,8 +51,8 @@ object Fact extends DatomicTypeWrapper {
     *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
     *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
     */
-  def retract[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: AsPermanentEntityId[T]) =
-    new RetractFact(ev.conv(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract[T, U](id: T)(prop: (Keyword, U))(implicit ev0: AsPermanentEntityId[T], ev1: ToDatomicCast[U]) =
+    new RetractFact(ev0.conv(id), prop._1, ev1.to(prop._2))
 
   /** Helper: creates a special AddToEntity for creating a new Partition
     *

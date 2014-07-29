@@ -52,7 +52,7 @@ class AccountsSampleSpec
                    .withDoc("The receiving account")
 
 
-    val creditFn = AddTxFunction.typed[Long, BigDecimal](fn / "credit") ("db", "id", "amount") ("clojure") {s"""
+    val creditFn = AddTxFunction.typed[Long, BigDecimal](fn / "credit") ("db", "id", "amount") (lang = "clojure", partition = Partition.USER, imports = "", requires = "") {s"""
       (let [e (d/entity db id)
             min-balance (${minBalance} e 0)
             balance (+ (${balance} e 0) amount) ]
@@ -61,7 +61,7 @@ class AccountsSampleSpec
               (throw (IllegalStateException. "Insufficient funds"))))
     """}
 
-    val transferFn = AddTxFunction.typed[Long, Long, BigDecimal](fn / "transfer") ("db", "from", "to", "amount") ("clojure") {s"""
+    val transferFn = AddTxFunction.typed[Long, Long, BigDecimal](fn / "transfer") ("db", "from", "to", "amount") (lang = "clojure", partition = Partition.USER, imports = "", requires = "") {s"""
       [[${creditFn.ident} from (- amount)]
        [${creditFn.ident} to   amount]]
     """}

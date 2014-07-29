@@ -48,7 +48,7 @@ private[datomisca] trait QueryMacros {
     * @param edn a Datalog query as a string
     * @return an arity-typed query as a data structure
     */
-  def apply(edn: String) = macro MacroImpl.cljQueryImpl
+  def apply(edn: String): AbstractQuery = macro MacroImpl.cljQueryImpl
 
 
   /** Parse a string a collection of Datalog rules.
@@ -67,5 +67,5 @@ private[datomisca] trait QueryMacros {
     * @param edn Datalog rules as a string
     * @return Datalog rules as a data structure
     */
-  def rules(edn: String) = macro MacroImpl.cljRulesImpl
+  def rules(edn: String): QueryRules = macro MacroImpl.cljRulesImpl
 }
