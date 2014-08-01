@@ -1,8 +1,6 @@
 
 name := "datomisca-core"
 
-scalacOptions += "-deprecation"
-
 libraryDependencies += Dependencies.Compile.datomic
 
 mappings in (Compile, packageSrc) <++=
