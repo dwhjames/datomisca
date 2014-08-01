@@ -24,8 +24,9 @@ autoAPIMappings := true
 apiURL := Some(url("https://pellucidanalytics.github.io/datomisca/api/current/"))
 
 apiMappings += {
-  val jarFiles = (managedClasspath in Compile).value.files
-  val datomicJarFile = jarFiles.find(file => file.toString.contains("com.datomic/datomic-free")).get
+  val jarFiles = (dependencyClasspath in Compile).value.files
+  def findJarFile(s: String) = jarFiles.find(file => file.toString.contains(s)).get
+  val datomicJarFile = findJarFile("com.datomic/datomic-free")
   (datomicJarFile -> url("http://docs.datomic.com/javadoc/"))
 }
 
@@ -36,19 +37,17 @@ lazy val transformJavaDocLinksTask = taskKey[Unit](
 transformJavaDocLinksTask := {
   val log = streams.value.log
   log.info("Transforming JavaDoc links")
-  val t = (target in (ScalaUnidoc, unidoc)).value
+  val t = (target in unidoc).value
   (t ** "*.html").get.filter(hasJavadocApiLink).foreach { f =>
     log.info("Transforming " + f)
-    val newContent = javadocApiLink.replaceAllIn(IO.read(f), transformJavaDocLinks)
+    val newContent = javadocApiLink.replaceAllIn(IO.read(f), m =>
+      "href=\"" + m.group(1) + "?" + m.group(2).replace(".", "/") + ".html")
     IO.write(f, newContent)
   }
 }
-
-val transformJavaDocLinks: Match => String = m =>
-    "href=\"" + m.group(1) + "?" + m.group(2).replace(".", "/") + ".html"
 
 val javadocApiLink = """href=\"(http://docs\.datomic\.com/javadoc/index\.html)#([^"]*)""".r
 
 def hasJavadocApiLink(f: File): Boolean = (javadocApiLink findFirstIn IO.read(f)).nonEmpty
 
-transformJavaDocLinksTask <<= transformJavaDocLinksTask triggeredBy (unidoc in ScalaUnidoc)
+transformJavaDocLinksTask <<= transformJavaDocLinksTask triggeredBy (unidoc in Compile)
