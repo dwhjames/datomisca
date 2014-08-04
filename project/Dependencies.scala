@@ -3,7 +3,7 @@ import sbt._
 object Dependencies {
 
   object V {
-    val macroParadise = "2.0.0"
+    val macroParadise = "2.0.1"
 
     val datomic       = "0.9.4766.16"
 
