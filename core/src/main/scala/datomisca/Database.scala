@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Pellucid and Zenexity
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -86,6 +86,20 @@ class Database(val underlying: datomic.Database) extends AnyVal {
       throw new UnresolvedLookupRefException(ev.conv(id))
   }
 
+
+  /** Returns the entity id passed as an option.
+    *
+    * @param id
+    *     an entity id.
+    * @return the `Some(eid)` if the id passed corresponsds to an entity in the
+    *        DB, esle `None`.
+    */
+  def entidOpt[T](id: T)(implicit ev: AsPermanentEntityId[T]): Long = {
+    Option(underlying.entid(ev.conv(id)).asInstanceOf[java.lang.Long]) map { l =>
+      l.asInstanceOf[Long]
+    }
+  }
+
   /** Returns the entity id associated with a symbolic keyword
     *
     * @param kw a keyword.
@@ -97,6 +111,15 @@ class Database(val underlying: datomic.Database) extends AnyVal {
       case None      => throw new DatomiscaException(s"entity id for keyword $kw not found")
       case Some(eid) => eid.asInstanceOf[Long]
     }
+
+  /** Returns the entity id associated with a symbolic keyword if
+    * it exists, or `None` otherwise.
+    *
+    * @param kw a keyword.
+    * @return `Some(eid)` if the entity id exists, else `None`.
+    */
+  def entidOpt(kw: Keyword): Long =
+    Option(underlying.entid(kw)).map(eid => eid.asInstanceOf[Long])
 
   /**
     * Returns a fabricated entity id in the supplied partition whose
@@ -360,4 +383,4 @@ object Database {
   val AVET = datomic.Database.AVET.asInstanceOf[Keyword]
   // Index component contains datoms for attributes of :db.type/ref
   val VAET = datomic.Database.VAET.asInstanceOf[Keyword]
-} 
+}
