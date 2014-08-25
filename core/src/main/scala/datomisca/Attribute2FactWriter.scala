@@ -18,7 +18,16 @@ package datomisca
 
 import scala.annotation.implicitNotFound
 
-
+/** A type class to convert an [[Attribute]] and a Scala value into
+  * a pair of a [[Keyword]] and a Datomic value.
+  *
+  * @tparam DD
+  *     the Datomic value type of the attribute (see [[SchemaType]]).
+  * @tparam Card
+  *     the cardinality of the attribute (see [[Cardinality]]).
+  * @tparam T
+  *     the Scala type that the [[EntityReader]] will read.
+  */
 @implicitNotFound("There is no writer for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card}")
 trait Attribute2FactWriter[DD <: AnyRef, Card <: Cardinality, T] {
   def convert(attr: Attribute[DD, Card], t: T): (Keyword, AnyRef)
@@ -27,13 +36,21 @@ trait Attribute2FactWriter[DD <: AnyRef, Card <: Cardinality, T] {
 
 object Attribute2FactWriter {
 
+  /** If there is a conversion to `DD` from `T`
+    * (see [[ToDatomic]]) then we can write a value of `T`
+    * for an attribute with value type `DD` as
+    * its corresponding Datomic type `DD`.
+    */
   implicit def oneValue[DD <: AnyRef, Card <: Cardinality, T](implicit ev: ToDatomic[DD, T]) =
     new Attribute2FactWriter[DD, Card, T] {
       override def convert(attr: Attribute[DD, Card], t: T) =
         (attr.ident -> ev.to(t))
     }
 
-
+  /** If a value of type `T` can be used as a reference value
+    * (see [[AsDatomicRef]]) then we can write a value of `T`
+    * as an entity id reference for a reference attribute.
+    */
   implicit def oneRef[Card <: Cardinality, T](implicit ev: AsDatomicRef[T]) =
     new Attribute2FactWriter[DatomicRef.type, Card, T] {
       override def convert(attr: Attribute[DatomicRef.type, Card], t: T) =
@@ -41,6 +58,10 @@ object Attribute2FactWriter {
     }
 
 
+  /** If a value of type `T` is a subtype of [[IdView]]
+    * then we can write a value of `T`
+    * as an entity id reference for a reference attribute.
+    */
   implicit def oneIdView[Card <: Cardinality, T, U](implicit ev: T <:< IdView[U]) =
     new Attribute2FactWriter[DatomicRef.type, Card, T] {
       override def convert(attr: Attribute[DatomicRef.type, Card], t: T) =
