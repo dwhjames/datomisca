@@ -42,8 +42,8 @@ private[datomisca] trait DatomicFacilities {
   /** Converts any value to a DatomicData given there is the right [[ToDatomicCast]] in the scope
     *
     * {{{
-    * val s: DString = Datomic.toDatomic("toto")
-    * val l: DLong = Datomic.toDatomic("5L")
+    * val s: String = Datomic.toDatomic("toto")
+    * val l: java.lang.Long = Datomic.toDatomic("5L")
     * }}}
     */
   def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): AnyRef = tdc.to(t)
@@ -51,19 +51,18 @@ private[datomisca] trait DatomicFacilities {
   /** converts a DatomicData to a type given there is the right implicit in the scope
     *
     * {{{
-    * val l: String = Datomic.fromDatomic(DString("toto"))
-    * val s: Long = Datomic.fromDatomic(DLong(5L))
+    * val l: String = Datomic.fromDatomic("toto")
+    * val s: Long = Datomic.fromDatomic(5L: java.lang.Long)
     * }}}
     */
   def fromDatomic[DD <: AnyRef, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
 
-  /** Helper: creates a [[DColl]] from simple types using DWrapper implicit conversion
+  /** Creates a heterogenous, untyped `java.util.List` from simple types using [[DWrapper]] implicit conversion
     *
     * {{{
-    * val addPartOp = Datomic.coll("toto", 3L, "tata")
+    * val addPartOp = Datomic.list("toto", 3L, "tata")
     * }}}
     *
-    * @param partition the partition to create
     */
   def list(dw: DWrapper*) = datomic.Util.list(dw.map(_.asInstanceOf[DWrapperImpl].underlying):_*).asInstanceOf[java.util.List[AnyRef]]
 
