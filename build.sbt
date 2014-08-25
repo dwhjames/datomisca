@@ -8,11 +8,11 @@ licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICE
 version in ThisBuild := "0.7-alpha-11"
 
 
-scalaVersion in ThisBuild := "2.11.1"
+scalaVersion in ThisBuild := "2.11.2"
 
-crossScalaVersions := Seq("2.10.4", "2.11.1")
+crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.2")
 
-scalacOptions ++= Seq("-feature", "-unchecked")
+scalacOptions in ThisBuild ++= Seq("-deprecation", "-feature", "-unchecked")
 
 
 resolvers in ThisBuild ++= Seq(
@@ -37,8 +37,10 @@ lazy val datomisca = project.
   in(file(".")).
   aggregate(macros, core, tests, integrationTests)
 
-// needed for aggregated build of unidoc
+// needed for aggregated build
 MacroSettings.settings
+
+libraryDependencies += Dependencies.Compile.datomic
 
 // disable some aggregation tasks for subprojects
 aggregate in doc            := false
@@ -54,17 +56,6 @@ aggregate in packageSrc     := false
 aggregate in publish        := false
 
 aggregate in publishLocal   := false
-
-
-// substitue unidoc as the way to generate documentation
-unidocSettings
-
-packageDoc in Compile <<= packageDoc in ScalaUnidoc
-
-artifact in (ScalaUnidoc, packageDoc) := {
-  val previous: Artifact = (artifact in (ScalaUnidoc, packageDoc)).value
-  previous.copy(classifier = Some("javadoc"))
-}
 
 
 lazy val macros = project in file("macros")
