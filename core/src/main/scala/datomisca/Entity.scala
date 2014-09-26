@@ -21,6 +21,10 @@ import scala.concurrent.blocking
 
 class Entity(val entity: datomic.Entity) extends AnyVal {
 
+  /** the database value that is the basis for this entity
+    */
+  def database: Database = new Database(entity.db)
+
   def id: Long = as[Long](Namespace.DB / "id")
 
   def touch() = {
