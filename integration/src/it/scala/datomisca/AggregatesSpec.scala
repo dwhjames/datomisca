@@ -104,7 +104,7 @@ class AggregatesSpec
   """)
 
   "Aggregates examples" should "run to completion" in withSampleDatomicDB(PlutoSampleData) { conn =>
-    val db = conn.database
+    val db = conn.database()
 
     Datomic.q(countObjects, db).headOption.value should equal (17)
 

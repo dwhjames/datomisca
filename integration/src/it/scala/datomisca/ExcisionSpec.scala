@@ -34,7 +34,7 @@ class ExcisionSpec
 
   "Datomic’s excision" can "excise specific entities" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
-    val dbBefore = conn.database
+    val dbBefore = conn.database()
 
     val e = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, PersonSampleData.toto.name).head.asInstanceOf[Long]
 
@@ -56,7 +56,7 @@ class ExcisionSpec
 
   it can "excise entities by lookup ref" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
-    val dbBefore = conn.database
+    val dbBefore = conn.database()
 
     val e = LookupRef(PersonSampleData.Schema.idAttr, PersonSampleData.toto.id)
 
@@ -78,7 +78,7 @@ class ExcisionSpec
 
   it can "excise specific attributes of an entity" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
-    val dbBefore = conn.database
+    val dbBefore = conn.database()
 
     val e = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, PersonSampleData.toto.name).head.asInstanceOf[Long]
 
@@ -129,7 +129,7 @@ class ExcisionSpec
   it can "excise values of an attribute before a basis T" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
     val excisionId = DId(Partition.USER)
-    val beforeT = conn.database.basisT
+    val beforeT = conn.database().basisT
     whenReady(
       Datomic.transact(Excise.attribute(PersonSampleData.Schema.ageAttr.ident, excisionId, beforeT))
     ) { txReport =>

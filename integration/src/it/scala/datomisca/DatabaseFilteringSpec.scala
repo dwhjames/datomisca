@@ -41,7 +41,7 @@ class DatabaseFilteringSpec
       Future.traverse(SocialNewsSampleData.txDatas)(conn.transact)
     }
 
-    val db = conn.database
+    val db = conn.database()
 
     Datomic.q(countStories, db).head should equal (4)
 

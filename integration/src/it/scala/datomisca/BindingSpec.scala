@@ -96,9 +96,9 @@ class BindingSpec
          :where [?e ?attrId]]
       """)
 
-    val ds = conn.database.datoms(Database.AEVT, Attribute.doc)
+    val ds = conn.database().datoms(Database.AEVT, Attribute.doc)
 
-    val res = Datomic.q(query, ds, conn.database.entid(Attribute.doc))
+    val res = Datomic.q(query, ds, conn.database().entid(Attribute.doc))
 
     res should contain (0)
   }

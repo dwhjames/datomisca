@@ -42,7 +42,7 @@ object SchemaManager {
 
   private[datomisca] def ensureSchemaTag(schemaTag: Keyword)(implicit conn: Connection, ec: ExecutionContext): Future[Boolean] =
     Future {
-      hasAttribute(schemaTag)(conn.database)
+      hasAttribute(schemaTag)(conn.database())
     } flatMap {
       case true  => Future.successful(false)
       case false =>
@@ -64,7 +64,7 @@ object SchemaManager {
       ensureSchemas(schemaTag, schemaMap, requires: _*) flatMap { dependentsChanged =>
         if (txDatas.isEmpty) {
           throw new DatomiscaException(s"No schema data provided for schema ${schemaName}")
-        } else if (hasSchema(schemaTag, schemaName)(conn.database)) {
+        } else if (hasSchema(schemaTag, schemaName)(conn.database())) {
           Future.successful(dependentsChanged)
         } else {
           Future.traverse(txDatas) { txData =>

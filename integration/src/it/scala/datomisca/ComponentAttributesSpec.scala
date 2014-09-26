@@ -33,7 +33,7 @@ class ComponentAttributesSpec
   "Component attributes example" should "run to completion" in withSampleDatomicDB(SocialNewsSampleData) { implicit conn =>
 
     whenReady(Datomic.transact(SocialNewsSampleData.storyWithComments)) { _ =>
-      whenReady(Datomic.transact(Entity.retract(conn.database.entid(Datomic.KW(":storyWithComments"))))) { txReport =>
+      whenReady(Datomic.transact(Entity.retract(conn.database().entid(Datomic.KW(":storyWithComments"))))) { txReport =>
         val builder = Set.newBuilder[Long]
         for (datom <- txReport.txData)
           if (!datom.added)
