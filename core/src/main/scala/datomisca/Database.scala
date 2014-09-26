@@ -345,9 +345,33 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     */
   def sinceT: Option[Long] = Option { underlying.sinceT }
 
-  // TODO
-  // indexRange
-  // invoke
+
+  /** Look up the database function of the ident entity `ident`, and invoke the function with `args`.
+    *
+    * The function value is stored as the value of the `:db/fn` attribute of the resolved entity.
+    *
+    * Note that no casts or conversions are applied to the arguments or the return value.
+    *
+    * @param  ident  the entity ident.
+    * @param  args  the raw arguments to pass to the function.
+    * @return the result of the function invocation.
+    */
+  def invoke(ident: Keyword, args: AnyRef*): AnyRef =
+    underlying.invoke(entid(ident), args:_*)
+
+
+  /** Look up the database function of the entity `id`, and invoke the function with `args`.
+    *
+    * The function value is stored as the value of the `:db/fn` attribute of the resolved entity.
+    *
+    * Note that no casts or conversions are applied to the arguments or the return value.
+    *
+    * @param  id  the entity id.
+    * @param  args  the raw arguments to pass to the function.
+    * @return the result of the function invocation.
+    */
+  def invoke[T](id: T, args: AnyRef*)(implicit ev: AsPermanentEntityId[T]): AnyRef =
+    underlying.invoke(ev.conv(id), args:_*)
 
 }
 
