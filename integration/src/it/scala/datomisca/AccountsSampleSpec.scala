@@ -173,11 +173,11 @@ class AccountsSampleSpec
     }
 
     val issuerId =
-      Datomic.q(findAccountByName, conn.database, "Issuer").head.asInstanceOf[Long]
+      Datomic.q(findAccountByName, conn.database(), "Issuer").head.asInstanceOf[Long]
     val bobId =
-      Datomic.q(findAccountByName, conn.database, "Bob").head.asInstanceOf[Long]
+      Datomic.q(findAccountByName, conn.database(), "Bob").head.asInstanceOf[Long]
     val aliceId =
-      Datomic.q(findAccountByName, conn.database, "Alice").head.asInstanceOf[Long]
+      Datomic.q(findAccountByName, conn.database(), "Alice").head.asInstanceOf[Long]
 
     await {
       Datomic.transact(transfer(issuerId, aliceId, BigDecimal(77), "Issuance to Alice"))
@@ -189,15 +189,15 @@ class AccountsSampleSpec
       Datomic.transact(transfer(aliceId, bobId, BigDecimal(7), "Dinner"))
     }
 
-    Datomic.q(queryAccounts, conn.database) should have size (3)
+    Datomic.q(queryAccounts, conn.database()) should have size (3)
 
-    Datomic.q(queryAllTransactions, conn.database) should have size (3)
+    Datomic.q(queryAllTransactions, conn.database()) should have size (3)
 
-    Datomic.q(queryAccountTransactions, conn.database, rulesParty, issuerId) should have size (2)
+    Datomic.q(queryAccountTransactions, conn.database(), rulesParty, issuerId) should have size (2)
 
-    Datomic.q(queryAccountTransactions, conn.database, rulesParty, bobId) should have size (2)
+    Datomic.q(queryAccountTransactions, conn.database(), rulesParty, bobId) should have size (2)
 
-    Datomic.q(queryAccountTransactions, conn.database, rulesParty, aliceId) should have size (2)
+    Datomic.q(queryAccountTransactions, conn.database(), rulesParty, aliceId) should have size (2)
 
     an [IllegalStateException] should be thrownBy {
       await {

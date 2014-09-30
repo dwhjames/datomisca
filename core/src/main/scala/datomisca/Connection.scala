@@ -27,7 +27,13 @@ import datomic.ListenableFuture
 
 class Connection(val connection: datomic.Connection) extends AnyVal {
 
-  def database: Database = new Database(connection.db())
+  /** Retrieves a value of the database for reading.
+    *
+    * Does not communicate with the transactor, nor block.
+    *
+    * @return the current value of the database.
+    */
+  def database(): Database = new Database(connection.db())
 
   /**
     * Used to coordinate with other peers.
@@ -100,11 +106,11 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     }
   }
 
-  def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
+  def txReportQueue(): TxReportQueue = new TxReportQueue(connection.txReportQueue)
 
-  def removeTxReportQueue: Unit = connection.removeTxReportQueue
+  def removeTxReportQueue(): Unit = connection.removeTxReportQueue
 
-  def requestIndex: Boolean = connection.requestIndex
+  def requestIndex(): Boolean = connection.requestIndex
 
   def gcStorage(olderThan: java.util.Date): Unit = connection.gcStorage(olderThan)
 

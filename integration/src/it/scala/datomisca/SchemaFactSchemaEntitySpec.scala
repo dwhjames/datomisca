@@ -33,7 +33,7 @@ class SchemaFactSchemaEntitySpec
 {
 
   "SchemaFact" should "add a new value fact" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "toto").head.asInstanceOf[Long]
+    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "toto").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -47,7 +47,7 @@ class SchemaFactSchemaEntitySpec
 
 
   it should "add a new reference fact" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val tutuId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "tutu").head.asInstanceOf[Long]
+    val tutuId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "tutu").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -61,7 +61,7 @@ class SchemaFactSchemaEntitySpec
 
 
   it should "retract a value fact" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "toto").head.asInstanceOf[Long]
+    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "toto").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -75,7 +75,7 @@ class SchemaFactSchemaEntitySpec
 
 
   it should "retract a reference fact" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val tutuId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "tutu").head.asInstanceOf[Long]
+    val tutuId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "tutu").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -90,7 +90,7 @@ class SchemaFactSchemaEntitySpec
 
 
   "SchemaEntity" should "add a new fact" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "toto").head.asInstanceOf[Long]
+    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "toto").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -104,7 +104,7 @@ class SchemaFactSchemaEntitySpec
 
 
   it should "add a new value fact (with a Some of Option)" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "toto").head.asInstanceOf[Long]
+    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "toto").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -118,7 +118,7 @@ class SchemaFactSchemaEntitySpec
 
 
   it should "add multiple facts" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val tutuId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "tutu").head.asInstanceOf[Long]
+    val tutuId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "tutu").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(
@@ -147,7 +147,7 @@ class SchemaFactSchemaEntitySpec
 
 
   it should "add a from a partial entity" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
-    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database, "toto").head.asInstanceOf[Long]
+    val totoId = Datomic.q(PersonSampleData.queryPersonIdByName, conn.database(), "toto").head.asInstanceOf[Long]
 
     whenReady(
       Datomic.transact(

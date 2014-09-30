@@ -70,7 +70,7 @@ class SchemaManagerSpec
 
     // Install schema A into an empty db
     whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { changed =>
-      implicit val db = conn.database
+      implicit val db = conn.database()
 
       changed should be (true)
 
@@ -88,7 +88,7 @@ class SchemaManagerSpec
 
     // install schema C
     whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { changed =>
-      implicit val db = conn.database
+      implicit val db = conn.database()
 
       changed should be (true)
 
@@ -113,7 +113,7 @@ class SchemaManagerSpec
 
     // reïnstall schema C (which should be an update of schema A)
     whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { changed =>
-      implicit val db = conn.database
+      implicit val db = conn.database()
 
       changed should be (true)
 

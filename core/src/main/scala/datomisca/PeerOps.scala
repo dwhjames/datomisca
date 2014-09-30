@@ -54,7 +54,7 @@ private[datomisca] trait PeerOps {
     * database.transact(...)
     * }}}
     */
-  def database(implicit conn: Connection): Database = conn.database
+  def database()(implicit conn: Connection): Database = conn.database()
 
   /** Creates a new database using uri
     * @param uri the Uri of the DB
