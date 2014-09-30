@@ -35,20 +35,19 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     */
   def database(): Database = new Database(connection.db())
 
-  /**
-    * Used to coordinate with other peers.
+  /** Used to coordinate with other peers.
     *
     * Returns a future that will acquire a
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.  Communicates with the
     * transactor.
     *
-    * db is the preferred way to get a database value, as it does not
-    * need to wait nor block. Only use sync when coordination is
-    * required, and prefer the one-argument version when you have a
-    * basis t.
+    * `database()` is the preferred way to get a database value, as
+    * it does not need to wait nor block. Only use `sync()` when
+    * coordination is required, and you don't have a basis t.
     *
-    * (Copied from the Datomic docs.)
+    * Communicates with the transactor. The future can take
+    * arbitrarily long to complete. Waiters should specify a timeout.
     *
     * @param exec
     *     an implicit execution context.
@@ -59,22 +58,22 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
   def sync()(implicit exec: ExecutionContext): Future[Database] =
     Connection.bridgeDatomicFuture(connection.sync()) map (new Database(_))
 
-  /**
-    * Used to coordinate with other peers.
+  /** Used to coordinate with other peers.
     *
     * Returns a future that will acquire a
-    * database value with basisT >= t. Does not communicate with the
-    * transactor.
+    * database value with basisT >= t.
     *
-    * db is the preferred way to get a database value, as it does not
-    * need to wait nor block. Only use sync when coordination is
-    * required, and prefer the one-argument version when you have a
-    * basis t.
+    * `database()` is the preferred way to get a database value,
+    * as it does not need to wait nor block. Only use `sync(t)`
+    * when coordination is required, and prefer over `sync()` when
+    * you have a basis t.
     *
-    * (Copied from the Datomic docs.)
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
     *
     * @param t
-    *     a transaction number.
+    *     a basis t.
     * @param exec
     *     an implicit execution context.
     * @return Returns a future that will acquire a
@@ -83,6 +82,63 @@ class Connection(val connection: datomic.Connection) extends AnyVal {
     */
   def sync(t: Long)(implicit exec: ExecutionContext): Future[Database] =
     Connection.bridgeDatomicFuture(connection.sync(t)) map (new Database(_))
+
+  /** Used to coordinate with background excision.
+    *
+    * Returns a future that will aquire a database value that is aware
+    * of excisions through time <= `t`.
+    *
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
+    *
+    * @param t
+    *     a basis t.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a database value
+    *     that is aware of excisions through time <= `t`.
+    */
+  def syncExcise(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.syncExcise(t)) map (new Database(_))
+
+  /** Used to coordinate with background indexing jobs.
+    *
+    * Returns a future that will acquire a database value that is
+    * indexed through time <= t.
+    *
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
+    *
+    * @param t
+    *     a basis t.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a database value
+    *     that is indexed through time <= t.
+    */
+  def syncIndex(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.syncIndex(t)) map (new Database(_))
+
+  /** Used to coordinate with background schema changes.
+    *
+    * Returns a future that will acquire a database value that is
+    * aware of all schema changes through time <= t.
+    *
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
+    *
+    * @param t
+    *     a basis t.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a database value
+    *     that is aware of all schema changes through time <= t.
+    */
+  def syncSchema(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.syncSchema(t)) map (new Database(_))
 
 
   def transact(ops: TraversableOnce[TxData])(implicit ex: ExecutionContext): Future[TxReport] = {
