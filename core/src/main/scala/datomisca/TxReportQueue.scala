@@ -117,20 +117,6 @@ class TxReportQueue(
     new TxReport(queue.take())
 
 
-  /** Retrieves and removes the head of this queue.
-    *
-    * This method differs from [[poll()* poll]] only in that it
-    * throws an exception if this queue is empty.
-    *
-    * @return the head of this queue.
-    * @throws  java.util.NoSuchElementException  if this
-    *     queue is empty.
-    * @see [[poll()* poll]]
-    */
-  def remove(): TxReport =
-    new TxReport(queue.remove())
-
-
   /** Retrieves, but does not remove, the head of this queue,
     * or `None` if this queue is empty.
     *
@@ -142,20 +128,6 @@ class TxReportQueue(
       queue.peek()
     } map (new TxReport(_))
   }
-
-
-  /** Retrieves, but does not remove, the head of this queue.
-    *
-    * This method differs from [[peek]] only in that it throws
-    * an exception if this queue is empty.
-    *
-    * @return the head of this queue.
-    * @throws  java.util.NoSuchElementException  if this
-    *     queue is empty.
-    * @see [[peek]]
-    */
-  def element(): TxReport =
-    new TxReport(queue.element())
 
 
   /** Returns `true` if this queue contains no transaction reports.
