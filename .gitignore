@@ -23,3 +23,6 @@ project/plugins/project/
 
 .DS_Store
 
+Gemfile
+Gemfile.lock
+

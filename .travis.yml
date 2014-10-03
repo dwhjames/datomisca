@@ -1,10 +1,13 @@
 language: scala
 scala:
-  - 2.11.2
-  - 2.10.4
+- 2.11.2
+- 2.10.4
 jdk:
-  - oraclejdk7
+- oraclejdk7
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION test
-  - sbt ++$TRAVIS_SCALA_VERSION it:test
-  - sbt ++$TRAVIS_SCALA_VERSION unidoc
+- sbt ++$TRAVIS_SCALA_VERSION test
+- sbt ++$TRAVIS_SCALA_VERSION it:test
+- sbt ++$TRAVIS_SCALA_VERSION unidoc
+notifications:
+  flowdock:
+    secure: HiRg1CHYiKftvGCfbOWmWeg1RSFctfnc3hRc4xdv8wH5OVzGyXk7UgBh8/EPIdbs4cL0HU2Lv1q+l3ukFKx/YDAwTNmuad5sC8wvhvjWNxpBDz+4IYcgcraRSXWElRgM2MugPgmsinPpAr8Ma1GLlNNBUVnzquUW6PA2XOAkSkg=
