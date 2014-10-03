@@ -1,4 +1,4 @@
-# [Datomisca](http://pellucidanalytics.github.com/datomisca), embrace Datomic the Scala way
+# [Datomisca](http://pellucidanalytics.github.com/datomisca), embrace Datomic the Scala way [![Build Status](https://travis-ci.org/pellucidanalytics/datomisca.svg?branch=develop)](https://travis-ci.org/pellucidanalytics/datomisca)
 
 ### _A Scala API for [Datomic](http://www.datomic.com)_
 
