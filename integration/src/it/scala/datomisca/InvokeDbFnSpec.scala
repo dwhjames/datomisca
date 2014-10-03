@@ -16,31 +16,39 @@
 
 package datomisca
 
-import scala.concurrent.Future
+import org.scalatest.{FlatSpec, Matchers}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.concurrent.ScalaFutures
 
-
-class ComponentAttributesSpec
+class InvokeDbFnSpec
   extends FlatSpec
      with Matchers
-     with ScalaFutures
      with DatomicFixture
+     with AwaitHelper
 {
 
-  "Component attributes example" should "run to completion" in withSampleDatomicDB(SocialNewsSampleData) { implicit conn =>
+  object DbFnSchema {
 
-    whenReady(Datomic.transact(SocialNewsSampleData.storyWithComments)) { _ =>
-      whenReady(Datomic.transact(Entity.retract(conn.database().entid(Datomic.KW(":storyWithComments"))))) { txReport =>
-        val builder = Set.newBuilder[Long]
-        for (datom <- txReport.txData)
-          if (!datom.added)
-            builder += datom.id
+    val fn = new Namespace("fn")
 
-        builder.result() should have size (3)
-      }
+    val myFn =
+      AddDbFunction(fn / "my-fn")("h", "t")(lang = "clojure", partition = Partition.USER, imports = "", requires = "[[clojure.string :as str]]") {"""
+        (str/split (str h " " t) #"\s")
+      """}
+
+    val schema = Seq(myFn)
+  }
+
+  "InvokeDbFn" should "invoke db fn in peer" in withDatomicDB { implicit conn =>
+    await {
+      Datomic.transact(DbFnSchema.schema)
     }
+
+    val db = conn.database
+
+    val res = db.invoke(DbFnSchema.myFn.ident, "The", "Quick Brown Fox")
+
+    res.toString should equal ("""["The" "Quick" "Brown" "Fox"]""")
   }
 }

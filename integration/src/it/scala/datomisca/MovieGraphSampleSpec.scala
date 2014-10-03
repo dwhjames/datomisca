@@ -201,7 +201,7 @@ class MovieGraphSampleSpec
       }
     }
 
-    val db = conn.database
+    val db = conn.database()
 
     Datomic.q(queryFindMovieByTitle, db, "The Matrix") should have size (1)
 
