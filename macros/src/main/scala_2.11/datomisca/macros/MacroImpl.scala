@@ -55,10 +55,10 @@ private[datomisca] object MacroImpl {
     }
 
 
-  def KWImpl(c: Context)(q: c.Expr[String]): c.Expr[Keyword] = {
+  def KWImpl(c: Context)(str: c.Expr[String]): c.Expr[Keyword] = {
     import c.universe._
 
-    q.tree match {
+    str.tree match {
       case Literal(Constant(s: String)) =>
         readEDN(c, s) match {
           case kw: Keyword =>

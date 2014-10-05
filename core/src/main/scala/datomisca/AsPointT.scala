@@ -21,13 +21,11 @@ import scala.annotation.implicitNotFound
 import java.util.{Date => JDate}
 
 
-/**
-  * A conversion type class for point in time values.
+/** A conversion type class for point in time values.
   *
   * A type class for converting from various point in time values.
-  * Basis T values as Long, transaction entity ids as Long, transaction
-  * time stamps as java.util.Date, and transaction time stamps as
-  * [[DInstant]].
+  * Basis T values as `Long`, transaction entity ids as `Long`, and
+  * transaction time stamps as `java.util.Date`.
   *
   * @tparam T
   *     the type of the point in time.
@@ -45,18 +43,16 @@ sealed trait AsPointT[T] {
   protected[datomisca] def conv(t: T): AnyRef
 }
 
-/**
-  * The two cases for converting points in time.
-  */
+/** The instances of the [[AsPointT]] type class. */
 object AsPointT {
 
-  /** Basis T and transaction entity id values as Long are points in time. */
+  /** Basis T and transaction entity id values as `Long` are points in time. */
   implicit val long =
     new AsPointT[Long] {
       override protected[datomisca] def conv(l: Long) = l: java.lang.Long
     }
 
-  /** Transaction time stamps as java.util.Date are points in time. */
+  /** Transaction time stamps as `java.util.Date` are points in time. */
   implicit val jDate =
     new AsPointT[JDate] {
       override protected[datomisca] def conv(date: JDate) = date

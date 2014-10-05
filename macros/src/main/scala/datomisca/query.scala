@@ -16,6 +16,11 @@
 
 package datomisca
 
+
+/** A wrapper for a Datalog query represented as a Clojure map.
+  *
+  * @param query the query as Clojure data.
+  */
 abstract class AbstractQuery(val query: clojure.lang.IPersistentMap) {
   override def equals(that: Any): Boolean = that match {
     case thatQuery: AbstractQuery => this.query.equals(thatQuery.query)
@@ -25,6 +30,10 @@ abstract class AbstractQuery(val query: clojure.lang.IPersistentMap) {
   override def toString: String = query.toString
 }
 
+/** A wrapper for Datalog rules represented as a Clojure vector.
+  *
+  * @param query the rules as Clojure data.
+  */
 final class QueryRules(val edn: clojure.lang.PersistentVector) extends AnyVal {
   override def toString = edn.toString
 
@@ -38,4 +47,5 @@ final class QueryRules(val edn: clojure.lang.PersistentVector) extends AnyVal {
   }
 }
 
+/** Provides methods for parsing Datalog queries and rules. */
 object Query extends macros.QueryMacros

@@ -19,8 +19,7 @@ package datomisca
 import scala.annotation.implicitNotFound
 
 
-/**
-  * A conversion type class for permanent entity ids.
+/** A conversion type class for permanent entity ids.
   *
   * A type class for converting from the various types
   * that can be used as permanent entity ids.
@@ -33,9 +32,8 @@ sealed trait AsPermanentEntityId[T] {
   protected[datomisca] def conv(t: T): AnyRef
 }
 
-/**
-  * The two cases for converting permanent entity ids.
-  */
+
+/** The instances of the [[AsPermanentEntityId]] type class. */
 object AsPermanentEntityId {
 
   /** Any type viewable as a Long can be a permanent entity id. */

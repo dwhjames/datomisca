@@ -19,8 +19,7 @@ package datomisca
 import scala.annotation.implicitNotFound
 
 
-/**
-  * A conversion type class for entity ids.
+/** A conversion type class for entity ids.
   *
   * A type class for converting the various types that can be treated
   * as temporary or permanent ids for entities.
@@ -31,8 +30,7 @@ import scala.annotation.implicitNotFound
 @implicitNotFound("Cannot convert value of type ${T} to a Datomic entity id")
 sealed trait AsEntityId[T] {
 
-  /**
-    * Convert to an entity id.
+  /** Convert to an entity id.
     *
     * @param t
     *     an id value to convert.
@@ -41,9 +39,8 @@ sealed trait AsEntityId[T] {
   protected[datomisca] def conv(t: T): DId
 }
 
-/**
-  * The two cases for converting entity ids.
-  */
+
+/** The instances of the [[AsEntityId]] type class. */
 object AsEntityId {
 
   /** Any type viewable as a Long can be an entity id. */

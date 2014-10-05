@@ -19,6 +19,11 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
+/** The representation of Datomic attributes
+  *
+  * @constructor construct an attribute out of an ident, valueType,
+  *     cardinality, and other optional components
+  */
 final case class Attribute[DD, Card <: Cardinality](
     override val ident: Keyword,
     valueType:   SchemaType[DD],
@@ -31,13 +36,25 @@ final case class Attribute[DD, Card <: Cardinality](
     noHistory:   Option[Boolean] = None
 ) extends TxData with KeywordIdentified {
 
+  /** Extend this attribute with a documentation string. */
   def withDoc(str: String)        = copy( doc = Some(str) )
+
+  /** Extend this attribute with a uniqueness constraint. */
   def withUnique(u: Unique)       = copy( unique = Some(u) )
+
+  /** Extend this attribute with an indexing property */
   def withIndex(b: Boolean)       = copy( index = Some(b) )
+
+  /** Extend this attribute with a full text indexing property */
   def withFullText(b: Boolean)    = copy( fulltext = Some(b) )
+
+  /** Extend this attribute with a component relationship constraint. */
   def withIsComponent(b: Boolean) = copy( isComponent = Some(b) )
+
+  /** Extend this attribute with a no history property */
   def withNoHistory(b: Boolean)   = copy( noHistory = Some(b) )
 
+  /** Construct the reverse attribute, if this is a reference attribute */
   def reverse(implicit ev: =:=[DatomicRef.type, DD]): Attribute[DatomicRef.type, Cardinality.many.type] =
     copy(
       ident       = clojure.lang.Keyword.intern(ident.getNamespace, "_" + ident.getName),
@@ -69,8 +86,11 @@ final case class Attribute[DD, Card <: Cardinality](
   }
   
   override def toTxData: AnyRef = toAddOps.toTxData
+
+  /** the keyword ident of the attribute as a string */
   override def toString = ident.toString
 
+  /** Construct the EDN representation of this attribute */
   def toEDNString: String = {
     val builder = new StringBuilder(100)
     (builder append '{'
@@ -103,15 +123,26 @@ final case class Attribute[DD, Card <: Cardinality](
 } 
 
 object Attribute {
+  /** :db/id */
   val id          = Namespace.DB / "id"
+  /** :db/ident */
   val ident       = Namespace.DB / "ident"
+  /** :db/valueType */
   val valueType   = Namespace.DB / "valueType"
+  /** :db/cardinality */
   val cardinality = Namespace.DB / "cardinality"
+  /** :db/doc */
   val doc         = Namespace.DB / "doc"
+  /** :db/unique */
   val unique      = Namespace.DB / "unique"
+  /** :db/index */
   val index       = Namespace.DB / "index"
+  /** :db/fulltext */
   val fulltext    = Namespace.DB / "fulltext"
+  /** :db/isComponent */
   val isComponent = Namespace.DB / "isComponent"
+  /** :db/noHistory */
   val noHistory   = Namespace.DB / "noHistory"
+  /** :db.install/_attribute */
   val installAttr = Namespace.DB.INSTALL / "_attribute"
 }
