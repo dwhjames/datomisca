@@ -16,9 +16,8 @@ scalacOptions in ThisBuild ++= Seq("-deprecation", "-feature", "-unchecked")
 
 
 resolvers in ThisBuild ++= Seq(
-    "Typesafe repository snapshots" at "http://repo.typesafe.com/typesafe/snapshots/",
-    "Typesafe repository releases"  at "http://repo.typesafe.com/typesafe/releases/",
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
+    Resolver.sonatypeRepo("releases"),
+    Resolver.typesafeRepo("releases"),
     "clojars" at "https://clojars.org/repo",
     "couchbase" at "http://files.couchbase.com/maven2"
   )
