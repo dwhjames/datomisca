@@ -86,6 +86,17 @@ package object datomisca {
       }
     }
 
+    def readWithDefault[DD <: AnyRef, Card <: Cardinality, T]
+               (attr: Attribute[DD, Card], default: T)
+               (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
+               : T = {
+      try {
+        attrC.convert(attr).read(entity)
+      } catch {
+        case ex: EntityKeyNotFoundException => default
+      }
+    }
+
     /**
       *
       * @return the IdView of the entity referenced by the given attribute
@@ -148,6 +159,14 @@ package object datomisca {
           Some(ev.convert(attribute).read(e))
         else
           None
+      }
+
+    def readWithDefault[A](default: A)(implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
+      EntityReader[A] { e: Entity =>
+        if (e.contains(attribute.ident))
+          ev.convert(attribute).read(e)
+        else
+          default
       }
 
     def write[A](implicit ev: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[A] =
