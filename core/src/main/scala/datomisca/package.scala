@@ -42,12 +42,13 @@ package object datomisca {
     def get[DD <: AnyRef, Card <: Cardinality, T]
            (attr: Attribute[DD, Card])
            (implicit attrC: Attribute2EntityReaderInj[DD, Card, T])
-           : Option[T] =
-      try {
-        Some(apply(attr))
-      } catch {
-        case ex: EntityKeyNotFoundException => None
+           : Option[T] = {
+      if (entity.contains(attr.ident)) {
+        Some(attrC.convert(attr).read(entity))
+      } else {
+        None
       }
+    }
 
     /**
       * Get the value of the entity's attribute.
@@ -78,11 +79,12 @@ package object datomisca {
       def apply[DD <: AnyRef, Card <: Cardinality]
                (attr: Attribute[DD, Card])
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
-               : Option[T] =
-      try {
-        Some(attrC.convert(attr).read(entity))
-      } catch {
-        case ex: EntityKeyNotFoundException => None
+               : Option[T] = {
+        if (entity.contains(attr.ident)) {
+          Some(attrC.convert(attr).read(entity))
+        } else {
+          None
+        }
       }
     }
 
@@ -90,10 +92,10 @@ package object datomisca {
                (attr: Attribute[DD, Card], default: T)
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : T = {
-      try {
+      if (entity.contains(attr.ident)) {
         attrC.convert(attr).read(entity)
-      } catch {
-        case ex: EntityKeyNotFoundException => default
+      } else {
+        default
       }
     }
 
@@ -114,12 +116,13 @@ package object datomisca {
     def getIdView[T]
                  (attr: Attribute[DatomicRef.type, Cardinality.one.type])
                  (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.one.type, IdView[T]])
-                 : Option[IdView[T]] =
-      try {
+                 : Option[IdView[T]] = {
+      if (entity.contains(attr.ident)) {
         Some(attrC.convert(attr).read(entity))
-      } catch {
-        case ex: EntityKeyNotFoundException => None
+      } else {
+        None
       }
+    }
 
     /**
       *
@@ -138,12 +141,13 @@ package object datomisca {
     def getIdViews[T]
                   (attr: Attribute[DatomicRef.type, Cardinality.many.type])
                   (implicit attrC: Attribute2EntityReaderCast[DatomicRef.type, Cardinality.many.type, Set[IdView[T]]])
-                  : Option[Set[IdView[T]]] =
-      try {
+                  : Option[Set[IdView[T]]] = {
+      if (entity.contains(attr.ident)) {
         Some(attrC.convert(attr).read(entity))
-      } catch {
-        case ex: EntityKeyNotFoundException => None
+      } else {
+        None
       }
+    }
 
   }
 
