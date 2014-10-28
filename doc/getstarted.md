@@ -281,7 +281,7 @@ Remember to watch out for escaping the datasource `$` as `$$`. The `toString`
 method is called on the values of expressions that are interpolated. The
 string representation of attributes is their keyword, which is why we can
 rewrite the query this way. The query treats expressions of type `String`
-specially, by doubling quoting them, so,
+specially, by double quoting them, so,
 
 ```scala
 val name = "John"
@@ -289,7 +289,7 @@ val queryFindByName = Query(s"""
   [:find ?e ?home
    :in $$
    :where
-   [?e ${PersonSchema.name} $john]
+   [?e ${PersonSchema.name} $name]
    [?e ${PersonSchema.home} ?home]]
 """)
 ```
