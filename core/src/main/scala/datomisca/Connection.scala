@@ -204,7 +204,7 @@ object Connection {
           } catch {
             case ex: java.util.concurrent.ExecutionException =>
               p.failure(ex.getCause)
-            case ex: Throwable =>
+            case NonFatal(ex) =>
               p.failure(ex)
           }
       },
