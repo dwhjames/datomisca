@@ -45,9 +45,9 @@ class RichAttributeSpec
 
     Schema.ageAttr.readOpt[Long].read(entity).value should be (PersonSampleData.tata.age)
 
-    Schema.nameAttr.readWithDefault("foo").read(entity) should equal (PersonSampleData.tata.name)
+    Schema.nameAttr.readOrElse("foo").read(entity) should equal (PersonSampleData.tata.name)
 
-    Schema.idAttr.readWithDefault(0).read(entity) should equal (0)
+    Schema.idAttr.readOrElse(0).read(entity) should equal (0)
 
     Schema.ageAttr.read[Int].read(entity) should be (PersonSampleData.tata.age.toInt)
 

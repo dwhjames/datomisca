@@ -62,9 +62,9 @@ class RichEntitySpec
 
     entity.readOpt[Long](Schema.ageAttr).value should be (PersonSampleData.tata.age)
 
-    entity.readWithDefault(Schema.nameAttr, "foo") should equal (PersonSampleData.tata.name)
+    entity.readOrElse(Schema.nameAttr, "foo") should equal (PersonSampleData.tata.name)
 
-    entity.readWithDefault(Schema.idAttr, 0) should equal (0)
+    entity.readOrElse(Schema.idAttr, 0) should equal (0)
 
     entity.read[Int](Schema.ageAttr) should be (PersonSampleData.tata.age.toInt)
 

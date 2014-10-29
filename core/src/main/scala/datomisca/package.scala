@@ -119,7 +119,7 @@ package object datomisca {
       * @return the value associated with `attr` in this entity,
       *     otherwise the result of the `default` computation..
       */
-    def readWithDefault[DD <: AnyRef, Card <: Cardinality, T]
+    def readOrElse[DD <: AnyRef, Card <: Cardinality, T]
                (attr: Attribute[DD, Card], default: => T)
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : T = {
@@ -259,7 +259,7 @@ package object datomisca {
       * @return an entity reader that reads entities with this attribute.
       * @see [[EntityReader]]
       */
-    def readWithDefault[A](default: => A)(implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
+    def readOrElse[A](default: => A)(implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
       EntityReader[A] { e: Entity =>
         if (e.contains(attribute.ident))
           ev.convert(attribute).read(e)
