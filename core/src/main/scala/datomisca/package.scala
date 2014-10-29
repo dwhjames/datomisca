@@ -20,15 +20,15 @@ package object datomisca {
 
   implicit class RichEntity(entity: Entity) {
 
-    /**
-      * Get the value of the entity's attribute.
+    /** Returns the value associated with an attribute.
       *
-      * The return type is inferred automatically as the implicit
+      * @note The return type is inferred automatically as the implicit
       * ensures there is a unique return type for the Datomic
       * data type specified by the attribute.
       *
-      * @return the value of the attribute for this entity
-      * @throws EntityKeyNotFoundException when the attribute does not exist
+      * @param  attr  the attribute to lookup in the entity.
+      * @return the value associated with `attr` in this entity.
+      * @throws  EntityKeyNotFoundException  when the attribute does not exist.
       */
     def apply[DD <: AnyRef, Card <: Cardinality, T]
              (attr: Attribute[DD, Card])
@@ -36,8 +36,16 @@ package object datomisca {
              : T =
       attrC.convert(attr).read(entity)
 
-    /**
-      * An optional version of apply
+
+    /** Optionally returns the value associated with an attribute.
+      *
+      * @note The return type is inferred automatically as the implicit
+      * ensures there is a unique return type for the Datomic
+      * data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @return an option value containing the value associated with
+      *     `attr` in this entity, or `None` if none exists.
       */
     def get[DD <: AnyRef, Card <: Cardinality, T]
            (attr: Attribute[DD, Card])
@@ -50,15 +58,16 @@ package object datomisca {
       }
     }
 
-    /**
-      * Get the value of the entity's attribute.
+
+    /** Returns the value associated with an attribute.
       *
-      * The return type must be explicitly specified, and the
+      * @note The return type must be explicitly specified, and the
       * implicit ensures that it is a valid pairing with the
       * Datomic data type specified by the attribute.
       *
-      * @return the value of the attribute for this entity
-      * @throws EntityKeyNotFoundException when the attribute does not exist
+      * @param  attr  the attribute to lookup in the entity.
+      * @return the value associated with `attr` in this entity.
+      * @throws  EntityKeyNotFoundException  when the attribute does not exist.
       */
     def read[T] = new ReadHelper[T]
 
@@ -70,8 +79,16 @@ package object datomisca {
         attrC.convert(attr).read(entity)
     }
 
-    /**
-      * An optional version of read
+
+    /** Optionally returns the value associated with an attribute.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @return an option value containing the value associated with
+      *     `attr` in this entity, or `None` if none exists.
       */
     def readOpt[T] = new ReadOptHelper[T]
 
@@ -88,6 +105,20 @@ package object datomisca {
       }
     }
 
+
+    /** Returns the value associated with an attribute, or a default
+      * value if the attribute is not contained in the entity.
+      *
+      * @note The default value guides the type inference, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @param  default  a computation that yields a default value
+      *     in case the attribute is not found in the entity.
+      * @return the value associated with `attr` in this entity,
+      *     otherwise the result of the `default` computation..
+      */
     def readWithDefault[DD <: AnyRef, Card <: Cardinality, T]
                (attr: Attribute[DD, Card], default: => T)
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
@@ -99,10 +130,16 @@ package object datomisca {
       }
     }
 
-    /**
+
+    /** Returns an [[IdView]] of the entity associated with a ref attribute.
       *
-      * @return the IdView of the entity referenced by the given attribute
-      * @throws EntityKeyNotFoundException when the attribute does not exist
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @return the [[IdView]] of the entity associated with `attr` in this entity.
+      * @throws  EntityKeyNotFoundException  when the attribute does not exist.
       */
     def idView[T]
               (attr: Attribute[DatomicRef.type, Cardinality.one.type])
@@ -110,8 +147,16 @@ package object datomisca {
               : IdView[T] =
       attrC.convert(attr).read(entity)
 
-    /**
-      * An optional version of idView
+
+    /** Optionally returns an [[IdView]] of the entity associated with a ref attribute.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @return an option value containing the [[IdView]] of the entity associated with
+      *     `attr` in this entity, or `None` if none exists.
       */
     def getIdView[T]
                  (attr: Attribute[DatomicRef.type, Cardinality.one.type])
@@ -124,10 +169,16 @@ package object datomisca {
       }
     }
 
-    /**
+
+    /** Returns a set of [[IdView]]s of the entities associated with a many-ref attribute.
       *
-      * @return the set of IdViews of the entities referenced by the given attribute
-      * @throws EntityKeyNotFoundException when the attribute does not exist
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @return the set of [[IdView]]s of the entities associated with `attr` in this entity.
+      * @throws  EntityKeyNotFoundException  when the attribute does not exist.
       */
     def idViews[T]
                (attr: Attribute[DatomicRef.type, Cardinality.many.type])
@@ -135,8 +186,16 @@ package object datomisca {
                : Set[IdView[T]] =
       attrC.convert(attr).read(entity)
 
-    /**
-      * An optional version of idViews
+
+    /** Optionally returns a set of [[IdView]]s of the entities associated with a many-ref attribute.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  attr  the attribute to lookup in the entity.
+      * @return an option value containing the set of [[IdView]]s of the entities associated with
+      *     `attr` in this entity, or `None` if none exists.
       */
     def getIdViews[T]
                   (attr: Attribute[DatomicRef.type, Cardinality.many.type])
@@ -154,9 +213,31 @@ package object datomisca {
 
   implicit class RichAttribute[DD <: AnyRef, Card <: Cardinality](val attribute: Attribute[DD, Card]) extends AnyVal {
 
+    /** Returns an entity reader that reads entities with this attribute.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @return an entity reader that reads entities with this attribute.
+      * @see [[EntityReader]]
+      */
     def read[A](implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
       ev.convert(attribute)
 
+
+    /** Returns an entity reader that optionally reads entities with this attribute,
+      * or a default value if the attribute is not contained in the entity.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  default  a computation that yields a default value
+      *     in case the attribute is not found in the entity.
+      * @return an entity reader that optionally reads entities with this attribute.
+      * @see [[EntityReader]]
+      */
     def readOpt[A](implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[Option[A]] =
       EntityReader[Option[A]] { e: Entity =>
         if (e.contains(attribute.ident))
@@ -165,6 +246,19 @@ package object datomisca {
           None
       }
 
+
+    /** Returns an entity reader that reads entities with this attribute,
+      * or a default value if the attribute is not contained in the entity.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @param  default  a computation that yields a default value
+      *   in case the attribute is not found in the entity.
+      * @return an entity reader that reads entities with this attribute.
+      * @see [[EntityReader]]
+      */
     def readWithDefault[A](default: => A)(implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
       EntityReader[A] { e: Entity =>
         if (e.contains(attribute.ident))
@@ -173,9 +267,29 @@ package object datomisca {
           default
       }
 
+
+    /** Returns an entity writer that writes entities with this attribute.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @return an entity writer that writes entities with this attribute.
+      * @see [[PartialAddEntityWriter]]
+      */
     def write[A](implicit ev: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[A] =
       ev.convert(attribute)
 
+
+    /** Returns an entity writer that optionally writes entities with this attribute.
+      *
+      * @note The return type must be explicitly specified, and the
+      * implicit ensures that it is a valid pairing with the
+      * Datomic data type specified by the attribute.
+      *
+      * @return an entity writer that optionally writes entities with this attribute.
+      * @see [[PartialAddEntityWriter]]
+      */
     def writeOpt[A](implicit ev: Attribute2PartialAddEntityWriter[DD, Card, A]): PartialAddEntityWriter[Option[A]] = 
       PartialAddEntityWriter[Option[A]] {
         case None    => PartialAddEntity.empty
