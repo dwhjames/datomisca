@@ -89,7 +89,7 @@ package object datomisca {
     }
 
     def readWithDefault[DD <: AnyRef, Card <: Cardinality, T]
-               (attr: Attribute[DD, Card], default: T)
+               (attr: Attribute[DD, Card], default: => T)
                (implicit attrC: Attribute2EntityReaderCast[DD, Card, T])
                : T = {
       if (entity.contains(attr.ident)) {
@@ -165,7 +165,7 @@ package object datomisca {
           None
       }
 
-    def readWithDefault[A](default: A)(implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
+    def readWithDefault[A](default: => A)(implicit ev: Attribute2EntityReaderCast[DD, Card, A]): EntityReader[A] =
       EntityReader[A] { e: Entity =>
         if (e.contains(attribute.ident))
           ev.convert(attribute).read(e)
