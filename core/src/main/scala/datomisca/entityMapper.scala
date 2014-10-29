@@ -28,6 +28,26 @@ trait EntityReader[A] extends EntityMapper[A] {
   self => 
   def read(e: Entity): A
 
+  def andThen[B](that: EntityReader[B])(implicit ev: A <:< Entity): EntityReader[B] =
+    EntityReader[B] { e =>
+      val a = self.read(e)
+      that.read(ev(a))
+    }
+
+  def andThenAll[B](that: EntityReader[B])(implicit ev: A <:< Traversable[Entity]): EntityReader[Traversable[B]] =
+    EntityReader[Traversable[B]] { e =>
+      val a = self.read(e)
+      val coll = ev(a)
+      coll.map(that.read(_))
+    }
+
+  def andThenFlatten[B](that: EntityReader[Traversable[B]])(implicit ev: A <:< Traversable[Entity]): EntityReader[Traversable[B]] =
+    EntityReader[Traversable[B]] { e =>
+      val a = self.read(e)
+      val coll = ev(a)
+      coll.flatMap(that.read(_))
+    }
+
   def map[B](f: A => B): EntityReader[B] = EntityReader[B] { e =>
     f(self.read(e))
   }
