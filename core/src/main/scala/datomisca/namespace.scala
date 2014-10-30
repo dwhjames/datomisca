@@ -32,5 +32,6 @@ object Namespace {
     val UNIQUE = Namespace("db.unique")
     val FN = Namespace("db.fn")
     val EXCISE = Namespace("db.excise")
+    val ALTER = Namespace("db.alter")
   } 
 }
