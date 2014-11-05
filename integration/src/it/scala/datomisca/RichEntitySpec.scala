@@ -16,6 +16,7 @@
 
 package datomisca
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.reflectiveCalls
 
 import org.scalatest.{FlatSpec, Matchers, OptionValues}
@@ -67,7 +68,22 @@ class RichEntitySpec
     entity.readOrElse(Schema.idAttr, 0) should equal (0)
 
     entity.read[Int](Schema.ageAttr) should be (PersonSampleData.tata.age.toInt)
+  }
 
+  it should "access values with type safe cast, for reversed component special case" in withSampleDatomicDB(SocialNewsSampleData) { implicit conn =>
+    whenReady(Datomic.transact(SocialNewsSampleData.storyWithComments)) { report =>
+
+      val comments = Attribute(Datomic.KW(":comments"), SchemaType.ref, Cardinality.many, isComponent=Some(true))
+
+      val storyId = report.resolve(DId(Partition.USER, -1))
+
+      val comment = report.resolveEntity(DId(Partition.USER, -2))
+
+      val entity = comment.read[Entity](comments.reverseComponent)
+      entity.id should equal (storyId)
+
+      comment.read[Long](comments.reverseComponent) should equal (storyId)
+    }
   }
 
 }
