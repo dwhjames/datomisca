@@ -62,6 +62,16 @@ final case class Attribute[DD, Card <: Cardinality](
       cardinality = Cardinality.many
     )
 
+  /** Construct the reverse attribute, if this is a component reference attribute */
+  def reverseComponent(implicit ev: =:=[DatomicRef.type, DD]): Attribute[DatomicRef.type, Cardinality.one.type] = {
+    require(isComponent.getOrElse(false))
+    copy(
+      ident       = clojure.lang.Keyword.intern(ident.getNamespace, "_" + ident.getName),
+      valueType   = SchemaType.ref,
+      cardinality = Cardinality.one
+    )
+  }
+
   // using partiton :db.part/db
   val id = DId(Partition.DB)
 
