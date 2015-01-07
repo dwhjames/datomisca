@@ -198,7 +198,7 @@ object Connection {
 
     listenF.addListener(
       new java.lang.Runnable {
-        override def run: Unit =
+        override def run: Unit = {
           try {
             p.success(listenF.get())
           } catch {
@@ -207,6 +207,8 @@ object Connection {
             case ex: Throwable =>
               p.failure(ex)
           }
+          ()
+        }
       },
       new java.util.concurrent.Executor {
         def execute(arg0: Runnable): Unit = ex.execute(arg0)

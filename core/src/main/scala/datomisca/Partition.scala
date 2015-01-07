@@ -16,8 +16,6 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
-
 
 class Partition(val keyword: Keyword) extends AnyVal {
   override def toString = keyword.toString

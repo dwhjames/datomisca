@@ -12,7 +12,24 @@ scalaVersion in ThisBuild := "2.11.2"
 
 crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.2")
 
-scalacOptions in ThisBuild ++= Seq("-deprecation", "-feature", "-unchecked")
+scalacOptions in ThisBuild ++= Seq(
+    "-deprecation",
+    "-encoding", "UTF-8",
+    "-feature",
+    "-unchecked",
+    "-Xfatal-warnings",
+    "-Xfuture",
+    "-Xlint",
+    "-Yno-adapted-args",
+    "-Ywarn-dead-code",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-value-discard"
+  )
+
+scalacOptions in ThisBuild ++= (
+    if (scalaVersion.value.startsWith("2.10")) Nil
+    else List("-Ywarn-unused-import")
+  )
 
 
 resolvers in ThisBuild ++= Seq(

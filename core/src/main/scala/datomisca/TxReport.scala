@@ -19,7 +19,6 @@ package datomisca
 
 
 class TxReport(rawReport: java.util.Map[_, _]) {
-  import scala.collection.JavaConverters._
   import datomic.Connection.{DB_BEFORE, DB_AFTER, TX_DATA, TEMPIDS}
   import datomic.db.Db
 

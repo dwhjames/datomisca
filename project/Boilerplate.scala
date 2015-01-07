@@ -286,7 +286,7 @@ object Boilerplate {
         |class Builder[M[_]](combi: Combinator[M]) {""" +
            instances + """
         |
-        |final case class Builder"""+size+typeParamsSize+"(m1: M"+combSize+", m2: M[A"+size+"""])
+        |  case class Builder"""+size+typeParamsSize+"(m1: M"+combSize+", m2: M[A"+size+"""])
         |}
         |""").stripMargin
   }

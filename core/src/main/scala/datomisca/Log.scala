@@ -61,7 +61,6 @@ class Log(val log: datomic.Log) {
   )(implicit ev1: AsPointT[T1],
              ev2: AsPointT[T2]
   ): Iterable[Tx] = new Iterable[Tx] {
-    import scala.collection.JavaConverters._
     private val jIterable = log.txRange(startT.map(ev1.conv).orNull, endT.map(ev2.conv).orNull)
     override def iterator = new Iterator[Tx] {
       private val jIter = jIterable.iterator

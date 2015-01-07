@@ -37,18 +37,20 @@ trait DatomicFixture extends ScalaFutures
   implicit override val patienceConfig =
     PatienceConfig(timeout = Span(10, Seconds), interval = Span(100, Millis))
 
-  def withDatomicDB(testCode: Connection => Any) {
+  def withDatomicDB(testCode: Connection => Any): Unit = {
     val uri = s"datomic:mem://${randomUUID()}"
     Datomic.createDatabase(uri)
     try {
       implicit val conn = Datomic.connect(uri)
       testCode(conn)
+      ()
     } finally {
       Datomic.deleteDatabase(uri)
+      ()
     }
   }
 
-  def withSampleDatomicDB(sampleData: SampleData)(testCode: Connection => Any) {
+  def withSampleDatomicDB(sampleData: SampleData)(testCode: Connection => Any): Unit = {
     val uri = s"datomic:mem://${randomUUID()}"
     Datomic.createDatabase(uri)
     try {
@@ -58,8 +60,10 @@ trait DatomicFixture extends ScalaFutures
           testCode(conn)
         }
       }
+      ()
     } finally {
       Datomic.deleteDatabase(uri)
+      ()
     }
   }
 

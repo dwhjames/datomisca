@@ -56,13 +56,13 @@ class SchemaManagerSpec
 
   def schemaMap = Map(
       SchemaA.name ->
-        (SchemaA.requires,
+        (SchemaA.requires ->
           Seq(SchemaA.txData)),
       SchemaB.name ->
-        (SchemaB.requires,
+        (SchemaB.requires ->
           Seq(SchemaB.txData)),
       SchemaC.name ->
-        (SchemaC.requires,
+        (SchemaC.requires ->
           Seq(SchemaC.txData))
     )
 

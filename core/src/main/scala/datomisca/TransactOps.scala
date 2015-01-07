@@ -76,7 +76,7 @@ private[datomisca] trait TransactOps {
     */
   def transact(ops: TxData*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
 
-  /** Applies a sequence of operations to current database without applying the transaction.
+  /* Applies a sequence of operations to current database without applying the transaction.
     *
     * It's is as if the data was applied in a transaction but the database is unaffected.
     * This is the same as Java `database.with(...)` taking into account `with` is a reserved word in Scala.
