@@ -109,6 +109,7 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
     SchemaFact.add(id)(attrbigint -> BigInt(1).bigInteger)
     SchemaFact.add(id)(attrbigdec -> BigDecimal(1).bigDecimal)
 
+    ()
   }
 
   it should "support various ways to write to reference attributes" in {
@@ -145,6 +146,7 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
     SchemaFact.add(id)(attrref -> identEntity)
     ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(identEntity)) ) withId (id)
 
+    ()
   }
 
 

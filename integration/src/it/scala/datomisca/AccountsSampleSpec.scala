@@ -201,7 +201,7 @@ class AccountsSampleSpec
 
     an [IllegalStateException] should be thrownBy {
       await {
-        Datomic.transact(transfer(aliceId, bobId, BigDecimal(71),  "Car"))
+        Datomic.transact(transfer(aliceId, bobId, BigDecimal(71),  "Car")).map(_ => ())
       }
     }
   }

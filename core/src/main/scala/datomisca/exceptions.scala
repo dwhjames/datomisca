@@ -60,7 +60,7 @@ object ExceptionInfo {
 
   def unapply(t: Throwable): Option[(Throwable, Map[String, String])] = t match {
     case ex: clj.IExceptionInfo =>
-      Some (ex, getData(ex))
+      Some(ex -> getData(ex))
     case _ => None
   }
 }

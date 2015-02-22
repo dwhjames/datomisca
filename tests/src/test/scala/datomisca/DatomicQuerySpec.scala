@@ -30,7 +30,7 @@ class DatomicQuerySpec extends Specification {
   val uri = "datomic:mem://datomicqueryspec"
   val person = Namespace("person")
 
-  def startDB = {
+  def startDB(): Unit = {
     println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)
@@ -39,9 +39,10 @@ class DatomicQuerySpec extends Specification {
       DatomicBootstrap(uri),
       Duration("3 seconds")
     )
+    ()
   }
 
-  def stopDB = {
+  def stopDB(): Unit = {
     Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }

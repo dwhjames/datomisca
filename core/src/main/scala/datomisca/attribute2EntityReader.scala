@@ -32,7 +32,7 @@ import scala.annotation.implicitNotFound
   *     the Scala type that the [[EntityReader]] will read.
   */
 @implicitNotFound("There is no unique reader for type ${T} given an attribute with Datomic type ${DD} and cardinality ${Card} to type ${T}")
-trait Attribute2EntityReaderInj[DD <: AnyRef, Card <: Cardinality, T] {
+sealed trait Attribute2EntityReaderInj[DD <: AnyRef, Card <: Cardinality, T] {
 
   /** Convert an [[Attribute]] into an [[EntityReader]]
     *

@@ -99,7 +99,7 @@ class DatomicTxSpec extends Specification {
     val schema = Seq(name, age)
   }
 
-  def startDB = {
+  def startDB(): Unit = {
     println(s"Creating DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
@@ -108,9 +108,10 @@ class DatomicTxSpec extends Specification {
       Datomic.transact(PersonSchema.schema ++ DogSchema.schema),
       Duration("2 seconds")
     )
+    ()
   } 
 
-  def stopDB = {
+  def stopDB(): Unit = {
     Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }

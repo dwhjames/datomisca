@@ -110,7 +110,9 @@ class CustomExecutionContext(reporter: Throwable => Unit, min: Option[Int], num:
       }
     case generic =>
       generic execute runnable
-  }}
+  }
+  ()
+  }
 
   def reportFailure(t: Throwable) = reporter(t)
 }

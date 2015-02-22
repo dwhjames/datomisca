@@ -338,12 +338,12 @@ class Database(val underlying: datomic.Database) extends AnyVal {
   /**
     * @return the asOf point
     */
-  def asOfT: Option[Long] = Option { underlying.asOfT }
+  def asOfT: Option[Long] = Option { underlying.asOfT.longValue }
 
   /**
     * @return the since point
     */
-  def sinceT: Option[Long] = Option { underlying.sinceT }
+  def sinceT: Option[Long] = Option { underlying.sinceT.longValue }
 
 
   /** Look up the database function of the ident entity `ident`, and invoke the function with `args`.
