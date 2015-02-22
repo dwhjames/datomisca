@@ -90,7 +90,7 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     *
     * @param kw a keyword.
     * @return the entity id.
-    * @throws Exception if no entity is found.
+    * @throws DatomiscaException if no entity is found.
     */
   def entid(kw: Keyword): Long =
     Option { underlying.entid(kw) } match {
@@ -125,7 +125,7 @@ class Database(val underlying: datomic.Database) extends AnyVal {
     *
     * @param id an entity id
     * @return a keyword
-    * @throws Exception if no keyword is found
+    * @throws DatomiscaException if no keyword is found
     */
   def ident[T](id: T)(implicit ev: AsPermanentEntityId[T]): Keyword =
     Option { underlying.ident(ev.conv(id)) } match {

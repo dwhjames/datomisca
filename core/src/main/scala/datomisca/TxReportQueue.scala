@@ -83,10 +83,11 @@ class TxReportQueue(
     * waiting up to the specified wait time
     * if necessary for an element to become available.
     *
+    * Throws [[http://docs.oracle.com/javase/7/docs/api/java/lang/InterruptedException.html InterruptedException]]  if interrupted while waiting.
+    *
     * @param  timeout  the duration of time to wait before giving up.
     * @return the head of this queue, or `None` if the specified
     *     waiting time elapses before an element is available.
-    * @throws  InterruptedException  if interrupted while waiting.
     */
   def poll(timeout: Duration): Option[TxReport] =
     Option {
@@ -110,8 +111,9 @@ class TxReportQueue(
   /** Retrieves and removes the head of this queue,
     * waiting if necessary until an element becomes available.
     *
+    * Throws [[http://docs.oracle.com/javase/7/docs/api/java/lang/InterruptedException.html InterruptedException]]  if interrupted while waiting.
+    *
     * @return the head of this queue.
-    * @throws  InterruptedException  if interrupted while waiting.
     */
   def take(): TxReport =
     new TxReport(queue.take())

@@ -1,4 +1,5 @@
-import sbtunidoc.Plugin._, UnidocKeys._
+import sbtunidoc.Plugin._
+import sbtunidoc.Plugin.UnidocKeys._
 import scala.util.matching.Regex.Match
 
 
@@ -16,12 +17,12 @@ scalacOptions in (Compile, doc) ++=
   Seq(
     "-implicits",
     "-sourcepath", baseDirectory.value.getAbsolutePath,
-    "-doc-source-url", s"https://github.com/pellucidanalytics/datomisca/tree/v${version.value}€{FILE_PATH}.scala")
+    "-doc-source-url", s"https://github.com/dwhjames/datomisca/tree/v${version.value}€{FILE_PATH}.scala")
 
 
 autoAPIMappings := true
 
-apiURL := Some(url("https://pellucidanalytics.github.io/datomisca/api/current/"))
+apiURL := Some(url("https://dwhjames.github.io/datomisca/api/current/"))
 
 apiMappings += {
   val jarFiles = (dependencyClasspath in Compile).value.files
