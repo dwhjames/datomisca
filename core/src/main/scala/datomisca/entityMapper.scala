@@ -17,6 +17,7 @@
 package datomisca
 
 import scala.annotation.implicitNotFound
+import scala.util.control.NonFatal
 
 import functional._
 
@@ -40,7 +41,7 @@ trait EntityReader[A] extends EntityMapper[A] {
     try {
       self.read(e)
     } catch {
-      case ex: Throwable => other.read(e)
+      case NonFatal(ex) => other.read(e)
     }
   }
 
