@@ -73,7 +73,7 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
 
     toDatomic(new URI("urn:isbn:096139210x")) shouldBe a [URI]
 
-    toDatomic(Array(Byte.MinValue)) shouldBe a [Array[Byte]]
+    toDatomic(Array(Byte.MinValue)) shouldBe a [Array.emptyByteArray.type]
 
     toDatomic(Datomic.KW(":my-kw")) shouldBe a [Keyword]
 

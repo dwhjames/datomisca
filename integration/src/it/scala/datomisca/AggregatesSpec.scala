@@ -112,11 +112,11 @@ class AggregatesSpec
 
     Datomic.q(findSmallestRadius, db).headOption.value should equal (1163.0)
 
-    Datomic.q(findAverageRadius, db).headOption.value should equal (53390.17647058824)
+    Datomic.q(findAverageRadius, db).headOption.value.asInstanceOf[Double] should equal (53390.176 +- 0.0005)
 
     Datomic.q(findMedianRadius, db).headOption.value should equal (2631.2)
 
-    Datomic.q(findStdDevOfRadius, db).headOption.value should equal (161902.5278094546)
+    Datomic.q(findStdDevOfRadius, db).headOption.value.asInstanceOf[Double] should equal (161902.528 +- 0.0005)
 
     Datomic.q(findRandomObject, db) should have size (1)
 
@@ -136,7 +136,7 @@ class AggregatesSpec
 
     Datomic.q(choose5, db) should have size (1)
 
-    Datomic.q(findAvgObjectNameLength, db).headOption.value should equal (5.470588235294118)
+    Datomic.q(findAvgObjectNameLength, db).headOption.value.asInstanceOf[Double] should equal (5.471 +- 0.0005)
 
     Datomic.q(countAttributesAndValueTypesInSchema, db) should have size (1)
   }

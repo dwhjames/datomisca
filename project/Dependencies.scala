@@ -8,7 +8,7 @@ object Dependencies {
     val datomic       = "0.9.4766.16"
 
     val specs2        = "2.3.12"
-    val scalaTest     = "2.1.7"
+    val scalaTest     = "2.2.4"
   }
 
   object Compile {
