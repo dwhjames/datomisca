@@ -1,11 +1,9 @@
-import sbtunidoc.Plugin._
 
-
-organization in ThisBuild := "com.pellucid"
+organization in ThisBuild := "com.github.dwhjames"
 
 licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-version in ThisBuild := "0.7-alpha-11"
+version in ThisBuild := "0.7-RC1"
 
 
 scalaVersion in ThisBuild := "2.11.5"
@@ -45,8 +43,6 @@ shellPrompt in ThisBuild := CustomShellPrompt.customPrompt
 
 // configure publishing to bintray
 bintray.Plugin.bintraySettings
-
-bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("pellucid")
 
 
 lazy val datomisca = project.
