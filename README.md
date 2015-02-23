@@ -1,4 +1,6 @@
-# [Datomisca](https://dwhjames.github.io/datomisca), embrace Datomic the Scala way [![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=develop)](https://travis-ci.org/dwhjames/datomisca)
+[![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=develop)](https://travis-ci.org/dwhjames/datomisca)
+
+# [Datomisca](https://dwhjames.github.io/datomisca), embrace Datomic the Scala way
 
 ### _A Scala API for [Datomic](http://www.datomic.com)_
 
