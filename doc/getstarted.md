@@ -14,54 +14,52 @@ Here is a very simple sample to get started with Datomisca.
 
 ## Github project
 
-You can find this sample in Datomic Github Samples [Getting-Started](https://github.com/pellucidanalytics/datomisca/tree/master/samples/getting-started)
+You can find this sample in Datomic Github Samples [Getting-Started](https://github.com/dwhjames/datomisca/tree/master/samples/getting-started)
 
 
 ## #1 Add resolvers to SBT
 
 You can add that in your `build.sbt` or `Build.scala` depending on your choice.
 
-```scala
-resolvers ++= Seq(
-  // to get Datomisca
-  "Pellucid Bintray"  at "http://dl.bintray.com/content/pellucid/maven",
-  ...
-)
-```
+{% highlight scala %}
+resolvers += Resolver.bintrayRepo("dwhjames", "maven")
+// to get Datomic free (for pro, you must put in your own repo or local)
+resolvers += "clojars" at "https://clojars.org/repo"
+{% endhighlight %}
 
 ## #2 Add dependencies
 
 > The latest release is {{ site.latestrelease }}
 
-```scala
+{% highlight scala %}
 libraryDependencies ++= Seq(
-  "com.pellucid" %% "datomisca" % "{{ site.latestrelease }}",
+  "com.github.dwhjames" %% "datomisca" % "{{ site.latestrelease }}",
   "com.datomic" % "datomic-free" % "0.9.4724"
 )
-```
+{% endhighlight %}
 
 ## #3 Add imports
 
 The following imports should be sufficient to get you started.
 
-```scala
+{% highlight scala %}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import datomisca._
-```
+{% endhighlight %}
 
 
 ## #4 Create a connection
 
 To use Datomisca, you need an implicit connection to Datomic in your scope.
 
-```scala
+{% highlight scala %}
 // Datomic URI definition
 val uri = "datomic:mem://datomisca-getting-started"
 
 // Datomic Connection as an implicit in scope
 implicit val conn = Datomic.connect(uri)
-```
+{% endhighlight %}
 
 > Datomic’s public API is threadsafe, and there is no need to pool the Datomic connection. Datomic will return the same instance of Connection for a given URI, no matter how many times you ask.  And Datomic will cache that single instance even if you don't. ([Stuart Halloway 2013-06-25](https://groups.google.com/d/msg/datomic/ekwfTZbMCaE/GL4J0AyonI8J))
 
@@ -70,9 +68,9 @@ implicit val conn = Datomic.connect(uri)
 
 We start from scratch so let's first create a DB.
 
-```scala
+{% highlight scala %}
 Datomic.createDatabase(uri)
-```
+{% endhighlight %}
 
 > This method returns a boolean. If true, then a fresh database was created, or else a database already existed for the given URI.
 
@@ -96,7 +94,7 @@ Let's create four attributes to represent a `Person`:
 - `birth:      SchemaType.instant, Cardinality.one`
 - `hobbies:    SchemaType.ref,     Cardinality.many`
 
-```scala
+{% highlight scala %}
 object PersonSchema {
   // Namespaces definition to be reused in Schema
   object ns {
@@ -138,7 +136,7 @@ object PersonSchema {
 
 }
 
-```
+{% endhighlight %}
 
  - `Namespace` is just a helper making our code clearer when creating keywords.
  - `Attribute` and `AddIdent` are helpers for creating Datomic schema data.
@@ -154,9 +152,9 @@ Scala 2.10 Execution Context.
 
 To ask the transaction to perform some operations, we use the following method:
 
-```scala
+{% highlight scala %}
 Datomic.transact(txData: TraversableOnce[TxData])(implicit conn: Connection, ec: ExecutionContext): Future[TxReport]
-```
+{% endhighlight %}
 
 As you can see, it accepts a collection of transaction data and returns a `Future[TxReport]`.
 
@@ -164,13 +162,13 @@ As you can see, it accepts a collection of transaction data and returns a `Futur
 
 So let's transact our schema into Datomic:
 
-```scala
+{% highlight scala %}
 Datomic.transact(PersonSchema.txData) flatMap { tx =>
   ...
   // do something
   ...
 }
-```
+{% endhighlight %}
 
 > We use `flatMap` because we expect to perform other asynchronous operations upon the completion of the transaction.
 
@@ -181,7 +179,7 @@ The following code will construct the transaction data for a person called
 John, whose hometown is Brooklyn, was born on Jan, 1 1980, and likes
 travelling and watching movies.
 
-```scala
+{% highlight scala %}
 // John temporary ID
 val johnId = DId(Partition.USER)
 // John person entity
@@ -192,18 +190,18 @@ val john: TxData = (
       += (PersonSchema.birth -> new java.util.Date(80, 0, 1))
       ++= (PersonSchema.hobbies -> Set(PersonSchema.movies, PersonSchema.travel))
   ) withId johnId
-```
+{% endhighlight %}
 
 The transaction data `john` is equivalent to the following Clojure map.
 
-```clojure
+{% highlight clojure %}
 (let [johnId (d/tempid :db.part/user)]
   {:db/id (d/tempid :db.part/user)
    :person/name "John"
    :person/home "Brooklyn, NY"
    :person/birth (java.util.Date 80 0 1)
    :person/hobbies [:person.hobby/movies :person.hobby/travel]})
-```
+{% endhighlight %}
 
 In Datomisca, the `DId` type is one of the ways of constructing entity
 ids, and here we are constructing a temporary entity id in the user partition.
@@ -220,21 +218,21 @@ pair is statically checked against the attribute’s type and cardinality.
 
 Transacting regular data and schema data is no different.
 
-```scala
+{% highlight scala %}
 // creates an entity
 Datomic.transact(john) map { tx =>
   val realJohnId = tx.resolve(johnId)
   ...
   // Do something else
 }
-```
+{% endhighlight %}
 
 - `tx.resolve(johnId)` is used to retrieve the real Id after insertion from temporary Id.
 - you can also retrieve several ID at the same time:
 
-```scala
+{% highlight scala %}
 val Seq(realId1, realId2, realId3) = tx.resolve(id1, id2, id3)
-```
+{% endhighlight %}
 
 
 ## #10 Write a query
@@ -248,7 +246,7 @@ parameters** (more features are also in the roadmap).
 
 Let's write a "find person by name" query:
 
-```scala
+{% highlight scala %}
 val queryFindByName = Query("""
   [:find ?e ?home
    :in $ ?name
@@ -256,7 +254,7 @@ val queryFindByName = Query("""
    [?e :person/name ?name]
    [?e :person/home ?home]]
 """)
-```
+{% endhighlight %}
 
 - This creates a query that accepts two input parameters (`$` and `?age`) and returning two ouput parameters (`?e` and `?home`)
 - the query is a static structure and you can declare it once and reuse it as much as you want.
@@ -267,7 +265,7 @@ Datomisca’s query macro also supports
 [string interpolation](http://docs.scala-lang.org/overviews/core/string-interpolation.html),
 which means that the query can be written as follows.
 
-```scala
+{% highlight scala %}
 val queryFindByName = Query(s"""
   [:find ?e ?home
    :in $$ ?name
@@ -275,7 +273,7 @@ val queryFindByName = Query(s"""
    [?e ${PersonSchema.name} ?name]
    [?e ${PersonSchema.home} ?home]]
 """)
-```
+{% endhighlight %}
 
 Remember to watch out for escaping the datasource `$` as `$$`. The `toString`
 method is called on the values of expressions that are interpolated. The
@@ -283,7 +281,7 @@ string representation of attributes is their keyword, which is why we can
 rewrite the query this way. The query treats expressions of type `String`
 specially, by double quoting them, so,
 
-```scala
+{% highlight scala %}
 val name = "John"
 val queryFindByName = Query(s"""
   [:find ?e ?home
@@ -292,22 +290,22 @@ val queryFindByName = Query(s"""
    [?e ${PersonSchema.name} $name]
    [?e ${PersonSchema.home} ?home]]
 """)
-```
+{% endhighlight %}
 
 will result in a query with a clause
 
-```clojure
+{% highlight clojure %}
 [?e :person/name "John"]
-```
+{% endhighlight %}
 
 
 ## #11 Execute a query
 
 Queries are executed using the `Datomic.q` method, with your query and the appropriate input parameters.
 
-```scala
+{% highlight scala %}
 val results = Datomic.q(queryFindByName, conn.database, "John")
-```
+{% endhighlight %}
 
 - `Datomic.q` expects a query and the right number of input parameters according to your query (here two)
 - `conn.database` is the ‘current’ database value available from the connection `conn`.
@@ -320,13 +318,13 @@ According to the input query, the compiler has inferred that there should be two
 
 Thus, `results` is a `Iterable[(Any, Any)]`.
 
-```scala
+{% highlight scala %}
 results.headOption map {
   case (eid: Long, home: String) =>
     ...
     // do something
 }
-```
+{% endhighlight %}
 
 Note that results is a `Iterable[(Any, Any)]` and not `Iterable[(Long, String)]`
 as you might hope. Why? Because with the info provided in the query,
@@ -341,9 +339,9 @@ a `case`.
 With the previous query, we retrieved `eid`, which is an entity id, and now we
 can get the entity from the database and inspect it.
 
-```scala
+{% highlight scala %}
 val entity: Entity = conn.database.entity(eid)
-```
+{% endhighlight %}
 
 As before, `conn.database` retrieves the currently available value of the
 database, and the `entity` method looks up the entity map for a given
@@ -357,11 +355,11 @@ on the implicit `RichEntity` allows us to use attributes rather than
 keywords to retrieve values, in a similar fashion to how we constructed
 transaction data above.
 
-```scala
+{% highlight scala %}
 val johnName: String = entity(PersonSchema.name)
 val johnHome: String = entity(PersonSchema.home)
 val johnBirth: java.util.Date = entity(PersonSchema.birth)
-```
+{% endhighlight %}
 
 The attributes possess the type information, so Datomisca computes the correct
 return type.
@@ -371,9 +369,9 @@ it can’t do this for reference attributes as Datomic will return values of typ
 `Entity` in most cases, but `Keyword` if the referenced entity has an ident
 attribute, which is the case here:
 
-```scala
+{% highlight scala %}
 val johnHobbies = entity.read[Set[Keyword]](PersonSchema.hobbies)
-```
+{% endhighlight %}
 
 The `read` method allows us to do a type-safe cast.
 

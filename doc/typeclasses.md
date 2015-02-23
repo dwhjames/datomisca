@@ -16,11 +16,11 @@ as an entity id for a transaction entity (of type `Long`).
 This type class is used by `Database.asOf`, `Database.since`,
 `Database.entidAt`, and `Log.txRange`. For example:
 
-```scala
+{% highlight scala %}
 val db: Database = …
 val db1 = db.asOf(1001)
 val db2 = db.since(new java.util.Date)
-```
+{% endhighlight %}
 
 
 ## Permanent entity ids

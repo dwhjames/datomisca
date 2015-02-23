@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Datomisca by Pellucid & Zenexity
+title: Datomisca
 ---
 
 # Embrace Datomic the Scala way
 
-#### **News:** 2014-04-21 : [v{{ site.latestrelease }}](doc/releases.html#release-v{{ site.latestrelease }}) released
+#### **News** : [v{{ site.latestrelease }}](doc/releases.html#release) released
 
 > For the impatient, head directly to [Getting Started](doc/getstarted.html)
 
@@ -23,7 +23,7 @@ Datomisca uses Scala features to enhance the Datomic experience for Scala develo
 - Advanced functional programming
 - Compile-time enhancement with Scala 2.10 macros
 
-<br/>
+
 ## Features of the API
 
 #### <a href="doc/features.html#features-reactive" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font-small">Reactive transactions (asynchronous & non-blocking)</span></span></a>
@@ -40,8 +40,8 @@ Datomisca uses Scala features to enhance the Datomic experience for Scala develo
 
 #### <a href="doc/features.html#features-dtm-parsing" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font-small">Parse Datomic DTM files at runtime</span></span></a>
 
-
 <br/>
+
 ## Extended features of the API
 
 
@@ -50,6 +50,7 @@ Datomisca uses Scala features to enhance the Datomic experience for Scala develo
 #### <a href="doc/features.html#features-mapping" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font-small">Type-safe mapping from Scala structures to Datomic entities</span></span></a>
 
 <br/>
+
 ## Extensions to Datomisca
 
 #### <a href="doc/play-datomisca.html" class="icon-circle-arrow-right"><span class="space5"><span class="spec-font">_Play Datomisca_, a module for using Datomisca with the Play Framework</span></span></a>

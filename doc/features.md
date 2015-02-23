@@ -8,7 +8,7 @@ title: Features
 ## <a name="features-reactive">Reactive transactions (Asynchronous &amp; Non-Blocking with potential execution isolation)</a>
 Using Scala 2.10 Execution Contexts &amp; Futures, Datomic transactions are executed by Datomisca in an asynchronous & non-blocking way managed by the provided execution context. In this way, you can control in which pool of threads you want to execute your transactor requests (communicating with remote Datomic transactor).
 
-```scala
+{% highlight scala %}
 val person = Namespace("person")
 
 Datomic.transact(
@@ -19,15 +19,15 @@ Datomic.transact(
 ) map { tx =>
   ...
 }
-```
+{% endhighlight %}
 
-<br/>
+
 ## <a name="features-scalatypes">Conversion between Datomic/Clojure and Scala types</a>
 
 When Datomic entities are created or accessed, Datomic types (ie Clojure types) are retrieved. From Java API, all those types are seen as `Object` which is not really useful. So you could end into using `.asInstanceOf[T]` everywhere. Hopefully, Datomisca provides some conversion from/to Datomic types.
 
 
-```scala
+{% highlight scala %}
 val s: DString = Datomic.toDatomic("toto")
 val l: DLong   = Datomic.toDatomic("5L")
 
@@ -37,9 +37,9 @@ val s: Long   = Datomic.fromDatomic(DLong(5L))
 val entity = database.entity(entityId)
 val name   = entity.as[String](person / "name")
 val age    = entity.as[Long](person / "age")
-```
+{% endhighlight %}
 
-<br/>
+
 ## <a name="features-compilequeries">Compile-Time query validation &amp; input/output parameters inference</a>
 
 Based on Scala 2.10 Macros, Datomisca provides :
@@ -47,7 +47,7 @@ Based on Scala 2.10 Macros, Datomisca provides :
 - **Compile-time validation of Datomic query strings** and syntax error detection.
 - **Compile-time inference of input/output parameters** (number for now): when you execute the query, you must pass the right number of input parameters and manage the right number of output parameters.
 
-```scala    
+{% highlight scala %}    
 // Valid query
 // produces a Query with :
 //   - 2 input arguments (db and ?char)
@@ -74,7 +74,7 @@ scala> Query("""
 <console>:15: error: `]' expected but `p' found
                 [ ?e person/character ?char ]
                      ^
-```
+{% endhighlight %}
 
 Datomisca is also able to manage:
 
@@ -85,12 +85,11 @@ Datomisca is also able to manage:
 _In the future, based on type-safe Schema presented below, we will also be able to infer parameter types._
 
 
-<br/>
 ## <a name="features-staticqueries">Queries as static reusable structures</a>
 
 This is a very important idea in Datomic: **a query is a static structure** which can be built once and reused as many times as you want.
 
-```scala
+{% highlight scala %}
 val query = Query("""
   [ :find ?e ?n 
     :in $ ?char
@@ -106,13 +105,14 @@ Datomic.q( query, database, DRef(person.character/violent) ) map {
 Datomic.q( query, database, DRef(person.character/clever) ) map {
   case (e: DLong, n: DString) => // do something
 }
-```
-<br/>
+{% endhighlight %}
+
+
 ## <a name="features-ops">Build transaction data programmatically</a>
 
 You can build your operations `add` / `retract` / `addEntity` / `retractEntity` operations in a programmatic way.
 
-```scala
+{% highlight scala %}
 val person = Namespace("person")
 
 Datomic.transact(
@@ -130,8 +130,9 @@ Datomic.transact(
 ) map { tx =>
   ...
 }
-```
-<br/>
+{% endhighlight %}
+
+
 ## <a name="features-schema">Build schemas programmatically</a>
 
 Schema is one of the remarkable specific features of Datomic : schema attributes contrain the type and cardinality of field of Datomic entities. 
@@ -150,7 +151,7 @@ In Datomisca, we have provided some helpers to create those attributes in a prog
 
 Moreover Datomisca attributes are static-typed and as you can imagine, the attribute type can be used for extended conversion features presented herebelow.
 
-```scala
+{% highlight scala %}
 val uri = "datomic:mem://datomicschemaqueryspec"
 
 val person = new Namespace("person") {
@@ -187,16 +188,16 @@ val schema = Seq(
 Datomic.transact(schema) map { tx =>
   ...
 }
-```
+{% endhighlight %}
 
-<br/>
+
 ## <a name="features-dtm-parsing">Parse Datomic DTM files at runtime</a>
 
 If you wrote your schema in a DTM file for example, you can load and parse it at runtime.
 
 Naturally doing this, you lose the power of compile-time validation.
 
-```scala
+{% highlight scala %}
 // example with Datomic seattle sample schema
 val schemaIs = current.resourceAsStream("seattle-schema.dtm").get
 val schemaContent = Source.fromInputStream(schemaIs).mkString
@@ -205,17 +206,16 @@ val schema = Datomic.parseOps(schemaContent)
 Datomic.transact(schema) map { tx =>
   ...
 }
-```
+{% endhighlight %}
 
 
-<br/>
 # <a name="features">Extended Features</a>
 
 ## <a name="features-typesafe-ops">Type-safe Datomic operations using Schema</a>
 
 Based on previously described static-typed schema, you can build your operations `add` / `retract` / `addEntity` / `retractEntity` operations in a type-safe way.
 
-```scala
+{% highlight scala %}
 val person = Namespace("person")
 
 object PersonSchema {
@@ -251,17 +251,16 @@ val e = (SchemaEntity.newBuilder
   += (PersonSchema.age   -> 45L)
   += (PersonSchema.birth -> birthDate)
 ) withId DId(Partition.USER)
+{% endhighlight %}
 
-```
 
-<br/>
 ## <a name="features-mapping">Type-safe mapping from/to Scala structure to/from Datomic entities</a>
 
 Based on Scala typeclass conversions and pure functional combinators, we provide this tool to build mappers to convert datomic entities from/to Scala structures such as case classes, tuples or collections.
 These conversions are naturally based on previously described schema typed attributes.
 
 
-```scala
+{% highlight scala %}
 import Datomic._
 import DatomicMapping._
 
@@ -313,4 +312,4 @@ assert(
   (p.age   == age)  &&
   (p.birth == birth)
 )
-```
+{% endhighlight %}

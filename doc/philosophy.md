@@ -27,7 +27,6 @@ In our design, we are also deeply aware of the architecture of Datomic:
 - Multiple, distributed peers with local cache
 
 
-<br/>
 ## <a name="philosophy-enhance">Datomic features with a Scala flavor</a>
 
 Datomisca uses Scala features to enhance the Datomic experience for Scala developers:
