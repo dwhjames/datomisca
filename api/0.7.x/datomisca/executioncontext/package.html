@@ -1,0 +1,160 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>executioncontext - datomisca.executioncontext</title>
+          <meta name="description" content="executioncontext - datomisca.executioncontext" />
+          <meta name="keywords" content="executioncontext datomisca.executioncontext" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../lib/template.js"></script>
+      <script type="text/javascript" src="../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../index.html';
+            var hash = 'datomisca.executioncontext.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../lib/package_big.png" />
+        <p id="owner"><a href="../package.html" class="extype" name="datomisca">datomisca</a></p>
+        <h1>executioncontext</h1><span class="permalink">
+      <a href="../../index.html#datomisca.executioncontext.package" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">executioncontext</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="datomisca.executioncontext.Context" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ContextextendsAnyRef"></a>
+      <a id="Context:Context"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Context.html"><span class="name">Context</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#datomisca.executioncontext.package@ContextextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A Context containing the implicit ExecutionContext and ExecutorService
+It creates an executioncontext based on a pool of threads defined by 3 parameters:</p><div class="fullcomment"><div class="comment cmt"><p>A Context containing the implicit ExecutionContext and ExecutorService
+It creates an executioncontext based on a pool of threads defined by 3 parameters:</p><ul><li>min : the minimum number of threads in the pool</li><li>num : the expected number of threads in the pool or a multiplier of the nb of cores (2x, 4x)</li><li>max : the maximum number of threads in the pool
+</li></ul></div></div>
+    </li><li name="datomisca.executioncontext.CustomExecutionContext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="CustomExecutionContextextendsExecutionContextExecutor"></a>
+      <a id="CustomExecutionContext:CustomExecutionContext"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="CustomExecutionContext.html"><span class="name">CustomExecutionContext</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.concurrent.ExecutionContextExecutor" class="extype" target="_top">ExecutionContextExecutor</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#datomisca.executioncontext.package@CustomExecutionContextextendsExecutionContextExecutor" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Just shamefully copying scala ExecutionContext implementation based on ForkJoinPool
+and simplifying it a bit for my purpose ;)
+</p>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="datomisca.executioncontext.ExecutionContextHelper" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ExecutionContextHelper"></a>
+      <a id="ExecutionContextHelper:ExecutionContextHelper"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ExecutionContextHelper$.html"><span class="name">ExecutionContextHelper</span></a><span class="result"> extends <a href="Context.html" class="extype" name="datomisca.executioncontext.Context">Context</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../index.html#datomisca.executioncontext.package@ExecutionContextHelper" title="Permalink" target="_top">
+        <img src="../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">DefaultImplicits to import when using play2-async-nio outside Play2 to have implicit ExecutionContext and ExecutorService</p><div class="fullcomment"><div class="comment cmt"><p>DefaultImplicits to import when using play2-async-nio outside Play2 to have implicit ExecutionContext and ExecutorService</p><pre><span class="kw">import</span> datomisca.executioncontext.ExecutionContextHelper._</pre></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

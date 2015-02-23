@@ -1,0 +1,1198 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>Attribute - datomisca.Attribute</title>
+          <meta name="description" content="Attribute - datomisca.Attribute" />
+          <meta name="keywords" content="Attribute datomisca.Attribute" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../lib/template.js"></script>
+      <script type="text/javascript" src="../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../index.html';
+            var hash = 'datomisca.Attribute';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="type">
+      <div id="definition">
+        <a href="Attribute$.html" title="Go to companion"><img src="../lib/class_to_object_big.png" /></a>
+        <p id="owner"><a href="package.html" class="extype" name="datomisca">datomisca</a></p>
+        <h1><a href="Attribute$.html" title="Go to companion">Attribute</a></h1><h3><span class="morelinks"><div>
+            Related Docs:
+            <a href="Attribute$.html" title="See companion">object Attribute</a>
+            | <a href="package.html" class="extype" name="datomisca">package datomisca</a>
+          </div></span></h3><span class="permalink">
+      <a href="../index.html#datomisca.Attribute" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Attribute</span><span class="tparams">[<span name="DD">DD</span>, <span name="Card">Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a></span>]</span><span class="params">(<span name="ident">ident: <a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>, <span name="valueType">valueType: <a href="SchemaType.html" class="extype" name="datomisca.SchemaType">SchemaType</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>, <span name="cardinality">cardinality: <span class="extype" name="datomisca.Attribute.Card">Card</span></span>, <span name="doc">doc: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="unique">unique: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="Unique.html" class="extype" name="datomisca.Unique">Unique</a>] = <span class="symbol">None</span></span>, <span name="index">index: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>, <span name="fulltext">fulltext: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>, <span name="isComponent">isComponent: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>, <span name="noHistory">noHistory: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>)</span><span class="result"> extends <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a> with <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a> with <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>The representation of Datomic attributes
+</p></div><dl class="attributes block"> <dt>Source</dt><dd><a href="https://github.com/dwhjames/datomisca/tree/v0.7-RC1/core/src/main/scala/datomisca/Attribute.scala" target="_blank">Attribute.scala</a></dd></dl><div class="toggleContainer block">
+          <span class="toggle">Linear Supertypes</span>
+          <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a>, <span class="extype" name="java.io.Serializable">Serializable</span>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Product" class="extype" target="_top">Product</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Equals" class="extype" target="_top">Equals</a>, <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a>, <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></div>
+        </div></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        <div id="order">
+              <span class="filtertype">Ordering</span>
+              <ol>
+                
+                <li class="alpha in"><span>Alphabetic</span></li>
+                <li class="inherit out"><span>By inheritance</span></li>
+              </ol>
+            </div>
+        <div id="ancestors">
+                <span class="filtertype">Inherited<br />
+                </span>
+                <ol id="linearization">
+                  <li class="in" name="datomisca.Attribute"><span>Attribute</span></li><li class="in" name="scala.Serializable"><span>Serializable</span></li><li class="in" name="java.io.Serializable"><span>Serializable</span></li><li class="in" name="scala.Product"><span>Product</span></li><li class="in" name="scala.Equals"><span>Equals</span></li><li class="in" name="datomisca.KeywordIdentified"><span>KeywordIdentified</span></li><li class="in" name="datomisca.TxData"><span>TxData</span></li><li class="in" name="scala.AnyRef"><span>AnyRef</span></li><li class="in" name="scala.Any"><span>Any</span></li>
+                </ol>
+              </div><div id="ancestors">
+                <span class="filtertype">Implicitly<br />
+                </span>
+                <ol id="implicits"> <li class="in" name="datomisca.RichAttribute" data-hidden="false"><span>by RichAttribute</span></li><li class="in" name="scala.Predef.any2stringadd" data-hidden="true"><span>by any2stringadd</span></li><li class="in" name="scala.Predef.StringFormat" data-hidden="true"><span>by StringFormat</span></li><li class="in" name="scala.Predef.Ensuring" data-hidden="true"><span>by Ensuring</span></li><li class="in" name="scala.Predef.ArrowAssoc" data-hidden="true"><span>by ArrowAssoc</span></li>
+                </ol>
+              </div><div id="ancestors">
+            <span class="filtertype"></span>
+            <ol>
+              <li class="hideall out"><span>Hide All</span></li>
+              <li class="showall in"><span>Show all</span></li>
+            </ol>
+            <a href="http://docs.scala-lang.org/overviews/scaladoc/usage.html#members" target="_blank">Learn more about member selection</a>
+          </div>
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        <div id="constructors" class="members">
+              <h3>Instance Constructors</h3>
+              <ol><li name="datomisca.Attribute#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="&lt;init&gt;(ident:datomisca.Keyword,valueType:datomisca.SchemaType[DD],cardinality:Card,doc:Option[String],unique:Option[datomisca.Unique],index:Option[Boolean],fulltext:Option[Boolean],isComponent:Option[Boolean],noHistory:Option[Boolean]):datomisca.Attribute[DD,Card]"></a>
+      <a id="&lt;init&gt;:Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">new</span>
+      </span>
+      <span class="symbol">
+        <span class="name">Attribute</span><span class="params">(<span name="ident">ident: <a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>, <span name="valueType">valueType: <a href="SchemaType.html" class="extype" name="datomisca.SchemaType">SchemaType</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>, <span name="cardinality">cardinality: <span class="extype" name="datomisca.Attribute.Card">Card</span></span>, <span name="doc">doc: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>] = <span class="symbol">None</span></span>, <span name="unique">unique: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="Unique.html" class="extype" name="datomisca.Unique">Unique</a>] = <span class="symbol">None</span></span>, <span name="index">index: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>, <span name="fulltext">fulltext: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>, <span name="isComponent">isComponent: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>, <span name="noHistory">noHistory: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>] = <span class="symbol">None</span></span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@&lt;init&gt;(ident:datomisca.Keyword,valueType:datomisca.SchemaType[DD],cardinality:Card,doc:Option[String],unique:Option[datomisca.Unique],index:Option[Boolean],fulltext:Option[Boolean],isComponent:Option[Boolean],noHistory:Option[Boolean]):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">construct an attribute out of an ident, valueType,
+    cardinality, and other optional components
+</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="scala.AnyRef#!=" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="!=(x$1:Any):Boolean"></a>
+      <a id="!=(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $bang$eq" class="name">!=</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@!=(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.AnyRef###" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="##():Int"></a>
+      <a id="##():Int"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $hash$hash" class="name">##</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Int" class="extype" target="_top">Int</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@##():Int" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Predef.any2stringadd#+" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="+(other:String):String"></a>
+      <a id="+(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $plus" class="implicit">+</span><span class="params">(<span name="other">other: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@+(other:String):String" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method any2stringadd in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>any2stringadd</dd></dl></div>
+    </li><li name="scala.Predef.ArrowAssoc#-&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="-&gt;[B](y:B):(A,B)"></a>
+      <a id="-&gt;[B](B):(Attribute[DD,Card],B)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $minus$greater" class="implicit">-&gt;</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>], <span class="extype" name="scala.Predef.ArrowAssoc.-&gt;.B">B</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@-&gt;[B](y:B):(A,B)" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method ArrowAssoc in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd><dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#==" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="==(x$1:Any):Boolean"></a>
+      <a id="==(Any):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $eq$eq" class="name">==</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@==(x$1:Any):Boolean" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="scala.Any#asInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="asInstanceOf[T0]:T0"></a>
+      <a id="asInstanceOf[T0]:T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">asInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <span class="extype" name="scala.Any.asInstanceOf.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@asInstanceOf[T0]:T0" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="datomisca.RichAttribute#attribute" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="attribute:datomisca.Attribute[DD,Card]"></a>
+      <a id="attribute:Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">attribute</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@attribute:datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] performed by method RichAttribute in <a href="package.html" class="extype" name="datomisca">datomisca</a>.
+            This conversion will take place only if DD is a subclass of AnyRef (DD &lt;: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>) and at the same time Card is a subclass of Cardinality (Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a>).
+          </dd><dt>Definition Classes</dt><dd><a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a></dd></dl></div>
+    </li><li name="datomisca.Attribute#cardinality" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cardinality:Card"></a>
+      <a id="cardinality:Card"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">cardinality</span><span class="result">: <span class="extype" name="datomisca.Attribute.Card">Card</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@cardinality:Card" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#clone" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="clone():Object"></a>
+      <a id="clone():AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">clone</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@clone():Object" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.CloneNotSupportedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.Attribute#doc" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="doc:Option[String]"></a>
+      <a id="doc:Option[String]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">doc</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@doc:Option[String]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A"></a>
+      <a id="ensuring((Attribute[DD,Card])⇒Boolean,⇒Any):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@ensuring(cond:A=&gt;Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:A=&gt;Boolean):A"></a>
+      <a id="ensuring((Attribute[DD,Card])⇒Boolean):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: (<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]) ⇒ <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@ensuring(cond:A=&gt;Boolean):A" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:Boolean,msg:=&gt;Any):A"></a>
+      <a id="ensuring(Boolean,⇒Any):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>, <span name="msg">msg: ⇒ <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@ensuring(cond:Boolean,msg:=&gt;Any):A" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.Predef.Ensuring#ensuring" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ensuring(cond:Boolean):A"></a>
+      <a id="ensuring(Boolean):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">ensuring</span><span class="params">(<span name="cond">cond: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@ensuring(cond:Boolean):A" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method Ensuring in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>Ensuring</dd></dl></div>
+    </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="eq(x$1:AnyRef):Boolean"></a>
+      <a id="eq(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">eq</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@eq(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#finalize" visbl="prt" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="finalize():Unit"></a>
+      <a id="finalize():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">finalize</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@finalize():Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Attributes</dt><dd>protected[<a href="../java$lang.html" class="extype" name="java.lang">java.lang</a>] </dd><dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="symbol">classOf[java.lang.Throwable]</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.Predef.StringFormat#formatted" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="formatted(fmtstr:String):String"></a>
+      <a id="formatted(String):String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">formatted</span><span class="params">(<span name="fmtstr">fmtstr: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@formatted(fmtstr:String):String" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method StringFormat in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>StringFormat</dd><dt>Annotations</dt><dd>
+                <span class="name">@inline</span><span class="args">()</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.Attribute#fulltext" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="fulltext:Option[Boolean]"></a>
+      <a id="fulltext:Option[Boolean]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">fulltext</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@fulltext:Option[Boolean]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="getClass():Class[_]"></a>
+      <a id="getClass():Class[_]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">getClass</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.Class">Class</span>[_]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@getClass():Class[_]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef → Any</dd></dl></div>
+    </li><li name="datomisca.Attribute#id" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="id:datomisca.TempId"></a>
+      <a id="id:TempId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">id</span><span class="result">: <a href="TempId.html" class="extype" name="datomisca.TempId">TempId</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@id:datomisca.TempId" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="datomisca.Attribute#ident" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ident:datomisca.Keyword"></a>
+      <a id="ident:Keyword"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ident</span><span class="result">: <a href="package.html#Keyword=clojure.lang.Keyword" class="extmbr" name="datomisca.Keyword">Keyword</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@ident:datomisca.Keyword" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.Attribute">Attribute</a> → <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a></dd></dl></div>
+    </li><li name="datomisca.Attribute#index" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="index:Option[Boolean]"></a>
+      <a id="index:Option[Boolean]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">index</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@index:Option[Boolean]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="datomisca.Attribute#isComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="isComponent:Option[Boolean]"></a>
+      <a id="isComponent:Option[Boolean]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isComponent</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@isComponent:Option[Boolean]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.Any#isInstanceOf" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <a id="isInstanceOf[T0]:Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">isInstanceOf</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@isInstanceOf[T0]:Boolean" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>Any</dd></dl></div>
+    </li><li name="scala.AnyRef#ne" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ne(x$1:AnyRef):Boolean"></a>
+      <a id="ne(AnyRef):Boolean"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">ne</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@ne(x$1:AnyRef):Boolean" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="datomisca.Attribute#noHistory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="noHistory:Option[Boolean]"></a>
+      <a id="noHistory:Option[Boolean]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">noHistory</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@noHistory:Option[Boolean]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#notify" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notify():Unit"></a>
+      <a id="notify():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notify</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@notify():Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="scala.AnyRef#notifyAll" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="notifyAll():Unit"></a>
+      <a id="notifyAll():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">notifyAll</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@notifyAll():Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="datomisca.RichAttribute#read" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="read[A](implicitev:datomisca.Attribute2EntityReaderCast[DD,Card,A]):datomisca.EntityReader[A]"></a>
+      <a id="read[A](Attribute2EntityReaderCast[DD,Card,A]):EntityReader[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">read</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="Attribute2EntityReaderCast.html" class="extype" name="datomisca.Attribute2EntityReaderCast">Attribute2EntityReaderCast</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>, <span class="extype" name="datomisca.RichAttribute.read.A">A</span>]</span>)</span><span class="result">: <a href="EntityReader.html" class="extype" name="datomisca.EntityReader">EntityReader</a>[<span class="extype" name="datomisca.RichAttribute.read.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@read[A](implicitev:datomisca.Attribute2EntityReaderCast[DD,Card,A]):datomisca.EntityReader[A]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns an entity reader that reads entities with this attribute.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an entity reader that reads entities with this attribute.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an entity reader that reads entities with this attribute.</p></dd></dl><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] performed by method RichAttribute in <a href="package.html" class="extype" name="datomisca">datomisca</a>.
+            This conversion will take place only if DD is a subclass of AnyRef (DD &lt;: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>) and at the same time Card is a subclass of Cardinality (Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a>).
+          </dd><dt>Definition Classes</dt><dd><a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a></dd><dt>Note</dt><dd><span class="cmt"><p>The return type must be explicitly specified, and the
+implicit ensures that it is a valid pairing with the
+Datomic data type specified by the attribute.
+</p></span></dd><dt>See also</dt><dd><span class="cmt"><p><a href="EntityReader.html" class="extype" name="datomisca.EntityReader">EntityReader</a>
+</p></span></dd></dl></div>
+    </li><li name="datomisca.RichAttribute#readOpt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="readOpt[A](implicitev:datomisca.Attribute2EntityReaderCast[DD,Card,A]):datomisca.EntityReader[Option[A]]"></a>
+      <a id="readOpt[A](Attribute2EntityReaderCast[DD,Card,A]):EntityReader[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">readOpt</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="Attribute2EntityReaderCast.html" class="extype" name="datomisca.Attribute2EntityReaderCast">Attribute2EntityReaderCast</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>, <span class="extype" name="datomisca.RichAttribute.readOpt.A">A</span>]</span>)</span><span class="result">: <a href="EntityReader.html" class="extype" name="datomisca.EntityReader">EntityReader</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="datomisca.RichAttribute.readOpt.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@readOpt[A](implicitev:datomisca.Attribute2EntityReaderCast[DD,Card,A]):datomisca.EntityReader[Option[A]]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns an entity reader that optionally reads entities with this attribute,
+or a default value if the attribute is not contained in the entity.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an entity reader that optionally reads entities with this attribute,
+or a default value if the attribute is not contained in the entity.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an entity reader that optionally reads entities with this attribute.</p></dd></dl><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] performed by method RichAttribute in <a href="package.html" class="extype" name="datomisca">datomisca</a>.
+            This conversion will take place only if DD is a subclass of AnyRef (DD &lt;: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>) and at the same time Card is a subclass of Cardinality (Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a>).
+          </dd><dt>Definition Classes</dt><dd><a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a></dd><dt>Note</dt><dd><span class="cmt"><p>The return type must be explicitly specified, and the
+implicit ensures that it is a valid pairing with the
+Datomic data type specified by the attribute.
+</p></span></dd><dt>See also</dt><dd><span class="cmt"><p><a href="EntityReader.html" class="extype" name="datomisca.EntityReader">EntityReader</a>
+</p></span></dd></dl></div>
+    </li><li name="datomisca.RichAttribute#readOrElse" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="readOrElse[A](default:=&gt;A)(implicitev:datomisca.Attribute2EntityReaderCast[DD,Card,A]):datomisca.EntityReader[A]"></a>
+      <a id="readOrElse[A](⇒A)(Attribute2EntityReaderCast[DD,Card,A]):EntityReader[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">readOrElse</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span name="default">default: ⇒ <span class="extype" name="datomisca.RichAttribute.readOrElse.A">A</span></span>)</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="Attribute2EntityReaderCast.html" class="extype" name="datomisca.Attribute2EntityReaderCast">Attribute2EntityReaderCast</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>, <span class="extype" name="datomisca.RichAttribute.readOrElse.A">A</span>]</span>)</span><span class="result">: <a href="EntityReader.html" class="extype" name="datomisca.EntityReader">EntityReader</a>[<span class="extype" name="datomisca.RichAttribute.readOrElse.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@readOrElse[A](default:=&gt;A)(implicitev:datomisca.Attribute2EntityReaderCast[DD,Card,A]):datomisca.EntityReader[A]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns an entity reader that reads entities with this attribute,
+or a default value if the attribute is not contained in the entity.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an entity reader that reads entities with this attribute,
+or a default value if the attribute is not contained in the entity.
+</p></div><dl class="paramcmts block"><dt class="param">default</dt><dd class="cmt"><p>a computation that yields a default value
+  in case the attribute is not found in the entity.</p></dd><dt>returns</dt><dd class="cmt"><p>an entity reader that reads entities with this attribute.</p></dd></dl><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] performed by method RichAttribute in <a href="package.html" class="extype" name="datomisca">datomisca</a>.
+            This conversion will take place only if DD is a subclass of AnyRef (DD &lt;: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>) and at the same time Card is a subclass of Cardinality (Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a>).
+          </dd><dt>Definition Classes</dt><dd><a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a></dd><dt>Note</dt><dd><span class="cmt"><p>The return type must be explicitly specified, and the
+implicit ensures that it is a valid pairing with the
+Datomic data type specified by the attribute.
+</p></span></dd><dt>See also</dt><dd><span class="cmt"><p><a href="EntityReader.html" class="extype" name="datomisca.EntityReader">EntityReader</a>
+</p></span></dd></dl></div>
+    </li><li name="datomisca.Attribute#reverse" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="reverse(implicitev:=:=[datomisca.DatomicRef.type,DD]):datomisca.Attribute[datomisca.DatomicRef.type,datomisca.Cardinality.many.type]"></a>
+      <a id="reverse(=:=[DatomicRef.type,DD]):Attribute[DatomicRef.type,many.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reverse</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="scala.Predef.=:=">=:=</span>[<a href="DatomicRef$.html" class="extype" name="datomisca.DatomicRef">DatomicRef</a>.type, <span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<a href="DatomicRef$.html" class="extype" name="datomisca.DatomicRef">DatomicRef</a>.type, <a href="Cardinality$$many$.html" class="extype" name="datomisca.Cardinality.many">many</a>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@reverse(implicitev:=:=[datomisca.DatomicRef.type,DD]):datomisca.Attribute[datomisca.DatomicRef.type,datomisca.Cardinality.many.type]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Construct the reverse attribute, if this is a reference attribute</p>
+    </li><li name="datomisca.Attribute#reverseComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="reverseComponent(implicitev:=:=[datomisca.DatomicRef.type,DD]):datomisca.Attribute[datomisca.DatomicRef.type,datomisca.Cardinality.one.type]"></a>
+      <a id="reverseComponent(=:=[DatomicRef.type,DD]):Attribute[DatomicRef.type,one.type]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">reverseComponent</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <span class="extype" name="scala.Predef.=:=">=:=</span>[<a href="DatomicRef$.html" class="extype" name="datomisca.DatomicRef">DatomicRef</a>.type, <span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<a href="DatomicRef$.html" class="extype" name="datomisca.DatomicRef">DatomicRef</a>.type, <a href="Cardinality$$one$.html" class="extype" name="datomisca.Cardinality.one">one</a>.type]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@reverseComponent(implicitev:=:=[datomisca.DatomicRef.type,DD]):datomisca.Attribute[datomisca.DatomicRef.type,datomisca.Cardinality.one.type]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Construct the reverse attribute, if this is a component reference attribute</p>
+    </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>
+      <a id="synchronized[T0](⇒T0):T0"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">synchronized</span><span class="tparams">[<span name="T0">T0</span>]</span><span class="params">(<span name="arg0">arg0: ⇒ <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>)</span><span class="result">: <span class="extype" name="java.lang.AnyRef.synchronized.T0">T0</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@synchronized[T0](x$1:=&gt;T0):T0" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd></dl></div>
+    </li><li name="datomisca.Attribute#toAddOps" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toAddOps:datomisca.AddEntity"></a>
+      <a id="toAddOps:AddEntity"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">lazy val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toAddOps</span><span class="result">: <a href="AddEntity.html" class="extype" name="datomisca.AddEntity">AddEntity</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@toAddOps:datomisca.AddEntity" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="datomisca.Attribute#toEDNString" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="toEDNString:String"></a>
+      <a id="toEDNString:String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toEDNString</span><span class="result">: <span class="extype" name="scala.Predef.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@toEDNString:String" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Construct the EDN representation of this attribute</p>
+    </li><li name="datomisca.Attribute#toString" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toString():String"></a>
+      <a id="toString():String"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toString</span><span class="params">()</span><span class="result">: <span class="extype" name="java.lang.String">String</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@toString():String" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">the keyword ident of the attribute as a string</p><div class="fullcomment"><div class="comment cmt"><p>the keyword ident of the attribute as a string</p></div><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.Attribute">Attribute</a> → AnyRef → Any</dd></dl></div>
+    </li><li name="datomisca.Attribute#toTxData" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="toTxData:AnyRef"></a>
+      <a id="toTxData:AnyRef"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">toTxData</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@toTxData:AnyRef" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a href="" class="extype" name="datomisca.Attribute">Attribute</a> → <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></dd></dl></div>
+    </li><li name="datomisca.Attribute#unique" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="unique:Option[datomisca.Unique]"></a>
+      <a id="unique:Option[Unique]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">unique</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<a href="Unique.html" class="extype" name="datomisca.Unique">Unique</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@unique:Option[datomisca.Unique]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="datomisca.Attribute#valueType" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="valueType:datomisca.SchemaType[DD]"></a>
+      <a id="valueType:SchemaType[DD]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">val</span>
+      </span>
+      <span class="symbol">
+        <span class="name">valueType</span><span class="result">: <a href="SchemaType.html" class="extype" name="datomisca.SchemaType">SchemaType</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@valueType:datomisca.SchemaType[DD]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait():Unit"></a>
+      <a id="wait():Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">()</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@wait():Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long,x$2:Int):Unit"></a>
+      <a id="wait(Long,Int):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="arg1">arg1: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Int" class="extype" target="_top">Int</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@wait(x$1:Long,x$2:Int):Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="scala.AnyRef#wait" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="wait(x$1:Long):Unit"></a>
+      <a id="wait(Long):Unit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">final </span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">wait</span><span class="params">(<span name="arg0">arg0: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Long" class="extype" target="_top">Long</a></span>)</span><span class="result">: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Unit" class="extype" target="_top">Unit</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@wait(x$1:Long):Unit" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd>AnyRef</dd><dt>Annotations</dt><dd>
+                <span class="name">@throws</span><span class="args">(<span>
+      
+      <span class="defval" name="classOf[java.lang.InterruptedException]">...</span>
+    </span>)</span>
+              
+        </dd></dl></div>
+    </li><li name="datomisca.Attribute#withDoc" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withDoc(str:String):datomisca.Attribute[DD,Card]"></a>
+      <a id="withDoc(String):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withDoc</span><span class="params">(<span name="str">str: <span class="extype" name="scala.Predef.String">String</span></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@withDoc(str:String):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extend this attribute with a documentation string.</p>
+    </li><li name="datomisca.Attribute#withFullText" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withFullText(b:Boolean):datomisca.Attribute[DD,Card]"></a>
+      <a id="withFullText(Boolean):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withFullText</span><span class="params">(<span name="b">b: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@withFullText(b:Boolean):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extend this attribute with a full text indexing property</p>
+    </li><li name="datomisca.Attribute#withIndex" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withIndex(b:Boolean):datomisca.Attribute[DD,Card]"></a>
+      <a id="withIndex(Boolean):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withIndex</span><span class="params">(<span name="b">b: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@withIndex(b:Boolean):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extend this attribute with an indexing property</p>
+    </li><li name="datomisca.Attribute#withIsComponent" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withIsComponent(b:Boolean):datomisca.Attribute[DD,Card]"></a>
+      <a id="withIsComponent(Boolean):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withIsComponent</span><span class="params">(<span name="b">b: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@withIsComponent(b:Boolean):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extend this attribute with a component relationship constraint.</p>
+    </li><li name="datomisca.Attribute#withNoHistory" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withNoHistory(b:Boolean):datomisca.Attribute[DD,Card]"></a>
+      <a id="withNoHistory(Boolean):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withNoHistory</span><span class="params">(<span name="b">b: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Boolean" class="extype" target="_top">Boolean</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@withNoHistory(b:Boolean):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extend this attribute with a no history property</p>
+    </li><li name="datomisca.Attribute#withUnique" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="withUnique(u:datomisca.Unique):datomisca.Attribute[DD,Card]"></a>
+      <a id="withUnique(Unique):Attribute[DD,Card]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="name">withUnique</span><span class="params">(<span name="u">u: <a href="Unique.html" class="extype" name="datomisca.Unique">Unique</a></span>)</span><span class="result">: <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@withUnique(u:datomisca.Unique):datomisca.Attribute[DD,Card]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Extend this attribute with a uniqueness constraint.</p>
+    </li><li name="datomisca.RichAttribute#write" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="write[A](implicitev:datomisca.Attribute2PartialAddEntityWriter[DD,Card,A]):datomisca.PartialAddEntityWriter[A]"></a>
+      <a id="write[A](Attribute2PartialAddEntityWriter[DD,Card,A]):PartialAddEntityWriter[A]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">write</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="Attribute2PartialAddEntityWriter.html" class="extype" name="datomisca.Attribute2PartialAddEntityWriter">Attribute2PartialAddEntityWriter</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>, <span class="extype" name="datomisca.RichAttribute.write.A">A</span>]</span>)</span><span class="result">: <a href="PartialAddEntityWriter.html" class="extype" name="datomisca.PartialAddEntityWriter">PartialAddEntityWriter</a>[<span class="extype" name="datomisca.RichAttribute.write.A">A</span>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@write[A](implicitev:datomisca.Attribute2PartialAddEntityWriter[DD,Card,A]):datomisca.PartialAddEntityWriter[A]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns an entity writer that writes entities with this attribute.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an entity writer that writes entities with this attribute.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an entity writer that writes entities with this attribute.</p></dd></dl><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] performed by method RichAttribute in <a href="package.html" class="extype" name="datomisca">datomisca</a>.
+            This conversion will take place only if DD is a subclass of AnyRef (DD &lt;: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>) and at the same time Card is a subclass of Cardinality (Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a>).
+          </dd><dt>Definition Classes</dt><dd><a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a></dd><dt>Note</dt><dd><span class="cmt"><p>The return type must be explicitly specified, and the
+implicit ensures that it is a valid pairing with the
+Datomic data type specified by the attribute.
+</p></span></dd><dt>See also</dt><dd><span class="cmt"><p><a href="PartialAddEntityWriter.html" class="extype" name="datomisca.PartialAddEntityWriter">PartialAddEntityWriter</a>
+</p></span></dd></dl></div>
+    </li><li name="datomisca.RichAttribute#writeOpt" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="writeOpt[A](implicitev:datomisca.Attribute2PartialAddEntityWriter[DD,Card,A]):datomisca.PartialAddEntityWriter[Option[A]]"></a>
+      <a id="writeOpt[A](Attribute2PartialAddEntityWriter[DD,Card,A]):PartialAddEntityWriter[Option[A]]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span class="implicit">writeOpt</span><span class="tparams">[<span name="A">A</span>]</span><span class="params">(<span class="implicit">implicit </span><span name="ev">ev: <a href="Attribute2PartialAddEntityWriter.html" class="extype" name="datomisca.Attribute2PartialAddEntityWriter">Attribute2PartialAddEntityWriter</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>, <span class="extype" name="datomisca.RichAttribute.writeOpt.A">A</span>]</span>)</span><span class="result">: <a href="PartialAddEntityWriter.html" class="extype" name="datomisca.PartialAddEntityWriter">PartialAddEntityWriter</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="datomisca.RichAttribute.writeOpt.A">A</span>]]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@writeOpt[A](implicitev:datomisca.Attribute2PartialAddEntityWriter[DD,Card,A]):datomisca.PartialAddEntityWriter[Option[A]]" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Returns an entity writer that optionally writes entities with this attribute.</p><div class="fullcomment"><div class="comment cmt"><p>Returns an entity writer that optionally writes entities with this attribute.
+</p></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>an entity writer that optionally writes entities with this attribute.</p></dd></dl><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] performed by method RichAttribute in <a href="package.html" class="extype" name="datomisca">datomisca</a>.
+            This conversion will take place only if DD is a subclass of AnyRef (DD &lt;: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>) and at the same time Card is a subclass of Cardinality (Card &lt;: <a href="Cardinality.html" class="extype" name="datomisca.Cardinality">Cardinality</a>).
+          </dd><dt>Definition Classes</dt><dd><a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a></dd><dt>Note</dt><dd><span class="cmt"><p>The return type must be explicitly specified, and the
+implicit ensures that it is a valid pairing with the
+Datomic data type specified by the attribute.
+</p></span></dd><dt>See also</dt><dd><span class="cmt"><p><a href="PartialAddEntityWriter.html" class="extype" name="datomisca.PartialAddEntityWriter">PartialAddEntityWriter</a>
+</p></span></dd></dl></div>
+    </li><li name="scala.Predef.ArrowAssoc#→" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="→[B](y:B):(A,B)"></a>
+      <a id="→[B](B):(Attribute[DD,Card],B)"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">def</span>
+      </span>
+      <span class="symbol">
+        <span title="gt4s: $u2192" class="implicit">→</span><span class="tparams">[<span name="B">B</span>]</span><span class="params">(<span name="y">y: <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span></span>)</span><span class="result">: (<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>], <span class="extype" name="scala.Predef.ArrowAssoc.→.B">B</span>)</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../index.html#datomisca.Attribute@→[B](y:B):(A,B)" title="Permalink" target="_top">
+        <img src="../lib/permalink.png" />
+      </a>
+    </span>
+      <div class="fullcomment"><dl class="attributes block"> <dt class="implicit">Implicit information</dt><dd>
+            This member is added by an implicit conversion from <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to
+            <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]] performed by method ArrowAssoc in scala.Predef.
+            
+          </dd><dt>Definition Classes</dt><dd>ArrowAssoc</dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        <div class="parent" name="scala.Serializable">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></h3>
+            </div><div class="parent" name="java.io.Serializable">
+              <h3>Inherited from <span class="extype" name="java.io.Serializable">Serializable</span></h3>
+            </div><div class="parent" name="scala.Product">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Product" class="extype" target="_top">Product</a></h3>
+            </div><div class="parent" name="scala.Equals">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Equals" class="extype" target="_top">Equals</a></h3>
+            </div><div class="parent" name="datomisca.KeywordIdentified">
+              <h3>Inherited from <a href="KeywordIdentified.html" class="extype" name="datomisca.KeywordIdentified">KeywordIdentified</a></h3>
+            </div><div class="parent" name="datomisca.TxData">
+              <h3>Inherited from <a href="TxData.html" class="extype" name="datomisca.TxData">TxData</a></h3>
+            </div><div class="parent" name="scala.AnyRef">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></h3>
+            </div><div class="parent" name="scala.Any">
+              <h3>Inherited from <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></h3>
+            </div>
+        <div class="conversion" name="datomisca.RichAttribute">
+              <h3>Inherited by implicit conversion RichAttribute from
+                <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to <a href="package$$RichAttribute.html" class="extype" name="datomisca.RichAttribute">RichAttribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.any2stringadd">
+              <h3>Inherited by implicit conversion any2stringadd from
+                <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to <span class="extype" name="scala.Predef.any2stringadd">any2stringadd</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.StringFormat">
+              <h3>Inherited by implicit conversion StringFormat from
+                <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to <span class="extype" name="scala.Predef.StringFormat">StringFormat</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.Ensuring">
+              <h3>Inherited by implicit conversion Ensuring from
+                <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to <span class="extype" name="scala.Predef.Ensuring">Ensuring</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]]
+              </h3>
+            </div><div class="conversion" name="scala.Predef.ArrowAssoc">
+              <h3>Inherited by implicit conversion ArrowAssoc from
+                <a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>] to <span class="extype" name="scala.Predef.ArrowAssoc">ArrowAssoc</span>[<a href="" class="extype" name="datomisca.Attribute">Attribute</a>[<span class="extype" name="datomisca.Attribute.DD">DD</span>, <span class="extype" name="datomisca.Attribute.Card">Card</span>]]
+              </h3>
+            </div>
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

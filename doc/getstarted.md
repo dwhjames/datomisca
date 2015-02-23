@@ -347,9 +347,9 @@ As before, `conn.database` retrieves the currently available value of the
 database, and the `entity` method looks up the entity map for a given
 identifier.
 
-The [Entity]({{ site.baseurl }}/api/current/#datomisca.Entity)
+The [Entity]({{ site.baseurl }}/api/0.7.x/index.html#datomisca.Entity)
 and
-[RichEntity]({{ site.baseurl }}/api/current/#datomisca.package$$RichEntity)
+[RichEntity]({{ site.baseurl }}/api/0.7.x/index.html#datomisca.package$$RichEntity)
 apis provide various ways of interact with entities. The `apply` method
 on the implicit `RichEntity` allows us to use attributes rather than
 keywords to retrieve values, in a similar fashion to how we constructed
@@ -378,4 +378,4 @@ The `read` method allows us to do a type-safe cast.
 
 ## And much more…
 
-Read the more detailed guides and the [API docs]({{ site.baseurl }}/api/current/) for more details about what was covered here.
+Read the more detailed guides and the [API docs]({{ site.baseurl }}/api/0.7.x/index.html) for more details about what was covered here.

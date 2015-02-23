@@ -19,14 +19,14 @@ baseurl: "/datomisca"
 navigation:
 - title: Home
   url: index.html
+- title: Getting Started
+  url: doc/getstarted.html
 - title: Releases
   url: doc/releases.html
 - title: Philosophy
   url: doc/philosophy.html
 - title: Features in Detail
   url: doc/features.html
-- title: Getting Started
-  url: doc/getstarted.html
 - title: Building transaction data
   url: doc/txdata.html
 - title: Type safety with type classes
