@@ -20,8 +20,6 @@ import DatomicMapping._
 
 import org.specs2.mutable._
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
@@ -29,7 +27,6 @@ import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
-@RunWith(classOf[JUnitRunner])
 class DatomicTxSpec extends Specification {
   sequential
 
@@ -102,7 +99,7 @@ class DatomicTxSpec extends Specification {
     val schema = Seq(name, age)
   }
 
-  def startDB = {
+  def startDB(): Unit = {
     println(s"Creating DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)  
@@ -111,9 +108,10 @@ class DatomicTxSpec extends Specification {
       Datomic.transact(PersonSchema.schema ++ DogSchema.schema),
       Duration("2 seconds")
     )
+    ()
   } 
 
-  def stopDB = {
+  def stopDB(): Unit = {
     Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }
@@ -139,7 +137,7 @@ class DatomicTxSpec extends Specification {
       ) flatMap { tx => 
         println(s"Provisioned data... TX: $tx")
 
-        println(s"Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
+        println(s"Resolved Id for toto: temp(${idToto}) real(${tx.resolve(idToto)})")
 
         val totoId = tx.resolve(idToto)
         Datomic.transact(
@@ -162,7 +160,7 @@ class DatomicTxSpec extends Specification {
                      [ ?f :person/name "toto" ]
             ]              
           """), Datomic.database) map {
-            case DLong(e) =>
+            case e: Long =>
               val entity = Datomic.database.entity(e)
               val p @ Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"Found person with name $name and age $age")
@@ -201,7 +199,7 @@ class DatomicTxSpec extends Specification {
       ) flatMap { tx => 
         println(s"2 Provisioned data... TX: $tx")
 
-        println(s"2 Resolved Id for toto: temp(${idToto.toNative}) real(${tx.resolve(idToto)})")
+        println(s"2 Resolved Id for toto: temp(${idToto}) real(${tx.resolve(idToto)})")
         val totoId = tx.resolve(toto)
         Datomic.transact(
           Entity.add(idTutu)(
@@ -223,7 +221,7 @@ class DatomicTxSpec extends Specification {
                      [ ?f :person/name "toto" ]
             ]
           """), Datomic.database) map {
-            case DLong(e) =>
+            case e: Long =>
               val entity = Datomic.database.entity(e)
               val Person(name, age) = DatomicMapping.fromEntity[Person](entity)
               println(s"2 Found person with name $name and age $age")
@@ -623,19 +621,81 @@ class DatomicTxSpec extends Specification {
           person / "age"  -> 30
         )
       ) map { tx => 
-         val entries = tx.txData.collect{ case DDatom(_,k,v,_,_) => (k,v)}.toMap
+         val entries = tx.txData.collect{ case Datom(_,k,v,_,_) => (k.toLong, v)}.toMap
+         val db = tx.dbAfter
          entries.size must beEqualTo(3)
-         entries(person / "age") must beEqualTo(DLong(30))
-         entries(person / "name")  must beEqualTo(DString("toto"))
-         entries(PersonSchema.name.ident)  must beEqualTo(DString("toto"))
+         entries(db.entid(person / "age")) must beEqualTo(30)
+         entries(db.entid(person / "name"))  must beEqualTo("toto")
+         entries(db.entid(PersonSchema.name.ident))  must beEqualTo("toto")
          
-         tx.txData.collectFirst{ case DDatom(_,_,DLong(age),_,_) => age} must beEqualTo(Some(30))
-         tx.txData.collectFirst{ case DDatom(_,PersonSchema.name.ident,DString(name),_,_) => name} must beEqualTo(Some("toto"))
+         tx.txData.collectFirst{ case Datom(_,_, age: Long,_,_) => age} must beEqualTo(Some(30))
+         tx.txData.collectFirst{ case Datom(_,k , name: String ,_,_) if db.ident(k) == PersonSchema.name.ident => name} must beEqualTo(Some("toto"))
       }
 
       Await.result(fut,Duration("2 seconds"))
     }
 
+    "12 - upsert an entity using it's lookup ref as id" in {
+      import ColourPreference.Implicits._
+      implicit val connection = Datomic.connect(uri)
+      transactSync(ColourPreference.schema:_*)
+      val entityId = GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
+
+      transactSync(toEntity(LookupRef(ColourPreference.email, "bob@rainbow.org"))(ColourPreference.Entity("robert@rainbow.com", "taupe")))
+
+      fromEntity(connection.database.entity(entityId)) must be_==(ColourPreference.Entity("robert@rainbow.com", "taupe"))
+    }
+
+    "13 - fetch an entity using it's lookup ref as id" in {
+      import ColourPreference.Implicits._
+      implicit val connection = Datomic.connect(uri)
+      transactSync(ColourPreference.schema:_*)
+      GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
+
+      val fetchedEntity = fromEntity(connection.database.entity(LookupRef(ColourPreference.email, "bob@rainbow.org")))
+
+      fetchedEntity must be_==(ColourPreference.Entity("bob@rainbow.org", "grey"))
+    }
+
+    "14 - retract a fact about an entity using it's lookup ref as id" in {
+      import ColourPreference.Implicits._
+      implicit val connection = Datomic.connect(uri)
+      transactSync(ColourPreference.schema:_*)
+      val entityId = GIVEN_anEntity(ColourPreference.Entity("bob@rainbow.org", "grey"))
+
+      val lookupRef: LookupRef = LookupRef(ColourPreference.email, "bob@rainbow.org")
+      transactSync(SchemaFact.retract(lookupRef)(ColourPreference.favouriteColour -> "grey"))
+
+      connection.database.entity(entityId).get(ColourPreference.favouriteColour) must beNone
+    }
+  }
+
+  private def GIVEN_anEntity[T](entity: T)(implicit connection: Connection, writer: PartialAddEntityWriter[T]) = {
+    val tempId = DId(Partition.USER)
+    val report = Await.result(Datomic.transact(toEntity(tempId)(entity)), Duration("1 second"))
+    report.resolve(tempId)
+  }
+
+  private def transactSync(txData: TxData*)(implicit connection: Connection) = {
+    Await.result(Datomic.transact(txData), Duration("1 second"))
+  }
+
+
+  private object ColourPreference {
+    val org = Namespace("org")
+    val email = Attribute(org / "email", SchemaType.string, Cardinality.one).withUnique(Unique.identity)
+    val favouriteColour = Attribute(org / "favouriteColour", SchemaType.string, Cardinality.one).withUnique(Unique.identity)
+    val schema = Seq(email, favouriteColour)
+    case class Entity(email: String, favouriteColour: String)
+
+    object Implicits {
+      implicit val Writer: PartialAddEntityWriter[Entity] =
+        (email.write[String] ~ favouriteColour.write[String]).apply {
+          (e: Entity) => (e.email, e.favouriteColour)
+        }
+      implicit val Reader: EntityReader[Entity] =
+        (email.read[String] ~ favouriteColour.read[String])(Entity)
+    }
   }
 
 }

@@ -22,6 +22,7 @@ import org.scalatest.{FlatSpec, Matchers}
 
 import Datomic.{toDatomic, fromDatomic}
 
+import java.{lang => jl}
 import java.math.{BigInteger => JBigInt, BigDecimal => JBigDecimal}
 import java.util.{Date, UUID}
 import java.net.URI
@@ -47,57 +48,34 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
   val attrrefMany = Attribute(ns / "refMany", SchemaType.ref,     Cardinality.many)
 
 
-  "ToDatomicCast" can "write DatomicData as itself" in {
-    toDatomic(DString("string")) shouldBe a [DString]
-    toDatomic(DBoolean(true))    shouldBe a [DBoolean]
-    toDatomic(DLong(1L))         shouldBe a [DLong]
-    toDatomic(DFloat(1.0f))      shouldBe a [DFloat]
-    toDatomic(DDouble(1.0))      shouldBe a [DDouble]
+  "ToDatomicCast" can "write Scala types as DatomicData" in {
+    toDatomic("string") shouldBe a [String]
+    toDatomic(true)     shouldBe a [jl.Boolean]
 
-    toDatomic(DBigInt(BigInt(1)))     shouldBe a [DBigInt]
-    toDatomic(DBigDec(BigDecimal(1))) shouldBe a [DBigDec]
+    toDatomic(Long .MinValue) shouldBe a [jl.Long]
+    toDatomic(Int  .MinValue) shouldBe a [jl.Long]
+    toDatomic(Short.MinValue) shouldBe a [jl.Long]
+    toDatomic(Char .MinValue) shouldBe a [jl.Long]
+    toDatomic(Byte .MinValue) shouldBe a [jl.Long]
 
-    toDatomic(DInstant(new Date)) shouldBe a [DInstant]
+    toDatomic(1.0f) shouldBe a [jl.Float]
+    toDatomic(1.0)  shouldBe a [jl.Double]
 
-    toDatomic(DUuid(UUID.randomUUID())) shouldBe a [DUuid]
+    toDatomic(BigInt(1))            shouldBe a [JBigInt]
+    toDatomic(BigInt(1).bigInteger) shouldBe a [JBigInt]
 
-    toDatomic(DUri(new URI("urn:isbn:096139210x"))) shouldBe a [DUri]
+    toDatomic(BigDecimal(1))            shouldBe a [JBigDecimal]
+    toDatomic(BigDecimal(1).bigDecimal) shouldBe a [JBigDecimal]
 
-    toDatomic(DBytes(Array(Byte.MinValue))) shouldBe a [DBytes]
+    toDatomic(new Date) shouldBe a [Date]
 
-    toDatomic(DKeyword(Datomic.KW(":my-kw"))) shouldBe a [DKeyword]
+    toDatomic(UUID.randomUUID()) shouldBe a [UUID]
 
-  }
+    toDatomic(new URI("urn:isbn:096139210x")) shouldBe a [URI]
 
+    toDatomic(Array(Byte.MinValue)) shouldBe a [Array.emptyByteArray.type]
 
-  it can "write Scala types as DatomicData" in {
-    toDatomic("string") shouldBe a [DString]
-    toDatomic(true)     shouldBe a [DBoolean]
-
-    toDatomic(Long .MinValue) shouldBe a [DLong]
-    toDatomic(Int  .MinValue) shouldBe a [DLong]
-    toDatomic(Short.MinValue) shouldBe a [DLong]
-    toDatomic(Char .MinValue) shouldBe a [DLong]
-    toDatomic(Byte .MinValue) shouldBe a [DLong]
-
-    toDatomic(1.0f) shouldBe a [DFloat]
-    toDatomic(1.0)  shouldBe a [DDouble]
-
-    toDatomic(BigInt(1))            shouldBe a [DBigInt]
-    toDatomic(BigInt(1).bigInteger) shouldBe a [DBigInt]
-
-    toDatomic(BigDecimal(1))            shouldBe a [DBigDec]
-    toDatomic(BigDecimal(1).bigDecimal) shouldBe a [DBigDec]
-
-    toDatomic(new Date) shouldBe a [DInstant]
-
-    toDatomic(UUID.randomUUID()) shouldBe a [DUuid]
-
-    toDatomic(new URI("urn:isbn:096139210x")) shouldBe a [DUri]
-
-    toDatomic(Array(Byte.MinValue)) shouldBe a [DBytes]
-
-    toDatomic(Datomic.KW(":my-kw")) shouldBe a [DKeyword]
+    toDatomic(Datomic.KW(":my-kw")) shouldBe a [Keyword]
 
   }
 
@@ -131,6 +109,7 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
     SchemaFact.add(id)(attrbigint -> BigInt(1).bigInteger)
     SchemaFact.add(id)(attrbigdec -> BigDecimal(1).bigDecimal)
 
+    ()
   }
 
   it should "support various ways to write to reference attributes" in {
@@ -139,20 +118,16 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
     /*
      * we simply need the following code to compile
      */
-    SchemaFact.add(id)(attrref -> DRef(Datomic.KW(":my-kw")))
-    SchemaFact.add(id)(attrref -> DRef(1L))
-    SchemaFact.add(id)(attrref -> DRef(DId(1L)))
-    SchemaFact.add(id)(attrref -> DRef(DId(Partition.USER)))
 
     SchemaFact.add(id)(attrref -> DId(1L))
     SchemaFact.add(id)(attrref -> DId(Partition.USER))
     SchemaFact.add(id)(attrref -> 1L)
     SchemaFact.add(id)(attrref -> Datomic.KW(":my-kw"))
 
-    SchemaFact.add(id)(attrrefMany -> Set(DId(1L)))
-    SchemaFact.add(id)(attrrefMany -> Seq(DId(Partition.USER)))
-    SchemaFact.add(id)(attrrefMany -> List(1L))
-    SchemaFact.add(id)(attrrefMany -> Iterable(Datomic.KW(":my-kw")))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(DId(1L))) ) withId (id)
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Seq(DId(Partition.USER))) ) withId (id)
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> List(1L)) ) withId (id)
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Iterable(Datomic.KW(":my-kw"))) ) withId (id)
 
     SchemaFact.add(id)(attrrefMany -> DId(1L))
     SchemaFact.add(id)(attrrefMany -> DId(Partition.USER))
@@ -161,81 +136,23 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
 
     val addfact = Fact.add(id)(attrstring.ident -> "str")
     SchemaFact.add(id)(attrref -> addfact)
-    SchemaFact.add(id)(attrrefMany -> Set(addfact))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(addfact)) ) withId (id)
 
     val retractfact = Fact.retract(id)(attrstring.ident -> "str")
     SchemaFact.add(id)(attrref -> retractfact)
-    SchemaFact.add(id)(attrrefMany -> Set(retractfact))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(retractfact)) ) withId (id)
 
     val identEntity = AddIdent(Datomic.KW(":my-kw"))
     SchemaFact.add(id)(attrref -> identEntity)
-    SchemaFact.add(id)(attrrefMany -> Set(identEntity))
+    ( SchemaEntity.newBuilder ++= (attrrefMany -> Set(identEntity)) ) withId (id)
 
-  }
-
-
-  "FromDatomicCast" can "read DatomicData as itself" in {
-
-    DString("string").as[DString]
-    DBoolean(true)   .as[DBoolean]
-    DLong(1L)        .as[DLong]
-    DFloat(1.0f)     .as[DFloat]
-    DDouble(1.0)     .as[DDouble]
-
-    DBigInt(BigInt(1))    .as[DBigInt]
-    DBigDec(BigDecimal(1)).as[DBigDec]
-
-    DInstant(new Date).as[DInstant]
-
-    DUuid(UUID.randomUUID()).as[DUuid]
-
-    DUri(new URI("urn:isbn:096139210x")).as[DUri]
-
-    DBytes(Array(Byte.MinValue)).as[DBytes]
-
-    DKeyword(Datomic.KW(":my-kw")).as[DKeyword]
-
-  }
-
-  it can "read DatomicData as its underlying Scala type" in {
-
-    DString("string").as[String]
-    DBoolean(true)   .as[Boolean]
-    DLong(1L)        .as[Long]
-    DLong(1L)        .as[Int]
-    DLong(1L)        .as[Short]
-    DLong(1L)        .as[Char]
-    DLong(1L)        .as[Byte]
-    DFloat(1.0f)     .as[Float]
-    DDouble(1.0)     .as[Double]
-
-    DBigInt(BigInt(1))    .as[BigInt]
-    DBigDec(BigDecimal(1)).as[BigDecimal]
-
-    DBigInt(BigInt(1))    .as[JBigInt]
-    DBigDec(BigDecimal(1)).as[JBigDecimal]
-
-    DInstant(new Date).as[Date]
-
-    DUuid(UUID.randomUUID()).as[UUID]
-
-    DUri(new URI("urn:isbn:096139210x")).as[URI]
-
-    DBytes(Array(Byte.MinValue)).as[Array[Byte]]
-
-    DKeyword(Datomic.KW(":my-kw")).as[Keyword]
-
-  }
-
-
-  it should "throw ClassCastException for bad conversions" in {
-    a [ClassCastException] should be thrownBy DString("string").as[DLong]
+    ()
   }
 
 
   "FromDatomic" can "cast to a specific Scala type from the DatomicData type of an attribute" in {
 
-    val entity = DEntity(null)
+    val entity = new Entity(null)
 
     a [NullPointerException] should be thrownBy {
       // core
@@ -263,56 +180,34 @@ class ToFromDatomicSpec extends FlatSpec with Matchers {
     }
   }
 
-  it can "read the specific DatomicData type of an attribute" in {
-
-    val entity = DEntity(null)
-
-    a [NullPointerException] should be thrownBy {
-      // core
-      val string  = entity.read[DString](attrstring)
-      val boolean = entity.read[DBoolean](attrboolean)
-      val long    = entity.read[DLong](attrlong)
-      val bigint  = entity.read[DBigInt](attrbigint)
-      val float   = entity.read[DFloat](attrfloat)
-      val double  = entity.read[DDouble](attrdouble)
-      val bigdec  = entity.read[DBigDec](attrbigdec)
-      val instant = entity.read[DInstant](attrinstant)
-      val uuid    = entity.read[DUuid](attruuid)
-      val uri     = entity.read[DUri](attruri)
-      val bytes   = entity.read[DBytes](attrbytes)
-      val keyword = entity.read[DKeyword](attrkeyword)
-    }
-
-  }
-
 
   "FromDatomicInj" can "convert DatomicData into its underlying Scala type" in {
 
-    val string:  String  = fromDatomic(DString("string"))
-    val boolean: Boolean = fromDatomic(DBoolean(true))
-    val long:    Long    = fromDatomic(DLong(1L))
-    val float:   Float   = fromDatomic(DFloat(1.0f))
-    val double:  Double  = fromDatomic(DDouble(1.0))
+    val string:  String  = fromDatomic("string")
+    val boolean: Boolean = fromDatomic(true: jl.Boolean)
+    val long:    Long    = fromDatomic(1L: jl.Long)
+    val float:   Float   = fromDatomic(1.0f: jl.Float)
+    val double:  Double  = fromDatomic(1.0: jl.Double)
 
-    val bigint: BigInt     = fromDatomic(DBigInt(BigInt(1)))
-    val bigdec: BigDecimal = fromDatomic(DBigDec(BigDecimal(1)))
+    val bigint: BigInt     = fromDatomic(BigInt(1).bigInteger)
+    val bigdec: BigDecimal = fromDatomic(BigDecimal(1).bigDecimal)
 
-    val date: Date = fromDatomic(DInstant(new Date))
+    val date: Date = fromDatomic(new Date)
 
-    val uuid: UUID = fromDatomic(DUuid(UUID.randomUUID()))
+    val uuid: UUID = fromDatomic(UUID.randomUUID())
 
-    val uri: URI = fromDatomic(DUri(new URI("urn:isbn:096139210x")))
+    val uri: URI = fromDatomic(new URI("urn:isbn:096139210x"))
 
-    val bytes: Array[Byte] = fromDatomic(DBytes(Array(Byte.MinValue)))
+    val bytes: Array[Byte] = fromDatomic(Array(Byte.MinValue))
 
-    val keyword: Keyword = fromDatomic(DKeyword(Datomic.KW(":my-kw")))
+    val keyword: Keyword = fromDatomic(Datomic.KW(":my-kw"))
 
   }
 
 
   "FromDatomicInj" should "uniquely determine the Scala type from the DatomicData type of an attribute" in {
 
-    val entity = DEntity(null)
+    val entity = new Entity(null)
 
     /*
      * we simply need the following code to compile to test that

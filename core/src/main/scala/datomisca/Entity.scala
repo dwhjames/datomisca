@@ -16,23 +16,97 @@
 
 package datomisca
 
+import scala.concurrent.blocking
 
-object Entity extends DatomicTypeWrapper {
-  /** Creates a single RetractEntity operation targeting a real [[DId]] (can't be a temporary Id)
+
+class Entity(val entity: datomic.Entity) extends AnyVal {
+
+  /** the database value that is the basis for this entity
+    */
+  def database: Database = new Database(entity.db)
+
+  def id: Long = as[Long](Namespace.DB / "id")
+
+  def touch() = {
+    blocking { entity.touch() }
+    this
+  }
+
+  def contains(keyword: Keyword): Boolean =
+    entity.get(keyword) ne null
+
+  def apply(keyword: Keyword): Any = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      Convert.toScala(o)
+    else
+      throw new EntityKeyNotFoundException(keyword.toString)
+  }
+
+  def get(keyword: Keyword): Option[Any] = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      Some(Convert.toScala(o))
+    else
+      None
+  }
+
+  def as[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): T = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      fdat.from(o)
+    else
+      throw new EntityKeyNotFoundException(keyword.toString)
+  }
+
+  def getAs[T](keyword: Keyword)(implicit fdat: FromDatomicCast[T]): Option[T] = {
+    val o = entity.get(keyword)
+    if (o ne null)
+      Some(fdat.from(o))
+    else
+      None
+  }
+
+  def keySet: Set[String] = {
+    val builder = Set.newBuilder[String]
+    val iter = blocking { entity.keySet } .iterator
+    while (iter.hasNext) {
+      builder += iter.next()
+    }
+    builder.result
+  }
+
+  def toMap: Map[String, Any] = {
+    val builder = Map.newBuilder[String, Any]
+    val iter = blocking { entity.keySet } .iterator
+    while (iter.hasNext) {
+      val key = iter.next()
+      builder += (key -> Convert.toScala(entity.get(key)))
+    }
+    builder.result
+  }
+
+  override def toString = entity.toString
+
+}
+
+
+object Entity {
+  /** Creates a entity retraction about the given entity id `id`.
     *
     * In Clojure, this is equivalent to:
     * {{{[:db.fn/retractEntity entity-id]}}}
     *
     * {{{
-    * val retractEntity = Datomic.Entity.retract(DLong(3L))
+    * val retractEntity = Entity.retract(eid)
     * }}}
     *
-    * @param id the DLong of a targeted real [[DId]]
+    * @param id a value that can be used as a permament entity id ([[AsPermanentEntityId]])
     */
   def retract[T](id: T)(implicit ev: AsPermanentEntityId[T]) =
-    RetractEntity(ev.conv(id))
+    new RetractEntity(ev.conv(id))
 
-  /** Creates a Multiple-"Add" targeting a single [[DId]]
+  /** Creates a collection of assertions about the given entity id `id`.
     *
     * In Clojure, this is equivalent to:
     * {{{
@@ -44,21 +118,23 @@ object Entity extends DatomicTypeWrapper {
     * }}}
     *
     * {{{
-    * val toto = Datomic.Entity.add(DId(Partition.USER))(
+    * val toto = Entity.add(DId(Partition.USER))(
     *   person / "name" -> "toto",
     *   person / "age" -> 30L
     * )
     * }}}
     *
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
+    * @param id a value that can be used as an entity id ([[AsEntityId]])
+    * @param props a sequence of keyword-value pairs ([[Keyword]], [[DWrapper]])<br/>
+    *             where the values can be of any type that can be cast to a Datomic value type ([[ToDatomicCast]])
     */
   def add[T](id: T)(props: (Keyword, DWrapper)*)(implicit ev: AsEntityId[T]) = {
-    val builder = Map.newBuilder[Keyword, DatomicData]
+    val builder = Map.newBuilder[Keyword, AnyRef]
     for (p <- props) builder += (p._1 -> p._2.asInstanceOf[DWrapperImpl].underlying)
     new AddEntity(ev.conv(id), builder.result)
   }
 
-  /** Creates a Multiple-"Add" targeting a single [[DId]] from a simple Map[ [[Keyword]], [[DatomicData]] ]
+  /** Creates a collection of assertions about the given entity id `id`.
     *
     * In Clojure, this is equivalent to:
     * {{{
@@ -70,21 +146,20 @@ object Entity extends DatomicTypeWrapper {
     * }}}
     *
     * {{{
-    * val toto = Datomic.Entity.add(DId(Partition.USER), Map(
-    *   person / "name" -> DString("toto"),
-    *   person / "age" -> DLong(30L)
+    * val toto = Entity.add(DId(Partition.USER), Map(
+    *   person / "name" -> "toto",
+    *   person / "age" -> 30L: java.lang.Long
     * ))
     * }}}
     *
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
+    * @param id a value that can be used as an entity id ([[AsEntityId]])
     * @param props the map containing all tupled (keyword, value)
     */
-  def add[T](id: T, props: Map[Keyword, DatomicData])(implicit ev: AsEntityId[T]) =
+  def add[T](id: T, props: Map[Keyword, AnyRef])(implicit ev: AsEntityId[T]) =
     new AddEntity(ev.conv(id), props)
 
 
-  /** Creates a Multiple-"Add" targeting a single [[DId]] and using a [[PartialAddEntity]]
-    * which is basically a AddEntity without the DId part (''technical API'').
+  /** Creates a collection of assertions about the given entity id `id`.
     *
     * In Clojure, this is equivalent to:
     * {{{
@@ -95,16 +170,16 @@ object Entity extends DatomicTypeWrapper {
     * }
     * }}}
     *
-    * @param id the targeted [[DId]] which must be a [[FinalId]]
+    * @param id a value that can be used as an entity id ([[AsEntityId]])
     * @param props a [[PartialAddEntity]] containing tuples (keyword, value)
     */
   def add[T](id: T, partial: PartialAddEntity)(implicit ev: AsEntityId[T]) =
     new AddEntity(ev.conv(id), partial.props)
 
-  /** Creates a [[PartialAddEntity]] which is basically a AddToEntity without the DId part (''technical API'').
+  /** Creates a [[PartialAddEntity]].
     *
-    * @param props A sequence of tuple (keyword, value)
-    *              where value can be a simple Scala type which can be converted into a DatomicData
+    * @param props a sequence of keyword-value pairs ([[Keyword]], [[DWrapper]])<br/>
+    *             where the values can be of any type that can be cast to a Datomic value type ([[ToDatomicCast]])
     */
   def partialAdd(props: (Keyword, DWrapper)*) =
     new PartialAddEntity(props.map( t => (t._1, t._2.asInstanceOf[DWrapperImpl].underlying) ).toMap)

@@ -18,8 +18,6 @@ package datomisca
 
 import org.specs2.mutable._
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
@@ -27,13 +25,12 @@ import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
-@RunWith(classOf[JUnitRunner])
 class DatomicQuery2Spec extends Specification {
   sequential
   val uri = "datomic:mem://datomicquery2spec"
   val person = Namespace("person")
 
-  def startDB = {
+  def startDB(): Unit = {
     println(s"created DB with uri $uri: ${Datomic.createDatabase(uri)}")
 
     implicit val conn = Datomic.connect(uri)
@@ -42,9 +39,10 @@ class DatomicQuery2Spec extends Specification {
       DatomicBootstrap(uri),
       Duration("3 seconds")
     )
+    ()
   }
 
-  def stopDB = {
+  def stopDB(): Unit = {
     Datomic.deleteDatabase(uri)
     println("Deleted DB")
   }
@@ -65,9 +63,9 @@ class DatomicQuery2Spec extends Specification {
       Datomic.q(
         query,
         Datomic.database,
-        DRef(Datomic.KW(":person.character/violent"))
+        Datomic.KW(":person.character/violent")
       ) map {
-        case (DLong(e), DString(n)) =>
+        case (e: Long, n: String) =>
           val entity = Datomic.database.entity(e)
           println(s"1 - entity: $e name: $n - e: ${entity.get(person / "character")}")
       }
@@ -84,7 +82,7 @@ class DatomicQuery2Spec extends Specification {
       """)
 
       Datomic.q(q, Datomic.database) map {
-        case DLong(e) =>
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           println(s"2 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
@@ -102,8 +100,8 @@ class DatomicQuery2Spec extends Specification {
          :in $ [?names ...]
          :where [?e :person/name ?names]
         ]
-      """), Datomic.database, Datomic.coll("toto", "tata")) map {
-        case DLong(e) =>
+      """), Datomic.database, Seq("toto", "tata")) map {
+        case e: Long =>
           val entity = Datomic.database.entity(e)
           println(s"3 - entity: $e name: ${entity.get(person / "name")} - e: ${entity.get(person / "character")}")
       }
@@ -125,12 +123,12 @@ class DatomicQuery2Spec extends Specification {
 
       Datomic.q(
         q, Datomic.database,
-        DColl(
-          Datomic.coll("toto", 30L),
-          Datomic.coll("tutu", 54L)
+        Datomic.list(
+          Datomic.list("toto", 30L),
+          Datomic.list("tutu", 54L)
         )
       ) map {
-        case (DLong(e), DString(n), DLong(a)) =>
+        case (e: Long, n: String, a: Long) =>
           println(s"4 - entity: $e name: $n - age: $a")
       }
 
@@ -148,7 +146,7 @@ class DatomicQuery2Spec extends Specification {
       """)
 
       Datomic.q(q, Datomic.database) map {
-        case (DLong(e), DString(n)) =>
+        case (e: Long, n: String) =>
           println(s"5 - entity: $e name: $n")
       }
 
@@ -174,7 +172,7 @@ class DatomicQuery2Spec extends Specification {
       """)
 
       Datomic.q(q, Datomic.database, totoRule) map {
-        case (DLong(e), DLong(age)) =>
+        case (e: Long, age: Long) =>
           println(s"e: $e - age: $age")
           age must beEqualTo(30L)
       }
@@ -195,7 +193,7 @@ class DatomicQuery2Spec extends Specification {
       """)
 
       Datomic.q(q, Datomic.database) map {
-        case (DLong(e), DString(name)) =>
+        case (e: Long, name: String) =>
           println(s"e: $e - name: $name")
           name must beEqualTo("tutu")
       }
@@ -221,9 +219,9 @@ class DatomicQuery2Spec extends Specification {
       Datomic.q(
         query1,
         Datomic.database,
-        DRef(Datomic.KW(":person.character/violent"))
+        Datomic.KW(":person.character/violent")
       ) map {
-        case (e:DLong) => {
+        case (e: Long) => {
            val result = Datomic.q(query2, Datomic.database,e) 
            result must not be empty
            println(result)

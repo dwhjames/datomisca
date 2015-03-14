@@ -20,15 +20,11 @@ import scala.language.reflectiveCalls
 
 import org.specs2.mutable._
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
-@RunWith(classOf[JUnitRunner])
 class DatomicDemoSpec extends Specification {
   "Datomic" should {
     "create simple schema and provision data" in {
@@ -43,7 +39,7 @@ class DatomicDemoSpec extends Specification {
         val character = Namespace("person.character")
       }
 
-      val clever = AddIdent( Keyword(person.character, "clever") )
+      val clever = AddIdent( person.character / "clever" )
       val violent = AddIdent( person.character / "violent")
       val weak = AddIdent( Datomic.KW(":person.character/weak") )
 
@@ -77,19 +73,19 @@ class DatomicDemoSpec extends Specification {
          */
         Datomic.transact(
           Entity.add(DId(Partition.USER))(
-            person / "name" -> DString("toto"),
-            person / "age" -> DLong(30L),
-            person / "character" -> DColl(weak.ref, dumb.ref)
+            person / "name" -> "toto",
+            person / "age" -> 30L,
+            person / "character" -> Set(weak, dumb)
           ),
           Entity.add(DId(Partition.USER))(
             Datomic.KW(":person/name") -> "tata",
             Datomic.KW(":person/age") -> 54L,
-            Datomic.KW(":person/character") -> Seq(violent, clever)
+            Datomic.KW(":person/character") -> Set(violent, clever)
           ),
           Entity.add(DId(Partition.USER))(
             person / "name" -> "tutu",
             person / "age" -> 35,
-            person / "character" -> Seq(weak, dumb)
+            person / "character" -> Set(weak, dumb)
           )
         ) map { tx => 
           println("Provisioned data... TX:%s".format(tx))
@@ -108,8 +104,8 @@ class DatomicDemoSpec extends Specification {
                       [ ?e :person/age ?a ]
                       [ (<= ?a ?age) ]
             ]
-          """), Datomic.database, DLong(40)).map{
-            case (DLong(id), DString(name), DLong(age)) => 
+          """), Datomic.database, 40).map{
+            case (id: Long, name: String, age: Long) => 
               // can get entity there
               val entity = Datomic.database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
@@ -124,8 +120,8 @@ class DatomicDemoSpec extends Specification {
                       [ ?e :person/age ?a ]
                       [ (not= ?a ?age) ]
             ]
-          """), Datomic.database, DLong(35L)).map{
-            case (DLong(id), DString(name), DLong(age)) => 
+          """), Datomic.database, 35).map{
+            case (id: Long, name: String, age: Long) => 
               // can get entity there
               val entity = Datomic.database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")
@@ -140,8 +136,8 @@ class DatomicDemoSpec extends Specification {
                       [ ?e :person/age ?a ]
                       [ (== ?a ?age) ]
             ]
-          """), Datomic.database, DLong(35L)).map{
-            case (DLong(id), DString(name), DLong(age)) => 
+          """), Datomic.database, 35L).map{
+            case (id: Long, name: String, age: Long) => 
               // can get entity there
               val entity = Datomic.database.entity(id)
               println(s"""entity: $id - name $name - characters ${entity.get(person/"character")}""")

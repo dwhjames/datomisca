@@ -16,6 +16,8 @@
 
 package datomisca
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatest.concurrent.ScalaFutures
 
@@ -30,44 +32,47 @@ class SchemaManagerSpec
   val schemaTag = Datomic.KW(":my-schema-tag")
 
   case object SchemaA {
-    val attrA = Attribute(Datomic.KW(":attrA"), SchemaType.string, Cardinality.one)
+    var attrA = Attribute(Datomic.KW(":attrA"), SchemaType.string, Cardinality.one)
 
-    val name     = "SchemaA"
+    var name     = "SchemaA"
     val requires = Seq.empty[String]
-    val txData   = Seq(attrA)
+    def txData   = Seq(attrA)
   }
   case object SchemaB {
     val attrB = Attribute(Datomic.KW(":attrB"), SchemaType.string, Cardinality.one)
 
     val name     = "SchemaB"
-    val requires = Seq(SchemaA.name)
-    val txData   = Seq(attrB)
+    def requires = Seq(SchemaA.name)
+    def txData   = Seq(attrB)
   }
 
   case object SchemaC {
     val attrC = Attribute(Datomic.KW(":attrC"), SchemaType.string, Cardinality.one)
 
     val name     = "SchemaC"
-    val requires = Seq(SchemaB.name)
-    val txData   = Seq(attrC)
+    def requires = Seq(SchemaB.name)
+    def txData   = Seq(attrC)
   }
 
-  val schemaMap = Map(
+  def schemaMap = Map(
       SchemaA.name ->
-        (SchemaA.requires,
+        (SchemaA.requires ->
           Seq(SchemaA.txData)),
       SchemaB.name ->
-        (SchemaB.requires,
+        (SchemaB.requires ->
           Seq(SchemaB.txData)),
       SchemaC.name ->
-        (SchemaC.requires,
+        (SchemaC.requires ->
           Seq(SchemaC.txData))
     )
 
   "Schema Manager" should "provision schemas if needed" in withDatomicDB { implicit conn =>
 
-    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { _ =>
-      implicit val db = conn.database
+    // Install schema A into an empty db
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { changed =>
+      implicit val db = conn.database()
+
+      changed should be (true)
 
       SchemaManager.hasAttribute(SchemaA.attrA.ident) should be (true)
       SchemaManager.hasAttribute(SchemaB.attrB.ident) should be (false)
@@ -76,9 +81,16 @@ class SchemaManagerSpec
       SchemaManager.hasSchema(schemaTag, SchemaB.name) should be (false)
     }
 
+    // reïnstall schema A
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaA.name)) { changed =>
+      changed should be (false)
+    }
 
-    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { _ =>
-      implicit val db = conn.database
+    // install schema C
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { changed =>
+      implicit val db = conn.database()
+
+      changed should be (true)
 
       SchemaManager.hasAttribute(SchemaB.attrB.ident) should be (true)
       SchemaManager.hasAttribute(SchemaC.attrC.ident) should be (true)
@@ -86,5 +98,38 @@ class SchemaManagerSpec
       SchemaManager.hasSchema(schemaTag, SchemaB.name) should be (true)
       SchemaManager.hasSchema(schemaTag, SchemaC.name) should be (true)
     }
+
+    // install schema B (which should be a reïnstall)
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaB.name)) { changed =>
+      changed should be (false)
+    }
+
+    // mutate the version name of schema A (simulating an update)
+    val schemaANameOrig = SchemaA.name
+    SchemaA.name = "SchemaA_v2"
+
+    val schemaAAttrOrig = SchemaA.attrA.ident
+    SchemaA.attrA = Attribute(Datomic.KW(":attrA-v2"), SchemaType.string, Cardinality.one)
+
+    // reïnstall schema C (which should be an update of schema A)
+    whenReady(SchemaManager.installSchema(schemaTag, schemaMap, SchemaC.name)) { changed =>
+      implicit val db = conn.database()
+
+      changed should be (true)
+
+      SchemaManager.hasAttribute(SchemaA.attrA.ident) should be (true)
+      SchemaManager.hasAttribute(SchemaB.attrB.ident) should be (true)
+      SchemaManager.hasAttribute(SchemaC.attrC.ident) should be (true)
+
+
+      SchemaManager.hasSchema(schemaTag, SchemaA.name) should be (true)
+      SchemaManager.hasSchema(schemaTag, SchemaB.name) should be (true)
+      SchemaManager.hasSchema(schemaTag, SchemaC.name) should be (true)
+
+      // original is still there
+      SchemaManager.hasAttribute(schemaAAttrOrig) should be (true)
+      SchemaManager.hasSchema(schemaTag, schemaANameOrig) should be (true)
+    }
+
   }
 }

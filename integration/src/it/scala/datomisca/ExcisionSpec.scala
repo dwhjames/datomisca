@@ -34,9 +34,9 @@ class ExcisionSpec
 
   "Datomic’s excision" can "excise specific entities" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
-    val dbBefore = conn.database
+    val dbBefore = conn.database()
 
-    val DLong(e) = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, DString(PersonSampleData.toto.name)).head
+    val e = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, PersonSampleData.toto.name).head.asInstanceOf[Long]
 
     val excisionId = DId(Partition.USER)
     whenReady(
@@ -50,15 +50,37 @@ class ExcisionSpec
           [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
         """),
         dbAfter,
-        DLong(e)).headOption.value should be (DLong(exId))
+        e).headOption.value should be (exId)
+    }
+  }
+
+  it can "excise entities by lookup ref" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
+
+    val dbBefore = conn.database()
+
+    val e = LookupRef(PersonSampleData.Schema.idAttr, PersonSampleData.toto.id)
+
+    val excisionId = DId(Partition.USER)
+    whenReady(
+      Datomic.transact(Excise.entity(e, excisionId))
+    ) { txReport =>
+      val exId = txReport.resolve(excisionId)
+      val dbAfter = txReport.dbAfter
+
+      Datomic.q(
+        Query("""
+          [:find ?e :in $ ?excised :where [?e :db/excise ?excised]]
+        """),
+        dbAfter,
+        e).headOption.value should be (exId)
     }
   }
 
   it can "excise specific attributes of an entity" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
-    val dbBefore = conn.database
+    val dbBefore = conn.database()
 
-    val DLong(e) = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, DString(PersonSampleData.toto.name)).head
+    val e = Datomic.q(PersonSampleData.queryPersonIdByName, dbBefore, PersonSampleData.toto.name).head.asInstanceOf[Long]
 
     val excisionId = DId(Partition.USER)
     whenReady(
@@ -76,7 +98,7 @@ class ExcisionSpec
             [?e :db.excise/attrs ${PersonSampleData.Schema.ageAttr}]]
         """),
         dbAfter,
-        DLong(e)).headOption.value should be (DLong(exId))
+        e).headOption.value should be (exId)
     }
   }
 
@@ -99,15 +121,15 @@ class ExcisionSpec
             [?e :db.excise/before ?date]]
         """),
         dbAfter,
-        DKeyword(PersonSampleData.Schema.ageAttr.ident),
-        DInstant(before)).headOption.value should be (DLong(exId))
+        PersonSampleData.Schema.ageAttr,
+        before).headOption.value should be (exId)
     }
   }
 
   it can "excise values of an attribute before a basis T" in withSampleDatomicDB(PersonSampleData) { implicit conn =>
 
     val excisionId = DId(Partition.USER)
-    val beforeT = conn.database.basisT
+    val beforeT = conn.database().basisT
     whenReady(
       Datomic.transact(Excise.attribute(PersonSampleData.Schema.ageAttr.ident, excisionId, beforeT))
     ) { txReport =>
@@ -123,8 +145,8 @@ class ExcisionSpec
             [?e :db.excise/beforeT ?basisT]]
         """),
         dbAfter,
-        DKeyword(PersonSampleData.Schema.ageAttr.ident),
-        DLong(beforeT)).headOption.value should be (DLong(exId))
+        PersonSampleData.Schema.ageAttr,
+        beforeT).headOption.value should be (exId)
     }
   }
 
@@ -144,7 +166,7 @@ class ExcisionSpec
            :where [?e :db/excise ?excised]]
         """),
         dbAfter,
-        DKeyword(PersonSampleData.Schema.ageAttr.ident)).headOption.value should be (DLong(exId))
+        PersonSampleData.Schema.ageAttr).headOption.value should be (exId)
     }
   }
 }

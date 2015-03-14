@@ -19,53 +19,51 @@ package datomisca
 import scala.language.reflectiveCalls
 
 
-object Fact extends DatomicTypeWrapper {
-  /** Creates a single Add operation targeting a given [[DId]]
+object Fact {
+  /** Creates a single assertion about the given entity id `id`.
     *
     * In Clojure, this is equivalent to:
     * {{{[:db/add entity-id attribute value]}}}
     *
     * {{{
-    * val totoName = Datomic.Fact.add(DId(Partition.USER))( person / "name" -> "toto")
+    * val totoName = Fact.add(DId(Partition.USER))( person / "name" -> "toto")
     * }}}
     *
-    * @param id the targeted [[DId]]
-    * @param prop a tuple ([[Keyword]], value)<br/>
-    *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-    *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
+    * @param id a value that can be used as an entity id ([[AsEntityId]])
+    * @param prop a tuple ([[Keyword]], `U`)<br/>
+    *             where value can be of any type that can be cast to a Datomic value type ([[ToDatomicCast]])
     */
-  def add[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: AsEntityId[T]) =
-    AddFact(ev.conv(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def add[T, U](id: T)(prop: (Keyword, U))(implicit ev0: AsEntityId[T], ev1: ToDatomicCast[U]) =
+    new AddFact(ev0.conv(id), prop._1, ev1.to(prop._2))
 
-  /** Creates a single Retract operation targeting a given [[DId]]
+  /** Creates a single retraction about the given entity id `id`.
     *
     * In Clojure, this is equivalent to:
     * {{{[:db/retract entity-id attribute value]}}}
     *
     * {{{
-    * val totoName = Datomic.Fact.retract(DLong(3L))( person / "name" -> "toto")
+    * val totoName = Fact.retract(eid)( person / "name" -> "toto")
     * }}}
     *
-    * @param id the targeted [[DId]]
-    * @param prop a tuple ([[Keyword]], value)<br/>
-    *             where value can be any String/Long/Double/Float/Boolean/Date/BigInt/BigDec/DRef
-    *             converted to [[DatomicData]] using [[toDWrapper]] implicit conversion
+    * @param id a value that can be used as a permament entity id ([[AsPermanentEntityId]])
+    * @param prop a tuple ([[Keyword]], `U`)<br/>
+    *             where value can be of any type that can be cast to a Datomic value type ([[ToDatomicCast]])
     */
-  def retract[T](id: T)(prop: (Keyword, DWrapper))(implicit ev: AsPermanentEntityId[T]) =
-    RetractFact(ev.conv(id), prop._1, prop._2.asInstanceOf[DWrapperImpl].underlying)
+  def retract[T, U](id: T)(prop: (Keyword, U))(implicit ev0: AsPermanentEntityId[T], ev1: ToDatomicCast[U]) =
+    new RetractFact(ev0.conv(id), prop._1, ev1.to(prop._2))
 
-  /** Helper: creates a special AddToEntity for creating a new Partition
+  /** Creates a special [[AddEntity]] for creating a new [[Partition]]
     *
     * {{{
-    * val addPartOp = Datomic.addPartition(Partition(Namespace.DB.PART / "mypart"))
+    * val addPartOp = Fact.partition(Partition(my_ns / "mypart"))
     * }}}
     *
     * @param partition the partition to create
     */
   def partition(partition: Partition) =
     new AddEntity(DId(Partition.DB), Map(
-      Namespace.DB / "ident"              -> DKeyword(partition.keyword),
-      Namespace.DB.INSTALL / "_partition" -> DKeyword(Partition.DB.keyword)
+      Namespace.DB / "ident"              -> partition.keyword,
+      Namespace.DB.INSTALL / "_partition" -> Partition.DB.keyword
     ))
 
 }

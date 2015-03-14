@@ -88,12 +88,11 @@ class AggregatesSpec
      :where [?e :object/name ?name]]
   """)
 
-  val findAvgSchemaNameLength = Query("""
+  val findAvgObjectNameLength = Query("""
     [:find (avg ?length)
      :with ?e
      :where
-     [?e :db/ident ?ident]
-     [(name ?ident) ?name]
+     [?e :object/name ?name]
      [(count ?name) ?length]]
   """)
 
@@ -105,31 +104,31 @@ class AggregatesSpec
   """)
 
   "Aggregates examples" should "run to completion" in withSampleDatomicDB(PlutoSampleData) { conn =>
-    val db = conn.database
+    val db = conn.database()
 
-    Datomic.q(countObjects, db).headOption.value should equal (DLong(17))
+    Datomic.q(countObjects, db).headOption.value should equal (17)
 
-    Datomic.q(findLargestRadius, db).headOption.value should equal (DDouble(696000.0))
+    Datomic.q(findLargestRadius, db).headOption.value should equal (696000.0)
 
-    Datomic.q(findSmallestRadius, db).headOption.value should equal (DDouble(1163.0))
+    Datomic.q(findSmallestRadius, db).headOption.value should equal (1163.0)
 
-    Datomic.q(findAverageRadius, db).headOption.value should equal (DDouble(53390.17647058824))
+    Datomic.q(findAverageRadius, db).headOption.value.asInstanceOf[Double] should equal (53390.176 +- 0.0005)
 
-    Datomic.q(findMedianRadius, db).headOption.value should equal (DDouble(2631.2))
+    Datomic.q(findMedianRadius, db).headOption.value should equal (2631.2)
 
-    Datomic.q(findStdDevOfRadius, db).headOption.value should equal (DDouble(161902.5278094546))
+    Datomic.q(findStdDevOfRadius, db).headOption.value.asInstanceOf[Double] should equal (161902.528 +- 0.0005)
 
     Datomic.q(findRandomObject, db) should have size (1)
 
     Datomic.q(findSmallest3, db).headOption.value match {
-      case DColl(coll) =>
-        coll should contain allOf (DDouble(1163.0), DDouble(1353.4), DDouble(1561.0))
+      case coll: Iterable[_] =>
+        coll should contain allOf (1163.0, 1353.4, 1561.0)
       case _ => fail
     }
 
     Datomic.q(findLargest3, db).headOption.value match {
-      case DColl(coll) =>
-        coll should contain allOf (DDouble(696000.0), DDouble(69911.0), DDouble(58232.0))
+      case coll: Iterable[_] =>
+        coll should contain allOf (696000.0, 69911.0, 58232.0)
       case _ => fail
     }
 
@@ -137,7 +136,7 @@ class AggregatesSpec
 
     Datomic.q(choose5, db) should have size (1)
 
-    Datomic.q(findAvgSchemaNameLength, db).headOption.value should equal (DDouble(5.846153846153846))
+    Datomic.q(findAvgObjectNameLength, db).headOption.value.asInstanceOf[Double] should equal (5.471 +- 0.0005)
 
     Datomic.q(countAttributesAndValueTypesInSchema, db) should have size (1)
   }

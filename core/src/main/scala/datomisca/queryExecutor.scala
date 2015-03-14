@@ -76,9 +76,10 @@ private[datomisca] object QueryExecutor {
   */
 
   private[datomisca] def execute[OutArgs](q: AbstractQuery, in: Seq[AnyRef])(implicit outConv: QueryResultToTuple[OutArgs]): Iterable[OutArgs] = {
-    import scala.collection.JavaConverters._
     new Iterable[OutArgs] {
       private val jColl: ju.Collection[ju.List[AnyRef]] = execQuery(q, in)
+      override def isEmpty = jColl.isEmpty
+      override def size = jColl.size
       override def iterator = new Iterator[OutArgs] {
         private val jIter: ju.Iterator[ju.List[AnyRef]] = jColl.iterator
         override def hasNext = jIter.hasNext

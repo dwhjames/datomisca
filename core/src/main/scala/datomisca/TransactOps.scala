@@ -44,32 +44,13 @@ private[datomisca] trait TransactOps {
     * }
     * }}}
     *
-    * @param ops a sequence of [[Operation]]
+    * @param ops a sequence of [[TxData]]
     * @param connection the implicit [[Connection]]
     * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     *
     */
-  def transact(ops: Seq[Operation])(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
-
-  /** Performs an Datomic async transaction with single operation.
-    *
-    * {{{
-    * Datomic.transact(
-    *   AddToEntity(DId(Partition.USER))(
-    *     person / "name" -> "toto",
-    *     person / "age" -> 30L
-    *   )
-    * )).map{ tx =>
-    *     ...
-    * }
-    * }}}
-    * @param op the [[Operation]]
-    * @param connection the implicit [[Connection]]
-    * @param ex the implicit scala.concurrent.ExecutionContext
-    * @return A future of Transaction Report
-    */
-  def transact(op: Operation)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
+  def transact(ops: TraversableOnce[TxData])(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
 
   /** Performs an Datomic async transaction with multiple operations.
     *
@@ -88,15 +69,14 @@ private[datomisca] trait TransactOps {
     * }
     * }}}
     *
-    * @param op 1st [[Operation]]
-    * @param ops Other [[Operation]]s
+    * @param ops [[TxData]]s
     * @param connection the implicit [[Connection]]
     * @param ex the implicit scala.concurrent.ExecutionContext
     * @return A future of Transaction Report
     */
-  def transact(op: Operation, ops: Operation*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
+  def transact(ops: TxData*)(implicit connection: Connection, ex: ExecutionContext): Future[TxReport] = connection.transact(ops)
 
-  /** Applies a sequence of operations to current database without applying the transaction.
+  /* Applies a sequence of operations to current database without applying the transaction.
     *
     * It's is as if the data was applied in a transaction but the database is unaffected.
     * This is the same as Java `database.with(...)` taking into account `with` is a reserved word in Scala.
@@ -119,5 +99,5 @@ private[datomisca] trait TransactOps {
     * }}}
     *
     */
-  //def withData(ops: Seq[Operation])(implicit connection: Connection): TxReport = connection.database.withData(ops)
+  //def withData(ops: Seq[TxData])(implicit connection: Connection): TxReport = connection.database.withData(ops)
 }

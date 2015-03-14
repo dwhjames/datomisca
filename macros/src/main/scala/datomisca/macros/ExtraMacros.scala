@@ -19,13 +19,18 @@ package macros
 
 import scala.language.experimental.macros
 
+import clojure.lang.Keyword
+
 
 private[datomisca] trait ExtraMacros {
-  /** Macro-based helper to create Datomic keyword using Clojure-style
-    * {{{val kw = KW(":person/name")}}}
+  /** Parse the string representation of a Clojure keyword into a [[Keyword]] object.
     *
-    * @param q the Clojure string
-    * @return parsed [[Keyword]]
+    * Implemented as a macro that generates a keyword literal at compile time.
+    *
+    * {{{val kw = KW(":namespace/name")}}}
+    *
+    * @param str a Clojure keyword as a string
+    * @return a Clojure [[Keyword]]
     */
-  def KW(q: String): Keyword = macro MacroImpl.KWImpl
+  def KW(str: String): Keyword = macro MacroImpl.KWImpl
 }

@@ -33,47 +33,45 @@ object Datomic
      with TransactOps
      with DatomicFacilities
      with QueryExecutor
-     with DatomicTypeWrapper
      with macros.ExtraMacros
 
 /** Provides all Datomic Scala specific facilities
   */
-  private[datomisca] trait DatomicFacilities extends DatomicTypeWrapper{
+private[datomisca] trait DatomicFacilities {
 
   /** Converts any value to a DatomicData given there is the right [[ToDatomicCast]] in the scope
     *
     * {{{
-    * val s: DString = Datomic.toDatomic("toto")
-    * val l: DLong = Datomic.toDatomic("5L")
+    * val s: String = Datomic.toDatomic("toto")
+    * val l: java.lang.Long = Datomic.toDatomic("5L")
     * }}}
     */
-  def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): DatomicData = tdc.to(t)
+  def toDatomic[T](t: T)(implicit tdc: ToDatomicCast[T]): AnyRef = tdc.to(t)
 
   /** converts a DatomicData to a type given there is the right implicit in the scope
     *
     * {{{
-    * val l: String = Datomic.fromDatomic(DString("toto"))
-    * val s: Long = Datomic.fromDatomic(DLong(5L))
+    * val l: String = Datomic.fromDatomic("toto")
+    * val s: Long = Datomic.fromDatomic(5L: java.lang.Long)
     * }}}
     */
-  def fromDatomic[DD <: DatomicData, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
+  def fromDatomic[DD <: AnyRef, T](dd: DD)(implicit fd: FromDatomicInj[DD, T]): T = fd.from(dd)
 
-  /** Helper: creates a [[DColl]] from simple types using DWrapper implicit conversion
+  /** Creates a heterogenous, untyped `java.util.List` from simple types using [[DWrapper]] implicit conversion
     *
     * {{{
-    * val addPartOp = Datomic.coll("toto", 3L, "tata")
+    * val addPartOp = Datomic.list("toto", 3L, "tata")
     * }}}
     *
-    * @param partition the partition to create
     */
-  def coll(dw: DWrapper*) = DColl(dw.map(_.asInstanceOf[DWrapperImpl].underlying))
+  def list(dw: DWrapper*) = datomic.Util.list(dw.map(_.asInstanceOf[DWrapperImpl].underlying):_*).asInstanceOf[java.util.List[AnyRef]]
 
   /** Runtime-based helper to create multiple Datomic Operations (Add, Retract, RetractEntity, AddToEntity)
     * compiled from a Clojure String. '''This is not a Macro so no variable in string and it is evaluated
     * at runtime'''
     *
     * You can then directly copy some Clojure code in a String and get it parsed at runtime. This is why
-    * it returns a `Try[Seq[Operation]]`
+    * it returns a `Try[Seq[TxData]]`
     * It also manages comments.
     *
     * {{{
@@ -101,10 +99,10 @@ object Datomic
     * @param q the Clojure string
     * @return a sequence of operations or an error
     */
-  def parseOps(ops: String): Try[Seq[Operation]] = Try {
+  def parseOps(ops: String): Try[Seq[TxData]] = Try {
     datomic.Util.readAll(new java.io.StringReader(ops)).asInstanceOf[java.util.List[AnyRef]].asScala map { obj =>
-      new Operation {
-        override val toNative = obj
+      new TxData {
+        override val toTxData = obj
       }
     }
   }

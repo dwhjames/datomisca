@@ -1,8 +1,10 @@
-# [Datomisca](http://pellucidanalytics.github.com/datomisca), embrace Datomic the Scala way
+[![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=develop)](https://travis-ci.org/dwhjames/datomisca)
+
+# [Datomisca](https://dwhjames.github.io/datomisca), embrace Datomic the Scala way
 
 ### _A Scala API for [Datomic](http://www.datomic.com)_
 
-Please go to [Datomisca website](http://pellucidanalytics.github.com/datomisca) for full description of the project and its [features](http://pellucidanalytics.github.com/datomisca/doc/features.html), as well as a guide for [getting started](http://pellucidanalytics.github.com/datomisca/doc/getstarted.html) and samples!
+Please go to [Datomisca website](https://dwhjames.github.io/datomisca) for full description of the project and its [features](https://dwhjames.github.io/datomisca/doc/features.html), as well as a guide for [getting started](https://dwhjames.github.io/datomisca/doc/getstarted.html) and samples!
 
 ## <a name="philosophy">The philosophy of Datomisca in a nutshell</a>
 

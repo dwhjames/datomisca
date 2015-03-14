@@ -1,13 +1,10 @@
-*.class
-*.log
 
 # sbt specific
-dist/*
 target/
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
+# local sbt caching
+/project/.boot
+/project/.ivy
+/project/.sbtboot
 
 # Scala-IDE specific
 .scala_dependencies
@@ -17,5 +14,12 @@ project/plugins/project/
 .classpath
 .project
 
+#Intellij Specific
+.idea
+.idea_modules
+
 .DS_Store
+
+Gemfile
+Gemfile.lock
 

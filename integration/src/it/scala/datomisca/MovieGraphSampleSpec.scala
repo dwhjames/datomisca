@@ -88,7 +88,7 @@ class MovieGraphSampleSpec
     val graphNodesTxData = actors ++ movies
 
 
-    def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[Operation]] = Seq(
+    def graphEdgesTxData(tempIds: Map[DId, Long]): Seq[Seq[TxData]] = Seq(
       Seq(
         SchemaFact.add(tempIds(`Carrie-Ann Moss`.id))(actorActs -> tempIds(`The Matrix`.id)),
         SchemaFact.add(DId(Partition.TX))(actorRole -> "Trinity")
@@ -201,19 +201,19 @@ class MovieGraphSampleSpec
       }
     }
 
-    val db = conn.database
+    val db = conn.database()
 
-    Datomic.q(queryFindMovieByTitle, db, DString("The Matrix")) should have size (1)
+    Datomic.q(queryFindMovieByTitle, db, "The Matrix") should have size (1)
 
-    Datomic.q(queryFindMovieByTitlePrefix, db, DString("The Matrix")) should have size (2)
+    Datomic.q(queryFindMovieByTitlePrefix, db, "The Matrix") should have size (2)
 
-    Datomic.q(queryFindActorsInTitle, db, DString("Memento")) should have size (3)
+    Datomic.q(queryFindActorsInTitle, db, "Memento") should have size (3)
 
-    Datomic.q(queryFindTitlesAndRolesForActor, db, DString("Carrie-Ann Moss")) should have size (3)
+    Datomic.q(queryFindTitlesAndRolesForActor, db, "Carrie-Ann Moss") should have size (3)
 
-    Datomic.q(queryFindMoviesThatIncludeActorsInGivenMovie, db, DString("The Matrix Reloaded")) should have size (3)
+    Datomic.q(queryFindMoviesThatIncludeActorsInGivenMovie, db, "The Matrix Reloaded") should have size (3)
 
-    Datomic.q(queryFindAllMoviesWithRole, db, DString("Agent Smith")) should have size (2)
+    Datomic.q(queryFindAllMoviesWithRole, db, "Agent Smith") should have size (2)
 
   }
 }

@@ -1,0 +1,13 @@
+language: scala
+scala:
+- 2.11.5
+- 2.10.4
+jdk:
+- oraclejdk7
+- oraclejdk8
+sudo: false
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+script:
+- sbt ++$TRAVIS_SCALA_VERSION --warn update compile test:compile it:compile && sbt ++$TRAVIS_SCALA_VERSION test it:test && sbt ++$TRAVIS_SCALA_VERSION --warn unidoc

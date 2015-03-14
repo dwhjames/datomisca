@@ -20,29 +20,34 @@ package datomisca
 import scala.concurrent._
 import scala.util.control.NonFatal
 
+import java.{util => ju}
+
 import datomic.ListenableFuture
 
 
-class Connection(
-  val connection: datomic.Connection
-) {
+class Connection(val connection: datomic.Connection) extends AnyVal {
 
-  def database: DDatabase = DDatabase(connection.db())
+  /** Retrieves a value of the database for reading.
+    *
+    * Does not communicate with the transactor, nor block.
+    *
+    * @return the current value of the database.
+    */
+  def database(): Database = new Database(connection.db())
 
-  /**
-    * Used to coordinate with other peers.
+  /** Used to coordinate with other peers.
     *
     * Returns a future that will acquire a
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.  Communicates with the
     * transactor.
     *
-    * db is the preferred way to get a database value, as it does not
-    * need to wait nor block. Only use sync when coordination is
-    * required, and prefer the one-argument version when you have a
-    * basis t.
+    * `database()` is the preferred way to get a database value, as
+    * it does not need to wait nor block. Only use `sync()` when
+    * coordination is required, and you don't have a basis t.
     *
-    * (Copied from the Datomic docs.)
+    * Communicates with the transactor. The future can take
+    * arbitrarily long to complete. Waiters should specify a timeout.
     *
     * @param exec
     *     an implicit execution context.
@@ -50,42 +55,104 @@ class Connection(
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.
     */
-  def sync()(implicit exec: ExecutionContext): Future[DDatabase] =
-    Connection.bridgeDatomicFuture(connection.sync()) map DDatabase.apply
+  def sync()(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.sync()) map (new Database(_))
 
-  /**
-    * Used to coordinate with other peers.
+  /** Used to coordinate with other peers.
     *
     * Returns a future that will acquire a
-    * database value with basisT >= t. Does not communicate with the
-    * transactor.
+    * database value with basisT >= t.
     *
-    * db is the preferred way to get a database value, as it does not
-    * need to wait nor block. Only use sync when coordination is
-    * required, and prefer the one-argument version when you have a
-    * basis t.
+    * `database()` is the preferred way to get a database value,
+    * as it does not need to wait nor block. Only use `sync(t)`
+    * when coordination is required, and prefer over `sync()` when
+    * you have a basis t.
     *
-    * (Copied from the Datomic docs.)
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
     *
     * @param t
-    *     a transaction number.
+    *     a basis t.
     * @param exec
     *     an implicit execution context.
     * @return Returns a future that will acquire a
     * database value guaranteed to include all transactions that were
     * complete at the time sync was called.
     */
-  def sync(t: Long)(implicit exec: ExecutionContext): Future[DDatabase] =
-    Connection.bridgeDatomicFuture(connection.sync(t)) map DDatabase.apply
+  def sync(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.sync(t)) map (new Database(_))
+
+  /** Used to coordinate with background excision.
+    *
+    * Returns a future that will aquire a database value that is aware
+    * of excisions through time <= `t`.
+    *
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
+    *
+    * @param t
+    *     a basis t.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a database value
+    *     that is aware of excisions through time <= `t`.
+    */
+  def syncExcise(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.syncExcise(t)) map (new Database(_))
+
+  /** Used to coordinate with background indexing jobs.
+    *
+    * Returns a future that will acquire a database value that is
+    * indexed through time <= t.
+    *
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
+    *
+    * @param t
+    *     a basis t.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a database value
+    *     that is indexed through time <= t.
+    */
+  def syncIndex(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.syncIndex(t)) map (new Database(_))
+
+  /** Used to coordinate with background schema changes.
+    *
+    * Returns a future that will acquire a database value that is
+    * aware of all schema changes through time <= t.
+    *
+    * Does not communicate with the transactor, so the future may be
+    * available immediately. The future can take arbitrarily long to
+    * complete. Waiters should specify a timeout.
+    *
+    * @param t
+    *     a basis t.
+    * @param exec
+    *     an implicit execution context.
+    * @return Returns a future that will acquire a database value
+    *     that is aware of all schema changes through time <= t.
+    */
+  def syncSchema(t: Long)(implicit exec: ExecutionContext): Future[Database] =
+    Connection.bridgeDatomicFuture(connection.syncSchema(t)) map (new Database(_))
 
 
-  def transact(ops: Seq[Operation])(implicit ex: ExecutionContext): Future[TxReport] = {
-    import scala.collection.JavaConverters._
+  def transact(ops: TraversableOnce[TxData])(implicit ex: ExecutionContext): Future[TxReport] = {
+    val arrayList =
+      if (ops.isInstanceOf[Iterable[TxData]])
+        new ju.ArrayList[AnyRef](ops.size)
+      else
+        new ju.ArrayList[AnyRef]()
 
-    val datomicOps = ops.map( _.toNative ).asJava
+    for (op <- ops)
+      arrayList.add(op.toTxData)
 
     val future = try {
-        Connection.bridgeDatomicFuture(connection.transactAsync(datomicOps))
+        Connection.bridgeDatomicFuture(connection.transactAsync(arrayList))
       } catch {
         case NonFatal(ex) => Future.failed(ex)
       }
@@ -95,14 +162,11 @@ class Connection(
     }
   }
 
-  def transact(op: Operation)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op))
-  def transact(op: Operation, ops: Operation *)(implicit ex: ExecutionContext): Future[TxReport] = transact(Seq(op) ++ ops)
+  def txReportQueue(): TxReportQueue = new TxReportQueue(connection.txReportQueue)
 
-  def txReportQueue: TxReportQueue = new TxReportQueue(connection.txReportQueue)
+  def removeTxReportQueue(): Unit = connection.removeTxReportQueue
 
-  def removeTxReportQueue: Unit = connection.removeTxReportQueue
-
-  def requestIndex: Boolean = connection.requestIndex
+  def requestIndex(): Boolean = connection.requestIndex
 
   def gcStorage(olderThan: java.util.Date): Unit = connection.gcStorage(olderThan)
 
@@ -124,7 +188,7 @@ class Connection(
     *
     * @return the current value of the log.
     */
-  def log(): Log = new Log(connection.log(), database)
+  def log(): Log = new Log(connection.log())
 }
 
 object Connection {
@@ -134,15 +198,17 @@ object Connection {
 
     listenF.addListener(
       new java.lang.Runnable {
-        override def run: Unit =
+        override def run: Unit = {
           try {
             p.success(listenF.get())
           } catch {
             case ex: java.util.concurrent.ExecutionException =>
               p.failure(ex.getCause)
-            case ex: Throwable =>
+            case NonFatal(ex) =>
               p.failure(ex)
           }
+          ()
+        }
       },
       new java.util.concurrent.Executor {
         def execute(arg0: Runnable): Unit = ex.execute(arg0)

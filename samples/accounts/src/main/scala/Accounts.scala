@@ -39,7 +39,7 @@ object AccountsSchema {
            balance     (+ (:account/balance e 0) amount) ]
            (if (>= balance min-balance)
              [[:db/add id :account/balance balance]]
-             (throw (Exception. "Insufficient funds"))))
+             (throw (java.lang.IllegalStateException. "Insufficient funds"))))
     """
   }
   val transferFn = AddTxFunction(fn / "transfer") ("db", "from", "to", "amount") ("clojure") {
@@ -63,27 +63,34 @@ object AccountsSchema {
 
 object AccountsTxData {
   import AccountsSchema._
-  val issuer = SchemaEntity.add(DId(Partition.USER))(Props() +
-    (name       -> "Issuer") +
-    (balance    -> BigDecimal(0)) +
-    (minBalance -> BigDecimal(-1000))
-  )
-  val bob = SchemaEntity.add(DId(Partition.USER))(Props() +
-    (name       -> "Bob") +
-    (balance    -> BigDecimal(0)) +
-    (minBalance -> BigDecimal(0))
-  )
-  val alice = SchemaEntity.add(DId(Partition.USER))(Props() +
-    (name       -> "Alice") +
-    (balance    -> BigDecimal(0)) +
-    (minBalance -> BigDecimal(0))
-  )
+
+  val issuer = (
+    SchemaEntity.newBuilder
+      += (name       -> "Issuer")
+      += (balance    -> BigDecimal(0))
+      += (minBalance -> BigDecimal(-1000))
+  ) withId DId(Partition.USER)
+
+  val bob = (
+    SchemaEntity.newBuilder
+      += (AccountsSchema.name -> "Bob")
+      += (balance             -> BigDecimal(0))
+      += (minBalance          -> BigDecimal(0))
+  ) withId DId(Partition.USER)
+
+  val alice = (
+    SchemaEntity.newBuilder
+      += (AccountsSchema.name -> "Alice")
+      += (balance             -> BigDecimal(0))
+      += (minBalance          -> BigDecimal(0))
+  ) withId DId(Partition.USER)
+
   val sampleTxData = Seq(issuer, bob, alice)
 
-  def transfer(fromAcc: DLong, toAcc: DLong, transAmount: BigDecimal, note: String): Seq[Operation] = {
+  def transfer(fromAcc: Long, toAcc: Long, transAmount: BigDecimal, note: String): Seq[TxData] = {
     val txId = DId(Partition.TX)
     Seq(
-      InvokeTxFunction(transferFn.ident)(fromAcc, toAcc, DBigDec(transAmount)),
+      InvokeTxFunction(transferFn.ident)(fromAcc: java.lang.Long, toAcc: java.lang.Long, transAmount.bigDecimal),
       Entity.add(txId)(
         Datomic.KW(":db/doc") -> note,
         from.ident    -> fromAcc,
@@ -93,8 +100,8 @@ object AccountsTxData {
     )
   }
 
-  def credit(toAcc: DLong, amount: BigDecimal): Operation =
-    InvokeTxFunction(creditFn.ident)(toAcc, DBigDec(amount))
+  def credit(toAcc: Long, amount: BigDecimal): TxData =
+    InvokeTxFunction(creditFn.ident)(toAcc: java.lang.Long, amount.bigDecimal)
 }
 
 object AccountsQueries {
@@ -177,11 +184,11 @@ object Accounts {
     )
 
     val issuerId =
-      Datomic.q(findAccountByName, Datomic.database, DString("Issuer")).head.as[DLong]
+      Datomic.q(findAccountByName, Datomic.database, "Issuer").head.asInstanceOf[Long]
     val bobId =
-      Datomic.q(findAccountByName, Datomic.database, DString("Bob")).head.as[DLong]
+      Datomic.q(findAccountByName, Datomic.database, "Bob").head.asInstanceOf[Long]
     val aliceId =
-      Datomic.q(findAccountByName, Datomic.database, DString("Alice")).head.as[DLong]
+      Datomic.q(findAccountByName, Datomic.database, "Alice").head.asInstanceOf[Long]
 
     Await.result(
       for {
@@ -194,20 +201,22 @@ object Accounts {
       Duration("10 seconds")
     )
 
-    def dumpAcc(eid: DatomicData) {
-      val entity = Datomic.database.entity(eid.asInstanceOf[DLong])
-      println(entity.toMap)
+    val dumpAcc: (Any => Unit) = {
+      case eid: Long =>
+        val entity = Datomic.database.entity(eid)
+        println(entity.toMap)
     }
 
-    def dumpTx(eid: DatomicData) {
-      val entity = Datomic.database.entity(eid.asInstanceOf[DLong])
-      def getName(entity: DEntity, kw: Keyword) =
-        entity.as[DEntity](kw).as[DString](name.ident)
-      println(
-        entity.toMap +
-        (from.ident.toString -> getName(entity, from.ident)) +
-        (to.ident.toString   -> getName(entity, to.ident))
-      )
+    val dumpTx: (Any => Unit) = {
+      case eid: Long =>
+        val entity = Datomic.database.entity(eid)
+        def getName(entity: Entity, kw: Keyword) =
+          entity.as[Entity](kw).as[String](name.ident)
+        println(
+          entity.toMap +
+          (from.ident.toString -> getName(entity, from.ident)) +
+          (to.ident.toString   -> getName(entity, to.ident))
+        )
     }
 
     println("All accounts")
@@ -242,9 +251,11 @@ object Accounts {
         Duration("3 seconds")
       )
     } catch {
-      case ex: Throwable =>
+      case ex: java.lang.IllegalStateException =>
         println("A transaction to transfer 71 from Alice to Bob should fail.")
         println(s"It failed with the message ${ex.getMessage}")
+      case ex: Throwable =>
+        println(s"Unexpected exception $ex")
     }
 
     Datomic.shutdown(true)

@@ -31,10 +31,10 @@ class BindingSpec
        :in ?first ?last]
     """)
 
-    val res = Datomic.q(query, DString("John"), DString("Doe"))
+    val res = Datomic.q(query, "John", "Doe")
 
     res should have size (1)
-    res.head should equal ((DString("John"), DString("Doe")))
+    res.head should equal (("John", "Doe"))
   }
 
   it can "bind tuples" in {
@@ -43,10 +43,10 @@ class BindingSpec
        :in [?first ?last]]
     """)
 
-    val res = Datomic.q(query, DColl(DString("John"), DString("Doe")))
+    val res = Datomic.q(query, Datomic.list("John", "Doe"))
 
     res should have size (1)
-    res.head should equal ((DString("John"), DString("Doe")))
+    res.head should equal (("John", "Doe"))
   }
 
   it can "bind a relation" in {
@@ -57,15 +57,15 @@ class BindingSpec
 
     val res =
       Datomic.q(query,
-        DColl(
-          DColl(DString("John"), DString("Doe")),
-          DColl(DString("Jane"), DString("Doe"))
+        Datomic.list(
+          Datomic.list("John", "Doe"),
+          Datomic.list("Jane", "Doe")
         )
       )
 
     res should have size (2)
-    res should contain ((DString("John"), DString("Doe")))
-    res should contain ((DString("Jane"), DString("Doe")))
+    res should contain (("John", "Doe"))
+    res should contain (("Jane", "Doe"))
   }
 
   it can "bind a database" in {
@@ -76,16 +76,31 @@ class BindingSpec
 
     val res =
       Datomic.q(query,
-        DColl(
-          DColl(DLong(42), DKeyword(Datomic.KW(":first-name")), DString("John")),
-          DColl(DLong(42), DKeyword(Datomic.KW(":last-name")),  DString("Doe")),
-          DColl(DLong(43), DKeyword(Datomic.KW(":first-name")), DString("Jane")),
-          DColl(DLong(43), DKeyword(Datomic.KW(":last-name")),  DString("Doe"))
+        Datomic.list(
+          Datomic.list(42, Datomic.KW(":first-name"), "John"),
+          Datomic.list(42, Datomic.KW(":last-name"),  "Doe"),
+          Datomic.list(43, Datomic.KW(":first-name"), "Jane"),
+          Datomic.list(43, Datomic.KW(":last-name"),  "Doe")
         )
       )
 
     res should have size (2)
-    res should contain (DString("John"))
-    res should contain (DString("Jane"))
+    res should contain ("John")
+    res should contain ("Jane")
   }
+
+  it can "bind a collection of datoms" in withDatomicDB { implicit conn =>
+    val query = Query("""
+        [:find ?e
+         :in $ ?attrId
+         :where [?e ?attrId]]
+      """)
+
+    val ds = conn.database().datoms(Database.AEVT, Attribute.doc)
+
+    val res = Datomic.q(query, ds, conn.database().entid(Attribute.doc))
+
+    res should contain (0)
+  }
+
 }

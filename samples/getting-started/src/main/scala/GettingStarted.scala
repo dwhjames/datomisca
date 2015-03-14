@@ -127,13 +127,13 @@ object GettingStarted {
        * be converted to the Datomic type
        * of the attribute
        */
-      val john = SchemaEntity.add(johnId)(Props() +
-        (PersonSchema.name       -> "John") +
-        (PersonSchema.age        -> 31) +
-        (PersonSchema.birth      -> new JDate) +
-        // Please note that we use Datomic References here
-        (PersonSchema.interests -> Set( PersonSchema.sports, PersonSchema.travel ))
-      )
+      val john = (
+        SchemaEntity.newBuilder
+          += (PersonSchema.name      -> "John")
+          += (PersonSchema.age       -> 31)
+          += (PersonSchema.birth     -> new JDate)
+          += (PersonSchema.interests -> Set(PersonSchema.sports, PersonSchema.travel))
+      ) withId johnId
 
       // tranasact the transaction data for the jane and john entities
       Datomic.transact(jane, john) map { tx =>
@@ -167,7 +167,7 @@ object GettingStarted {
         """)
 
         // execute the query and sort the results by age
-        val results = Datomic.q(queryFindByName, Datomic.database, DLong(32)).toSeq sortBy (_._3.as[Long])
+        val results = Datomic.q(queryFindByName, Datomic.database, 32).toSeq sortBy (_._3.asInstanceOf[Long])
 
         println(s"""Results:
         |${results.mkString("[\n  ", ",\n  ", "\n]")}
@@ -176,7 +176,7 @@ object GettingStarted {
         // map over the results of the query
         results map {
           // extract the values from each query result tuple
-          case (DLong(eid), DString(qname), DLong(qage), DInstant(qbirth)) =>
+          case (eid: Long, qname: String, qage: Long, qbirth: JDate) =>
 
             // load the entity by its entity id
             val entity = Datomic.database.entity(eid)
