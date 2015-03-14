@@ -69,6 +69,10 @@ aggregate in publish        := false
 
 aggregate in publishLocal   := false
 
+aggregate in PgpKeys.publishSigned      := false
+
+aggregate in PgpKeys.publishLocalSigned := false
+
 
 lazy val macros = project in file("macros")
 

@@ -13,3 +13,5 @@ mappings in (Compile, packageSrc) <++=
 publish := ()
 
 publishLocal := ()
+
+publishArtifact := false

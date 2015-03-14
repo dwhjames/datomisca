@@ -19,3 +19,5 @@ libraryDependencies := {
 }
 
 fork in IntegrationTest := true
+
+publishArtifact := false

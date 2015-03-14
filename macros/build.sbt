@@ -10,3 +10,5 @@ unmanagedSourceDirectories in Compile += (sourceDirectory in Compile).value / s"
 publish := ()
 
 publishLocal := ()
+
+publishArtifact := false
