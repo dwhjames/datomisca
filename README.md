@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=develop)](https://travis-ci.org/dwhjames/datomisca)
+[![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=master)](https://travis-ci.org/dwhjames/datomisca) [![Download](https://api.bintray.com/packages/dwhjames/maven/datomisca/images/download.svg) ](https://bintray.com/dwhjames/maven/datomisca/_latestVersion)
 
 # [Datomisca](https://dwhjames.github.io/datomisca), embrace Datomic the Scala way
 
