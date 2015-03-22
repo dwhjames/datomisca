@@ -257,6 +257,7 @@ trait ToDatomicImplicits {
   implicit val dbConv = ToDatomic[datomic.Database, Database](_.underlying)
   implicit val datomConv = ToDatomic[datomic.Datom, Datom](_.underlying)
   implicit val rulesConv = ToDatomic[clojure.lang.IPersistentCollection, QueryRules](_.edn)
+  implicit val logConv = ToDatomic[datomic.Log, Log](_.log)
 
 }
 
