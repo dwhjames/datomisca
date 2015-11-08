@@ -88,13 +88,13 @@ final case class Attribute[DD, Card <: Cardinality](
     if(fulltext.isDefined) mb += Attribute.fulltext -> (fulltext.get: java.lang.Boolean)
     if(isComponent.isDefined) mb += Attribute.isComponent -> (isComponent.get: java.lang.Boolean)
     if(noHistory.isDefined) mb += Attribute.noHistory -> (noHistory.get: java.lang.Boolean)
-    
+
     // installing attribute
     mb += Attribute.installAttr -> Partition.DB.keyword
 
     new AddEntity(id, mb.result())
   }
-  
+
   override def toTxData: AnyRef = toAddOps.toTxData
 
   /** the keyword ident of the attribute as a string */
@@ -130,7 +130,7 @@ final case class Attribute[DD, Card <: Cardinality](
     builder.result()
   }
 
-} 
+}
 
 object Attribute {
   /** :db/id */
@@ -155,4 +155,6 @@ object Attribute {
   val noHistory   = Namespace.DB / "noHistory"
   /** :db.install/_attribute */
   val installAttr = Namespace.DB.INSTALL / "_attribute"
+  /** :db/txInstant */
+  val txInstant   = Namespace.DB / "txInstant"
 }
