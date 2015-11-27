@@ -56,7 +56,7 @@ scala> Query("""
      |       [ :find ?e ?n 
      |         :in $ ?char
      |         :where  [ ?e :person/name ?n ] 
-     |                 [ ?e person/character ?char ]
+     |                 [ ?e :person/character ?char ]
      |       ]
      |     """)
 res0: TypedQueryAuto2[DatomicData,DatomicData,(DatomicData, DatomicData)] = [ :find ?e ?n :in $ ?char :where [?e :person/name ?n] [?e :person/character ?char] ]
