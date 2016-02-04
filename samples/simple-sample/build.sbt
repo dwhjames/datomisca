@@ -1,19 +1,19 @@
 name := "datomisca-simple-sample"
 
-organization := "pellucidanalytics"
+organization := "com.github.dwhjames"
 
 version := "0.7-SNAPSHOT"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.11.7"
 
 fork in test := true
 
 resolvers ++= Seq(
-  "Pellucid Bintray"  at "http://dl.bintray.com/content/pellucid/maven",
+  Resolver.bintrayRepo("dwhjames", "maven"),
   "clojars" at "https://clojars.org/repo"
 )
 
 libraryDependencies ++= Seq(
-  "com.pellucid" %% "datomisca" % "0.7-SNAPSHOT",
-  "com.datomic" % "datomic-free" % "0.8.4260"
+  "com.github.dwhjames" %% "datomisca" % "0.7.0",
+  "com.datomic" % "datomic-free" % "0.9.5344"
 )
