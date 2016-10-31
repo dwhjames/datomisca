@@ -17,10 +17,7 @@
 package datomisca
 
 import scala.collection.JavaConverters._
-import scala.util.{Try, Success, Failure}
-
-import clojure.{lang => clj}
-
+import scala.util.Try
 
 /** Main object containing:
   *    - all Datomic basic functions (Peer, Transactor)

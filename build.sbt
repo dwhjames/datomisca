@@ -3,47 +3,41 @@ organization in ThisBuild := "com.github.dwhjames"
 
 licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-version in ThisBuild := "0.7.0"
+scalaVersion in ThisBuild := "2.11.8"
 
-
-scalaVersion in ThisBuild := "2.11.6"
-
-crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.6")
+// crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.0")
 
 scalacOptions in ThisBuild ++= Seq(
-    "-deprecation",
-    "-encoding", "UTF-8",
-    "-feature",
-    "-unchecked",
-    "-Xfatal-warnings",
-    "-Xfuture",
-    "-Xlint",
-    "-Yno-adapted-args",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-value-discard"
-  )
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-feature",
+  "-unchecked",
+  "-Xfatal-warnings",
+  "-Xfuture",
+  "-Xlint",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-value-discard"
+)
 
 scalacOptions in ThisBuild ++= (
-    if (scalaVersion.value.startsWith("2.10")) Nil
-    else List("-Ywarn-unused-import")
-  )
+  if (scalaVersion.value.startsWith("2.10")) Nil
+  else List("-Ywarn-unused-import")
+)
 
 
 resolvers in ThisBuild ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.typesafeRepo("releases"),
-    "clojars" at "https://clojars.org/repo",
-    "couchbase" at "http://files.couchbase.com/maven2"
-  )
-
+  Resolver.sonatypeRepo("releases"),
+  Resolver.typesafeRepo("releases"),
+  "clojars" at "https://clojars.org/repo",
+  "couchbase" at "http://files.couchbase.com/maven2"
+)
 
 shellPrompt in ThisBuild := CustomShellPrompt.customPrompt
 
-
 // configure publishing to bintray
 bintray.Plugin.bintraySettings
-
 
 lazy val datomisca = project.
   in(file(".")).

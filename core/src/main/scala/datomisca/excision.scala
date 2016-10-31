@@ -16,7 +16,6 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
 import scala.collection.JavaConverters._
 
 import java.util.Date

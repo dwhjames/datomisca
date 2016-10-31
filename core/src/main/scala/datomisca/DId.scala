@@ -16,8 +16,6 @@
 
 package datomisca
 
-import scala.language.existentials
-
 import datomic.Util
 
 sealed trait DId extends Any {
