@@ -2,7 +2,7 @@ import sbtunidoc.Plugin.UnidocKeys._
 import ReleaseTransformations._
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
-organization in ThisBuild := "com.github.dwhjames"
+organization in ThisBuild := "llc.flyingwalrus"
 licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 scalaVersion in ThisBuild := "2.11.8"
 crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
@@ -27,9 +27,10 @@ resolvers in ThisBuild ++= Seq(
 
 lazy val datomisca = project.
   in(file(".")).
-  aggregate(macros, core, tests, integrationTests, docs)
+  aggregate(macros, core, tests, integrationTests)
 
 lazy val tests = project.in(file("tests")).
+  settings(noPublishSettings).
   settings(
     name := "datomisca-tests",
     libraryDependencies ++= Seq(
@@ -42,6 +43,7 @@ lazy val tests = project.in(file("tests")).
   dependsOn(macros, core)
 
 lazy val integrationTests = project.in(file("integration")).
+  settings(noPublishSettings).
   settings(Defaults.itSettings).
   settings(
     name := "datomisca-tests",
