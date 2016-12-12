@@ -17,8 +17,7 @@
 package datomisca
 package macros
 
-import scala.language.experimental.macros
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -140,7 +139,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
   }
 
   def literalMap(coll: clj.IPersistentMap, stk: mutable.Stack[c.Tree]): c.Tree = {
-    val freshName = newTermName(c.fresh("map$"))
+    val freshName = TermName(c.freshName("map$"))
     val builder = List.newBuilder[c.Tree]
     builder += q"val $freshName = new _root_.java.util.HashMap[AnyRef, AnyRef](${coll.count()})"
     for (o <- coll.iterator.asScala) {
@@ -170,7 +169,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
         case 0 => tq"Unit"
         case 1 => tq"Any"
         case n =>
-          val typeName = newTypeName("Tuple" + n)
+          val typeName = TypeName("Tuple" + n)
           val args = List.fill(n)(tq"Any")
           tq"$typeName[..$args]"
       })
@@ -178,10 +177,10 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       Select(
         Select(
           Select(
-            Ident(newTermName("_root_")),
-            newTermName("datomisca")),
-          newTermName("gen")),
-        newTypeName("TypedQuery" + inputSize))
+            Ident(TermName("_root_")),
+            TermName("datomisca")),
+          TermName("gen")),
+        TypeName("TypedQuery" + inputSize))
 
     c.Expr[AbstractQuery](q"new $queryClassName[..$typeArgs]($query)")
   }

@@ -16,9 +16,6 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
-
-
 /** The representation of Datomic attributes
   *
   * @constructor construct an attribute out of an ident, valueType,

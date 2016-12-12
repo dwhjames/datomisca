@@ -17,8 +17,6 @@
 
 package datomisca
 
-import java.util.{Date => JDate}
-
 /** Datomic's database log is a recording of all transaction data in historic
   * order, organized for efficient access by transaction.
   *

@@ -16,11 +16,9 @@
 
 package datomisca.executioncontext
 
-import java.util.concurrent.{ LinkedBlockingQueue, Callable, Executor, ExecutorService, Executors, ThreadFactory, TimeUnit, ThreadPoolExecutor }
-import java.util.Collection
+import java.util.concurrent.{ LinkedBlockingQueue, Executor, ExecutorService, ThreadFactory, TimeUnit, ThreadPoolExecutor }
 import scala.concurrent.forkjoin._
-import scala.concurrent.{ BlockContext, ExecutionContext, Awaitable, CanAwait, ExecutionContextExecutor, ExecutionContextExecutorService }
-import scala.concurrent.duration.Duration
+import scala.concurrent.{ BlockContext, CanAwait, ExecutionContextExecutor }
 import scala.util.control.NonFatal
 
 

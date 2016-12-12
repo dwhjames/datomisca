@@ -222,7 +222,6 @@ class DatomicMappingSpec extends Specification {
     }
 
     "get entity fields from attributes" in {
-      import scala.util.{Try, Success, Failure}
 
       implicit val conn = Datomic.connect(uri)
 

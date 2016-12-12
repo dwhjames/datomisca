@@ -16,9 +16,6 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
-
-
 trait TxData {
   def toTxData: AnyRef
 }
