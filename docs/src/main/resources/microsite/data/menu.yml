@@ -1,0 +1,19 @@
+options:
+
+  - title: Typeclasses
+    url: typeclasses.html
+
+  - title: Features
+    url: features.html
+
+  - title: Building transaction data
+    url: txdata.html
+
+  - title: Getting Started
+    url: gettingstarted.html
+
+  - title: Philosophy
+    url: philosophy.html
+
+  - title: About Us
+    url: about-us.html
