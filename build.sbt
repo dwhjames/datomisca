@@ -62,10 +62,7 @@ lazy val core = project.in(file("core")).
   settings(
     name := "datomisca-core",
     libraryDependencies += datomic,
-    (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.genCore).taskValue,
-    publish := (),
-    publishLocal := (),
-    publishArtifact := false
+    (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.genCore).taskValue
   ).
   dependsOn(macros)
 
