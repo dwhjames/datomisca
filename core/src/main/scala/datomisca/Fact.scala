@@ -16,9 +16,6 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
-
-
 object Fact {
   /** Creates a single assertion about the given entity id `id`.
     *

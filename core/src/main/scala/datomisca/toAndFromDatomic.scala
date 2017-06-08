@@ -114,9 +114,6 @@ import java.{util => ju}
 import java.util.{Date, UUID}
 import java.net.URI
 
-import clojure.{lang => clj}
-
-
 /**
   * Think of FromDatomicInj[DD, T] as a type-level function: DD => T
   * The implicits here construct a multi-parameter type class,

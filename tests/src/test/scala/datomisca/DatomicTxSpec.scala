@@ -20,7 +20,7 @@ import DatomicMapping._
 
 import org.specs2.mutable._
 
-import org.specs2.specification.{Step, Fragments}
+import org.specs2.specification.core.Fragments
 
 import scala.concurrent._
 import ExecutionContext.Implicits.global
@@ -116,7 +116,7 @@ class DatomicTxSpec extends Specification {
     println("Deleted DB")
   }
 
-  override def map(fs: => Fragments) = Step(startDB) ^ fs ^ Step(stopDB)
+  override def map(fs: => Fragments) = step(startDB) ^ fs ^ step(stopDB)
 
   "Datomic Entity Mappings" should {
     "1 - map simple entity" in {

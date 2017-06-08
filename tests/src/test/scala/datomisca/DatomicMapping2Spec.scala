@@ -255,7 +255,6 @@ class DatomicMapping2Spec extends Specification {
     }
 
     "read case class with ID" in {
-      import scala.util.{Try, Success, Failure}
 
       implicit val conn = Datomic.connect(uri)
 
@@ -313,7 +312,6 @@ class DatomicMapping2Spec extends Specification {
     }
 
     "get entity fields from attributes" in {
-      import scala.util.{Try, Success, Failure}
 
       implicit val conn = Datomic.connect(uri)
 

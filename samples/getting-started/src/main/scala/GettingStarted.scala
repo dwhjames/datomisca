@@ -132,7 +132,7 @@ object GettingStarted {
           += (PersonSchema.name      -> "John")
           += (PersonSchema.age       -> 31)
           += (PersonSchema.birth     -> new JDate)
-          += (PersonSchema.interests -> Set(PersonSchema.sports, PersonSchema.travel))
+          ++= (PersonSchema.interests -> Set(PersonSchema.sports, PersonSchema.travel))
       ) withId johnId
 
       // tranasact the transaction data for the jane and john entities

@@ -18,8 +18,6 @@ package datomisca
 
 import functional.CombinatorImplicits
 
-import scala.language.implicitConversions
-
 object DatomicMapping 
   extends CombinatorImplicits
 {
