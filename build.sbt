@@ -2,9 +2,9 @@ import sbtunidoc.Plugin.UnidocKeys._
 import ReleaseTransformations._
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
-organization in ThisBuild := "llc.flyingwalrus"
+organization in ThisBuild := "com.quartethealth"
 licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.12.1"
 crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
 
 val compilerOptions = Seq(
@@ -59,6 +59,7 @@ lazy val integrationTests = project.in(file("integration")).
   configs(IntegrationTest)
 
 lazy val core = project.in(file("core")).
+  settings(noPublishSettings).
   settings(
     name := "datomisca-core",
     libraryDependencies += datomic,
@@ -67,6 +68,7 @@ lazy val core = project.in(file("core")).
   dependsOn(macros)
 
 lazy val macros = project.in(file("macros")).
+  settings(noPublishSettings).
   settings(
     name := "datomisca-macros",
     addCompilerPlugin(paradise),
@@ -120,12 +122,15 @@ val docSettings = baseSettings ++ Seq(
     "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
     "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
   ),
-  git.remoteRepo := "git@github.com:flyingwalrusllc/datomisca.git",
+  git.remoteRepo := "git@github.com:quartethealth/datomisca.git",
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md"
 )
 
-val publishSettings = Seq(
-)
+mappings in (Compile, packageBin) ++= (mappings in (macros, Compile, packageBin)).value
+mappings in (Compile, packageSrc) ++= (mappings in (macros, Compile, packageSrc)).value
+
+mappings in (Compile, packageBin) ++= (mappings in (core, Compile, packageBin)).value
+mappings in (Compile, packageSrc) ++= (mappings in (core, Compile, packageSrc)).value
 
 val noPublishSettings = Seq(
   publish := (),
@@ -133,8 +138,8 @@ val noPublishSettings = Seq(
   publishArtifact := false
 )
 
-def datomic = "com.datomic" % "datomic-free" % "0.9.5544" % Provided
-def specs2 = "org.specs2" %% "specs2" % "2.4.17" % Test
+def datomic = "com.datomic" % "datomic-free" % "0.9.5561" % Provided
+def specs2 = "org.specs2" %% "specs2-core" % "3.8.8" % Test
 def scalatest = "org.scalatest" %% "scalatest" % "3.0.1" % "it"
 def xmlModule = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
 def paradise = "org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full

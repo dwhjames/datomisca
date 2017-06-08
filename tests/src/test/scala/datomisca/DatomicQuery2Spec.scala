@@ -18,7 +18,7 @@ package datomisca
 
 import org.specs2.mutable._
 
-import org.specs2.specification.{Step, Fragments}
+import org.specs2.specification.core.Fragments
 
 import scala.concurrent._
 import scala.concurrent.duration.Duration
@@ -46,7 +46,7 @@ class DatomicQuery2Spec extends Specification {
     println("Deleted DB")
   }
 
-  override def map(fs: => Fragments) = Step(startDB) ^ fs ^ Step(stopDB)
+  override def map(fs: => Fragments) = step(startDB) ^ fs ^ step(stopDB)
 
   "Datomic" should {
     "1 - pure query" in {

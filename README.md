@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=master)](https://travis-ci.org/dwhjames/datomisca) [![Download](https://api.bintray.com/packages/dwhjames/maven/datomisca/images/download.svg) ](https://bintray.com/dwhjames/maven/datomisca/_latestVersion)
+[![Build Status](https://travis-ci.org/dwhjames/datomisca.svg?branch=master)](https://travis-ci.org/dwhjames/datomisca) [ ![Download](https://api.bintray.com/packages/thyming/maven/datomisca/images/download.svg) ](https://bintray.com/dwhjames/maven/datomisca/_latestVersion)
+
+### NOTE: This is a fork of the official, seemingly abandoned repo modified to support scala 2.12. Most of this work was done by https://github.com/flyingwalrusllc/datomisca but this finishes that and publishes it publicly to bintray. 
 
 # [Datomisca](https://dwhjames.github.io/datomisca), embrace Datomic the Scala way
 
