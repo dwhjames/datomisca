@@ -2,10 +2,10 @@ import sbtunidoc.Plugin.UnidocKeys._
 import ReleaseTransformations._
 import com.typesafe.sbt.SbtGhPages.GhPagesKeys._
 
-organization in ThisBuild := "com.quartethealth"
+organization in ThisBuild := "llc.flyingwalrus"
 licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
-scalaVersion in ThisBuild := "2.12.1"
-crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.1")
+scalaVersion in ThisBuild := "2.12.2"
+crossScalaVersions in ThisBuild := Seq("2.11.8", "2.12.2")
 
 val compilerOptions = Seq(
   "-deprecation",
@@ -122,7 +122,7 @@ val docSettings = baseSettings ++ Seq(
     "-sourcepath", baseDirectory.in(LocalRootProject).value.getAbsolutePath,
     "-doc-root-content", (resourceDirectory.in(Compile).value / "rootdoc.txt").getAbsolutePath
   ),
-  git.remoteRepo := "git@github.com:quartethealth/datomisca.git",
+  git.remoteRepo := "git@github.com:flyingwalrusllc/datomisca.git",
   includeFilter in makeSite := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.svg" | "*.js" | "*.swf" | "*.yml" | "*.md"
 )
 
