@@ -1,7 +1,6 @@
 language: scala
 scala:
-- 2.11.8
-- 2.12.1
+- 2.12.2
 jdk:
 - oraclejdk8
 sudo: false
@@ -9,4 +8,4 @@ cache:
   directories:
     - $HOME/.ivy2/cache
 script:
-- sbt ++$TRAVIS_SCALA_VERSION --warn update compile test:compile it:compile && sbt ++$TRAVIS_SCALA_VERSION test it:test && sbt ++$TRAVIS_SCALA_VERSION --warn unidoc
+- sbt ++$TRAVIS_SCALA_VERSION --warn update test:compile it:compile && sbt ++$TRAVIS_SCALA_VERSION test it:test && sbt ++$TRAVIS_SCALA_VERSION --warn makeMicrosite
