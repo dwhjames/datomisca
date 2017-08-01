@@ -8,4 +8,4 @@ cache:
   directories:
     - $HOME/.ivy2/cache
 script:
-- sbt ++$TRAVIS_SCALA_VERSION --warn update test:compile it:compile && sbt ++$TRAVIS_SCALA_VERSION test it:test && sbt ++$TRAVIS_SCALA_VERSION --warn makeMicrosite
+- sbt ++$TRAVIS_SCALA_VERSION --warn update test:compile it:compile && sbt ++$TRAVIS_SCALA_VERSION test it:test
