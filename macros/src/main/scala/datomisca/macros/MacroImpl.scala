@@ -87,7 +87,7 @@ private[datomisca] object MacroImpl {
         val strWithPlaceHolders = c.eval(c.Expr[String](c.untypecheck(partsWithPlaceholders.duplicate)))
         val edn = readEDN(c, strWithPlaceHolders)
         validateCljRules(c, edn)
-        val argsStack = mutable.Stack.concat(args)
+        val argsStack = mutable.ListBuffer.concat(args)
         val helper = new Helper[c.type](c)
         helper.literalQueryRules(helper.literalEDN(edn, argsStack))
 
@@ -135,7 +135,7 @@ private[datomisca] object MacroImpl {
         val partsWithPlaceholders = q"""Seq(..$parts).mkString(" ! ")"""
         val strWithPlaceHolders = c.eval(c.Expr[String](c.untypecheck(partsWithPlaceholders.duplicate)))
         val edn = readEDN(c, strWithPlaceHolders)
-        val argsStack = mutable.Stack.concat(args)
+        val argsStack = mutable.ListBuffer.concat(args)
         val (query, inputSize, outputSize) = validateDatalog(c, edn)
         val helper = new Helper[c.type](c)
         val t = helper.literalEDN(query, argsStack)

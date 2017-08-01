@@ -50,7 +50,7 @@ object ExceptionInfo {
 
   def getData(ex: clj.IExceptionInfo): Map[String, String] = {
     val builder = Map.newBuilder[String, String]
-    var iter = ex.getData.iterator
+    val iter = ex.getData.iterator
     while (iter.hasNext) {
       val entry = iter.next.asInstanceOf[clj.IMapEntry]
       builder += (entry.key.toString -> entry.`val`.toString)

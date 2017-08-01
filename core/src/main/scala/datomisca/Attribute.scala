@@ -52,7 +52,7 @@ final case class Attribute[DD, Card <: Cardinality](
   def withNoHistory(b: Boolean)   = copy( noHistory = Some(b) )
 
   /** Construct the reverse attribute, if this is a reference attribute */
-  def reverse(implicit ev: =:=[DatomicRef.type, DD]): Attribute[DatomicRef.type, Cardinality.many.type] =
+  def reverse(/* implicit ev: =:=[DatomicRef.type, DD]*/): Attribute[DatomicRef.type, Cardinality.many.type] =
     copy(
       ident       = clojure.lang.Keyword.intern(ident.getNamespace, "_" + ident.getName),
       valueType   = SchemaType.ref,
@@ -60,7 +60,7 @@ final case class Attribute[DD, Card <: Cardinality](
     )
 
   /** Construct the reverse attribute, if this is a component reference attribute */
-  def reverseComponent(implicit ev: =:=[DatomicRef.type, DD]): Attribute[DatomicRef.type, Cardinality.one.type] = {
+  def reverseComponent(/* implicit ev: =:=[DatomicRef.type, DD]*/): Attribute[DatomicRef.type, Cardinality.one.type] = {
     require(isComponent.getOrElse(false))
     copy(
       ident       = clojure.lang.Keyword.intern(ident.getNamespace, "_" + ident.getName),

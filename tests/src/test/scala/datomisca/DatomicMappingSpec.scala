@@ -23,7 +23,6 @@ import scala.language.reflectiveCalls
 import org.specs2.mutable._
 
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
