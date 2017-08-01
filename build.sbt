@@ -1,103 +1,110 @@
 
-organization in ThisBuild := "com.github.dwhjames"
+inThisBuild(List(
+  name := "Datomisca",
+  organization := "llc.flyingwalrus",
+  licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0")),
+  scalaVersion := "2.12.3"
+))
 
-licenses in ThisBuild += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
-
-version in ThisBuild := "0.7.0"
-
-
-scalaVersion in ThisBuild := "2.11.6"
-
-crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.6")
-
-scalacOptions in ThisBuild ++= Seq(
-    "-deprecation",
-    "-encoding", "UTF-8",
-    "-feature",
-    "-unchecked",
-    "-Xfatal-warnings",
-    "-Xfuture",
-    "-Xlint",
-    "-Yno-adapted-args",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-value-discard"
-  )
-
-scalacOptions in ThisBuild ++= (
-    if (scalaVersion.value.startsWith("2.10")) Nil
-    else List("-Ywarn-unused-import")
-  )
-
+val compilerOptions = Seq(
+  "-deprecation",
+  "-encoding", "UTF-8",
+  "-feature",
+  "-unchecked",
+  "-Xfatal-warnings",
+  "-Xfuture",
+  "-Xlint",
+  "-Yno-adapted-args",
+  "-Ywarn-dead-code",
+  "-Ywarn-numeric-widen",
+  "-Ywarn-value-discard"
+)
 
 resolvers in ThisBuild ++= Seq(
-    Resolver.sonatypeRepo("releases"),
-    Resolver.typesafeRepo("releases"),
-    "clojars" at "https://clojars.org/repo",
-    "couchbase" at "http://files.couchbase.com/maven2"
-  )
-
-
-shellPrompt in ThisBuild := CustomShellPrompt.customPrompt
-
-
-// configure publishing to bintray
-bintray.Plugin.bintraySettings
-
+  "clojars" at "https://clojars.org/repo"
+)
 
 lazy val datomisca = project.
   in(file(".")).
   aggregate(macros, core, tests, integrationTests)
 
-// needed for aggregated build
-MacroSettings.settings
-
-libraryDependencies += Dependencies.Compile.datomic
-
-// disable some aggregation tasks for subprojects
-aggregate in doc            := false
-
-aggregate in Keys.`package` := false
-
-aggregate in packageBin     := false
-
-aggregate in packageDoc     := false
-
-aggregate in packageSrc     := false
-
-aggregate in publish        := false
-
-aggregate in publishLocal   := false
-
-aggregate in PgpKeys.publishSigned      := false
-
-aggregate in PgpKeys.publishLocalSigned := false
-
-
-lazy val macros = project in file("macros")
-
-// map macros project classes and sources into root project
-mappings in (Compile, packageBin) <++= mappings in (macros, Compile, packageBin)
-
-mappings in (Compile, packageSrc) <++= mappings in (macros, Compile, packageSrc)
-
-
-lazy val core = project.
-  in(file("core")).
-  dependsOn(macros)
-
-// map core project classes and sources into root project
-mappings in (Compile, packageBin) <++= mappings in (core, Compile, packageBin)
-
-mappings in (Compile, packageSrc) <++= mappings in (core, Compile, packageSrc)
-
-
-lazy val tests = project.
-  in(file("tests")).
+lazy val tests = project.in(file("tests")).
+  settings(noPublishSettings).
+  settings(
+    name := "datomisca-tests",
+    libraryDependencies ++= Seq(
+      datomic,
+      specs2
+    ),
+    fork in Test := true,
+    publishArtifact := false
+  ).
   dependsOn(macros, core)
 
-
-lazy val integrationTests = project.
-  in(file("integration")).
+lazy val integrationTests = (project in file("integration")).
+  settings(noPublishSettings).
+  settings(Defaults.itSettings).
+  settings(
+    name := "datomisca-tests",
+    libraryDependencies ++= Seq(
+      datomic,
+      scalatest,
+      xmlModule
+    ),
+    fork in IntegrationTest := true,
+    publishArtifact := false
+  ).
   dependsOn(macros, core).
   configs(IntegrationTest)
+
+lazy val core = project.in(file("core")).
+  settings(
+    name := "datomisca-core",
+    baseSettings,
+    libraryDependencies += datomic,
+    (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.genCore).taskValue
+  ).
+  dependsOn(macros)
+
+lazy val macros = project.in(file("macros")).
+  settings(
+    name := "datomisca-macros",
+    addCompilerPlugin(paradise),
+    baseSettings,
+    libraryDependencies ++= Seq(
+      datomic,
+      reflect(scalaVersion.value)
+    )
+  )
+
+lazy val docs = project.in(file("docs")).
+  settings(
+    name := "Datomisca Docs",
+    moduleName := "datomisca-docs"
+  ).
+  settings(docSettings).
+  settings(noPublishSettings).
+  settings(addCompilerPlugin(paradise)).
+  dependsOn(core, macros).
+  enablePlugins(MicrositesPlugin)
+
+val baseSettings = Seq(
+  scalacOptions ++= compilerOptions
+)
+
+val docSettings = baseSettings ++ Seq()
+
+val publishSettings = Seq()
+
+val noPublishSettings = Seq(
+  publish := (),
+  publishLocal := (),
+  publishArtifact := false
+)
+
+def datomic = "com.datomic" % "datomic-free" % "0.9.5561.54" % Provided
+def specs2 = "org.specs2" %% "specs2" % "2.4.17" % Test
+def scalatest = "org.scalatest" %% "scalatest" % "3.0.3" % "it"
+def xmlModule = "org.scala-lang.modules" %% "scala-xml" % "1.0.6"
+def paradise = "org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch
+def reflect(vers: String)  = "org.scala-lang" % "scala-reflect" % vers

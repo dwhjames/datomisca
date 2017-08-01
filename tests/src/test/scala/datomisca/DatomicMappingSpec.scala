@@ -23,7 +23,6 @@ import scala.language.reflectiveCalls
 import org.specs2.mutable._
 
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
@@ -222,7 +221,6 @@ class DatomicMappingSpec extends Specification {
     }
 
     "get entity fields from attributes" in {
-      import scala.util.{Try, Success, Failure}
 
       implicit val conn = Datomic.connect(uri)
 

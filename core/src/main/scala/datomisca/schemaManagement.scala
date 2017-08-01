@@ -16,8 +16,6 @@
 
 package datomisca
 
-import scala.language.reflectiveCalls
-
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Try
 

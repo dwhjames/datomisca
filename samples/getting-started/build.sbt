@@ -1,17 +1,13 @@
 name := "datomisca-getting-started"
 
-organization := "pellucidanalytics"
+version := "0.1"
 
-version := "0.7-SNAPSHOT"
+scalaVersion := "2.11.8"
+crossScalaVersions := Seq("2.11.8","2.12.1")
 
-scalaVersion := "2.10.2"
-
-resolvers ++= Seq(
-  "Pellucid Bintray"  at "http://dl.bintray.com/content/pellucid/maven",
-  "clojars" at "https://clojars.org/repo"
-)
+resolvers += "clojars" at "https://clojars.org/repo"
 
 libraryDependencies ++= Seq(
-  "com.pellucid" %% "datomisca" % "0.7-SNAPSHOT",
-  "com.datomic" % "datomic-free" % "0.8.4260"
+  "llc.flyingwalrus" %% "datomisca-core" % "0.7.1-SNAPSHOT",
+  "com.datomic" % "datomic-free" % "0.9.5544"
 )

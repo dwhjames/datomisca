@@ -17,8 +17,7 @@
 package datomisca
 package macros
 
-import scala.language.experimental.macros
-import scala.reflect.macros.Context
+import scala.reflect.macros.whitebox.Context
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -34,7 +33,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
   private def abortWithMessage(message: String) =
     c.abort(c.enclosingPosition, message)
 
-  def literalEDN(edn: Any, stk: mutable.Stack[c.Tree] = mutable.Stack.empty[c.Tree]): c.Tree =
+  def literalEDN(edn: Any, stk: mutable.ListBuffer[c.Tree] = mutable.ListBuffer.empty[c.Tree]): c.Tree =
     edn match {
       case b: java.lang.Boolean =>
         literalBoolean(b)
@@ -76,12 +75,13 @@ private[datomisca] class Helper[C <: Context](val c: C) {
     q"new _root_.java.lang.Boolean(${b.booleanValue})"
 
 
-  def literalCljSymbol(s: clj.Symbol, stk: mutable.Stack[c.Tree]): c.Tree = {
+  def literalCljSymbol(s: clj.Symbol, stk: mutable.ListBuffer[c.Tree]): c.Tree = {
     val m = s.meta
     if (m == null) {
       if (s.getName() == "!")
         try {
-          val t = stk.pop()
+          val t = stk.head
+          stk -= t
           if (t.tpe =:= typeOf[String]) {
             q"""_root_.datomic.Util.read("\"%s\"".format($t))"""
           } else {
@@ -128,19 +128,19 @@ private[datomisca] class Helper[C <: Context](val c: C) {
     q"_root_.java.lang.Character.valueOf(${char.charValue()})"
 
 
-  def literalVector(coll: clj.PersistentVector, stk: mutable.Stack[c.Tree]): c.Tree = {
+  def literalVector(coll: clj.PersistentVector, stk: mutable.ListBuffer[c.Tree]): c.Tree = {
     val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
     q"_root_.clojure.lang.PersistentVector.create(_root_.java.util.Arrays.asList(..$args))"
   }
 
 
-  def literalList(coll: clj.PersistentList, stk: mutable.Stack[c.Tree]): c.Tree = {
+  def literalList(coll: clj.PersistentList, stk: mutable.ListBuffer[c.Tree]): c.Tree = {
     val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
     q"_root_.clojure.lang.PersistentList.create(_root_.java.util.Arrays.asList(..$args))"
   }
 
-  def literalMap(coll: clj.IPersistentMap, stk: mutable.Stack[c.Tree]): c.Tree = {
-    val freshName = newTermName(c.fresh("map$"))
+  def literalMap(coll: clj.IPersistentMap, stk: mutable.ListBuffer[c.Tree]): c.Tree = {
+    val freshName = TermName(c.freshName("map$"))
     val builder = List.newBuilder[c.Tree]
     builder += q"val $freshName = new _root_.java.util.HashMap[AnyRef, AnyRef](${coll.count()})"
     for (o <- coll.iterator.asScala) {
@@ -154,7 +154,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
   }
 
 
-  def literalSet(coll: clj.PersistentHashSet, stk: mutable.Stack[c.Tree]): c.Tree = {
+  def literalSet(coll: clj.PersistentHashSet, stk: mutable.ListBuffer[c.Tree]): c.Tree = {
     val args = coll.iterator.asScala.map(literalEDN(_, stk)).toList
     q"_root_.clojure.lang.PersistentHashSet.create(java.util.Arrays.asList(..$args))"
   }
@@ -170,7 +170,7 @@ private[datomisca] class Helper[C <: Context](val c: C) {
         case 0 => tq"Unit"
         case 1 => tq"Any"
         case n =>
-          val typeName = newTypeName("Tuple" + n)
+          val typeName = TypeName("Tuple" + n)
           val args = List.fill(n)(tq"Any")
           tq"$typeName[..$args]"
       })
@@ -178,10 +178,10 @@ private[datomisca] class Helper[C <: Context](val c: C) {
       Select(
         Select(
           Select(
-            Ident(newTermName("_root_")),
-            newTermName("datomisca")),
-          newTermName("gen")),
-        newTypeName("TypedQuery" + inputSize))
+            Ident(TermName("_root_")),
+            TermName("datomisca")),
+          TermName("gen")),
+        TypeName("TypedQuery" + inputSize))
 
     c.Expr[AbstractQuery](q"new $queryClassName[..$typeArgs]($query)")
   }

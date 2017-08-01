@@ -21,7 +21,6 @@ import org.specs2.mutable._
 import org.specs2.specification.{Step, Fragments}
 
 import scala.concurrent._
-import ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
 
